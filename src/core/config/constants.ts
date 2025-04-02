@@ -1,0 +1,16 @@
+export enum API_ROUTES {
+    login = "/auth/login",
+    register = "/auth/signup",
+    logout = "/auth/logout",
+    forgotPassword = "/auth/forgot-password",
+    createNewPassword = "/auth/create-new-password",
+    refreshToken = "/auth/refresh",
+    post = "/api/post",
+    posts = "/api/post/all",
+    refresh = "/api/refresh",
+    getInviteData = "/user/invite",
+    completeUserInvitation = "/user/invite/complete-invitation",
+    segmentTrack = "/segment/track",
+    loginOAuth = "/auth/oauth",
+    checkForEmailExistence = "/user/email",
+}

@@ -1,0 +1,33 @@
+version: '3'
+
+services:
+  kodus-web:
+    build:
+      context: .
+      dockerfile: Dockerfiles/Dockerfile.dev
+    ports:
+      - "${WEB_PORT}:${WEB_PORT}"
+    env_file:
+      - .env
+    volumes:
+      - .:/usr/src/app:delegated
+      - /usr/src/app/node_modules
+      - /usr/src/app/.next
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    networks:
+      - kodus-backend-services
+      - shared-network
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+
+networks:
+  kodus-backend-services:
+    external: true
+  shared-network:
+    external: true

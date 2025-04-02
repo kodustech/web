@@ -1,0 +1,17 @@
+.header {
+    @apply flex w-full flex-col gap-3 md:gap-5 lg:mt-12 lg:w-[80%] xl:w-[70%];
+}
+
+.backButton {
+    @apply rotate-180 transition-all duration-200
+     hover:cursor-pointer hover:brightness-200
+     active:rounded-[5px] active:ring-1 active:ring-[#fff]/20;
+}
+
+.title {
+    @apply text-start text-[20px] font-normal tracking-[0.2em] md:text-[24px];
+}
+
+.subTitle {
+    @apply -mt-2 text-[14px] md:text-[16px];
+}

@@ -1,0 +1,53 @@
+.contentRoot {
+    @apply col-span-10 flex w-[100%] flex-col lg:w-[874px];
+}
+
+.root {
+    @apply flex flex-col gap-3 md:gap-5 lg:mt-12;
+}
+
+/* Header styles */
+.header {
+    @apply flex flex-col gap-3 md:gap-5 lg:mt-12;
+}
+
+.backButton {
+    @apply rotate-180 transition-all duration-200
+     hover:cursor-pointer hover:brightness-200
+     active:rounded-[5px] active:ring-1 active:ring-[#fff]/20;
+}
+
+.title {
+    @apply text-start text-[20px] font-normal tracking-[0.1em] md:text-[24px];
+    font-family: "Roboto Mono", monospace;
+}
+
+.subTitle {
+    @apply mb-2 text-[14px] font-normal md:text-[16px];
+    font-family: "Inter";
+}
+
+/* Board styles */
+.selectsRoot {
+    @apply mb-10 mt-10 w-full;
+}
+
+.scroll::-webkit-scrollbar {
+    width: 12px;
+    background: #14121733;
+    border-radius: 10px;
+}
+
+.scroll::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #935c2d;
+    border: 4px solid #302539;
+}
+
+.ellipsis {
+    max-width: 16ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+

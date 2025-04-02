@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    @apply m-0 leading-[normal];
+}
+
+*,
+::before,
+::after {
+    border-width: 0;
+}
+
+@layer base {
+
+    /* for current theme */
+    :root {
+        --background: 264 12% 8%;
+        --foreground: 210 40% 98%;
+
+        --muted: 217.2 32.6% 17.5%;
+        --muted-foreground: 254 59% 90%;
+
+        --popover: 222.2 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+
+        --card: 265 26% 14%;
+        --card-foreground: 210 40% 98%;
+
+        --border: 255 30.7% 49.2%;
+        --input: 217.2 32.6% 17.5%;
+
+        --primary: 210 40% 98%;
+        --primary-foreground: 0 0% 12.9%;
+
+        --secondary: 32 91.4% 54.3%;
+        --secondary-foreground: 0 0% 12.9%;
+
+        --accent: 217.2 32.6% 17.5%;
+        --accent-foreground: 210 40% 98%;
+
+        --destructive: 353 70% 49%;
+        --destructive-foreground: 210 40% 98%;
+
+        --ring: 32 91.4% 54.3%;
+
+        --success: 151 77.2% 42.9%;
+        --success-foreground: 210 40% 98%;
+
+        --brand-purple: 255 30.7% 49.2%;
+        --brand-purple-foreground: 210 40% 98%;
+
+        --brand-red: 0 83.7% 61.6%;
+        --brand-red-foreground: 210 40% 98%;
+
+        --brand-orange: 32 91.4% 54.3%;
+        --brand-orange-foreground: 0 0% 12.9%;
+
+        --radius: 7px;
+    }
+}
+
+@layer base {
+
+    *,
+    input,
+    a,
+    button {
+        @apply border-border border-opacity-20 font-sans font-normal ring-ring outline-none disabled:cursor-not-allowed disabled:opacity-40;
+    }
+
+    body {
+        @apply bg-background text-foreground h-screen w-screen overflow-hidden;
+    }
+}
+
+@layer utilities {
+    .bg-gradient {
+        @apply bg-gradient-to-r from-brand-purple via-brand-red to-brand-orange;
+    }
+
+}

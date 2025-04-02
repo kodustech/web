@@ -1,0 +1,27 @@
+import type { OptionsType } from "cookies-next/client";
+import {
+    deleteCookie,
+    getCookie,
+    hasCookie,
+    setCookie,
+} from "cookies-next/client";
+
+export type CookieName =
+    | "cockpit-selected-date-range"
+    | "global-selected-team-id"
+    | "started-setup-from-new-setup-page"
+    | "selectedTeam"
+    | "onboarding-selected-pr-for-code-review"
+    | "trial-finished-modal-closed";
+
+export const ClientSideCookieHelpers = (
+    key: CookieName,
+    options?: OptionsType,
+) => {
+    return {
+        has: () => hasCookie(key, options),
+        get: () => getCookie(key, options),
+        set: (value: string) => setCookie(key, value, options),
+        delete: () => deleteCookie(key, options),
+    };
+};

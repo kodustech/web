@@ -1,0 +1,20 @@
+# Estágio de Produção
+FROM node:lts-alpine AS Homolog
+
+RUN apk update && apk add --no-cache curl
+
+WORKDIR /usr/src/app
+
+EXPOSE 3000
+
+# Copie o restante do código-fonte
+COPY . .
+
+# Copie apenas os arquivos necessários para instalar as dependências
+COPY package*.json ./
+
+# Instale apenas as dependências de produção
+RUN yarn install && yarn build
+
+# Comando de inicialização para produção
+CMD ["yarn", "start"]

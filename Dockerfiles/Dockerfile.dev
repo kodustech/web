@@ -1,0 +1,24 @@
+# Estágio de Desenvolvimento
+FROM node:lts-alpine AS development
+
+RUN apk update && apk add --no-cache curl
+
+WORKDIR /usr/src/app
+
+# expor port
+EXPOSE 3000
+
+# Defina a variável de ambiente NODE_ENV para "development"
+ENV WEB_NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Copie apenas os arquivos necessários para instalar as dependências
+COPY package*.json ./
+
+# Instale as dependências
+RUN yarn install
+
+# Não fazer build aqui, deixar para o desenvolvimento
+
+# Comando de inicialização para desenvolvimento
+CMD ["yarn", "start:dev"]

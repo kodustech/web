@@ -1,0 +1,23 @@
+# Estágio de Produção
+FROM node:lts-alpine AS production
+
+RUN apk update && apk add --no-cache curl
+
+WORKDIR /usr/src/app
+
+EXPOSE 3000
+
+# Defina a variável de ambiente NODE_ENV para "production"
+ENV WEB_NODE_ENV=production
+
+# Copie o restante do código-fonte
+COPY . .
+
+# Copie apenas os arquivos necessários para instalar as dependências
+COPY package*.json ./
+
+# Instale apenas as dependências de produção
+RUN yarn install && yarn build
+
+# Comando de inicialização para produção
+CMD ["yarn", "start"]

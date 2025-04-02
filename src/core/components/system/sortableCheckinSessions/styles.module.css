@@ -1,0 +1,15 @@
+.sortableList {
+    @apply flex flex-col gap-3;
+}
+
+.sortableItem {
+    @apply px-4 py-2 border-brand-purple bg-[#382A41] rounded-lg flex flex-row gap-3 cursor-grab items-center z-50;
+}
+
+.listTitle {
+    @apply font-bold text-lg;
+}
+
+.listDescription {
+    @apply text-sm;
+}

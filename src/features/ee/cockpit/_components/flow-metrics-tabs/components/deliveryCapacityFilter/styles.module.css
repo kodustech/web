@@ -1,0 +1,12 @@
+.filterStyleCard {
+    @apply p-4 border transition-colors hover:bg-[#382A41] hover:border-[#6A57A4] bg-[#292031] border-[#6A57A433] cursor-pointer rounded-xl;
+}
+
+.filterStyleCardSelected {
+    @apply p-4 border transition-colors bg-[#382A41] border-[#6A57A4] cursor-pointer rounded-xl;
+}
+
+.title {
+    @apply text-start text-[20px] font-normal tracking-[0.1em] md:text-[24px];
+    font-family: "Roboto Mono", monospace;
+}

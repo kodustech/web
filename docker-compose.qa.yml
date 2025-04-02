@@ -1,0 +1,10 @@
+version: '3'
+
+services:
+  kodus-web:
+    image: ${IMAGE_NAME}
+    container_name: ${CONTAINER_NAME}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+

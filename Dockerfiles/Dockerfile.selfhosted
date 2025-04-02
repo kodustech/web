@@ -1,0 +1,20 @@
+# Dockerfile para implantação self-hosted
+FROM node:lts-alpine
+
+# Instalar dependências básicas
+RUN apk update && apk add --no-cache curl
+
+WORKDIR /usr/src/app
+
+# Expor porta da aplicação
+EXPOSE 3000
+
+# Copiar todo o código fonte
+COPY . .
+
+# Não executamos build ou install aqui
+# Isso será feito em runtime para garantir acesso às variáveis de ambiente
+
+# Script de inicialização que executa install, build e start
+# Isso garante que as variáveis de ambiente estejam disponíveis durante o build
+CMD ["sh", "-c", "yarn install && yarn build && yarn start"] 
