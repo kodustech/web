@@ -101,6 +101,13 @@ jobs:
                   echo "::add-mask::$ip"
                   echo "runner_ip=$ip" >> $GITHUB_ENV
 
+            - uses: actions/checkout@v4
+              with:
+                fetch-depth: 0
+
+            - name: Listar arquivos em .github/scripts
+              run: ls -la .github/scripts
+
             - name: Make update-sg.sh executable
               run: chmod +x .github/scripts/update-sg.sh
 
