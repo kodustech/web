@@ -53,7 +53,6 @@ export default function GithubIntegrationClient() {
 
             <div className="flex gap-4">
                 <Button
-                    variant={null}
                     className="focus:ring-brand-orange/20 min-h-[50px] w-[150px] rounded-[5px] bg-[#382A41] text-[18px] font-semibold text-white transition-all duration-150 hover:brightness-110 focus:ring-1"
                     onClick={loginToDoIntegration}>
                     Login

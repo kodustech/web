@@ -8,7 +8,6 @@ export function ChooseBoardButton() {
 
     return (
         <Button
-            variant={null}
             className="focus:ring-brand-orange/20 min-h-[50px] w-full rounded-[5px] bg-[#382A41] text-[16px] font-normal tracking-[0.08em] text-white transition-all duration-150 hover:brightness-110 focus:ring-1 md:w-[250px]"
             onClick={() => {
                 router.push(`/setup/configuration/azure-boards?edit=${true}`);
