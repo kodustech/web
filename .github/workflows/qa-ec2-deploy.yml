@@ -56,7 +56,7 @@ jobs:
 
                   echo GLOBAL_SLACK_HOSTNAME=$(aws ssm get-parameter --name /qa/kodus-web/GLOBAL_SLACK_HOSTNAME --query 'Parameter.Value' --output text) >> .env
                   echo WEB_CONNECTION_DISCORD=$(aws ssm get-parameter --name /qa/kodus-web/WEB_CONNECTION_DISCORD --query 'Parameter.Value' --output text) >> .env
-                  echo WEB_DISCORD_HOSTNAME=$(aws ssm get-parameter --name /qa/kodus-web/WEB_DISCORD_HOSTNAME --query 'Parameter.Value' --output text) >> .env
+                  echo GLOBAL_DISCORD_HOSTNAME=$(aws ssm get-parameter --name /qa/kodus-web/GLOBAL_DISCORD_HOSTNAME --query 'Parameter.Value' --output text) >> .env
                   echo AZURE_REPOS_HOSTNAME=$(aws ssm get-parameter --name /qa/kodus-web/AZURE_REPOS_HOSTNAME --query 'Parameter.Value' --output text) >> .env
 
                   echo WEB_OAUTH_GITLAB_CLIENT_ID=$(aws ssm get-parameter --name /qa/kodus-web/WEB_OAUTH_GITLAB_CLIENT_ID --query 'Parameter.Value' --output text) >> .env

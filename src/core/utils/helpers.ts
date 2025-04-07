@@ -43,7 +43,7 @@ export function pathToSlackApiUrl(path: API_ROUTES | string): string {
 export function pathToDiscordApiUrl(path: API_ROUTES | string): string {
     invariant(path, "Api path doesn't exist");
 
-    const serviceUrl = process.env.GLOBAL_KODUS_SERVICE_DISCORD;
+    const serviceUrl = process.env.GLOBAL_DISCORD_HOSTNAME;
     invariant(serviceUrl, "Discord service URL is not configured");
 
     return `${serviceUrl}${path}`;
