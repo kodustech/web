@@ -54,7 +54,7 @@ export const FinishedTrialModal = () => {
                                 target="_blank"
                                 href={
                                     process.env
-                                        .NEXT_PUBLIC_SUPPORT_TALK_TO_FOUNDER_URL ??
+                                        .WEB_SUPPORT_TALK_TO_FOUNDER_URL ??
                                     ""
                                 }>
                                 talk with our team
