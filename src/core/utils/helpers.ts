@@ -34,8 +34,25 @@ export function pathToApiUrl(
 export function pathToSlackApiUrl(path: API_ROUTES | string): string {
     invariant(path, "Api path doesn't exist");
 
-    const hostName = process.env.GLOBAL_SLACK_HOSTNAME;
-    const port = process.env.WEB_SLACK_PORT_API;
+    const defaultSlackHostname = "https://slack.com/api";
+    const hostName = process.env.GLOBAL_SLACK_HOSTNAME || defaultSlackHostname;
+
+    if (!process.env.GLOBAL_SLACK_HOSTNAME) {
+        console.warn(
+            "Warning: Slack hostname is not configured. Using default:",
+            defaultSlackHostname,
+        );
+    }
+
+    const defaultSlackPort = "";
+    const port = process.env.WEB_SLACK_PORT_API || defaultSlackPort;
+
+    if (!process.env.WEB_SLACK_PORT_API) {
+        console.warn(
+            "Warning: Slack port is not configured. Using default:",
+            defaultSlackPort,
+        );
+    }
 
     return createUrl(hostName, port, path, false);
 }
@@ -43,8 +60,15 @@ export function pathToSlackApiUrl(path: API_ROUTES | string): string {
 export function pathToDiscordApiUrl(path: API_ROUTES | string): string {
     invariant(path, "Api path doesn't exist");
 
-    const serviceUrl = process.env.GLOBAL_KODUS_SERVICE_DISCORD;
-    invariant(serviceUrl, "Discord service URL is not configured");
+    const defaultDiscordUrl = "https://discord.com/api";
+    const serviceUrl = process.env.GLOBAL_DISCORD_HOSTNAME || defaultDiscordUrl;
+
+    if (!process.env.GLOBAL_DISCORD_HOSTNAME) {
+        console.warn(
+            "Warning: Discord service URL is not configured. Using default:",
+            defaultDiscordUrl,
+        );
+    }
 
     return `${serviceUrl}${path}`;
 }

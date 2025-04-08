@@ -163,8 +163,6 @@ const WithEmail = () => {
                 redirectTo: "/setup",
             });
         } catch (err: TODO) {
-            console.log(err);
-
             if (err?.response?.status === 409) {
                 if (err?.response?.data?.error_key === "DUPLICATE_USER_EMAIL") {
                     form.setError("email", {

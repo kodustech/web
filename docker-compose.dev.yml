@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   kodus-web:
     build:
@@ -23,6 +21,7 @@ services:
       - kodus-backend-services
       - shared-network
     environment:
+      - CHOKIDAR_USEPOLLING=true
       - NODE_ENV=development
       - NEXT_TELEMETRY_DISABLED=1
 

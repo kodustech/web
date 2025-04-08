@@ -1,13 +1,20 @@
+let withBundleAnalyzer = (config) => config;
+
+if (process.env.ANALYZE === "true") {
+    // Só carrega o bundle analyzer se a variável ANALYZE for 'true'
+    withBundleAnalyzer = require("@next/bundle-analyzer")({
+        enabled: true,
+    });
+}
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     typescript: {
         ignoreBuildErrors: true,
     },
-
     eslint: {
         ignoreDuringBuilds: true,
     },
-
     images: {
         remotePatterns: [
             {
@@ -24,25 +31,6 @@ const nextConfig = {
             },
         ],
     },
-
-    // async headers() {
-    //     return [
-    //         {
-    //             source: "/:path*",
-    //             headers: [
-    //                 // {
-    //                 //     key: "Cross-Origin-Embedder-Policy",
-    //                 //     value: "require-corp",
-    //                 // },
-    //                 // {
-    //                 //     key: "Cross-Origin-Opener-Policy",
-    //                 //     value: "same-origin",
-    //                 // },
-    //             ],
-    //         },
-    //     ];
-    // },
-
     async rewrites() {
         return [
             {
@@ -131,9 +119,7 @@ const nextConfig = {
             },
         ];
     },
-
     reactStrictMode: true,
-
     env: {
         WEB_NODE_ENV: process.env.WEB_NODE_ENV,
         WEB_HOSTNAME_API: process.env.WEB_HOSTNAME_API,
@@ -166,4 +152,4 @@ const nextConfig = {
     },
 };
 
-module.exports = nextConfig;
+module.exports = withBundleAnalyzer(nextConfig);

@@ -49,3 +49,4 @@ next-env.d.ts
 # yarn novo
 .yarnrc.yml
 .yarn
+.secrets

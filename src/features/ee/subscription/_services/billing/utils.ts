@@ -42,7 +42,6 @@ export const billingFetch = async <Data>(
 
         return response.json();
     } catch (error) {
-        console.log("Erro na chamada billingFetch:", error);
         return null as Data;
     }
 };
