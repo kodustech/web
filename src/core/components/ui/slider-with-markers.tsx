@@ -67,7 +67,7 @@ export const SliderWithMarkers = forwardRef<
                     ))}
                 </div>
 
-                <SliderPrimitive.Thumb className="block h-5 w-5 rounded-full border-2 border-primary bg-[hsl(var(--slider-marker-background-active))] shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50" />
+                <SliderPrimitive.Thumb className="block h-5 w-5 rounded-full border-2 border-primary bg-[hsl(var(--slider-marker-background-active))] shadow-sm transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50" />
             </SliderPrimitive.Track>
 
             {labels?.length && (

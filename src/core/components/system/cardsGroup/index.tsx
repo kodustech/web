@@ -30,7 +30,6 @@ import { BitbucketModal } from "./modals/bitbucket-token";
 import { CloneOfferingModal } from "./modals/clone-offering";
 import { CloneSelectTeamModal } from "./modals/clone-select-team";
 import { OauthOrTokenModal } from "./modals/oauth-or-token";
-import styles from "./styles.module.css";
 import TextTopIntegrations from "./textTopIntegrations";
 
 const communicationPlatforms = {
@@ -489,7 +488,7 @@ export default function CardsGroup({
 
     return (
         <>
-            <div className={styles.cardsContainer}>
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
                 <div>
                     <TextTopIntegrations serviceType="codeManagement" />
 

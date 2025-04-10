@@ -25,10 +25,10 @@ import { KodyRule, KodyRulesStatus } from "@services/kodyRules/types";
 import { cn } from "src/core/utils/components";
 
 const severityVariantMap = {
-    critical: "!bg-destructive/5 border-destructive/10 text-destructive",
-    high: "!bg-brand-purple/5 border-brand-purple/10 text-brand-purple",
-    medium: "!bg-brand-orange/5 border-brand-orange/10 text-brand-orange",
-    low: "!bg-success/5 border-success/10 text-success",
+    critical: "bg-destructive/5! border-destructive/10 text-destructive",
+    high: "bg-brand-purple/5! border-brand-purple/10 text-brand-purple",
+    medium: "bg-brand-orange/5! border-brand-orange/10 text-brand-orange",
+    low: "bg-success/5! border-success/10 text-success",
 } as const satisfies Record<string, string>;
 
 export const PendingKodyRulesModal = ({
@@ -52,7 +52,7 @@ export const PendingKodyRulesModal = ({
 
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
-            <DialogContent className="max-h-[60vh] max-w-screen-sm">
+            <DialogContent className="max-h-[60vh] max-w-(--breakpoint-sm)">
                 <DialogHeader>
                     <DialogTitle>New Rules Ready</DialogTitle>
 
@@ -124,7 +124,7 @@ export const PendingKodyRulesModal = ({
                                             disabled
                                             variant="outline"
                                             className={cn(
-                                                "h-6 !cursor-default px-2.5 text-[10px] uppercase !opacity-100",
+                                                "h-6 cursor-default! px-2.5 text-[10px] uppercase opacity-100!",
                                                 severityVariantMap[
                                                     rule.severity.toLowerCase() as typeof rule.severity
                                                 ],
@@ -176,7 +176,7 @@ export const PendingKodyRulesModal = ({
 const NoRules = () => {
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
-            <DialogContent className="max-h-[60vh] max-w-screen-sm">
+            <DialogContent className="max-h-[60vh] max-w-(--breakpoint-sm)">
                 <DialogHeader>
                     <DialogTitle>New Rules Ready</DialogTitle>
                     <Separator />

@@ -1,11 +1,11 @@
-import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
+import * as React from "react";
 import { cn } from "src/core/utils/components";
 
 import { Icons } from "./icons";
 
 const buttonVariants = cva(
-    "inline-flex overflow-hidden select-none relative items-center justify-center rounded-xl text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 gap-2 text-start flex-shrink-0 border",
+    "inline-flex overflow-hidden select-none relative items-center justify-center rounded-xl text-sm font-medium ring-offset-background transition-colors focus-visible:outline-hidden focus-visible:ring-2 gap-2 text-start shrink-0 border",
     {
         variants: {
             variant: {
@@ -14,11 +14,11 @@ const buttonVariants = cva(
                 destructive:
                     "bg-destructive text-destructive-foreground hover:bg-destructive/90 selected:bg-destructive/90 border-transparent",
                 outline:
-                    "bg-[#231b2e] bg-opacity-25 text-foreground hover:bg-[#231b2e] hover:bg-opacity-100 selected:bg-opacity-100 selected:border-opacity-60 border",
+                    "bg-[#231b2e]/25 text-foreground hover:bg-[#231b2e]/100 selected:bg-[#231b2e]/100 selected:border-border/60 border-1",
                 secondary:
                     "bg-secondary text-secondary-foreground hover:bg-secondary/80 selected:bg-secondary/80 border-transparent",
-                ghost: "bg-[#231b2e] bg-opacity-0 text-foreground hover:bg-[#231b2e] hover:bg-opacity-100 selected:bg-opacity-100 border-transparent",
-                link: "text-primary underline-offset-4 hover:underline border-transparent !px-0 w-fit hover:text-brand-orange text-muted-foreground selected:text-brand-orange",
+                ghost: "text-foreground hover:bg-[#231b2e]/100 selected:bg-[#231b2e]/100 border-transparent",
+                link: "text-primary underline-offset-4 hover:underline border-transparent px-0! w-fit hover:text-brand-orange text-muted-foreground selected:text-brand-orange",
                 success:
                     "bg-green-600 text-white hover:bg-green-500 border-transparent",
             },

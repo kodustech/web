@@ -21,7 +21,7 @@ export const KodyRulesRepoFollowsGlobalRulesModal = ({
 
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
-            <DialogContent className="max-h-[60vh] max-w-screen-sm">
+            <DialogContent className="max-h-[60vh] max-w-(--breakpoint-sm)">
                 <DialogHeader>
                     <DialogTitle>Rules inherited from Global:</DialogTitle>
                     <Separator />

@@ -133,7 +133,7 @@ export const KodyRulesLibrary = ({
                     </div>
 
                     <div className="flex flex-row items-end gap-4">
-                        <FormControl.Root className="flex-[2]">
+                        <FormControl.Root className="flex-2">
                             <FormControl.Label htmlFor="name">
                                 Name
                             </FormControl.Label>

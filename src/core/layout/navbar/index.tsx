@@ -83,7 +83,7 @@ export const NavMenu = () => {
     const isActive = (route: string) => pathname.startsWith(route);
 
     return (
-        <div className="z-50 flex h-16 flex-shrink-0 items-center gap-8 border-b px-6">
+        <div className="z-50 flex h-16 shrink-0 items-center gap-8 border-b px-6">
             <Link href="/">
                 <SvgKodus className="h-8 max-w-max" />
             </Link>
@@ -100,17 +100,17 @@ export const NavMenu = () => {
                                         href={href}
                                         className={cn(
                                             "relative flex flex-row items-center gap-2 text-white",
-                                            "text-sm transition-colors focus-visible:text-opacity-100 hover:text-opacity-100",
+                                            "text-sm transition-colors hover:text-white focus-visible:text-white",
 
                                             isActive(href)
-                                                ? "text-opacity-100"
-                                                : "text-opacity-50",
+                                                ? "text-white"
+                                                : "text-white/50",
                                         )}>
                                         <span>{icon}</span>
                                         {label}
 
                                         {href === "/chat" && (
-                                            <div className="absolute -right-4 -top-4 z-10 text-[10px] text-brand-red">
+                                            <div className="text-brand-red absolute -top-4 -right-4 z-10 text-[10px]">
                                                 Alpha
                                             </div>
                                         )}

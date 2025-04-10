@@ -112,7 +112,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
 
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
-            <DialogContent className="max-w-screen-md">
+            <DialogContent className="max-w-(--breakpoint-md)">
                 <DialogHeader>
                     <DialogTitle>
                         {rule ? "Edit rule" : "Add new rule"}
@@ -140,7 +140,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             id={field.name}
                                             error={fieldState.error}
                                             placeholder="Avoid using 'console.log' statements in production code."
-                                            className="!opacity-100"
+                                            className="opacity-100!"
                                             value={field.value}
                                             onChange={(e) =>
                                                 field.onChange(e.target.value)
@@ -218,7 +218,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                         <Input
                                             id={field.name}
                                             value={field.value}
-                                            className="!opacity-100"
+                                            className="opacity-100!"
                                             placeholder="Example: **/*.js"
                                             onChange={(e) =>
                                                 field.onChange(e.target.value)
@@ -295,7 +295,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             onChange={(e) =>
                                                 field.onChange(e.target.value)
                                             }
-                                            className="flex min-h-32 !opacity-100"
+                                            className="flex min-h-32 opacity-100!"
                                         />
 
                                         <FormControl.Error>
@@ -415,7 +415,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                     )
                                                 }
                                                 className={cn([
-                                                    "!opacity-100",
+                                                    "opacity-100!",
                                                     {
                                                         "[--slider-marker-background-active:200,86%,48%]":
                                                             field.value ===
@@ -483,7 +483,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                         e.target.value,
                                                     )
                                                 }
-                                                className="flex min-h-32 !opacity-100"
+                                                className="flex min-h-32 opacity-100!"
                                                 placeholder={
                                                     BAD_EXAMPLE_PLACEHOLDER
                                                 }
@@ -534,7 +534,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                         e.target.value,
                                                     )
                                                 }
-                                                className="flex min-h-32 !opacity-100"
+                                                className="flex min-h-32 opacity-100!"
                                                 placeholder={
                                                     GOOD_EXAMPLE_PLACEHOLDER
                                                 }

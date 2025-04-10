@@ -196,7 +196,7 @@ export const KodyRulesPage = ({
                             <Button
                                 variant="default"
                                 leftIcon={
-                                    <SvgKodyRulesDiscovery className="!size-4" />
+                                    <SvgKodyRulesDiscovery className="size-4!" />
                                 }
                                 onClick={() =>
                                     router.push("/library/kody-rules")
@@ -206,7 +206,7 @@ export const KodyRulesPage = ({
                             <Button
                                 type="button"
                                 variant="outline"
-                                leftIcon={<Plus className="!size-4" />}
+                                leftIcon={<Plus className="size-4!" />}
                                 onClick={addNewEmptyRule}>
                                 New rule
                             </Button>

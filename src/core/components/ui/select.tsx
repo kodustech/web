@@ -22,7 +22,7 @@ const SelectTrigger = React.forwardRef<
     <SelectPrimitive.Trigger
         ref={ref}
         className={cn(
-            "relative flex h-11 w-full select-none items-center justify-between rounded-xl border bg-[#231b2e] bg-opacity-35 py-3 pl-5 pr-4 text-sm text-foreground ring-offset-background transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 open:bg-[#231b2e] open:bg-opacity-100 hover:bg-opacity-100 disabled:cursor-not-allowed disabled:opacity-50",
+            "text-foreground ring-offset-background placeholder:text-muted-foreground relative flex h-11 w-full items-center justify-between rounded-xl border bg-[#231b2e]/35 py-3 pr-4 pl-5 text-sm transition-colors select-none open:bg-[#231b2e] hover:bg-[#231b2e] focus-visible:ring-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
             className,
         )}
         {...props}>
@@ -47,7 +47,7 @@ const SelectContent = React.forwardRef<
             position={position}
             {...props}
             className={cn(
-                "relative z-50 min-h-10 min-w-[8rem] overflow-hidden rounded-xl border bg-[#231b2e] bg-opacity-35 text-popover-foreground shadow-md backdrop-blur-2xl data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+                "text-popover-foreground data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 relative z-50 min-h-10 min-w-[8rem] overflow-hidden rounded-xl border bg-[#231b2e]/35 shadow-md backdrop-blur-2xl",
                 position === "popper" &&
                     "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
                 className,
@@ -71,7 +71,7 @@ const SelectLabel = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <SelectPrimitive.Label
         ref={ref}
-        className={cn("py-1.5 pl-8 pr-2 text-sm font-semibold", className)}
+        className={cn("py-1.5 pr-2 pl-8 text-sm font-semibold", className)}
         {...props}
     />
 ));
@@ -84,7 +84,7 @@ const SelectItem = React.forwardRef<
     <SelectPrimitive.Item
         ref={ref}
         className={cn(
-            "relative flex w-full cursor-default select-none items-center justify-between rounded-xl bg-[#231b2e] bg-opacity-0 pl-9 pr-2 text-sm text-foreground outline-none focus-visible:text-accent-foreground data-[disabled]:pointer-events-none selected:bg-opacity-100 hover:bg-[#231b2e] hover:bg-opacity-100 disabled:opacity-50",
+            "text-foreground focus-visible:text-accent-foreground selected:bg-[#231b2e] relative flex w-full cursor-default items-center justify-between rounded-xl pr-2 pl-9 text-sm outline-hidden select-none hover:bg-[#231b2e] disabled:opacity-50 data-disabled:pointer-events-none",
             className,
         )}
         {...props}
@@ -92,7 +92,7 @@ const SelectItem = React.forwardRef<
         <Button variant="ghost" size="sm">
             <span className="absolute left-3 flex size-4 items-center justify-center">
                 <SelectPrimitive.ItemIndicator>
-                    <Check className="size-4 text-brand-orange" />
+                    <Check className="text-brand-orange size-4" />
                 </SelectPrimitive.ItemIndicator>
             </span>
 
@@ -108,7 +108,7 @@ const SelectSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <SelectPrimitive.Separator
         ref={ref}
-        className={cn("-mx-1 my-1 h-px bg-muted", className)}
+        className={cn("bg-muted -mx-1 my-1 h-px", className)}
         {...props}
     />
 ));

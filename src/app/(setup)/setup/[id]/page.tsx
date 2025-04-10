@@ -437,7 +437,7 @@ export default function Redirect() {
                                     id="name"
                                     placeholder="Organization name"
                                     type="text"
-                                    className="mt-2 flex h-12 w-full items-center rounded-[5px] border border-[#6A57A433] bg-[#292031] px-4 text-sm focus-visible:border-[#F5922080] focus-visible:outline-none"
+                                    className="mt-2 flex h-12 w-full items-center rounded-[5px] border border-[#6A57A433] bg-[#292031] px-4 text-sm focus-visible:border-[#F5922080] focus-visible:outline-hidden"
                                     value={inputText}
                                     onChange={(e) =>
                                         setInputText(e.target.value)

@@ -8,8 +8,8 @@ export const DotLoader = (props: React.ComponentProps<"div">) => (
             props.className,
         )}>
         <span className="sr-only">Loading...</span>
-        <div className="aspect-square flex-1 flex-shrink-0 animate-bounce rounded-full bg-[currentColor] [animation-delay:-0.3s]" />
-        <div className="aspect-square flex-1 flex-shrink-0 animate-bounce rounded-full bg-[currentColor] [animation-delay:-0.15s]" />
-        <div className="aspect-square flex-1 flex-shrink-0 animate-bounce rounded-full bg-[currentColor]" />
+        <div className="aspect-square flex-1 shrink-0 animate-bounce rounded-full bg-[currentColor] [animation-delay:-0.3s]" />
+        <div className="aspect-square flex-1 shrink-0 animate-bounce rounded-full bg-[currentColor] [animation-delay:-0.15s]" />
+        <div className="aspect-square flex-1 shrink-0 animate-bounce rounded-full bg-[currentColor]" />
     </div>
 );

@@ -70,7 +70,7 @@ export function UserAuthForm() {
     return (
         <form onSubmit={onSubmit} className="grid w-full gap-6">
             {isError && (
-                <Alert className="border-brand-orange border-opacity-10 bg-brand-orange bg-opacity-10 text-sm">
+                <Alert className="border-brand-orange/10 bg-brand-orange/10 text-sm">
                     <Info className="size-5" />
                     <AlertTitle className="mt-1">
                         No user found with this email and password.
@@ -141,8 +141,8 @@ export function UserAuthForm() {
                                 <Button
                                     type="button"
                                     className={cn(
-                                        "absolute right-4 top-4 h-auto bg-transparent p-0 hover:cursor-pointer hover:bg-transparent",
-                                        "focus-visible:border-[#F5922080] focus-visible:outline-none focus-visible:ring-[#F5922080]",
+                                        "absolute top-4 right-4 h-auto bg-transparent p-0 hover:cursor-pointer hover:bg-transparent",
+                                        "focus-visible:border-[#F5922080] focus-visible:ring-[#F5922080] focus-visible:outline-hidden",
                                     )}
                                     onClick={() =>
                                         setTypePassword((typePassword) =>

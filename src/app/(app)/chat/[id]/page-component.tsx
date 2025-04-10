@@ -148,7 +148,7 @@ export const PageComponent = ({
 
                     <Page.Footer className="mb-8">
                         <div className="relative flex-1">
-                            <div className="pointer-events-none absolute inset-y-0 left-5 z-[1] flex items-center text-muted-foreground">
+                            <div className="pointer-events-none absolute inset-y-0 left-5 z-1 flex items-center text-muted-foreground">
                                 <MessageSquareText />
                             </div>
 
@@ -166,7 +166,7 @@ export const PageComponent = ({
                                     }
                                 />
 
-                                <div className="absolute inset-y-0 right-5 z-[1] flex items-center text-muted-foreground">
+                                <div className="absolute inset-y-0 right-5 z-1 flex items-center text-muted-foreground">
                                     <Button
                                         size="icon"
                                         type="submit"

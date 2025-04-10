@@ -56,7 +56,7 @@ const SubscriptionPaymentFailed = () => {
             <Badge
                 leftIcon={<AlertTriangle />}
                 variant="destructive"
-                className={cn(commonClassnames, "bg-opacity-50")}>
+                className={cn(commonClassnames, "bg-destructive/50")}>
                 Payment failed
             </Badge>
         </NextLink>

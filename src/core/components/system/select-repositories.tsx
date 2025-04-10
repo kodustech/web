@@ -55,7 +55,7 @@ export const SelectRepositories = (props: {
                     className="justify-between"
                     id={id}
                     rightIcon={
-                        <ChevronsUpDown className="!size-4 opacity-50" />
+                        <ChevronsUpDown className="size-4! opacity-50" />
                     }>
                     {selectedRepositories.length > 0 ? (
                         `${selectedRepositories.length} ${pluralize(

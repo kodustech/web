@@ -212,7 +212,7 @@ export default function Board(): React.ReactNode {
                         setList={setTodo}>
                         {todo.map((item) => (
                             <div
-                                className={cn(styles.button, "!bg-[#6A57A433]")}
+                                className={cn(styles.button, "bg-[#6A57A433]!")}
                                 key={item.id}>
                                 {item.name}
                             </div>
@@ -240,7 +240,7 @@ export default function Board(): React.ReactNode {
                         }}>
                         {wip.map((item) => (
                             <div
-                                className={cn(styles.button, "!bg-[#1E8AFF33]")}
+                                className={cn(styles.button, "bg-[#1E8AFF33]!")}
                                 key={item.id}>
                                 {item.wipName}
                             </div>
@@ -259,7 +259,7 @@ export default function Board(): React.ReactNode {
                         setList={setDone}>
                         {done.map((item) => (
                             <div
-                                className={cn(styles.button, "!bg-[#19C26F33]")}
+                                className={cn(styles.button, "bg-[#19C26F33]!")}
                                 key={item.id}>
                                 {item.name}
                             </div>

@@ -91,7 +91,7 @@ export default async function BugRatioAnalytics() {
                                 {Object.entries(comparisonParameters).map(
                                     ([key, { label }]) => (
                                         <div key={key}>
-                                            <span className="flex-shrink-0">
+                                            <span className="shrink-0">
                                                 {label}
                                             </span>
                                             <DashedLine />

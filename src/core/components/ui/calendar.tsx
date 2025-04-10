@@ -47,21 +47,21 @@ function Calendar({
                 ),
                 day: cn(
                     buttonVariants({ variant: "ghost" }),
-                    "h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-primary focus:bg-primary hover:bg-opacity-15 focus:bg-opacity-15",
-                    "[&.day-range-end.day-range-start]:!rounded-l-lg [&.day-range-start.day-range-end]:!rounded-r-lg",
+                    "h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-primary/15 focus:bg-primary/15",
+                    "[&.day-range-end.day-range-start]:rounded-l-lg! [&.day-range-start.day-range-end]:rounded-r-lg!",
                 ),
                 day_range_start:
-                    "day-range-start aria-selected:bg-primary aria-selected:text-primary-foreground !rounded-r-none",
+                    "day-range-start aria-selected:bg-primary aria-selected:text-primary-foreground rounded-r-none!",
                 day_range_end:
-                    "day-range-end aria-selected:bg-primary aria-selected:text-primary-foreground !rounded-l-none",
+                    "day-range-end aria-selected:bg-primary aria-selected:text-primary-foreground rounded-l-none!",
                 day_selected:
-                    "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground hover:!bg-opacity-75 focus:!bg-opacity-75",
+                    "bg-primary text-primary-foreground hover:bg-primary/75 hover:text-primary-foreground focus:bg-primary/75 focus:text-primary-foreground",
                 day_today: "bg-primary/10",
                 day_outside:
                     "day-outside text-muted-foreground opacity-50 aria-selected:text-muted-foreground aria-selected:opacity-30",
                 day_disabled: "text-muted-foreground opacity-50",
                 day_range_middle:
-                    "aria-selected:bg-primary aria-selected:text-primary-foreground !rounded-none",
+                    "aria-selected:bg-primary aria-selected:text-primary-foreground rounded-none!",
                 day_hidden: "invisible",
                 ...classNames,
             }}

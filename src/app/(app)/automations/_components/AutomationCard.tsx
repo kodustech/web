@@ -163,7 +163,7 @@ export default function AutomationCard({
                         ) && (
                             <Badge
                                 variant="outline"
-                                leftIcon={<Settings className="!size-4" />}
+                                leftIcon={<Settings className="size-4!" />}
                                 onClick={() => {
                                     router.push(
                                         `/automations/${teamAutomation.automation.automationType}`,

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function RegisterPage() {
     return (
         <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
-            <div className="flex flex-[10] flex-col justify-center gap-10 rounded-3xl bg-[#231B2E]/35 p-12 backdrop-blur">
+            <div className="flex flex-10 flex-col justify-center gap-10 rounded-3xl bg-[#231B2E]/35 p-12 backdrop-blur-sm">
                 <SvgKodus className="h-8 min-h-8" />
 
                 <div className="flex flex-1 flex-col justify-center gap-10">
@@ -48,7 +48,7 @@ export default function RegisterPage() {
                 </div>
             </div>
 
-            <div className="flex flex-[14] flex-col justify-center overflow-auto">
+            <div className="flex flex-14 flex-col justify-center overflow-auto">
                 <ScrollArea type="auto">
                     <div className="flex flex-col items-center gap-10 py-10">
                         <Suspense>
@@ -60,7 +60,7 @@ export default function RegisterPage() {
                         <div className="text-center text-[13px] text-muted-foreground">
                             Already have an account?{" "}
                             <Link href="/sign-in">
-                                <span className="whitespace-nowrap font-medium !text-brand-orange underline underline-offset-4">
+                                <span className="whitespace-nowrap font-medium text-brand-orange! underline underline-offset-4">
                                     Log in
                                 </span>
                             </Link>

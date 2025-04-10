@@ -6,8 +6,8 @@ import { cn } from "src/core/utils/components";
 import { Heading } from "../heading";
 import { PageContext, PageScrollableContext } from "./context";
 
-const WITH_SIDEBAR_CONTAINER = "max-w-screen-lg";
-const WITHOUT_SIDEBAR_CONTAINER = "max-w-screen-lg";
+const WITH_SIDEBAR_CONTAINER = "max-w-(--breakpoint-lg)";
+const WITHOUT_SIDEBAR_CONTAINER = "max-w-(--breakpoint-lg)";
 
 export const PageRoot = ({
     scrollable,
@@ -62,7 +62,7 @@ export const PageHeader = (props: React.ComponentProps<"div">) => {
         <div
             {...props}
             className={cn(
-                "container flex flex-shrink-0 items-center justify-between gap-6",
+                "container flex shrink-0 items-center justify-between gap-6",
                 hasSidebar ? WITH_SIDEBAR_CONTAINER : WITHOUT_SIDEBAR_CONTAINER,
                 props.className,
             )}>
@@ -88,7 +88,7 @@ export const PageFooter = (props: React.ComponentProps<"div">) => {
         <div
             {...props}
             className={cn(
-                "container flex flex-shrink-0 items-center justify-between gap-6",
+                "container flex shrink-0 items-center justify-between gap-6",
                 hasSidebar ? WITH_SIDEBAR_CONTAINER : WITHOUT_SIDEBAR_CONTAINER,
                 props.className,
             )}>

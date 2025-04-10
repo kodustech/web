@@ -109,7 +109,7 @@ export default async function LeadTimeForChangeAnalytics() {
                                 {Object.entries(comparisonParameters).map(
                                     ([key, { label }]) => (
                                         <div key={key}>
-                                            <span className="flex-shrink-0">
+                                            <span className="shrink-0">
                                                 {label}
                                             </span>
                                             <DashedLine />

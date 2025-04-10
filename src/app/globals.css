@@ -1,16 +1,204 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin 'tailwindcss-animate';
 
-body {
-    @apply m-0 leading-[normal];
+@custom-variant children {
+    & > * {
+        @slot
+    }
 }
 
-*,
-::before,
-::after {
-    border-width: 0;
+@custom-variant selected {
+
+    &[data-state='checked'],
+    &[data-selected='true'],
+    &[data-state='active'],
+    &[data-state='on'] {
+        @slot
+    }
+}
+
+@custom-variant open {
+    &[data-state='open'] {
+        @slot
+    }
+}
+
+@custom-variant hover {
+    &:not(:disabled):not([disabled]):not([data-disabled]):hover {
+        @slot
+    }
+}
+
+@custom-variant disabled {
+
+    &:disabled,
+    &[disabled],
+    &[data-disabled] {
+        @slot
+    }
+}
+
+@custom-variant enabled {
+    &:not(:disabled):not([disabled]):not([data-disabled]) {
+        @slot
+    }
+}
+
+
+@theme {
+    --color-brand-purple: hsl(var(--brand-purple));
+    --color-brand-purple-foreground: hsl(var(--brand-purple-foreground));
+
+    --color-brand-red: hsl(var(--brand-red));
+    --color-brand-red-foreground: hsl(var(--brand-red-foreground));
+
+    --color-brand-orange: hsl(var(--brand-orange));
+    --color-brand-orange-foreground: hsl(var(--brand-orange-foreground));
+
+    --color-border: hsl(var(--border));
+    --color-input: hsl(var(--input));
+    --color-ring: hsl(var(--ring));
+    --color-background: hsl(var(--background));
+    --color-foreground: hsl(var(--foreground));
+
+    --color-primary: hsl(var(--primary));
+    --color-primary-foreground: hsl(var(--primary-foreground));
+
+    --color-secondary: hsl(var(--secondary));
+    --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+    --color-destructive: hsl(var(--destructive));
+    --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+    --color-muted: hsl(var(--muted));
+    --color-muted-foreground: hsl(var(--muted-foreground));
+
+    --color-accent: hsl(var(--accent));
+    --color-accent-foreground: hsl(var(--accent-foreground));
+
+    --color-popover: hsl(var(--popover));
+    --color-popover-foreground: hsl(var(--popover-foreground));
+
+    --color-card: hsl(var(--card));
+    --color-card-foreground: hsl(var(--card-foreground));
+
+    --color-success: hsl(var(--success));
+    --color-success-foreground: hsl(var(--success-foreground));
+
+    --color-white: rgb(255 255 255);
+    --color-black: rgb(0 0 0);
+    --color-transparent: transparent;
+
+    --font-sans: Inter, sans-serif;
+    --font-mono: Roboto Mono, monospace;
+
+    --radius-lg: var(--radius);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-sm: calc(var(--radius) - 4px);
+
+    --background-image-barberpole: repeating-linear-gradient(-45deg,
+            transparent,
+            transparent 1rem,
+            #fafafa 1rem,
+            #fafafa 2rem);
+
+    --background-size-barberpole: 200% 200%;
+
+    --animate-collapsible-down: collapsible-down 0.2s ease-out;
+    --animate-collapsible-up: collapsible-up 0.2s ease-out;
+    --animate-accordion-down: accordion-down 0.2s ease-out;
+    --animate-accordion-up: accordion-up 0.2s ease-out;
+    --animate-barberpole: barberpole 30s linear infinite;
+    --animate-fill-right: fill-right var(--animation-duration) linear;
+
+    @keyframes accordion-down {
+        from {
+            height: 0;
+        }
+
+        to {
+            height: var(--radix-accordion-content-height);
+        }
+    }
+
+    @keyframes accordion-up {
+        from {
+            height: var(--radix-accordion-content-height);
+        }
+
+        to {
+            height: 0;
+        }
+    }
+
+    @keyframes collapsible-down {
+        from {
+            height: 0;
+        }
+
+        to {
+            height: var(--radix-collapsible-content-height);
+        }
+    }
+
+    @keyframes collapsible-up {
+        from {
+            height: var(--radix-collapsible-content-height);
+        }
+
+        to {
+            height: 0;
+        }
+    }
+
+    @keyframes barberpole {
+        to {
+            background-position: 100% 100%;
+        }
+    }
+
+    @keyframes fill-right {
+        from {
+            width: 0;
+        }
+
+        to {
+            width: var(--animation-width);
+        }
+    }
+}
+
+@utility container {
+    margin-inline: auto;
+    padding-inline: 2rem;
+
+    @media (width >=--theme(--breakpoint-sm)) {
+        max-width: none;
+    }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentcolor);
+    }
+}
+
+@utility bg-gradient {
+    @apply bg-linear-to-r from-brand-purple via-brand-red to-brand-orange;
 }
 
 @layer base {
@@ -68,17 +256,15 @@ body {
     input,
     a,
     button {
-        @apply border-border border-opacity-20 font-sans font-normal ring-ring outline-none disabled:cursor-not-allowed disabled:opacity-40;
+        @apply border-border/20 font-sans font-normal ring-ring outline-hidden disabled:cursor-not-allowed disabled:opacity-40;
     }
 
     body {
         @apply bg-background text-foreground h-screen w-screen overflow-hidden;
     }
-}
 
-@layer utilities {
-    .bg-gradient {
-        @apply bg-gradient-to-r from-brand-purple via-brand-red to-brand-orange;
+    &[role='button'],
+    button {
+        cursor: pointer;
     }
-
 }

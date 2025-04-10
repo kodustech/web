@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { Button } from "@components/ui/button";
 import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
@@ -12,6 +11,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebouncedCallback } from "@hooks/use-debounced-callback";
 import { ArrowLeft, ArrowRight, Eye, EyeClosed, LogInIcon } from "lucide-react";
 import { signIn } from "next-auth/react";
+import { useMemo, useState } from "react";
 import {
     Controller,
     FormProvider,
@@ -260,7 +260,7 @@ const WithEmail = () => {
                                         type="button"
                                         className={cn(
                                             "absolute right-4 top-4 h-auto bg-transparent p-0 hover:cursor-pointer hover:bg-transparent",
-                                            "focus-visible:border-[#F5922080] focus-visible:outline-none focus-visible:ring-[#F5922080]",
+                                            "focus-visible:border-[#F5922080] focus-visible:outline-hidden focus-visible:ring-[#F5922080]",
                                         )}
                                         onClick={() =>
                                             setTypePassword((typePassword) =>
@@ -293,7 +293,7 @@ const WithEmail = () => {
                                                     "flex items-center gap-1 rounded-full px-2 py-1",
                                                     "border border-[#6A57A433]",
                                                     rule.valid &&
-                                                        "border-success border-opacity-20",
+                                                        "border-success/20",
                                                 )}>
                                                 <div className="w-3 text-center">
                                                     {rule.valid ? (
@@ -368,7 +368,7 @@ const WithEmail = () => {
                         target="blank"
                         href={process.env.WEB_TERMS_AND_CONDITIONS ?? ""}
                         className={cn(
-                            "whitespace-nowrap text-xs font-medium !text-brand-orange underline underline-offset-4",
+                            "whitespace-nowrap text-xs font-medium text-brand-orange! underline underline-offset-4",
                         )}>
                         Terms & Conditions.
                     </Link>

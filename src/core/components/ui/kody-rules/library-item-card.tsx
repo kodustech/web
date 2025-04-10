@@ -12,10 +12,10 @@ import { cn } from "src/core/utils/components";
 import { KodyRuleLibraryItemModal } from "./library-item-modal";
 
 const severityVariantMap = {
-    Critical: "!bg-destructive/5 border-destructive/10 text-destructive",
-    High: "!bg-brand-purple/5 border-brand-purple/10 text-brand-purple",
-    Medium: "!bg-brand-orange/5 border-brand-orange/10 text-brand-orange",
-    Low: "!bg-success/5 border-success/10 text-success",
+    Critical: "bg-destructive/5! border-destructive/10 text-destructive",
+    High: "bg-brand-purple/5! border-brand-purple/10 text-brand-purple",
+    Medium: "bg-brand-orange/5! border-brand-orange/10 text-brand-orange",
+    Low: "bg-success/5! border-success/10 text-success",
 } as const satisfies Record<string, string>;
 
 export const KodyRuleLibraryItem = ({
@@ -55,7 +55,7 @@ export const KodyRuleLibraryItem = ({
                     disabled
                     variant="outline"
                     className={cn(
-                        "h-6 !cursor-default px-2.5 text-[10px] uppercase !opacity-100",
+                        "h-6 cursor-default! px-2.5 text-[10px] uppercase opacity-100!",
                         severityVariantMap[
                         rule.severity as typeof rule.severity
                         ],
@@ -75,7 +75,7 @@ export const KodyRuleLibraryItem = ({
                     <Badge
                         disabled
                         variant="outline"
-                        className="!cursor-default text-xs !opacity-100">
+                        className="cursor-default! text-xs opacity-100!">
                         {ProgrammingLanguage[rule.language]}
                     </Badge>
                 )}
@@ -85,7 +85,7 @@ export const KodyRuleLibraryItem = ({
                         disabled
                         key={tag}
                         variant="outline"
-                        className="!cursor-default text-xs text-muted-foreground !opacity-100">
+                        className="cursor-default! text-xs text-muted-foreground opacity-100!">
                         {tag}
                     </Badge>
                 ))}

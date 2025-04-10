@@ -59,7 +59,7 @@ export default function App() {
 
     return (
         <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
-            <div className="flex flex-[10] flex-col justify-center gap-10 rounded-3xl bg-[#231B2E]/35 p-12 backdrop-blur">
+            <div className="flex flex-10 flex-col justify-center gap-10 rounded-3xl bg-[#231B2E]/35 p-12 backdrop-blur-sm">
                 <SvgKodus className="h-8 min-h-8" />
 
                 <div className="flex-1 overflow-hidden rounded-3xl">
@@ -75,7 +75,7 @@ export default function App() {
                 </div>
             </div>
 
-            <div className="flex flex-[14] flex-col justify-center gap-20 p-10">
+            <div className="flex flex-14 flex-col justify-center gap-20 p-10">
                 <div className="flex flex-col items-center gap-10">
                     <div className="flex max-w-96 flex-col gap-10">
                         <StepIndicators.Root>

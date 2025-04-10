@@ -14,7 +14,7 @@ const Switch = React.forwardRef<
 >(({ className, loading, disabled, ...props }, ref) => (
     <SwitchPrimitives.Root
         className={cn(
-            "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center overflow-hidden rounded-full border-2 border-transparent bg-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[state=checked]:bg-brand-orange data-[state=unchecked]:bg-opacity-20 disabled:cursor-not-allowed disabled:opacity-50",
+            "peer bg-muted-foreground focus-visible:ring-ring focus-visible:ring-offset-background data-[state=checked]:bg-brand-orange data-[state=unchecked]:bg-brand-orange/20 inline-flex h-6 w-11 shrink-0 cursor-pointer items-center overflow-hidden rounded-full border-2 border-transparent transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
             className,
         )}
         {...props}
@@ -22,7 +22,7 @@ const Switch = React.forwardRef<
         ref={ref}>
         <SwitchPrimitives.Thumb
             className={cn(
-                "pointer-events-none relative block h-5 w-5 rounded-full bg-brand-orange-foreground opacity-100 shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0",
+                "bg-brand-orange-foreground pointer-events-none relative block h-5 w-5 rounded-full opacity-100 shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0",
             )}>
             {loading && (
                 <div className="absolute inset-0 flex items-center justify-center">

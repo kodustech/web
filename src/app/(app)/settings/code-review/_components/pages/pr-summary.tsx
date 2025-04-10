@@ -195,7 +195,7 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
                                 <Switch
                                     disabled
                                     checked={field.value}
-                                    className="pointer-events-none !opacity-100"
+                                    className="pointer-events-none opacity-100!"
                                 />
                             </CardHeader>
                         </Card>

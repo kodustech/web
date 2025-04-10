@@ -47,7 +47,7 @@ export default function NewChat() {
         <Page.Root className="justify-center">
             <Page.Header className="-mt-16">
                 <div className="flex flex-row items-center gap-6">
-                    <div className="aspect-square h-16 w-16 -scale-x-[1] overflow-hidden rounded-full bg-card">
+                    <div className="aspect-square h-16 w-16 -scale-x-1 overflow-hidden rounded-full bg-card">
                         <SvgKody className="h-full w-full" />
                     </div>
 
@@ -63,7 +63,7 @@ export default function NewChat() {
 
             <Page.Content className="flex-none">
                 <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-5 z-[1] flex items-center text-muted-foreground">
+                    <div className="pointer-events-none absolute inset-y-0 left-5 z-1 flex items-center text-muted-foreground">
                         <MessageSquareText />
                     </div>
 
@@ -79,7 +79,7 @@ export default function NewChat() {
                             onChange={(event) => setPrompt(event.target.value)}
                         />
 
-                        <div className="absolute inset-y-0 right-5 z-[1] flex items-center text-muted-foreground">
+                        <div className="absolute inset-y-0 right-5 z-1 flex items-center text-muted-foreground">
                             <Button
                                 loading={loading}
                                 disabled={!prompt.length}

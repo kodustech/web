@@ -83,7 +83,7 @@ export const InsightsBadge = forwardRef<any, InsightsBadgeProps>(
             <div
                 ref={ref}
                 className={cn(
-                    "flex h-fit flex-shrink-0 items-center gap-1 rounded-[10px] bg-background/50 px-2.5 py-1 text-xs font-bold uppercase data-[state]:cursor-pointer",
+                    "flex h-fit shrink-0 items-center gap-1 rounded-[10px] bg-background/50 px-2.5 py-1 text-xs font-bold uppercase data-state:cursor-pointer",
                     classNames[props.type],
                 )}>
                 <span className="size-4">{icons[props.type]}</span>

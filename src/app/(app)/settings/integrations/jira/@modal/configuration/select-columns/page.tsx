@@ -32,7 +32,7 @@ import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
 
 const DRAGGABLE_ITEMS_CLASSNAMES = cn(
-    "[&.sortable-chosen]:cursor-grab [&.sortable-ghost]:opacity-50 !text-[13px]",
+    "[&.sortable-chosen]:cursor-grab [&.sortable-ghost]:opacity-50 text-[13px]!",
 );
 
 export default function BoardColumns() {
@@ -125,7 +125,7 @@ export default function BoardColumns() {
             <Dialog
                 open
                 onOpenChange={() => router.push(`/settings/integrations`)}>
-                <DialogContent className="max-w-screen-lg">
+                <DialogContent className="max-w-(--breakpoint-lg)">
                     <DialogHeader>
                         <div className="flex flex-row items-center gap-2">
                             <div className="flex flex-col gap-2">
@@ -179,7 +179,7 @@ export default function BoardColumns() {
                                 <CardHeader className="py-4">
                                     <Badge
                                         disabled
-                                        className="h-6 !cursor-default bg-[#6A57A4] px-2 text-xs !opacity-100">
+                                        className="h-6 cursor-default! bg-[#6A57A4] px-2 text-xs opacity-100!">
                                         To do
                                     </Badge>
                                 </CardHeader>
@@ -214,7 +214,7 @@ export default function BoardColumns() {
                                 <CardHeader className="py-4">
                                     <Badge
                                         disabled
-                                        className="h-6 !cursor-default bg-[#1E8AFF] px-2 text-xs !opacity-100">
+                                        className="h-6 cursor-default! bg-[#1E8AFF] px-2 text-xs opacity-100!">
                                         Work in progress
                                     </Badge>
                                 </CardHeader>
@@ -260,7 +260,7 @@ export default function BoardColumns() {
                                 <CardHeader className="py-4">
                                     <Badge
                                         disabled
-                                        className="h-6 !cursor-default bg-success px-2 text-xs !opacity-100">
+                                        className="h-6 cursor-default! bg-success px-2 text-xs opacity-100!">
                                         Done
                                     </Badge>
                                 </CardHeader>
@@ -304,19 +304,19 @@ export default function BoardColumns() {
                                         The colors represent categories (
                                         <Badge
                                             disabled
-                                            className="h-6 !cursor-default bg-[#9B84CD] px-2 text-xs !opacity-100">
+                                            className="h-6 cursor-default! bg-[#9B84CD] px-2 text-xs opacity-100!">
                                             To Do
                                         </Badge>
                                         ,{" "}
                                         <Badge
                                             disabled
-                                            className="h-6 !cursor-default bg-[#1E8AFF] px-2 text-xs !opacity-100">
+                                            className="h-6 cursor-default! bg-[#1E8AFF] px-2 text-xs opacity-100!">
                                             Work in progress
                                         </Badge>
                                         ,{" "}
                                         <Badge
                                             disabled
-                                            className="h-6 !cursor-default bg-success px-2 text-xs !opacity-100">
+                                            className="h-6 cursor-default! bg-success px-2 text-xs opacity-100!">
                                             Done
                                         </Badge>
                                         ) configured in your project management
@@ -327,7 +327,7 @@ export default function BoardColumns() {
                                         <li>
                                             <Badge
                                                 disabled
-                                                className="h-6 !cursor-default bg-[#9B84CD] px-2 text-xs !opacity-100">
+                                                className="h-6 cursor-default! bg-[#9B84CD] px-2 text-xs opacity-100!">
                                                 To Do
                                             </Badge>
                                             : Add statuses where tasks are ready
@@ -339,7 +339,7 @@ export default function BoardColumns() {
                                         <li>
                                             <Badge
                                                 disabled
-                                                className="h-6 !cursor-default bg-[#1E8AFF] px-2 text-xs !opacity-100">
+                                                className="h-6 cursor-default! bg-[#1E8AFF] px-2 text-xs opacity-100!">
                                                 Work in progress
                                             </Badge>
                                             : Include all statuses that
@@ -357,7 +357,7 @@ export default function BoardColumns() {
                                         <li>
                                             <Badge
                                                 disabled
-                                                className="h-6 !cursor-default bg-success px-2 text-xs !opacity-100">
+                                                className="h-6 cursor-default! bg-success px-2 text-xs opacity-100!">
                                                 Done
                                             </Badge>
                                             : The final status where tasks are

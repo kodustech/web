@@ -61,7 +61,7 @@ export const ChatSidebar = () => {
                         <Badge
                             variant="ghost"
                             rightIcon={<Plus />}
-                            className="flex-shrink-0 self-end text-xs">
+                            className="shrink-0 self-end text-xs">
                             New chat
                         </Badge>
                     </Link>

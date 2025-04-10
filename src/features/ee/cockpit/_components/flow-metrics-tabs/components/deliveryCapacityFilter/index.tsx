@@ -1,7 +1,6 @@
 import { RadioGroup } from "@radix-ui/themes";
 import { NewItemsFrom } from "@services/metrics/types";
-
-import styles from "./styles.module.css";
+import { cn } from "src/core/utils/components";
 
 interface IDeliveryCapacityFilterProps {
     newItemsFrom: NewItemsFrom;
@@ -20,7 +19,11 @@ export function DeliveryCapacityFilter({
                 <div className="flex flex-row gap-2">
                     <RadioGroup.Item
                         value={NewItemsFrom.TODO_COLUMN}
-                        className={`${styles.filterStyleCard} ${newItemsFrom === NewItemsFrom.TODO_COLUMN ? styles.filterStyleCardSelected : ""} flex w-64 flex-col justify-between pb-4`}>
+                        className={cn(
+                            "flex w-64 cursor-pointer flex-col justify-between rounded-xl border border-[#6A57A433] bg-[#292031] p-4 transition-colors hover:border-[#6A57A4] hover:bg-[#382A41]",
+                            newItemsFrom === NewItemsFrom.TODO_COLUMN &&
+                                "rounded-xl border-[#6A57A4] bg-[#382A41]",
+                        )}>
                         <div>
                             <h3 className="text-sm font-bold">To do</h3>
                             <span className="text-gray-400 text-xs">
@@ -31,7 +34,11 @@ export function DeliveryCapacityFilter({
                     </RadioGroup.Item>
                     <RadioGroup.Item
                         value={NewItemsFrom.CREATION_DATE}
-                        className={`${styles.filterStyleCard} ${newItemsFrom === NewItemsFrom.CREATION_DATE ? styles.filterStyleCardSelected : ""} flex w-64 flex-col justify-between pb-4`}>
+                        className={cn(
+                            "flex w-64 cursor-pointer flex-col justify-between rounded-xl border border-[#6A57A433] bg-[#292031] p-4 transition-colors hover:border-[#6A57A4] hover:bg-[#382A41]",
+                            newItemsFrom === NewItemsFrom.TODO_COLUMN &&
+                                "rounded-xl border-[#6A57A4] bg-[#382A41]",
+                        )}>
                         <div>
                             <h3 className="text-sm font-bold">Creation date</h3>
                             <span className="text-gray-400 text-xs">
