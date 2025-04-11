@@ -26,7 +26,9 @@ export const useFinishOnboardingWithoutSelectingPR = ({
             properties: { teamId },
         });
 
-        if (!isSelfHosted) await startTeamTrial({ teamId, organizationId });
+        if (!isSelfHosted) {
+            await startTeamTrial({ teamId, organizationId });
+        }
 
         await new Promise((resolve) => setTimeout(resolve, 5000));
 
