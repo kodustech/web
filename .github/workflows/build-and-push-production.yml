@@ -1,0 +1,85 @@
+name: Build and Publish Docker Images for Cloud
+
+on:
+    release:
+        types: [published]
+
+jobs:
+    build-and-push:
+        name: Build and Push Docker Image for Production (Cloud)
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+
+        steps:
+            - name: Checkout Repository
+              uses: actions/checkout@v4.2.2
+
+            - name: Capture Release Version
+              run: echo "RELEASE_VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
+
+            - name: Configure AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v4.1.0
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  aws-region: ${{ secrets.AWS_REGION }}
+
+            - name: Set up Environment File
+              uses: ./.github/actions/setup-env
+              with:
+                  parameters: "WEB_NODE_ENV WEB_HOSTNAME_API WEB_HOSTNAME_BILLING WEB_JWT_SECRET_KEY WEB_NEXTAUTH_SECRET NEXTAUTH_URL WEB_CONNECTION_SLACK GLOBAL_JIRA_CLIENT_ID GLOBAL_JIRA_REDIRECT_URL WEB_JIRA_SCOPES GLOBAL_GITHUB_CLIENT_ID GLOBAL_GITHUB_REDIRECT_URL WEB_GITHUB_INSTALL_URL GITHUB_CLIENT_SECRET GLOBAL_GITLAB_CLIENT_ID GLOBAL_GITLAB_REDIRECT_URL WEB_GITLAB_SCOPES WEB_GITLAB_OAUTH_URL GLOBAL_GITLAB_CLIENT_SECRET WEB_TERMS_AND_CONDITIONS GLOBAL_SLACK_HOSTNAME GLOBAL_DISCORD_HOSTNAME WEB_DISCORD_HOSTNAME AZURE_REPOS_HOSTNAME WEB_OAUTH_GITLAB_CLIENT_ID WEB_OAUTH_GITLAB_CLIENT_SECRET WEB_OAUTH_GITHUB_CLIENT_ID WEB_OAUTH_GITHUB_CLIENT_SECRET WEB_ANALYTICS_HOSTNAME WEB_ANALYTICS_SECRET WEB_SUPPORT_DOCS_URL WEB_SUPPORT_DISCORD_INVITE_URL WEB_SUPPORT_TALK_TO_FOUNDER_URL"
+
+            - name: Login to Amazon ECR
+              id: login-ecr
+              uses: aws-actions/amazon-ecr-login@v2.0.1
+
+            - name: Set up Docker Buildx
+              uses: docker/setup-buildx-action@v3.10.0
+
+            - name: Build and Push Docker Image
+              env:
+                  ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+                  ECR_REPOSITORY: kodus-web-prod
+                  IMAGE_TAG_SHA: ${{ github.sha }}
+                  IMAGE_TAG_VERSION: ${{ github.event.release.tag_name }}
+              run: |
+                  docker buildx build \
+                    --build-arg RELEASE_VERSION=$IMAGE_TAG_VERSION \
+                    --build-arg API_CLOUD_MODE=true \
+                    --cache-from=type=local,src=/tmp/.buildx-cache \
+                    --cache-to=type=local,dest=/tmp/.buildx-cache-new,mode=max \
+                    --platform linux/amd64,linux/arm64 \
+                    -f DockerFiles/Dockerfile.prod \
+                    -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_SHA \
+                    -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_VERSION \
+                    -t $ECR_REGISTRY/$ECR_REPOSITORY:latest \
+                    --push .
+
+            - name: Cleanup Docker Images
+              if: always()
+              run: |
+                  docker rmi $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_SHA || true
+                  docker rmi $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG_VERSION || true
+                  docker rmi $ECR_REGISTRY/$ECR_REPOSITORY:latest || true
+                  docker image prune -f || true
+
+            - name: Notify Discord on Success
+              if: success()
+              uses: sarisia/actions-status-discord@v1.15.3
+              with:
+                  webhook: ${{ secrets.DISCORD_WEBHOOK }}
+                  content: ":tada: A imagem Docker `${{ env.RELEASE_VERSION }}` foi construída e enviada com sucesso para o Amazon ECR."
+                  title: "Build e Push: kodus-web (Cloud)"
+                  username: "GitHub Actions"
+                  color: 0x00FF00
+
+            - name: Notify Discord on Failure
+              if: failure()
+              uses: sarisia/actions-status-discord@v1.15.3
+              with:
+                  webhook: ${{ secrets.DISCORD_WEBHOOK }}
+                  content: ":x: Falha ao construir ou enviar a imagem Docker `${{ env.RELEASE_VERSION }}` para o Amazon ECR. Verifique os logs para mais detalhes."
+                  title: "Build e Push: kodus-web (Cloud)"
+                  username: "GitHub Actions"
+                  color: 0xFF0000

@@ -44,7 +44,9 @@ export const useFinishOnboardingReviewingPR = ({
             properties: { teamId },
         });
 
-        if (!isSelfHosted) await startTeamTrial({ teamId, organizationId });
+        if (!isSelfHosted) {
+            await startTeamTrial({ teamId, organizationId });
+        }
 
         onSuccess();
 

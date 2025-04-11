@@ -1,0 +1,21 @@
+name: Setup Environment
+description: "Busca parâmetros do AWS Parameter Store e gera o arquivo .env"
+inputs:
+    parameters:
+        description: "Lista de parâmetros separados por espaço"
+        required: true
+runs:
+    using: "composite"
+    steps:
+        - name: Remover arquivo .env antigo (se existir)
+          shell: bash
+          run: |
+              [ -f .env ] && rm .env
+
+        - name: Gerar arquivo .env
+          shell: bash
+          run: |
+              for PARAM in ${{ inputs.parameters }}; do
+                VALUE=$(aws ssm get-parameter --name "/prod/kodus-web/$PARAM" --query 'Parameter.Value' --output text)
+                echo "$PARAM=$VALUE" >> .env
+              done
