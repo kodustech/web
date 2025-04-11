@@ -203,3 +203,7 @@ export const codeReviewConfigRemovePropertiesNotInType = (
 
     return newConfig;
 };
+
+// Used for tests, it simulates waiting for an specified amount of milliseconds
+export const waitFor = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
