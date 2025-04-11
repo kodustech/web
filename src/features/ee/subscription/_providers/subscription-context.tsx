@@ -36,7 +36,7 @@ export const SubscriptionProvider = ({
     license: Awaited<ReturnType<typeof validateOrganizationLicense>>;
     usersWithAssignedLicense: Awaited<ReturnType<typeof getUsersWithLicense>>;
 }) => {
-    if (isSelfHosted) return children;
+    if (isSelfHosted) { return children };
 
     return (
         <SubscriptionContext.Provider

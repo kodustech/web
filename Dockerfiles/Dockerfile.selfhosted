@@ -6,6 +6,9 @@ RUN apk update && apk add --no-cache curl
 
 WORKDIR /usr/src/app
 
+ENV WEB_NODE_ENV=self-hosted
+ENV NODE_ENV=production
+
 # Expor porta da aplicação
 EXPOSE 3000
 
@@ -17,4 +20,4 @@ COPY . .
 
 # Script de inicialização que executa install, build e start
 # Isso garante que as variáveis de ambiente estejam disponíveis durante o build
-CMD ["sh", "-c", "yarn install && yarn build && yarn start"] 
+CMD ["sh", "-c", "yarn install && yarn build && yarn start"]

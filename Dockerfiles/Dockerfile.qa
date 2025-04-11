@@ -7,6 +7,9 @@ WORKDIR /usr/src/app
 
 EXPOSE 3000
 
+ENV WEB_NODE_ENV=production
+ENV NODE_ENV=production
+
 # Copie o restante do código-fonte
 COPY . .
 

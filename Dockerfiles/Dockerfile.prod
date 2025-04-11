@@ -9,6 +9,7 @@ EXPOSE 3000
 
 # Defina a variável de ambiente NODE_ENV para "production"
 ENV WEB_NODE_ENV=production
+ENV NODE_ENV=production
 
 # Copie o restante do código-fonte
 COPY . .
