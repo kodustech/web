@@ -11,11 +11,43 @@ runs:
           shell: bash
           run: |
               [ -f .env ] && rm .env
+              echo "[DEBUG] Arquivo .env removido (se existia)."
+
+        - name: Debug das Credenciais (sem revelar valores)
+          shell: bash
+          run: |
+              if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+                echo "[DEBUG] AWS_ACCESS_KEY_ID não está definida."
+              else
+                echo "[DEBUG] AWS_ACCESS_KEY_ID está definida (tamanho: ${#AWS_ACCESS_KEY_ID})."
+              fi
+
+              if [ -z "$AWS_SECRET_ACCESS_KEY" ]; then
+                echo "[DEBUG] AWS_SECRET_ACCESS_KEY não está definida."
+              else
+                echo "[DEBUG] AWS_SECRET_ACCESS_KEY está definida (tamanho: ${#AWS_SECRET_ACCESS_KEY})."
+              fi
+
+              if [ -z "$AWS_REGION" ]; then
+                echo "[DEBUG] AWS_REGION não está definida."
+              else
+                echo "[DEBUG] AWS_REGION está definida: $AWS_REGION"
+              fi
 
         - name: Gerar arquivo .env
           shell: bash
           run: |
+              set -xe  # Habilita o modo verboso; cuidado: não imprime variáveis sensíveis se forem usadas diretamente
               for PARAM in ${{ inputs.parameters }}; do
-                VALUE=$(aws ssm get-parameter --name "/prod/kodus-web/$PARAM" --query 'Parameter.Value' --output text)
-                echo "$PARAM=$VALUE" >> .env
+                echo "[DEBUG] Buscando parâmetro: /prod/kodus-web/$PARAM"
+                VALUE=$(aws ssm get-parameter --name "/prod/kodus-web/$PARAM" --query 'Parameter.Value' --output text 2>&1)
+                if [ $? -ne 0 ]; then
+                    echo "[ERROR] Falha ao buscar /prod/kodus-web/$PARAM: $VALUE"
+                    exit 1
+                else
+                    # Não exponha o valor real, mas registre se o parâmetro foi recuperado com sucesso
+                    echo "[DEBUG] Parâmetro $PARAM recuperado com sucesso (tamanho: ${#VALUE})."
+                    echo "$PARAM=$VALUE" >> .env
+                fi
               done
+              echo "[DEBUG] Arquivo .env gerado com sucesso."
