@@ -22,6 +22,14 @@ export const getDeployFrequencyAnalytics = ({
     });
 };
 
+export const getKodySuggestionsAnalytics = () => {
+    return analyticsFetch<{
+        suggestionsSent: number;
+        suggestionsImplemented: number;
+        implementationRate: number;
+    }>("/code-health/highlights/suggestions-implementation-rate");
+};
+
 export const getLeadTimeForChangeAnalytics = ({
     endDate,
     startDate,

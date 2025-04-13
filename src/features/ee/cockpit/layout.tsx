@@ -24,6 +24,7 @@ export default async function Layout({
     prSizeAnalytics,
     prsOpenedVsClosedChart,
     teamActivityChart,
+    kodySuggestions,
     children,
 }: React.PropsWithChildren & {
     children: React.ReactNode;
@@ -39,6 +40,7 @@ export default async function Layout({
     codeHealthByCategory: React.ReactNode;
     codeHealthByRepository: React.ReactNode;
     flowMetrics: React.ReactNode;
+    kodySuggestions: React.ReactNode;
 }) {
     if (!process.env.WEB_ANALYTICS_SECRET) {
         return (
@@ -90,9 +92,10 @@ export default async function Layout({
             </Page.Header>
 
             <Page.Content className="max-w-screen-xl">
-                <div className="grid grid-cols-4 grid-rows-1 gap-2">
+                <div className="grid grid-cols-3 grid-rows-2 gap-2">
                     <div>{deployFrequencyAnalytics}</div>
                     <div>{prCycleTimeAnalytics}</div>
+                    <div>{kodySuggestions}</div>
                     <div>{bugRatioAnalytics}</div>
                     <div>{prSizeAnalytics}</div>
                 </div>
