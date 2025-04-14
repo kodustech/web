@@ -1,12 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { Button } from "@components/ui/button";
+import { Card } from "@components/ui/card";
 import { DataTableSearchQueryContext } from "@components/ui/data-table";
 import { Input } from "@components/ui/input";
 import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
+import { Spinner } from "@components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { PlusIcon, SearchIcon, ServerIcon } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
@@ -120,12 +122,25 @@ export default function SubscriptionLayout({
                     <DataTableSearchQueryContext.Provider
                         value={{ query, setQuery }}>
                         <TabsContent value={prLicensesTabName}>
-                            {licenses}
+                            <Suspense
+                                fallback={
+                                    <Card className="flex h-40 flex-col items-center justify-center gap-3 rounded-none bg-transparent">
+                                        <Spinner />
+
+                                        <p className="text-sm">
+                                            Loading users...
+                                        </p>
+                                    </Card>
+                                }>
+                                {licenses}
+                            </Suspense>
                         </TabsContent>
 
-                        <TabsContent value={organizationAdminsTabName}>
-                            {admins}
-                        </TabsContent>
+                        <Suspense>
+                            <TabsContent value={organizationAdminsTabName}>
+                                {admins}
+                            </TabsContent>
+                        </Suspense>
                     </DataTableSearchQueryContext.Provider>
                 </Tabs>
             </Page.Content>

@@ -10,7 +10,9 @@ EXPOSE 3000
 
 # Defina a variável de ambiente NODE_ENV para "development"
 ENV WEB_NODE_ENV=development
+ENV NODE_ENV=development
 ENV NEXT_TELEMETRY_DISABLED=1
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Copie apenas os arquivos necessários para instalar as dependências
 COPY package*.json ./

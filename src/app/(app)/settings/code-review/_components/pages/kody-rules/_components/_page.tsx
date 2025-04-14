@@ -20,6 +20,7 @@ import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
 import { Separator } from "@components/ui/separator";
+import { Spinner } from "@components/ui/spinner";
 import { useSuspenseFindLibraryKodyRules } from "@services/kodyRules/hooks";
 import { type KodyRule } from "@services/kodyRules/types";
 import { KodyLearningStatus } from "@services/parameters/types";
@@ -256,13 +257,51 @@ export const KodyRulesPage = ({
             <Page.Content>
                 <div className="flex flex-col gap-4">
                     {kodyRules?.length === 0 ? (
-                        <Suspense>
-                            <NoItems
-                                addEmptyRule={addNewEmptyRule}
-                                repositoryId={repositoryId}
-                                onAddRule={refreshRulesList}
-                            />
-                        </Suspense>
+                        <div className="flex min-h-[570px] flex-col gap-2 rounded-2xl bg-card/40 px-10 py-8">
+                            <div className="flex flex-col gap-1">
+                                <Heading variant="h2">
+                                    Start with Discovery 🚀
+                                </Heading>
+                                <p className="text-sm text-muted-foreground">
+                                    <strong>No rules yet?</strong> Import best
+                                    practices from top engineering teams in
+                                    seconds or create your own by clicking on{" "}
+                                    <Link
+                                        href=""
+                                        onClick={(ev) => {
+                                            ev.preventDefault();
+                                            addNewEmptyRule();
+                                        }}>
+                                        New Rule
+                                    </Link>
+                                    .
+                                </p>
+                            </div>
+
+                            <div className="mt-4 grid h-full grid-cols-2 gap-2">
+                                <Suspense
+                                    fallback={
+                                        <>
+                                            {new Array(3)
+                                                .fill(null)
+                                                .map((_, index) => (
+                                                    <Card
+                                                        key={index}
+                                                        className="h-full flex-1 items-center justify-center">
+                                                        <Spinner />
+                                                    </Card>
+                                                ))}
+                                        </>
+                                    }>
+                                    <NoItems
+                                        repositoryId={repositoryId}
+                                        onAddRule={refreshRulesList}
+                                    />
+                                </Suspense>
+
+                                <NoItemsViewMore />
+                            </div>
+                        </div>
                     ) : (
                         <div className="flex flex-col gap-4">
                             <Input
@@ -294,60 +333,41 @@ export const KodyRulesPage = ({
 };
 
 const NoItems = ({
-    addEmptyRule,
     repositoryId,
     onAddRule,
 }: {
-    addEmptyRule: () => void;
     repositoryId: string;
     onAddRule?: () => void;
 }) => {
-    const router = useRouter();
     const rules = useSuspenseFindLibraryKodyRules();
 
+    return rules
+        .slice(0, 3)
+        .map((r) => (
+            <KodyRuleLibraryItem
+                key={r.uuid}
+                rule={r}
+                repositoryId={repositoryId}
+                onAddRule={onAddRule}
+            />
+        ));
+};
+
+const NoItemsViewMore = () => {
+    const router = useRouter();
+
     return (
-        <div className="flex flex-col gap-6 rounded-2xl bg-card/40 px-10 py-8">
-            <div className="flex flex-col gap-1">
-                <Heading variant="h2">Start with Discovery 🚀</Heading>
-                <p className="text-sm text-muted-foreground">
-                    <strong>No rules yet?</strong> Import best practices from
-                    top engineering teams in seconds or create your own by
-                    clicking on{" "}
-                    <Link
-                        href=""
-                        onClick={(ev) => {
-                            ev.preventDefault();
-                            addEmptyRule();
-                        }}>
-                        New Rule
-                    </Link>
-                    .
-                </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-2">
-                {rules.slice(0, 3).map((r) => (
-                    <KodyRuleLibraryItem
-                        key={r.uuid}
-                        rule={r}
-                        repositoryId={repositoryId}
-                        onAddRule={onAddRule}
-                    />
-                ))}
-
-                <Card
-                    className="group flex cursor-pointer items-center justify-center"
-                    onClick={() => {
-                        router.push("/library/kody-rules");
-                    }}>
-                    <Button
-                        variant="link"
-                        leftIcon={<Plus />}
-                        className="pointer-events-none group-hover:text-brand-orange group-hover:underline">
-                        View more
-                    </Button>
-                </Card>
-            </div>
-        </div>
+        <Card
+            className="group flex cursor-pointer items-center justify-center"
+            onClick={() => {
+                router.push("/library/kody-rules");
+            }}>
+            <Button
+                variant="link"
+                leftIcon={<Plus />}
+                className="pointer-events-none group-hover:text-brand-orange group-hover:underline">
+                View more
+            </Button>
+        </Card>
     );
 };

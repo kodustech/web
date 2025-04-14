@@ -64,7 +64,9 @@ export const createManageBillingLink = async (params: { teamId: string }) => {
 };
 
 export const getUsersWithLicense = async (params: { teamId: string }) => {
-    if (isSelfHosted) return [];
+    if (isSelfHosted) {
+        return [];
+    }
 
     const organizationId = await getOrganizationId();
     return billingFetch<Array<{ git_id: string }>>(`/users-with-license`, {
@@ -98,7 +100,9 @@ export const assignOrDeassignUserLicense = async (params: {
 export const validateOrganizationLicense = async (params: {
     teamId: string;
 }): Promise<OrganizationLicense> => {
-    if (isSelfHosted) return { valid: true, subscriptionStatus: "self-hosted" };
+    if (isSelfHosted) {
+        return { valid: true, subscriptionStatus: "self-hosted" };
+    }
 
     const organizationId = await getOrganizationId();
     return billingFetch(`/validate-org-license`, {

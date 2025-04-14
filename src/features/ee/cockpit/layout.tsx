@@ -1,9 +1,9 @@
-import type React from "react";
-import { cookies } from "next/headers";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Page } from "@components/ui/page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { getConnections } from "@services/setup/fetch";
+import { cookies } from "next/headers";
+import type React from "react";
 import type { CookieName } from "src/core/utils/cookie";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { greeting } from "src/core/utils/helpers";
@@ -24,6 +24,7 @@ export default async function Layout({
     prSizeAnalytics,
     prsOpenedVsClosedChart,
     teamActivityChart,
+    kodySuggestions,
     children,
 }: React.PropsWithChildren & {
     children: React.ReactNode;
@@ -39,6 +40,7 @@ export default async function Layout({
     codeHealthByCategory: React.ReactNode;
     codeHealthByRepository: React.ReactNode;
     flowMetrics: React.ReactNode;
+    kodySuggestions: React.ReactNode;
 }) {
     if (!process.env.WEB_ANALYTICS_SECRET) {
         return (
@@ -90,9 +92,10 @@ export default async function Layout({
             </Page.Header>
 
             <Page.Content className="max-w-(--breakpoint-xl)">
-                <div className="grid grid-cols-4 grid-rows-1 gap-2">
+                <div className="grid grid-cols-3 grid-rows-2 gap-2">
                     <div>{deployFrequencyAnalytics}</div>
                     <div>{prCycleTimeAnalytics}</div>
+                    <div>{kodySuggestions}</div>
                     <div>{bugRatioAnalytics}</div>
                     <div>{prSizeAnalytics}</div>
                 </div>
