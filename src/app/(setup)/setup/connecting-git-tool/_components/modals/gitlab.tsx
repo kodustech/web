@@ -174,7 +174,7 @@ export const GitlabTokenModal = (props: { teamId: string, userId: string }) => {
                             </CollapsibleContent>
                         </Collapsible>
 
-                        <TokenDocs link="https://docs.kodus.io/config/gitlab_pat" />
+                        <TokenDocs link="https://docs.kodus.io/how_to_use/en/code_review/general_config/gitlab_pat" />
                     </div>
 
                     <DialogFooter>

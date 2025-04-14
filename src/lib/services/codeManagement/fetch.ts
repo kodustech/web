@@ -56,6 +56,7 @@ export const createCodeManagementIntegration = ({
     code = "",
     token = "",
     username = "",
+    orgName = "",
 }: {
     integrationType: PlatformType;
     organizationAndTeamData: OrganizationAndTeamData;
@@ -65,6 +66,7 @@ export const createCodeManagementIntegration = ({
     installationId?: any;
     token?: string;
     username?: string;
+    orgName?: string;
 }) => {
     const authCode = installationId || code;
 
@@ -87,6 +89,7 @@ export const createCodeManagementIntegration = ({
         token,
         host,
         username,
+        orgName,
     });
 };
 
