@@ -47,7 +47,7 @@ export const SelectBoardStep = () => {
 
     const board = _board.selected;
     useEffectOnce(() => {
-        _board.setSelected(boards.find(({ selected }) => selected));
+        _board.setSelected(boards?.find(({ selected }) => selected));
     });
 
     return (
@@ -105,7 +105,7 @@ export const SelectBoardStep = () => {
                             <Command>
                                 <CommandList>
                                     <CommandGroup>
-                                        {boards.map((d) => (
+                                        {boards?.map((d) => (
                                             <CommandItem
                                                 key={d.id}
                                                 value={d.id}

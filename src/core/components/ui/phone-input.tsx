@@ -27,7 +27,7 @@ type PhoneInputProps = Omit<
 
 const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
     React.forwardRef<
-        React.ElementRef<typeof RPNInput.default>,
+        React.ComponentRef<typeof RPNInput.default>,
         PhoneInputProps
     >(({ className, onChange, ...props }, ref) => {
         return (

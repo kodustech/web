@@ -23,7 +23,10 @@ export const cloneIntegration = async (
     }
 };
 
-export const checkHasConnectionByPlatform = async (integrationData: {
+export const checkHasConnectionByPlatform = async ({
+    platform,
+    category,
+}: {
     platform: string;
     category: string;
 }) => {
@@ -31,7 +34,10 @@ export const checkHasConnectionByPlatform = async (integrationData: {
         const response = await axiosAuthorized.fetcher<any>(
             INTEGRATION.CHECK_CONNECTION_PLATFORM,
             {
-                params: { integrationData },
+                params: {
+                    platform,
+                    category,
+                },
             },
         );
 
