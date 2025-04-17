@@ -133,7 +133,7 @@ export const AddRepoModal = ({
                                             setSelectedRepositoryToCopy(value);
                                             field.onChange(value);
                                         }}>
-                                        <SelectTrigger id="repositoryTarget" className="w-full">
+                                        <SelectTrigger id="repositoryTarget" className="w-full" aria-label="Select target repository">
                                             <SelectValue placeholder="Select a repo to copy settings" />
                                         </SelectTrigger>
 
@@ -178,7 +178,7 @@ export const AddRepoModal = ({
                                             setSelectedRepository(value);
                                             field.onChange(value);
                                         }}>
-                                        <SelectTrigger id="repoTarget" className="w-full">
+                                        <SelectTrigger id="repoTarget" className="w-full" aria-label="Select target repository">
                                             <SelectValue placeholder="Select" />
                                         </SelectTrigger>
 
