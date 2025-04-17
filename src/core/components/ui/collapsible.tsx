@@ -8,7 +8,7 @@ import { cn } from "src/core/utils/components";
 const Collapsible = CollapsiblePrimitive.Root;
 
 const CollapsibleIndicator = React.forwardRef<
-    React.ElementRef<typeof ChevronDownIcon>,
+    React.ComponentRef<typeof ChevronDownIcon>,
     React.ComponentPropsWithoutRef<typeof ChevronDownIcon>
 >(({ className, ...props }, ref) => (
     <ChevronDownIcon
@@ -23,7 +23,7 @@ const CollapsibleIndicator = React.forwardRef<
 CollapsibleIndicator.displayName = ChevronDownIcon.displayName;
 
 const CollapsibleTrigger = React.forwardRef<
-    React.ElementRef<typeof CollapsiblePrimitive.Trigger>,
+    React.ComponentRef<typeof CollapsiblePrimitive.Trigger>,
     React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
     <CollapsiblePrimitive.Trigger
@@ -39,7 +39,7 @@ const CollapsibleTrigger = React.forwardRef<
 CollapsibleTrigger.displayName = CollapsiblePrimitive.Trigger.displayName;
 
 const CollapsibleContent = React.forwardRef<
-    React.ElementRef<typeof CollapsiblePrimitive.Content>,
+    React.ComponentRef<typeof CollapsiblePrimitive.Content>,
     React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Content>
 >(({ className, children, ...props }, ref) => (
     <CollapsiblePrimitive.Content
