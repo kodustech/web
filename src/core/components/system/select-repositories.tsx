@@ -15,6 +15,7 @@ import {
 import { useGetRepositories } from "@services/codeManagement/hooks";
 import type { Repository } from "@services/codeManagement/types";
 import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "src/core/utils/components";
 import { pluralize } from "src/core/utils/string";
 
 export const SelectRepositories = (props: {
@@ -94,10 +95,11 @@ export const SelectRepositories = (props: {
                         }
 
                         return 0;
-                    }}>
+                    }}
+                >
                     <CommandInput placeholder="Search repository..." />
 
-                    <CommandList>
+                    <CommandList className="max-h-56 overflow-y-auto">
                         <CommandEmpty>No repository found.</CommandEmpty>
 
                         {selectedRepositories.length > 0 && (
@@ -114,7 +116,8 @@ export const SelectRepositories = (props: {
                                                         currentValue,
                                                 ),
                                             );
-                                        }}>
+                                        }}
+                                    >
                                         <Check className="mr-2 h-4 w-4 text-brand-orange" />
                                         <span className="text-muted-foreground">
                                             {r.organizationName}/
@@ -124,7 +127,6 @@ export const SelectRepositories = (props: {
                                 ))}
                             </CommandGroup>
                         )}
-
                         {unselectedRepositories.length > 0 && (
                             <CommandGroup heading="Not selected">
                                 {unselectedRepositories.map((r) => (
@@ -135,11 +137,12 @@ export const SelectRepositories = (props: {
                                             onChangeSelectedRepositories([
                                                 ...selectedRepositories,
                                                 data.find(
-                                                    (r) =>
-                                                        r.id === currentValue,
+                                                    (repo) =>
+                                                        repo.id === currentValue,
                                                 )!,
                                             ]);
-                                        }}>
+                                        }}
+                                    >
                                         <div className="mr-2 h-4 w-4" />
                                         <span className="text-muted-foreground">
                                             {r.organizationName}/
