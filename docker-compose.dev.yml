@@ -10,7 +10,7 @@ services:
     volumes:
       - .:/usr/src/app:delegated
       - /usr/src/app/node_modules
-      - /usr/src/app/.next
+      - .next:/usr/src/app/.next
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000"]

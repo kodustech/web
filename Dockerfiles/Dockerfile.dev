@@ -1,12 +1,9 @@
 # Estágio de Desenvolvimento
-FROM node:lts-alpine AS development
+FROM node:22.14.0-slim
 
-RUN apk update && apk add --no-cache curl
+RUN apt-get update && apt-get install -y curl
 
 WORKDIR /usr/src/app
-
-# expor port
-EXPOSE 3000
 
 # Defina a variável de ambiente NODE_ENV para "development"
 ENV WEB_NODE_ENV=development
@@ -15,12 +12,18 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 # Copie apenas os arquivos necessários para instalar as dependências
-COPY package*.json ./
+COPY package*.json yarn.lock ./
 
 # Instale as dependências
-RUN yarn install
+RUN yarn install --frozen-lockfile
+
+# Copie o restante do código para o container
+COPY . .
 
 # Não fazer build aqui, deixar para o desenvolvimento
+
+# expor port
+EXPOSE 3000
 
 # Comando de inicialização para desenvolvimento
 CMD ["yarn", "start:dev"]

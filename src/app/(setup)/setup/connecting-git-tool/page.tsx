@@ -25,6 +25,9 @@ import { useGoToStep } from "../_hooks/use-goto-step";
 import { BitbucketTokenModal } from "./_components/modals/bitbucket";
 import { GithubTokenModal } from "./_components/modals/github";
 import { GitlabTokenModal } from "./_components/modals/gitlab";
+import { SvgTeams } from "@components/ui/icons/SvgTeams";
+import { SvgAzureRepos } from "@components/ui/icons/SvgAzureRepos";
+import { AzureReposTokenModal } from "./_components/modals/azure-repos";
 
 export default function App() {
     useGoToStep();
@@ -84,7 +87,7 @@ export default function App() {
                         </div>
                     </div>
 
-                    <div className="flex max-w-96 flex-col gap-4 rounded-2xl border bg-card/35 px-6 py-5 text-sm text-muted-foreground">
+                    <div className="flex max-w-124 flex-col gap-4 rounded-2xl border bg-card/35 px-6 py-5 text-sm text-muted-foreground">
                         <p>
                             One of our clients{" "}
                             <strong className="text-white">
@@ -100,7 +103,7 @@ export default function App() {
             </div>
 
             <div className="flex flex-[14] flex-col items-center justify-center gap-20 p-10">
-                <div className="flex max-w-96 flex-1 flex-col justify-center gap-10">
+                <div className="flex max-w-124 flex-1 flex-col justify-center gap-10">
                     <StepIndicators.Root>
                         <StepIndicators.Item status="completed" />
                         <StepIndicators.Item status="active" />
@@ -138,6 +141,12 @@ export default function App() {
                                 <div className="flex flex-row items-center gap-2">
                                     <SvgBitbucket className="size-5" />
                                     Bitbucket
+                                </div>
+                            </TabsTrigger>
+                            <TabsTrigger value={GIT_INTEGRATIONS_KEY.AZURE_REPOS}>
+                                <div className="flex flex-row items-center gap-2">
+                                    <SvgAzureRepos className="size-5" />
+                                    Azure Repos
                                 </div>
                             </TabsTrigger>
                         </TabsList>
@@ -248,7 +257,7 @@ export default function App() {
 
                         <TabsContent
                             value={GIT_INTEGRATIONS_KEY.BITBUCKET}
-                            className="flex flex-col gap-2 rounded-3xl border bg-card/50 p-8">
+                            className="flex flex-col gap-2 rounded-3xl border bg-card/50 p-8 w-full">
                             <Button
                                 variant="outline"
                                 onClick={async () => {
@@ -263,6 +272,32 @@ export default function App() {
 
                                     magicModal.show(() => (
                                         <BitbucketTokenModal
+                                            teamId={teamId}
+                                            userId={userId!}
+                                        />
+                                    ));
+                                }}>
+                                Connect via token
+                            </Button>
+                        </TabsContent>
+
+                        <TabsContent
+                            value={GIT_INTEGRATIONS_KEY.AZURE_REPOS}
+                            className="flex flex-col gap-2 rounded-3xl border bg-card/50 p-8 w-full">
+                            <Button
+                                variant="outline"
+                                onClick={async () => {
+                                    await captureSegmentEvent({
+                                        userId: userId!,
+                                        event: "try_setup_git_integration",
+                                        properties: {
+                                            platform: "azure-repos",
+                                            method: "token",
+                                        },
+                                    });
+
+                                    magicModal.show(() => (
+                                        <AzureReposTokenModal
                                             teamId={teamId}
                                             userId={userId!}
                                         />

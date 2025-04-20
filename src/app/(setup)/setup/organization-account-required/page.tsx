@@ -17,8 +17,10 @@ export default function App() {
     const { teamId } = useSelectedTeamId();
 
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
-    if (configValue?.repositories?.length)
+
+    if (configValue?.repositories?.length) {
         redirect("/setup/choosing-a-pull-request");
+    }
 
     return (
         <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
@@ -48,7 +50,7 @@ export default function App() {
                         <p>
                             Since we started using it,{" "}
                             <strong className="text-success">
-                                our code review time dropped by 40%
+                                our code review time dropped by 40%
                             </strong>
                             , and production bugs were reduced by half.
                         </p>

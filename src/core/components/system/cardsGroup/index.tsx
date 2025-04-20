@@ -32,6 +32,7 @@ import { CloneSelectTeamModal } from "./modals/clone-select-team";
 import { OauthOrTokenModal } from "./modals/oauth-or-token";
 import styles from "./styles.module.css";
 import TextTopIntegrations from "./textTopIntegrations";
+import { SvgAzureRepos } from "@components/ui/icons/SvgAzureRepos";
 
 const communicationPlatforms = {
     [INTEGRATIONS_KEY.SLACK]: {
@@ -80,10 +81,10 @@ const codeManagementPlatforms = {
         svg: <SvgBitbucket className="h-10 w-10" />,
         platformName: "Bitbucket",
     },
-    // [INTEGRATIONS_KEY.AZUREREPOS]: {
-    //     svg: <SvgAzureRepos className="h-10 w-10" />,
-    //     platformName: "Azure Repos",
-    // },
+    [INTEGRATIONS_KEY.AZURE_REPOS]: {
+        svg: <SvgAzureRepos className="h-10 w-10" />,
+        platformName: "Azure Repos",
+    },
 } satisfies Partial<
     Record<
         INTEGRATIONS_KEY,
@@ -135,7 +136,7 @@ export default function CardsGroup({
                 serviceType: "codeManagement",
             },
             {
-                key: INTEGRATIONS_KEY.AZUREREPOS,
+                key: INTEGRATIONS_KEY.AZURE_REPOS,
                 isSetupComplete: false,
                 hasConnection: false,
                 serviceType: "codeManagement",

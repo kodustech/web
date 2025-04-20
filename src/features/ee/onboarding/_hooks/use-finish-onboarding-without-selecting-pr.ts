@@ -32,7 +32,6 @@ export const useFinishOnboardingWithoutSelectingPR = ({
 
         await new Promise((resolve) => setTimeout(resolve, 5000));
 
-        // using this because next.js router is causing an error, probably related to https://github.com/vercel/next.js/issues/63121
         window.location.href = "/settings/code-review";
     });
 

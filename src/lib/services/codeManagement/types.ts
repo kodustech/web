@@ -15,6 +15,10 @@ export type Repository = {
     organizationName: string;
     visibility: string;
     workspaceId?: string;
+    project?: {
+        id?: string;
+        name?: string;
+    };
 };
 
 export const CODE_MANAGEMENT_API_PATHS = {

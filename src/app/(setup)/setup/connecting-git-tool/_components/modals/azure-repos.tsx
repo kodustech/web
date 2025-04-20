@@ -25,10 +25,10 @@ import { TokenDocs } from "../token-docs";
 
 const tokenFormSchema = z.object({
     token: z.string().min(1, { message: "Enter a Token" }),
-    username: z.string().min(1, { message: "Enter a Username" }),
+    orgName: z.string().min(1, { message: "Enter a Organization Name" }),
 });
 
-export const BitbucketTokenModal = (props: {
+export const AzureReposTokenModal = (props: {
     teamId: string;
     userId: string;
 }) => {
@@ -39,7 +39,7 @@ export const BitbucketTokenModal = (props: {
         mode: "all",
         defaultValues: {
             token: "",
-            username: "",
+            orgName: "",
         },
     });
 
@@ -48,20 +48,20 @@ export const BitbucketTokenModal = (props: {
 
         try {
             const integrationResponse = await createCodeManagementIntegration({
-                integrationType: PlatformType.BITBUCKET,
+                integrationType: PlatformType.AZURE_REPOS,
                 authMode: AuthMode.TOKEN,
                 token: data.token,
                 organizationAndTeamData: {
                     teamId: props.teamId,
                 },
-                username: data.username,
+                orgName: data.orgName,
             });
 
             await captureSegmentEvent({
                 userId: props?.userId!,
                 event: "setup_git_integration_success",
                 properties: {
-                    platform: "bitbucket",
+                    platform: "azure-repos",
                     method: "token",
                     teamId: props?.teamId,
                 },
@@ -107,13 +107,13 @@ export const BitbucketTokenModal = (props: {
             <DialogContent>
                 <form onSubmit={form.handleSubmit(submit)}>
                     <DialogHeader>
-                        <DialogTitle>Bitbucket App Password</DialogTitle>
+                        <DialogTitle>Azure Repos Token</DialogTitle>
                         <DialogDescription></DialogDescription>
                     </DialogHeader>
 
                     <div className="flex flex-col gap-6">
                         <Controller
-                            name="username"
+                            name="orgName"
                             control={form.control}
                             render={({ field, fieldState }) => (
                                 <FormControl.Root>
@@ -122,7 +122,7 @@ export const BitbucketTokenModal = (props: {
                                             {...field}
                                             type="text"
                                             error={fieldState.error}
-                                            placeholder="Paste your Bitbucket username here"
+                                            placeholder="Paste your Azure Repos organization name here"
                                         />
                                     </FormControl.Input>
 
@@ -143,7 +143,7 @@ export const BitbucketTokenModal = (props: {
                                             {...field}
                                             type="password"
                                             error={fieldState.error}
-                                            placeholder="Paste your App Password here"
+                                            placeholder="Paste your Azure Repos Personal Access Token here"
                                         />
                                     </FormControl.Input>
 
@@ -154,7 +154,7 @@ export const BitbucketTokenModal = (props: {
                             )}
                         />
 
-                        <TokenDocs link="https://docs.kodus.io/how_to_use/en/code_review/general_config/bitbucket_pat" />
+                        <TokenDocs link="https://docs.kodus.io/config/azure_repos_pat" />
                     </div>
 
                     <DialogFooter>

@@ -119,7 +119,7 @@ export const GithubTokenModal = (props: { teamId: string, userId: string }) => {
                             )}
                         />
 
-                        <TokenDocs link="https://docs.kodus.io/config/github_pat" />
+                        <TokenDocs link="https://docs.kodus.io/how_to_use/en/code_review/general_config/github_pat" />
                     </div>
 
                     <DialogFooter>

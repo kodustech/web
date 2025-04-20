@@ -11,7 +11,7 @@
     ],
     "author": "Kodus Tech",
     "scripts": {
-        "start:dev": "next dev",
+        "start:dev": "next dev --turbopack",
         "build": "next build",
         "start": "next start --turbopack",
         "start:qa": "NODE_ENV=production next start",
