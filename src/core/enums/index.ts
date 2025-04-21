@@ -2,7 +2,7 @@ export const GIT_INTEGRATIONS_KEY = {
     GITHUB: "github",
     GITLAB: "gitlab",
     BITBUCKET: "bitbucket",
-    AZURE_REPOS: "azure-repos",
+    AZURE_REPOS: "azure_repos",
 } as const;
 
 export const INTEGRATIONS_KEY = {

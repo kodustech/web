@@ -61,7 +61,7 @@ export const AzureReposTokenModal = (props: {
                 userId: props?.userId!,
                 event: "setup_git_integration_success",
                 properties: {
-                    platform: "azure-repos",
+                    platform: "azure_repos",
                     method: "token",
                     teamId: props?.teamId,
                 },
