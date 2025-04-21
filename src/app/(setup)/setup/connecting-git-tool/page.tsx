@@ -25,7 +25,6 @@ import { useGoToStep } from "../_hooks/use-goto-step";
 import { BitbucketTokenModal } from "./_components/modals/bitbucket";
 import { GithubTokenModal } from "./_components/modals/github";
 import { GitlabTokenModal } from "./_components/modals/gitlab";
-import { SvgTeams } from "@components/ui/icons/SvgTeams";
 import { SvgAzureRepos } from "@components/ui/icons/SvgAzureRepos";
 import { AzureReposTokenModal } from "./_components/modals/azure-repos";
 
@@ -291,7 +290,7 @@ export default function App() {
                                         userId: userId!,
                                         event: "try_setup_git_integration",
                                         properties: {
-                                            platform: "azure-repos",
+                                            platform: "azure_repos",
                                             method: "token",
                                         },
                                     });

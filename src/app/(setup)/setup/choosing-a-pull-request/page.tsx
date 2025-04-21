@@ -29,7 +29,7 @@ export default function App() {
 
     const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetParameterPlatformConfigs(teamId);
-    if (configValue.finishOnboard) redirect("/");
+    if (configValue?.finishOnboard) { redirect("/") };
 
     const pullRequests = useSuspenseGetOnboardingPullRequests(teamId);
     const organizationId = useSuspenseGetOrganizationId();

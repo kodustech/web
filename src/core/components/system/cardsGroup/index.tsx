@@ -402,7 +402,7 @@ export default function CardsGroup({
             />
         ));
 
-        if (!teamSelected) return;
+        if (!teamSelected) { return; }
         editIntegration(key);
     };
 
@@ -450,7 +450,7 @@ export default function CardsGroup({
                         await openOauthOrTokenModal(key, serviceType);
                     } else if (key === "bitbucket") {
                         await openBitbucketModal();
-                    } else {
+                    }  else {
                         setCookie("selectedTeam", JSON.stringify(team));
                         connectIntegration(key, serviceType);
                     }
@@ -469,6 +469,8 @@ export default function CardsGroup({
     const connectedCodeManagementPlatform = connectedPlatforms.find(
         (c) => c.serviceType === "codeManagement",
     )?.key as keyof typeof codeManagementPlatforms;
+
+    console.log(connectedCodeManagementPlatform)
 
     const connectedProjectManagementPlatform = connectedPlatforms.find(
         (c) => c.serviceType === "projectManagement",
