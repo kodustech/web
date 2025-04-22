@@ -9,6 +9,14 @@ import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-s
 const commonClassnames = "h-9";
 
 const SubscriptionTrial = () => {
+    const subscriptionStatus = useSubscriptionStatus();
+    if (
+        subscriptionStatus.status !== "trial-active" &&
+        subscriptionStatus.status !== "trial-expiring"
+    ) {
+        return null;
+    }
+
     return (
         <NextLink href="/settings/subscription">
             <Badge
@@ -16,7 +24,7 @@ const SubscriptionTrial = () => {
                     commonClassnames,
                     "bg-brand-red/50 text-brand-red-foreground selected:bg-brand-red/60 hover:bg-brand-red/60",
                 )}>
-                14 days free trial
+                {subscriptionStatus.trialDaysLeft} days free trial
             </Badge>
         </NextLink>
     );
