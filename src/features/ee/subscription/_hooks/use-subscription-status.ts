@@ -26,6 +26,7 @@ type TrialSubscriptionStatus = {
     status: "trial-active" | "trial-expiring";
     valid: true;
     trialEnd: string;
+    trialDaysLeft: number;
 };
 
 type InvalidSubscriptionStatus = {
@@ -77,6 +78,8 @@ export const useSubscriptionStatus = (): SubscriptionStatus => {
 
         // Trial
         if (license.subscriptionStatus === "trial") {
+            const daysLeft = differenceInDays(license.trialEnd, new Date());
+
             if (
                 // If the trial is not expired, but expiring in 3 days or less
                 differenceInDays(new Date(), license.trialEnd) >= -3
@@ -84,6 +87,7 @@ export const useSubscriptionStatus = (): SubscriptionStatus => {
                 return {
                     valid: true,
                     trialEnd: license.trialEnd,
+                    trialDaysLeft: daysLeft,
                     status: "trial-expiring",
                 };
             }
@@ -91,6 +95,7 @@ export const useSubscriptionStatus = (): SubscriptionStatus => {
             return {
                 valid: true,
                 trialEnd: license.trialEnd,
+                trialDaysLeft: daysLeft,
                 status: "trial-active",
             };
         }
