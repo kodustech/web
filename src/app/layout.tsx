@@ -7,8 +7,6 @@ import { GoogleTagManager } from "@next/third-parties/google";
 import QueryProvider from "src/core/providers/query.provider";
 import { ThemeProvider } from "src/core/providers/theme.provider";
 
-import background from "../core/components/ui/backgrounds/background.svg";
-
 import "./globals.css";
 
 export const metadata = {
@@ -27,16 +25,14 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
         <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
             <GoogleTagManager gtmId="GTM-KN2J57G" />
 
-            <body
-                className="flex flex-col bg-cover bg-fixed bg-bottom bg-no-repeat"
-                style={{ backgroundImage: `url(${background.src})` }}>
+            <body className="bg-background text-foreground flex h-screen w-screen flex-col overflow-hidden">
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="system"
                     enableSystem>
                     <TooltipProvider delayDuration={0}>
                         <QueryProvider>
-                            <TooltipProvider>{children}</TooltipProvider>
+                            {children}
 
                             <MagicModalPortal />
                             <Toaster />

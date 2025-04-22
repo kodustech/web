@@ -1,18 +1,18 @@
 import { forwardRef } from "react";
-import { cn } from "src/core/utils/components";
 
 import { Button } from "./button";
 
 export const Badge = forwardRef<
     HTMLButtonElement,
-    React.ComponentProps<typeof Button>
+    Partial<Omit<React.ComponentProps<typeof Button>, "decorative">>
 >((props, ref) => {
     return (
         <Button
             ref={ref}
-            type="button"
+            size="xs"
+            variant="primary-dark"
             {...props}
-            className={cn("h-8 w-fit px-3", props.className)}
+            decorative
         />
     );
 });

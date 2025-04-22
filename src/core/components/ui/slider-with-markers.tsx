@@ -2,20 +2,18 @@ import { forwardRef, useState } from "react";
 import * as SliderPrimitive from "@radix-ui/react-slider";
 import { cn } from "src/core/utils/components";
 
-type SliderWithMarkersProps = React.ComponentPropsWithoutRef<
-    typeof SliderPrimitive.Root
-> & {
-    labels?: string[];
-};
-
-export const SliderWithMarkers = forwardRef<
+const SliderWithMarkers = forwardRef<
     React.ComponentRef<typeof SliderPrimitive.Root>,
-    SliderWithMarkersProps
->(({ className, labels, onValueChange, ...props }, ref) => {
-    const [value, setValue] = useState<number[]>(
-        props.defaultValue ?? props.value ?? [0],
-    );
-    const [innerInterval] = useState<number>(props.step ?? 25);
+    Omit<
+        React.ComponentProps<typeof SliderPrimitive.Root>,
+        "value" | "defaultValue" | "onValueChange"
+    > & {
+        value: number | undefined;
+        onValueChange: (value: number) => void;
+        labels?: string[];
+    }
+>(({ className, labels, value = 0, onValueChange, ...props }, ref) => {
+    const [innerInterval] = useState(props.step ?? 25);
     const numberOfMarks = Math.floor(props.max ?? 100 / innerInterval) + 1;
     const marks = Array.from(
         { length: numberOfMarks },
@@ -33,58 +31,91 @@ export const SliderWithMarkers = forwardRef<
         return percent;
     }
 
-    function handleValueChange(v: number[]) {
-        setValue(v);
-        onValueChange?.(v);
-    }
-
     return (
         <SliderPrimitive.Root
             ref={ref}
-            className={cn(
-                "relative my-4 flex w-full touch-none select-none flex-col items-center [--slider-marker-background-active:var(--secondary)]",
-                className,
-            )}
             {...props}
-            onValueChange={handleValueChange}>
-            <SliderPrimitive.Track className="relative flex h-1 w-full items-center rounded-full bg-primary/20">
-                <SliderPrimitive.Range className="absolute h-full rounded-full bg-[hsl(var(--slider-marker-background-active))]" />
-                <div className="absolute inset-x-1 flex items-center">
-                    {marks.map((_, i) => (
+            value={[value]}
+            onValueChange={(v) => onValueChange?.(v.at(0)!)}
+            className={cn(
+                "group relative my-4 flex w-full flex-col items-center transition",
+                "[--slider-marker-background-active:var(--color-primary-light)]",
+                "slider-disabled:opacity-30",
+                className,
+            )}>
+            <SliderPrimitive.Track
+                className={cn(
+                    "relative flex h-3 w-full items-center overflow-hidden rounded-full transition",
+                    "bg-card-lv1",
+                )}>
+                <SliderPrimitive.Range
+                    className={cn(
+                        "absolute h-full transition",
+                        "bg-(--slider-marker-background-active)",
+                    )}
+                />
+            </SliderPrimitive.Track>
+
+            <div className="absolute inset-x-2 top-1.5 flex items-center">
+                {marks.map((_, i) => {
+                    const selectedValueIndex = tickIndex(value);
+                    const leftPositionPercentage = calculateTickPercent(i);
+
+                    return (
                         <div
-                            key={`${i}`}
+                            key={i}
                             role="presentation"
-                            className={cn("absolute h-3 w-3 rounded-full", {
-                                "bg-primary": i > tickIndex(value[0]!),
-                                "bg-[hsl(var(--slider-marker-background-active))]":
-                                    i <= tickIndex(value[0]!),
-                            })}
+                            className={cn(
+                                "absolute size-1.5 rounded-full shadow-sm",
+                                {
+                                    "bg-text-placeholder/20":
+                                        i >= selectedValueIndex,
+                                    "bg-card-lv2": i < selectedValueIndex,
+                                },
+                            )}
                             style={{
-                                left: `${calculateTickPercent(i)}%`,
-                                translate: `-${calculateTickPercent(i)}%`,
+                                left: `${leftPositionPercentage}%`,
+                                translate: `-${leftPositionPercentage}%`,
                             }}
                         />
-                    ))}
-                </div>
+                    );
+                })}
+            </div>
 
-                <SliderPrimitive.Thumb className="block h-5 w-5 rounded-full border-2 border-primary bg-[hsl(var(--slider-marker-background-active))] shadow-sm transition-colors focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50" />
-            </SliderPrimitive.Track>
+            <SliderPrimitive.Thumb
+                className={cn(
+                    "-mt-1.5 block size-6 rounded-full outline-hidden transition",
+
+                    "shadow-[0px_4px_16px_rgba(17,17,26,0.75),_0px_8px_24px_rgba(17,17,26,0.75),_0px_16px_56px_rgba(17,17,26,0.75)]",
+
+                    "bg-(--slider-marker-background-active)",
+                    "slider-focused:ring-3 slider-focused:ring-(--slider-marker-background-active)/20",
+                )}
+            />
 
             {labels?.length && (
                 <div className="mt-5 flex items-center">
-                    {marks.map((_, i) => (
-                        <div
-                            key={`${i}`}
-                            className="absolute text-xs"
-                            style={{
-                                left: `${calculateTickPercent(i)}%`,
-                                translate: `-${calculateTickPercent(i)}%`,
-                            }}>
-                            {labels?.[i]}
-                        </div>
-                    ))}
+                    {marks.map((_, i) => {
+                        const leftPositionPercentage = calculateTickPercent(i);
+
+                        return (
+                            <div
+                                key={i}
+                                className="absolute text-xs"
+                                style={{
+                                    left: `${leftPositionPercentage}%`,
+                                    translate: `-${leftPositionPercentage}%`,
+                                }}>
+                                {labels?.[i]}
+                            </div>
+                        );
+                    })}
                 </div>
             )}
         </SliderPrimitive.Root>
     );
 });
+
+SliderWithMarkers.displayName = "SliderWithMarkers";
+
+export { SliderWithMarkers };

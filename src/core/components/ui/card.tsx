@@ -7,12 +7,12 @@ const Card = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <div
         ref={ref}
+        onClick={props.disabled ? undefined : props.onClick}
         className={cn(
-            "bg-card/50 text-card-foreground flex flex-col overflow-hidden rounded-2xl border shadow-xs",
+            "bg-card-lv2 flex flex-col overflow-hidden rounded-xl shadow-sm",
             className,
         )}
         {...props}
-        onClick={props.disabled ? undefined : props.onClick}
     />
 ));
 Card.displayName = "Card";

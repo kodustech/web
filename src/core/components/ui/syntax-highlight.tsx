@@ -38,6 +38,7 @@ export const SyntaxHighlight: React.FC<{
                             style={atomDark}
                             customStyle={customStyle}
                             codeTagProps={{
+                                className: "**:font-mono",
                                 style: {
                                     whiteSpace: "break-spaces",
                                 },
