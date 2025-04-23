@@ -1,13 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
 import AutoComplete from "@components/system/autoComplete";
 import {
     getRepositories,
 } from "@services/codeManagement/fetch";
 
-// import GithubRepositoriesSaveButton from "../saveButton";
 import styles from "./styles.module.css";
 
 export default function AzureReposRepositoriesSelector({

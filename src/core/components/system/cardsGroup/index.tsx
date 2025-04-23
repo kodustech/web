@@ -4,6 +4,7 @@ import React, { useCallback, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
 import { Heading } from "@components/ui/heading";
+import { SvgAzureRepos } from "@components/ui/icons/SvgAzureRepos";
 import { SvgBitbucket } from "@components/ui/icons/SvgBitbucket";
 import { SvgDiscord } from "@components/ui/icons/SvgDiscord";
 import { SvgGithub } from "@components/ui/icons/SvgGithub";
@@ -78,10 +79,10 @@ const codeManagementPlatforms = {
         svg: <SvgBitbucket />,
         platformName: "Bitbucket",
     },
-    // [INTEGRATIONS_KEY.AZUREREPOS]: {
-    //     svg: <SvgAzureRepos  />,
-    //     platformName: "Azure Repos",
-    // },
+    [INTEGRATIONS_KEY.AZURE_REPOS]: {
+        svg: <SvgAzureRepos />,
+        platformName: "Azure Repos",
+    },
 } satisfies Partial<
     Record<
         INTEGRATIONS_KEY,
@@ -133,7 +134,7 @@ export default function CardsGroup({
                 serviceType: "codeManagement",
             },
             {
-                key: INTEGRATIONS_KEY.AZUREREPOS,
+                key: INTEGRATIONS_KEY.AZURE_REPOS,
                 isSetupComplete: false,
                 hasConnection: false,
                 serviceType: "codeManagement",
@@ -399,7 +400,9 @@ export default function CardsGroup({
             />
         ));
 
-        if (!teamSelected) return;
+        if (!teamSelected) {
+            return;
+        }
         editIntegration(key);
     };
 
@@ -466,6 +469,8 @@ export default function CardsGroup({
     const connectedCodeManagementPlatform = connectedPlatforms.find(
         (c) => c.serviceType === "codeManagement",
     )?.key as keyof typeof codeManagementPlatforms;
+
+    console.log(connectedCodeManagementPlatform);
 
     const connectedProjectManagementPlatform = connectedPlatforms.find(
         (c) => c.serviceType === "projectManagement",

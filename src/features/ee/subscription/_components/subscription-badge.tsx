@@ -6,9 +6,17 @@ import { AlertTriangle } from "lucide-react";
 import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
 
 const SubscriptionTrial = () => {
+    const subscriptionStatus = useSubscriptionStatus();
+    if (
+        subscriptionStatus.status !== "trial-active" &&
+        subscriptionStatus.status !== "trial-expiring"
+    ) {
+        return null;
+    }
+
     return (
         <Button size="sm" variant="tertiary">
-            14 days free trial
+            {subscriptionStatus.trialDaysLeft} days free trial
         </Button>
     );
 };

@@ -9,6 +9,7 @@ import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { pluralize } from "src/core/utils/string";
 
 import { createCheckoutSessionAction } from "../../_actions/create-checkout-session";
+import { useSubscriptionStatus } from "../../_hooks/use-subscription-status";
 
 export const Trial = ({
     members,
@@ -24,12 +25,20 @@ export const Trial = ({
             window.location.href = url;
         });
 
+    const subscriptionStatus = useSubscriptionStatus();
+    if (
+        subscriptionStatus.status !== "trial-active" &&
+        subscriptionStatus.status !== "trial-expiring"
+    ) {
+        return null;
+    }
+
     return (
         <Card className="w-full">
             <CardHeader className="flex flex-row justify-between gap-2">
                 <div className="flex flex-col gap-2">
                     <p className="text-text-secondary text-sm">
-                        14 days free trial
+                        {subscriptionStatus.trialDaysLeft} days free trial
                     </p>
                     <CardTitle className="text-2xl">PRO plan</CardTitle>
 

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
 import { Heading } from "@components/ui/heading";
+import { SvgAzureRepos } from "@components/ui/icons/SvgAzureRepos";
 import { SvgBitbucket } from "@components/ui/icons/SvgBitbucket";
 import { SvgGithub } from "@components/ui/icons/SvgGithub";
 import { SvgGitlab } from "@components/ui/icons/SvgGitlab";
@@ -22,6 +23,7 @@ import { captureSegmentEvent } from "src/core/utils/segment";
 
 import { StepIndicators } from "../_components/step-indicators";
 import { useGoToStep } from "../_hooks/use-goto-step";
+import { AzureReposTokenModal } from "./_components/modals/azure-repos";
 import { BitbucketTokenModal } from "./_components/modals/bitbucket";
 import { GithubTokenModal } from "./_components/modals/github";
 import { GitlabTokenModal } from "./_components/modals/gitlab";
@@ -140,6 +142,13 @@ export default function App() {
                                     Bitbucket
                                 </div>
                             </TabsTrigger>
+                            <TabsTrigger
+                                value={GIT_INTEGRATIONS_KEY.AZURE_REPOS}>
+                                <div className="flex flex-row items-center gap-2">
+                                    <SvgAzureRepos className="size-5" />
+                                    Azure Repos
+                                </div>
+                            </TabsTrigger>
                         </TabsList>
 
                         <TabsContent
@@ -256,7 +265,7 @@ export default function App() {
 
                         <TabsContent
                             value={GIT_INTEGRATIONS_KEY.BITBUCKET}
-                            className="bg-card/50 flex flex-col gap-2 rounded-3xl border p-8">
+                            className="bg-card-lv1 flex flex-col gap-2 rounded-3xl border p-8">
                             <Button
                                 size="lg"
                                 variant="primary"
@@ -273,6 +282,34 @@ export default function App() {
 
                                     magicModal.show(() => (
                                         <BitbucketTokenModal
+                                            teamId={teamId}
+                                            userId={userId!}
+                                        />
+                                    ));
+                                }}>
+                                Connect via token
+                            </Button>
+                        </TabsContent>
+
+                        <TabsContent
+                            value={GIT_INTEGRATIONS_KEY.AZURE_REPOS}
+                            className="bg-card-lv1 flex flex-col gap-2 rounded-3xl border p-8">
+                            <Button
+                                size="lg"
+                                variant="primary"
+                                className="w-full"
+                                onClick={async () => {
+                                    await captureSegmentEvent({
+                                        userId: userId!,
+                                        event: "try_setup_git_integration",
+                                        properties: {
+                                            platform: "azure_repos",
+                                            method: "token",
+                                        },
+                                    });
+
+                                    magicModal.show(() => (
+                                        <AzureReposTokenModal
                                             teamId={teamId}
                                             userId={userId!}
                                         />

@@ -7,6 +7,7 @@ import { GitlabConnection } from "./gitlabConnection";
 import { IIntegrationConnector } from "./IIntegrationConnector";
 import { JiraConnection } from "./jiraConnection";
 import { SlackConnection } from "./slackConnection";
+import { AzureReposConnection } from "./azureReposConnection";
 
 class IntegrationFactory {
     private connectors: { [key: string]: IIntegrationConnector };
@@ -19,6 +20,7 @@ class IntegrationFactory {
             [INTEGRATIONS_KEY.DISCORD]: new DiscordConnection(),
             [INTEGRATIONS_KEY.GITLAB]: new GitlabConnection(),
             [INTEGRATIONS_KEY.BITBUCKET]: new BitbucketConnection(),
+            [INTEGRATIONS_KEY.AZURE_REPOS]: new AzureReposConnection(),
         };
     }
 

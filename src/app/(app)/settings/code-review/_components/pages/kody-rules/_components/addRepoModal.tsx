@@ -129,11 +129,11 @@ export const AddRepoModal = ({
                                             setSelectedRepositoryToCopy(value);
                                             field.onChange(value);
                                         }}>
-                                        <SelectTrigger id="repositoryTarget">
+                                        <SelectTrigger id="repositoryTarget" className="w-full" aria-label="Select target repository">
                                             <SelectValue placeholder="Select a repo to copy settings" />
                                         </SelectTrigger>
 
-                                        <SelectContent>
+                                        <SelectContent className="w-[var(--radix-popper-anchor-width)] max-h-56 overflow-y-auto">
                                             {availableRepositoriesToCopy?.map(
                                                 (availableRepository) => (
                                                     <SelectItem
@@ -173,11 +173,11 @@ export const AddRepoModal = ({
                                             setSelectedRepository(value);
                                             field.onChange(value);
                                         }}>
-                                        <SelectTrigger id="repoTarget">
+                                        <SelectTrigger id="repoTarget" className="w-full" aria-label="Select target repository">
                                             <SelectValue placeholder="Select" />
                                         </SelectTrigger>
 
-                                        <SelectContent>
+                                        <SelectContent className="w-[var(--radix-popper-anchor-width)] max-h-56 overflow-y-auto">
                                             {availableRepositories.map(
                                                 (availableRepository) => (
                                                     <SelectItem

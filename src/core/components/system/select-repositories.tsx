@@ -94,7 +94,7 @@ export const SelectRepositories = (props: {
                     }}>
                     <CommandInput placeholder="Search repository..." />
 
-                    <CommandList>
+                    <CommandList className="max-h-56 overflow-y-auto">
                         <CommandEmpty>No repository found.</CommandEmpty>
 
                         {selectedRepositories.length > 0 && (
@@ -124,7 +124,6 @@ export const SelectRepositories = (props: {
                                 ))}
                             </CommandGroup>
                         )}
-
                         {unselectedRepositories.length > 0 && (
                             <CommandGroup heading="Not selected">
                                 {unselectedRepositories.map((r) => (
@@ -135,8 +134,9 @@ export const SelectRepositories = (props: {
                                             onChangeSelectedRepositories([
                                                 ...selectedRepositories,
                                                 data.find(
-                                                    (r) =>
-                                                        r.id === currentValue,
+                                                    (repo) =>
+                                                        repo.id ===
+                                                        currentValue,
                                                 )!,
                                             ]);
                                         }}>

@@ -29,13 +29,13 @@ const DialogTrigger = DialogPrimitive.Trigger;
 const DialogPortal = DialogPrimitive.Portal;
 
 const DialogClose = React.forwardRef<
-    React.ElementRef<typeof DialogPrimitive.Close>,
+    React.ComponentRef<typeof DialogPrimitive.Close>,
     React.ComponentPropsWithoutRef<typeof DialogPrimitive.Close>
 >((props, ref) => <DialogPrimitive.Close asChild ref={ref} {...props} />);
 DialogClose.displayName = DialogPrimitive.Close.displayName;
 
 const DialogOverlay = React.forwardRef<
-    React.ElementRef<typeof DialogPrimitive.Overlay>,
+    React.ComponentRef<typeof DialogPrimitive.Overlay>,
     React.ComponentPropsWithoutRef<typeof DialogPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
     <DialogPrimitive.Overlay
@@ -50,7 +50,7 @@ const DialogOverlay = React.forwardRef<
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName;
 
 const DialogContent = React.forwardRef<
-    React.ElementRef<typeof DialogPrimitive.Content>,
+    React.ComponentRef<typeof DialogPrimitive.Content>,
     React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
 >(({ className, children, ...props }, ref) => {
     const { closeable } = useMagicModalState();
@@ -112,7 +112,7 @@ const DialogFooter = ({
 DialogFooter.displayName = "DialogFooter";
 
 const DialogTitle = React.forwardRef<
-    React.ElementRef<typeof DialogPrimitive.Title>,
+    React.ComponentRef<typeof DialogPrimitive.Title>,
     React.ComponentPropsWithoutRef<typeof DialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
     <DialogPrimitive.Title
@@ -127,7 +127,7 @@ const DialogTitle = React.forwardRef<
 DialogTitle.displayName = DialogPrimitive.Title.displayName;
 
 const DialogDescription = React.forwardRef<
-    React.ElementRef<typeof DialogPrimitive.Description>,
+    React.ComponentRef<typeof DialogPrimitive.Description>,
     React.ComponentPropsWithoutRef<typeof DialogPrimitive.Description>
 >(({ className, ...props }, ref) => (
     <DialogPrimitive.Description

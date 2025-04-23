@@ -8,7 +8,7 @@ import { cn } from "src/core/utils/components";
 import { Button } from "./button";
 
 const Checkbox = React.forwardRef<
-    React.ElementRef<typeof CheckboxPrimitive.Root>,
+    React.ComponentRef<typeof CheckboxPrimitive.Root>,
     React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root> & {
         decorative?: boolean;
     }

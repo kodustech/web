@@ -65,6 +65,7 @@ export default function App() {
                 organizationName: repo.organizationName,
                 language: repo?.language,
                 workspaceId: repo?.workspaceId,
+                project: repo?.project
             };
         });
 
@@ -155,7 +156,7 @@ export default function App() {
                         <p>
                             Since we started using it,{" "}
                             <strong className="text-success">
-                                our code review time dropped by 40%
+                                our code review time dropped by 40%
                             </strong>
                             , and production bugs were reduced by half.
                         </p>
