@@ -110,7 +110,7 @@ export const GenerateRulesButton = ({
                         </Card>
                     </HoverCardTrigger>
                     <HoverCardContent className="rounded-2xl">
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-sm">
                             Kody learns continuously and generates every week.
                         </p>
                     </HoverCardContent>

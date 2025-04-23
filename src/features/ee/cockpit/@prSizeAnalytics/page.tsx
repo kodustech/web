@@ -62,7 +62,7 @@ export default async function PRSizeAnalytics() {
                 <div className="flex justify-between gap-4">
                     <CardTitle className="text-sm">
                         PR Size
-                        <small className="ml-1 text-muted-foreground">
+                        <small className="text-text-secondary ml-1">
                             (p75)
                         </small>
                     </CardTitle>
@@ -85,8 +85,8 @@ export default async function PRSizeAnalytics() {
                                 PR Size Parameters
                             </span>
 
-                            <div className="flex flex-col gap-2 children:flex children:justify-between">
-                                <div className="text-muted-foreground">
+                            <div className="children:flex children:justify-between flex flex-col gap-2">
+                                <div className="text-text-secondary">
                                     <span>Lines</span>
                                     <span>Level</span>
                                 </div>
@@ -122,7 +122,7 @@ export default async function PRSizeAnalytics() {
                 </div>
             </CardContent>
 
-            <CardFooter className="flex gap-1 text-xs text-muted-foreground">
+            <CardFooter className="text-text-secondary flex gap-1 text-xs">
                 <span>
                     Last 2 weeks was {data?.previousPeriod?.averagePRSize}
                 </span>

@@ -47,14 +47,14 @@ export default function NewChat() {
         <Page.Root className="justify-center">
             <Page.Header className="-mt-16">
                 <div className="flex flex-row items-center gap-6">
-                    <div className="aspect-square h-16 w-16 -scale-x-1 overflow-hidden rounded-full bg-card">
+                    <div className="bg-card aspect-square h-16 w-16 -scale-x-1 overflow-hidden rounded-full">
                         <SvgKody className="h-full w-full" />
                     </div>
 
                     <div className="relative">
                         <Heading>How can I help?</Heading>
 
-                        <div className="absolute -top-4 left-0 text-sm text-brand-red">
+                        <div className="text-brand-red absolute -top-4 left-0 text-sm">
                             Alpha
                         </div>
                     </div>
@@ -63,7 +63,7 @@ export default function NewChat() {
 
             <Page.Content className="flex-none">
                 <div className="relative">
-                    <div className="pointer-events-none absolute inset-y-0 left-5 z-1 flex items-center text-muted-foreground">
+                    <div className="text-text-secondary pointer-events-none absolute inset-y-0 left-5 z-1 flex items-center">
                         <MessageSquareText />
                     </div>
 
@@ -79,11 +79,11 @@ export default function NewChat() {
                             onChange={(event) => setPrompt(event.target.value)}
                         />
 
-                        <div className="absolute inset-y-0 right-5 z-1 flex items-center text-muted-foreground">
+                        <div className="text-text-secondary absolute inset-y-0 right-5 z-1 flex items-center">
                             <Button
                                 loading={loading}
                                 disabled={!prompt.length}
-                                size="icon"
+                                size="icon-md"
                                 type="submit"
                                 onClick={() => sendPrompt()}
                                 variant="secondary"

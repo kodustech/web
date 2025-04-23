@@ -80,8 +80,8 @@ export default async function BugRatioAnalytics() {
                                 Bug Ratio Parameters
                             </span>
 
-                            <div className="flex flex-col gap-2 children:flex children:justify-between">
-                                <div className="text-muted-foreground">
+                            <div className="children:flex children:justify-between flex flex-col gap-2">
+                                <div className="text-text-secondary">
                                     <span>Percentage</span>
                                     <span>Level</span>
                                 </div>
@@ -118,7 +118,7 @@ export default async function BugRatioAnalytics() {
                 </div>
             </CardContent>
 
-            <CardFooter className="flex gap-1 text-xs text-muted-foreground">
+            <CardFooter className="text-text-secondary flex gap-1 text-xs">
                 <span>Last 2 weeks was {data?.previousPeriod?.ratio}%</span>
                 <PercentageDiff
                     status={getPercentageDiff(data?.comparison)}

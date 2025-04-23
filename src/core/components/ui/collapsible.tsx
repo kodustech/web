@@ -16,7 +16,7 @@ const CollapsibleIndicator = React.forwardRef<
         {...props}
         className={cn(
             className,
-            "text-muted-foreground size-4! shrink-0 transition duration-200",
+            "text-text-secondary size-4! shrink-0 transition duration-200",
         )}
     />
 ));

@@ -13,7 +13,7 @@ export default function ErrorPage({
     reset: () => void;
 }) {
     return (
-        <div className="flex h-full w-full items-center justify-center text-sm text-muted-foreground">
+        <div className="text-text-secondary flex h-full w-full items-center justify-center text-sm">
             {errorMessages[error.message] ?? errorMessages.DEFAULT}
         </div>
     );

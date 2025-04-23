@@ -38,7 +38,7 @@ export const KodyRulesRepoFollowsGlobalRulesModal = ({
                             globalRules?.map((rule) => (
                                 <Card key={rule.uuid} className="rounded-xl">
                                     <CardHeader className="flex-row items-start justify-between gap-10 p-3">
-                                        <p className="truncate text-sm text-muted-foreground">
+                                        <p className="text-text-secondary truncate text-sm">
                                             {rule.title}
                                         </p>
                                     </CardHeader>

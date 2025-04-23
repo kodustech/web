@@ -21,7 +21,7 @@ export default function ErrorPage({
             </CardHeader>
 
             <CardContent>
-                <div className="flex h-full w-full items-center justify-center text-center text-sm text-muted-foreground">
+                <div className="text-text-secondary flex h-full w-full items-center justify-center text-center text-sm">
                     {errorMessages[error.message] ?? errorMessages.DEFAULT}
                 </div>
             </CardContent>

@@ -107,7 +107,7 @@ export default function FlowMetricsTabs({
         if (resultType === "Negative") {
             return (
                 <div className="flex items-center gap-0.5 text-xs">
-                    <ArrowBigDownDash className="size-5 text-brand-orange" />
+                    <ArrowBigDownDash className="text-primary-light size-5" />
                     <span>{difference}</span>
                 </div>
             );
@@ -115,7 +115,7 @@ export default function FlowMetricsTabs({
 
         return (
             <div className="flex items-center gap-0.5 text-xs">
-                <ArrowBigUpDash className="size-5 text-success" />
+                <ArrowBigUpDash className="text-success size-5" />
                 <span>{difference}</span>
             </div>
         );
@@ -232,7 +232,7 @@ export default function FlowMetricsTabs({
                                           {metric.result}
                                       </Heading>
 
-                                      <span className="text-start text-xs text-muted-foreground">
+                                      <span className="text-text-secondary text-start text-xs">
                                           {metric.resultObs}
                                       </span>
                                   </div>

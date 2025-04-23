@@ -39,7 +39,7 @@ const FormControlHelper = ({
         <span
             {...props}
             className={cn(
-                "text-muted-foreground mt-1.5 text-[13px] leading-none",
+                "text-text-secondary mt-1.5 text-[13px] leading-none",
                 props.className,
             )}>
             {children}

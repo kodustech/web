@@ -17,7 +17,7 @@ export default async function CodeHealthByCategory() {
     return (
         <>
             <Card className="col-span-2 bg-transparent">
-                <CardHeader className="text-sm text-muted-foreground">
+                <CardHeader className="text-text-secondary text-sm">
                     The card(s) displays the number of Suggestions Provided by
                     Kody for each active Analysis Types. The data is filtered
                     based on the number of suggestions sent to the team within
@@ -40,10 +40,10 @@ export default async function CodeHealthByCategory() {
                         </CardHeader>
 
                         <CardContent className="flex items-end gap-1">
-                            <div className="text-2xl font-bold leading-5">
+                            <div className="text-2xl leading-5 font-bold">
                                 {d.count}
                             </div>{" "}
-                            <small className="text-muted-foreground">
+                            <small className="text-text-secondary">
                                 issues
                             </small>
                         </CardContent>

@@ -19,12 +19,12 @@ export default function ErrorPage({
             <CardHeader>
                 <CardTitle className="text-sm">
                     PR Cycle Time
-                    <small className="ml-1 text-muted-foreground">(p75)</small>
+                    <small className="text-text-secondary ml-1">(p75)</small>
                 </CardTitle>
             </CardHeader>
 
             <CardContent>
-                <div className="flex h-full w-full items-center justify-center text-center text-sm text-muted-foreground">
+                <div className="text-text-secondary flex h-full w-full items-center justify-center text-center text-sm">
                     {errorMessages[error.message] ?? errorMessages.DEFAULT}
                 </div>
             </CardContent>

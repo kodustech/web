@@ -24,7 +24,7 @@ export default function LoginPage() {
                             Welcome Back!
                         </Heading>
 
-                        <p className="text-center text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-center text-sm">
                             Start automating reviews in minutes and save hours
                             every sprint!
                         </p>
@@ -38,7 +38,7 @@ export default function LoginPage() {
 
                     <div className="mt-4 flex w-full flex-row items-center">
                         <hr className="flex-1 border-[#6A57A433]" />
-                        <p className="px-6 text-[13px] text-muted-foreground">
+                        <p className="text-text-secondary px-6 text-[13px]">
                             Or sign in with
                         </p>
                         <hr className="flex-1 border-[#6A57A433]" />

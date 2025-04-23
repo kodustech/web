@@ -28,18 +28,18 @@ export const Trial = ({
         <Card className="w-full">
             <CardHeader className="flex flex-row justify-between gap-2">
                 <div className="flex flex-col gap-2">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-text-secondary text-sm">
                         14 days free trial
                     </p>
                     <CardTitle>PRO plan</CardTitle>
 
                     <div className="mt-4 flex gap-6">
-                        {/* <p className="text-sm text-muted-foreground">
+                        {/* <p className="text-sm text-text-secondary">
                             <strong>5</strong> of <strong>7</strong> licenses
                             assigned
                         </p> */}
 
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-sm">
                             <strong>{organizationAdminsCount}</strong>{" "}
                             organization{" "}
                             {pluralize(organizationAdminsCount, {

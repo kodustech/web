@@ -21,7 +21,7 @@ export default function Loading() {
                 <Skeleton className="h-10 w-1/2" />
             </CardContent>
 
-            <CardFooter className="flex gap-1 text-xs text-muted-foreground">
+            <CardFooter className="text-text-secondary flex gap-1 text-xs">
                 <Skeleton className="h-4 w-3/5" />
             </CardFooter>
         </>

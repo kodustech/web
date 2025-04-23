@@ -112,7 +112,7 @@ export default function AutomationCard({
                 </CardHeader>
 
                 <div className="flex-1">
-                    <CardContent className="h-full max-h-40 overflow-auto text-sm text-muted-foreground">
+                    <CardContent className="text-text-secondary h-full max-h-40 overflow-auto text-sm">
                         {teamAutomation.automation.description}
                     </CardContent>
                 </div>
