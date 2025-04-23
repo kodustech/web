@@ -16,6 +16,7 @@
         "start": "next start --turbopack",
         "start:qa": "NODE_ENV=production next start",
         "lint": "eslint . --config eslint.config.js",
+        "check-types": "npx tsc --noEmit",
         "build-analyze": "cross-env ANALYZE=true yarn build",
         "prettier": "prettier --write **/*.{js,jsx,ts,tsx}",
         "format": "prettier --write .",

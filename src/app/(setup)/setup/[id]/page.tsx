@@ -382,10 +382,10 @@ export default function Redirect() {
                 }
             }
 
-            case INTEGRATIONS_KEY.AZUREREPOS:
+            case INTEGRATIONS_KEY.AZURE_REPOS:
                 if (integrationResponse?.success) {
                     await redirectToConfiguration(
-                        INTEGRATIONS_KEY.AZUREREPOS,
+                        INTEGRATIONS_KEY.AZURE_REPOS,
                         selectedTeam,
                     );
                 }

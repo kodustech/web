@@ -19,7 +19,6 @@ import {
 import { useToast } from "./use-toast";
 
 const icons = {
-    default: null,
     success: <CheckCircle2Icon className="text-success" />,
     info: <InfoIcon className="text-info" />,
     alert: <AlertTriangleIcon className="text-alert" />,
@@ -46,11 +45,7 @@ export function Toaster() {
                 return (
                     <Toast key={id} {...props} variant={variant}>
                         <div className="flex gap-x-4">
-                            {variant !== "default" && (
-                                <span className="*:size-7">
-                                    {icons[variant]}
-                                </span>
-                            )}
+                            <span className="*:size-7">{icons[variant]}</span>
 
                             <div className="flex min-h-7 flex-col justify-center gap-y-1">
                                 {title && <ToastTitle>{title}</ToastTitle>}

@@ -56,10 +56,10 @@ export default function AzureRepos() {
 
             const repos =
                 repoConfig &&
-                    Array.isArray(repoConfig?.configValue) &&
-                    repoConfig.configValue.every(
-                        (repo) => typeof repo === "object" && repo !== null,
-                    )
+                Array.isArray(repoConfig?.configValue) &&
+                repoConfig.configValue.every(
+                    (repo) => typeof repo === "object" && repo !== null,
+                )
                     ? (repoConfig.configValue as Repository[])
                     : [];
 
@@ -122,7 +122,7 @@ export default function AzureRepos() {
         await updateCodeReviewParameterRepositories(teamId);
 
         toast({
-            variant: "default",
+            variant: "success",
             title: "Repositories saved",
         });
 
@@ -183,10 +183,14 @@ export default function AzureRepos() {
 
                 <DialogFooter>
                     <DialogClose>
-                        <Button variant="outline">Cancel</Button>
+                        <Button size="md" variant="cancel">
+                            Cancel
+                        </Button>
                     </DialogClose>
 
                     <Button
+                        size="md"
+                        variant="primary"
                         disabled={selectedRepositories.length === 0}
                         onClick={saveSelectedRepositoriesAction}
                         loading={loadingSaveRepositories}>

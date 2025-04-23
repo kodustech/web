@@ -32,9 +32,9 @@ export default function App() {
     }, []);
 
     return (
-        <Page.Root className="flex h-full w-full flex-col flex-row items-center justify-center gap-6">
+        <Page.Root className="flex h-full w-full flex-col flex-row items-center justify-center gap-8">
             <Spinner />
-            <Heading>Disconnecting...</Heading>
+            <Heading variant="h3">Disconnecting...</Heading>
         </Page.Root>
     );
 }

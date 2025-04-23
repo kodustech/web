@@ -102,7 +102,7 @@ export default function App() {
             </div>
 
             <div className="flex flex-14 flex-col items-center justify-center gap-20 p-10">
-                <div className="flex max-w-96 flex-1 flex-col justify-center gap-10">
+                <div className="flex max-w-114 flex-1 flex-col justify-center gap-10">
                     <StepIndicators.Root>
                         <StepIndicators.Item status="completed" />
                         <StepIndicators.Item status="active" />

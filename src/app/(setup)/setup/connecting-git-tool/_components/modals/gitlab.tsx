@@ -154,7 +154,7 @@ export const GitlabTokenModal = (props: { teamId: string; userId: string }) => {
                             </Button>
 
                             <CollapsibleContent>
-                                <Card className="bg-card-lv1">
+                                <Card color="lv1">
                                     <CardHeader>
                                         <Controller
                                             name="selfhostUrl"
