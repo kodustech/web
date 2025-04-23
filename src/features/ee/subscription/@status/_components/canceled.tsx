@@ -46,9 +46,7 @@ export const Canceled = ({
         <Card className="w-full">
             <CardHeader className="flex flex-row justify-between gap-2">
                 <div className="flex flex-col gap-2">
-                    <p className="text-destructive text-sm">
-                        Canceled subscription
-                    </p>
+                    <p className="text-danger text-sm">Canceled subscription</p>
                     <CardTitle className="text-2xl">PRO plan</CardTitle>
 
                     <div className="mt-4 flex gap-6">

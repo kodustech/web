@@ -54,7 +54,7 @@ const FormControlError = (props: React.ComponentProps<"span">) => {
         <span
             {...props}
             className={cn(
-                "text-destructive mt-1.5 text-[13px] leading-none",
+                "text-danger mt-1.5 text-[13px] leading-none",
                 props.className,
             )}>
             {props.children}

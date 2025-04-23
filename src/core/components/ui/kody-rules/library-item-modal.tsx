@@ -339,10 +339,10 @@ const ExampleSection = ({
             <div
                 className={cn(
                     "children:size-4 flex size-6 items-center justify-center rounded-full",
-                    !example.isCorrect ? "bg-destructive/10" : "bg-success/10",
+                    !example.isCorrect ? "bg-danger/10" : "bg-success/10",
                 )}>
                 {!example.isCorrect ? (
-                    <XIcon className="stroke-destructive" />
+                    <XIcon className="stroke-danger" />
                 ) : (
                     <CheckIcon className="stroke-success" />
                 )}

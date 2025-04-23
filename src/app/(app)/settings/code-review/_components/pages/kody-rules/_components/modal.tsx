@@ -458,9 +458,9 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             <div className="flex items-center gap-3">
                                                 <div
                                                     className={cn(
-                                                        "bg-destructive/10 flex size-6 items-center justify-center rounded-full",
+                                                        "bg-danger/10 flex size-6 items-center justify-center rounded-full",
                                                     )}>
-                                                    <XIcon className="stroke-destructive size-4" />
+                                                    <XIcon className="stroke-danger size-4" />
                                                 </div>
                                                 <div className="flex flex-1 flex-col gap-3">
                                                     <div className="text-sm font-medium">

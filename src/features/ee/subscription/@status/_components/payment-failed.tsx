@@ -36,9 +36,9 @@ export const PaymentFailed = ({
             <CardHeader className="flex flex-row justify-between gap-2">
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-1.5">
-                        <AlertTriangle className="text-destructive size-4" />
+                        <AlertTriangle className="text-danger size-4" />
 
-                        <span className="text-destructive text-sm">
+                        <span className="text-danger text-sm">
                             Payment failed
                         </span>
                     </div>

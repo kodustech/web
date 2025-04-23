@@ -72,7 +72,7 @@ const TagInput: React.FC<TagInputProps> = ({
                             disabled={disabled}
                             onClick={() => removeTag(tag)}>
                             {tag}
-                            <X className="text-destructive -mr-1 h-4 w-4" />
+                            <X className="text-danger -mr-1 h-4 w-4" />
                         </Badge>
                     ))}
                 </div>

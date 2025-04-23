@@ -83,7 +83,7 @@ export const KodyRuleItem = ({ repositoryId, rule, onAnyChange }: Props) => {
                         variant="secondary"
                         loading={deletingRule}
                         onClick={deleteRule}
-                        className="[--button-foreground:var(--color-destructive)]">
+                        className="[--button-foreground:var(--color-danger)]">
                         <TrashIcon />
                     </Button>
                 </div>

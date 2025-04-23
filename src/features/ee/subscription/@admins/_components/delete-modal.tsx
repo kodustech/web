@@ -84,8 +84,8 @@ export const DeleteModal = ({ member }: DeleteMemberModalProps) => {
 
                 <p className="text-sm">
                     Are you sure you want to remove{" "}
-                    <strong className="text-destructive">{member.name}</strong>{" "}
-                    from the team?
+                    <strong className="text-danger">{member.name}</strong> from
+                    the team?
                 </p>
 
                 <DialogFooter>

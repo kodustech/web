@@ -10,8 +10,8 @@ const inputVariants = cva(
         "bg-card-lv2 ring-card-lv3",
         "placeholder:text-text-placeholder/50",
         "textinput-focused:ring-3 textinput-focused:brightness-120",
-        "textinput-invalid:border-destructive",
-        "textinput-focused-invalid:ring-destructive",
+        "textinput-invalid:border-danger",
+        "textinput-focused-invalid:ring-danger",
         "textinput-hover:brightness-120",
         "textinput-disabled:cursor-not-allowed textinput-disabled:bg-text-placeholder/30 textinput-disabled:ring-text-placeholder/30",
         "textinput-loading:cursor-wait",
@@ -65,7 +65,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                     disabled={disabled || loading}
                     className={cn(
                         inputVariants({ size }),
-                        !!error && "ring-destructive",
+                        !!error && "ring-danger",
                         LeftIcon && "pl-12",
                         RightIcon && "pr-12",
                         className,

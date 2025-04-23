@@ -121,7 +121,7 @@ const AutocompleteList = (props: React.ComponentProps<"div">) => {
                                 ]);
                             }}
                             className={cn(
-                                "text-destructive -mr-3",
+                                "text-danger -mr-3",
                                 props.className,
                             )}>
                             <XIcon />

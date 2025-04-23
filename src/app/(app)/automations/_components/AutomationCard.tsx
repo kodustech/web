@@ -144,7 +144,7 @@
 //                             ) : (
 //                                 <Tooltip>
 //                                     <TooltipTrigger>
-//                                         <AlertCircleIcon className="text-destructive" />
+//                                         <AlertCircleIcon className="text-danger" />
 //                                     </TooltipTrigger>
 
 //                                     <TooltipContent>

@@ -24,7 +24,7 @@ const icons = {
     info: <InfoIcon className="text-info" />,
     alert: <AlertTriangleIcon className="text-alert" />,
     warning: <AlertCircleIcon className="text-warning" />,
-    danger: <XOctagonIcon className="text-destructive" />,
+    danger: <XOctagonIcon className="text-danger" />,
 } satisfies Record<
     NonNullable<React.ComponentProps<typeof Toast>["variant"]>,
     React.ReactNode
