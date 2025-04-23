@@ -135,7 +135,7 @@ export default function WeeklyCheckinConfig() {
 //                 title: "Error saving settings",
 //                 description:
 //                     "An error occurred while saving the settings. Please try again.",
-//                 variant: "destructive",
+//                 variant: "danger",
 //             });
 //         } finally {
 //             setIsPostLoading(false);

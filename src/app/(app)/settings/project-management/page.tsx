@@ -445,10 +445,10 @@ export default function ProjectManagementConfigPage() {
     const handleUpdateIntegrationConfig = async () => {
         try {
             setIsLoadingSubmitButton(true);
-            toast({
+            const toast1 = toast({
                 title: "Updating",
                 description: "Settings are being updated...",
-                variant: "default",
+                variant: "info",
             });
 
             validateConfigurations();
@@ -475,6 +475,8 @@ export default function ProjectManagementConfigPage() {
                 IntegrationCategory.PROJECT_MANAGEMENT,
             );
 
+            toast1.dismiss();
+
             if (response?.error) {
                 toast({
                     title: "Error",
@@ -485,10 +487,8 @@ export default function ProjectManagementConfigPage() {
 
             if (response?.success) {
                 toast({
-                    title: "Success",
-                    description:
-                        "Project management settings successfully updated",
-                    variant: "default",
+                    description: "Settings updated",
+                    variant: "success",
                 });
             }
         } catch (err: any) {

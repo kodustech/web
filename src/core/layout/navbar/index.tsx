@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useMemo } from "react";
-import Link from "next/link";
+import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { SvgKodus } from "@components/ui/icons/SvgKodus";
 import {
@@ -59,9 +59,9 @@ export const NavMenu = () => {
 
     return (
         <div className="border-primary-dark bg-card-lv1 z-50 flex h-16 shrink-0 items-center gap-4 border-b-2 px-6">
-            <Link href="/">
+            <NextLink href="/">
                 <SvgKodus className="h-8 max-w-max" />
-            </Link>
+            </NextLink>
 
             <div className="-mb-1 h-full flex-1">
                 <NavigationMenu className="h-full *:h-full">

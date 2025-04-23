@@ -108,9 +108,8 @@ export const AcceptInviteForm = (props: {
 
         if (register?.data?.statusCode === 201) {
             toast({
-                title: "Success",
-                description: "Registration completed successfully!",
-                variant: "default",
+                description: "Registration completed!",
+                variant: "success",
             });
 
             await signIn("credentials", {

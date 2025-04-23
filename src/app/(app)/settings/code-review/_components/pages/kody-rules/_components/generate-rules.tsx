@@ -77,10 +77,8 @@ export const GenerateRulesButton = ({
                 });
 
                 toast({
-                    title: "Success",
-                    description:
-                        "Code review automation settings saved successfully.",
-                    variant: "default",
+                    description: "Settings saved",
+                    variant: "success",
                 });
             } catch (error) {
                 console.error("Erro ao salvar as configurações:", error);
