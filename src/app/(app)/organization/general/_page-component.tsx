@@ -55,15 +55,14 @@ export const GeneralOrganizationSettingsPage = (props: {
                 router.refresh();
 
                 toast({
-                    title: "Success",
-                    description: "Settings saved successfully",
-                    variant: "default",
+                    description: "Settings saved",
+                    variant: "success",
                 });
             } catch (error: any) {
                 toast({
                     title: "Error",
                     description: error.message,
-                    variant: "destructive",
+                    variant: "danger",
                 });
 
                 console.error(error);
@@ -78,6 +77,8 @@ export const GeneralOrganizationSettingsPage = (props: {
 
                 <Page.HeaderActions>
                     <Button
+                        size="md"
+                        variant="primary"
                         leftIcon={<Save />}
                         disabled={timezone === props.timezone}
                         onClick={saveSettings}

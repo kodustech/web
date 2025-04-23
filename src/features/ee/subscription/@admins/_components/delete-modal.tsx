@@ -42,6 +42,7 @@ export const DeleteModal = ({ member }: DeleteMemberModalProps) => {
                 const otherTeams = response?.data;
                 if (otherTeams && otherTeams.length > 0) {
                     toast({
+                        variant: "success",
                         description: (
                             <div>
                                 <p>Member successfully removed!</p>
@@ -55,6 +56,7 @@ export const DeleteModal = ({ member }: DeleteMemberModalProps) => {
                     });
                 } else {
                     toast({
+                        variant: "success",
                         description: "Member successfully removed.",
                     });
                 }
@@ -62,7 +64,7 @@ export const DeleteModal = ({ member }: DeleteMemberModalProps) => {
             onError: () => {
                 toast({
                     description: "Error removing member from the team.",
-                    variant: "destructive",
+                    variant: "danger",
                 });
                 magicModal.hide();
             },
@@ -87,12 +89,16 @@ export const DeleteModal = ({ member }: DeleteMemberModalProps) => {
                 </p>
 
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => magicModal.hide()}>
+                    <Button
+                        size="md"
+                        variant="cancel"
+                        onClick={() => magicModal.hide()}>
                         Cancel
                     </Button>
 
                     <Button
-                        variant="destructive"
+                        size="md"
+                        variant="tertiary"
                         loading={!enabled || isPending}
                         onClick={handleDelete}>
                         Remove

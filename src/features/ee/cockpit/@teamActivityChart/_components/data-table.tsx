@@ -29,7 +29,7 @@ const getCommonPinningStyles = (
         isPinned === "left" && column.getIsLastColumn("left");
 
     return {
-        className: cn(isLastLeftPinnedColumn && "bg-card border-r"),
+        className: cn(isLastLeftPinnedColumn && "bg-card-lv1 border-r"),
         style: {
             left:
                 isPinned === "left"
@@ -66,10 +66,8 @@ export const DataTable = ({
 
     return (
         <ScrollArea type="always" className="relative h-[600px]">
-            <table
-                className="border-separate border-spacing-0 text-sm"
-                style={{ width: table.getTotalSize() }}>
-                <TableHeader className="sticky top-0 z-10 bg-card">
+            <table className="text-sm" style={{ width: table.getTotalSize() }}>
+                <TableHeader className="sticky top-0 z-10">
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map((header) => {

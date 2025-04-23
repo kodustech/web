@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
+import { Card, CardHeader } from "@components/ui/card";
 import { Collapsible, CollapsibleContent } from "@components/ui/collapsible";
 import { FormControl } from "@components/ui/form-control";
 import { Input } from "@components/ui/input";
@@ -11,7 +12,7 @@ import { Switch } from "@components/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createCodeManagementIntegration } from "@services/codeManagement/fetch";
 import { AxiosError } from "axios";
-import { Info } from "lucide-react";
+import { Info, SaveIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import {
     Dialog,
@@ -22,17 +23,17 @@ import {
     DialogTitle,
 } from "src/core/components/ui/dialog";
 import { AuthMode, PlatformType } from "src/core/types";
+import { captureSegmentEvent } from "src/core/utils/segment";
 import { z } from "zod";
 
 import { TokenDocs } from "../token-docs";
-import { captureSegmentEvent } from "src/core/utils/segment";
 
 const tokenFormSchema = z.object({
     token: z.string().min(1, { message: "Enter a Token" }),
     selfhostUrl: z.string().optional(),
 });
 
-export const GitlabTokenModal = (props: { teamId: string, userId: string }) => {
+export const GitlabTokenModal = (props: { teamId: string; userId: string }) => {
     const [selfhosted, setSelfhosted] = useState(false);
 
     const form = useForm({
@@ -64,7 +65,7 @@ export const GitlabTokenModal = (props: { teamId: string, userId: string }) => {
                 properties: {
                     platform: "github",
                     method: "token",
-                    teamId: props?.teamId
+                    teamId: props?.teamId,
                 },
             });
 
@@ -96,7 +97,7 @@ export const GitlabTokenModal = (props: { teamId: string, userId: string }) => {
                         <DialogDescription></DialogDescription>
                     </DialogHeader>
 
-                    <Alert className="my-4 border-ring/50 text-ring dark:border-ring [&>svg]:text-ring">
+                    <Alert className="border-ring/50 text-ring dark:border-ring [&>svg]:text-ring my-4">
                         <Info size={18} />
                         <AlertTitle>Heads up!</AlertTitle>
                         <AlertDescription>
@@ -129,66 +130,88 @@ export const GitlabTokenModal = (props: { teamId: string, userId: string }) => {
 
                         <Collapsible
                             open={selfhosted}
-                            className="flex flex-col gap-4">
-                            <FormControl.Root className="flex-row items-center justify-between">
-                                <FormControl.Label htmlFor="self-hosted">
+                            className="flex flex-col gap-1">
+                            <Button
+                                type="button"
+                                variant="helper"
+                                size="lg"
+                                className="w-full items-center justify-between py-4"
+                                onClick={(ev) => {
+                                    // Reason behind this line: https://github.com/radix-ui/primitives/issues/2549#issuecomment-1859233467
+                                    if (ev.currentTarget !== ev.target) return;
+
+                                    setSelfhosted(!selfhosted);
+                                }}>
+                                <FormControl.Label className="mb-0">
                                     Self-hosted
                                 </FormControl.Label>
 
-                                <FormControl.Input>
-                                    <Switch
-                                        id="self-hosted"
-                                        checked={selfhosted}
-                                        onCheckedChange={setSelfhosted}
-                                    />
-                                </FormControl.Input>
-                            </FormControl.Root>
+                                <Switch
+                                    decorative
+                                    checked={selfhosted}
+                                    onCheckedChange={() => {}}
+                                />
+                            </Button>
 
                             <CollapsibleContent>
-                                <Controller
-                                    name="selfhostUrl"
-                                    control={form.control}
-                                    render={({ field, fieldState }) => (
-                                        <FormControl.Root>
-                                            <FormControl.Label
-                                                htmlFor={field.name}>
-                                                Gitlab URL
-                                            </FormControl.Label>
+                                <Card className="bg-card-lv1">
+                                    <CardHeader>
+                                        <Controller
+                                            name="selfhostUrl"
+                                            control={form.control}
+                                            render={({ field, fieldState }) => (
+                                                <FormControl.Root>
+                                                    <FormControl.Label
+                                                        htmlFor={field.name}>
+                                                        Gitlab URL
+                                                    </FormControl.Label>
 
-                                            <FormControl.Input>
-                                                <Input
-                                                    {...field}
-                                                    autoFocus
-                                                    id={field.name}
-                                                    error={fieldState.error}
-                                                    placeholder="Enter the URL of your authentication server"
-                                                />
-                                            </FormControl.Input>
+                                                    <FormControl.Input>
+                                                        <Input
+                                                            {...field}
+                                                            autoFocus
+                                                            id={field.name}
+                                                            error={
+                                                                fieldState.error
+                                                            }
+                                                            placeholder="Enter the URL of your authentication server"
+                                                        />
+                                                    </FormControl.Input>
 
-                                            <FormControl.Error>
-                                                {fieldState.error?.message}
-                                            </FormControl.Error>
-                                        </FormControl.Root>
-                                    )}
-                                />
+                                                    <FormControl.Error>
+                                                        {
+                                                            fieldState.error
+                                                                ?.message
+                                                        }
+                                                    </FormControl.Error>
+                                                </FormControl.Root>
+                                            )}
+                                        />
+                                    </CardHeader>
+                                </Card>
                             </CollapsibleContent>
                         </Collapsible>
 
-                        <TokenDocs link="https://docs.kodus.io/config/gitlab_pat" />
+                        <TokenDocs link="https://docs.kodus.io/how_to_use/en/code_review/general_config/gitlab_pat" />
                     </div>
 
                     <DialogFooter>
                         <Button
-                            variant="outline"
+                            size="md"
+                            type="button"
+                            variant="cancel"
                             onClick={() => magicModal.hide()}>
                             Cancel
                         </Button>
 
                         <Button
+                            size="md"
                             type="submit"
+                            variant="primary"
+                            leftIcon={<SaveIcon />}
                             loading={formIsSubmitting}
                             disabled={!formIsValid}>
-                            Next
+                            Validate and save
                         </Button>
                     </DialogFooter>
                 </form>

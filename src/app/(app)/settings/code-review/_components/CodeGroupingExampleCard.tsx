@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { Card } from "@components/ui/card";
+import { Image } from "@components/ui/image";
 
 import { GroupingModeSuggestions } from "./pages/types";
 
@@ -19,11 +19,10 @@ export default function CodeGroupingExampleCard({
                     affected files and lines are listed together, but without
                     links to specific locations.
                 </span>
+
                 <Image
                     src="/assets/images/full_grouping.png"
                     alt="Full grouping"
-                    width={509}
-                    height={205}
                 />
             </Card>
         );
@@ -40,8 +39,6 @@ export default function CodeGroupingExampleCard({
             <Image
                 src="/assets/images/minimal_grouping.png"
                 alt="File grouping"
-                width={509}
-                height={205}
             />
         </Card>
     );

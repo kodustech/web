@@ -141,7 +141,7 @@ export default function ProjectManagementConfigPage() {
                 toast({
                     title: "Error",
                     description: "Error retrieving boardPriorityType",
-                    variant: "destructive",
+                    variant: "danger",
                 });
             } finally {
                 setIsLoadingUpdateBoardPriorityType(false);
@@ -177,14 +177,14 @@ export default function ProjectManagementConfigPage() {
                 toast({
                     title: "Error",
                     description: "Error retrieving board priority parameter:",
-                    variant: "destructive",
+                    variant: "danger",
                 });
             }
         } catch (err) {
             toast({
                 title: "Error",
                 description: "Error retrieving board priority parameter:",
-                variant: "destructive",
+                variant: "danger",
             });
             console.error(err);
         } finally {
@@ -479,7 +479,7 @@ export default function ProjectManagementConfigPage() {
                 toast({
                     title: "Error",
                     description: ERROR_MESSAGES.loadUpdateIntegrationConfigs,
-                    variant: "destructive",
+                    variant: "danger",
                 });
             }
 
@@ -497,7 +497,7 @@ export default function ProjectManagementConfigPage() {
                 description: err.message
                     ? err.message
                     : ERROR_MESSAGES.loadTeamIntegrationConfigs,
-                variant: "destructive",
+                variant: "danger",
             });
             console.error(err);
         } finally {
@@ -633,13 +633,15 @@ export default function ProjectManagementConfigPage() {
             <Page.Header>
                 <div>
                     <Page.Title>Project Tool Settings</Page.Title>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-text-secondary text-sm">
                         Here you can customize your project tool settings.
                     </p>
                 </div>
 
                 <Button
                     className="mt-4"
+                    size="md"
+                    variant="primary"
                     loading={isLoadingSubmitButton}
                     onClick={async () => handleUpdateIntegrationConfig()}>
                     Update settings
@@ -684,7 +686,7 @@ export default function ProjectManagementConfigPage() {
                                             JQL Filter
                                         </FormControl.Label>
 
-                                        <FormControl.Helper className="mb-1.5 mt-0">
+                                        <FormControl.Helper className="mt-0 mb-1.5">
                                             When configured, the JQL filter is
                                             applied to the return of your team's
                                             work items.

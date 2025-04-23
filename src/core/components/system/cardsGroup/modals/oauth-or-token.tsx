@@ -68,6 +68,8 @@ export const OauthOrTokenModal = (props: Props) => {
                     <TabsContent value="oauth">
                         <DialogFooter>
                             <Button
+                                size="md"
+                                variant="primary"
                                 loading={loadingGoToOauth}
                                 onClick={goToOAuth}>
                                 Go to OAuth
@@ -76,7 +78,7 @@ export const OauthOrTokenModal = (props: Props) => {
                     </TabsContent>
 
                     <TabsContent value="token">
-                        <Alert className="my-4 border-ring/50 text-ring dark:border-ring [&>svg]:text-ring">
+                        <Alert className="border-ring/50 text-ring dark:border-ring [&>svg]:text-ring my-4">
                             <Info size={18} />
                             <AlertTitle>Heads up!</AlertTitle>
                             <AlertDescription>
@@ -103,6 +105,8 @@ export const OauthOrTokenModal = (props: Props) => {
 
                         <DialogFooter className="mb-6">
                             <Button
+                                size="md"
+                                variant="primary"
                                 onClick={saveToken}
                                 loading={loadingSaveToken}
                                 disabled={!token || !!error.message}>

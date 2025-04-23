@@ -80,17 +80,15 @@ export const InviteModal = ({
             {
                 onSuccess: () => {
                     toast({
-                        title: "Success",
-                        description: `Emails sent successfully!`,
-                        variant: "default",
+                        variant: "success",
+                        description: "The emails were sent!",
                     });
                     setEmailList([]);
                 },
                 onError: (error) => {
                     toast({
-                        title: "Error",
-                        description: `Error sending the emails`,
-                        variant: "destructive",
+                        variant: "danger",
+                        description: "Error sending the emails",
                     });
                 },
             },
@@ -120,41 +118,42 @@ export const InviteModal = ({
                             <FormControl.Root>
                                 <FormControl.Label>Email</FormControl.Label>
                                 <FormControl.Input>
-                                    <div className="relative">
-                                        <Input
-                                            {...field}
-                                            placeholder="Type an email to invite"
-                                            error={fieldState.error}
-                                            onKeyDown={(e) => {
-                                                if (e.key === "Enter") {
-                                                    e.preventDefault();
+                                    <Input
+                                        {...field}
+                                        placeholder="Type an email to invite"
+                                        error={fieldState.error}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                e.preventDefault();
 
-                                                    if (!fieldState.invalid) {
-                                                        form.handleSubmit(
-                                                            onSubmit,
-                                                        )();
-                                                    }
+                                                if (!fieldState.invalid) {
+                                                    form.handleSubmit(
+                                                        onSubmit,
+                                                    )();
                                                 }
-                                            }}
-                                        />
-
-                                        <Badge
-                                            className="absolute right-2 top-1/2 -translate-y-1/2"
-                                            leftIcon={
-                                                <Plus className="size-4" />
                                             }
-                                            variant="outline"
-                                            disabled={
-                                                !field.value.length ||
-                                                fieldState.invalid ||
-                                                emailList.includes(field.value)
-                                            }
-                                            onClick={() =>
-                                                form.handleSubmit(onSubmit)()
-                                            }>
-                                            Add to invite list
-                                        </Badge>
-                                    </div>
+                                        }}
+                                        rightIcon={
+                                            <Badge
+                                                className="-mr-2"
+                                                variant="primary-dark"
+                                                leftIcon={<Plus />}
+                                                disabled={
+                                                    !field.value.length ||
+                                                    fieldState.invalid ||
+                                                    emailList.includes(
+                                                        field.value,
+                                                    )
+                                                }
+                                                onClick={() =>
+                                                    form.handleSubmit(
+                                                        onSubmit,
+                                                    )()
+                                                }>
+                                                Add to invite list
+                                            </Badge>
+                                        }
+                                    />
                                 </FormControl.Input>
 
                                 <FormControl.Error>
@@ -172,19 +171,27 @@ export const InviteModal = ({
                     {/* Lista de e-mails adicionados */}
                     {emailList.length > 0 && (
                         <div className="mt-6">
-                            <h3 className="text-gray-300 mb-1 text-sm font-medium">
+                            <h3 className="mb-1 text-sm font-medium text-gray-300">
                                 Emails added:
                             </h3>
                             <div className="flex flex-wrap gap-2">
                                 {emailList.map((email) => (
                                     <Badge
                                         key={email}
-                                        variant="outline"
+                                        variant="helper"
+                                        className="gap-1"
                                         rightIcon={
-                                            <X className="text-brand-red" />
-                                        }
-                                        onClick={() =>
-                                            removeEmailFromInviteList(email)
+                                            <Button
+                                                size="icon-xs"
+                                                variant="cancel"
+                                                className="-mr-1.5"
+                                                onClick={() =>
+                                                    removeEmailFromInviteList(
+                                                        email,
+                                                    )
+                                                }>
+                                                <X className="text-danger" />
+                                            </Button>
                                         }>
                                         {email}
                                     </Badge>
@@ -195,6 +202,8 @@ export const InviteModal = ({
 
                     <div className="mt-6 flex justify-end">
                         <Button
+                            size="md"
+                            variant="primary"
                             type="button"
                             onClick={handleSendEmails}
                             loading={createOrUpdateMutation.isPending}

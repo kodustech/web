@@ -9,8 +9,8 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@components/ui/breadcrumb";
-import { Button, buttonVariants } from "@components/ui/button";
-import { Card, CardHeader } from "@components/ui/card";
+import { Button } from "@components/ui/button";
+import { CardHeader } from "@components/ui/card";
 import { Checkbox } from "@components/ui/checkbox";
 import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
@@ -42,7 +42,6 @@ import { Download, Save } from "lucide-react";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { PlatformType } from "src/core/types";
-import { cn } from "src/core/utils/components";
 
 import {
     useAutomationCodeReviewConfig,
@@ -186,10 +185,8 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
             form.reset({ ...config, language });
 
             toast({
-                title: "Success",
-                description:
-                    "Code review automation settings saved successfully.",
-                variant: "default",
+                description: "Settings saved",
+                variant: "success",
             });
         } catch (error) {
             console.error("Erro ao salvar as configurações:", error);
@@ -198,7 +195,7 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                 title: "Error",
                 description:
                     "An error occurred while saving the settings. Please try again.",
-                variant: "destructive",
+                variant: "danger",
             });
         }
     });
@@ -225,9 +222,8 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
             window.URL.revokeObjectURL(url);
 
             toast({
-                title: "Success",
-                description: "File downloaded successfully",
-                variant: "default",
+                description: "File downloaded",
+                variant: "success",
             });
         } catch (error) {
             console.error("Erro ao salvar as configurações:", error);
@@ -236,7 +232,7 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                 title: "Error",
                 description:
                     "An error occurred while generating the yml file. Please try again.",
-                variant: "destructive",
+                variant: "danger",
             });
         }
     };
@@ -336,15 +332,19 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                 <Page.Title>General settings</Page.Title>
                 <Page.HeaderActions>
                     <Button
+                        size="md"
                         leftIcon={<Download />}
                         onClick={async () => await handleFileDownload()}
-                        variant={"outline"}
+                        variant="secondary"
                         loading={formIsSubmitting}>
                         Download{" "}
                         {repositoryId === "global" ? "Default" : "repository"}{" "}
                         YML configuration file
                     </Button>
+
                     <Button
+                        size="md"
+                        variant="primary"
                         leftIcon={<Save />}
                         onClick={handleSubmit}
                         disabled={!formIsDirty || !formIsValid}
@@ -361,20 +361,20 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                             name="automatedReviewActive"
                             control={form.control}
                             render={({ field }) => (
-                                <Card
-                                    data-selected={field.value}
-                                    onClick={() => field.onChange(!field.value)}
-                                    className={cn(
-                                        buttonVariants({ variant: "outline" }),
-                                        "h-auto cursor-pointer px-2 py-1",
-                                    )}>
-                                    <CardHeader className="flex flex-row items-center justify-between">
+                                <Button
+                                    size="sm"
+                                    variant="helper"
+                                    className="w-full"
+                                    onClick={() =>
+                                        field.onChange(!field.value)
+                                    }>
+                                    <CardHeader className="flex flex-row items-center justify-between gap-6">
                                         <div className="flex flex-col gap-1">
                                             <Heading variant="h3">
                                                 Enable Automated Code Review
                                             </Heading>
 
-                                            <p className="text-sm text-muted-foreground">
+                                            <p className="text-text-secondary text-sm">
                                                 Whenever a Pull Request is
                                                 opened, Kody will automatically
                                                 review the code, highlighting
@@ -385,19 +385,18 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                         </div>
 
                                         <Switch
-                                            disabled
+                                            decorative
                                             checked={field.value}
-                                            className="pointer-events-none opacity-100!"
                                         />
                                     </CardHeader>
-                                </Card>
+                                </Button>
                             )}
                         />
 
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-text-secondary text-xs">
                             When disabled, you can manually start the review by
                             using the command{" "}
-                            <code className="mx-0.5 rounded-lg bg-background px-1.5 py-1 text-foreground">
+                            <code className="bg-background text-foreground mx-0.5 rounded-lg px-1.5 py-1">
                                 @kody start-review
                             </code>{" "}
                             in the Pull Request comments.
@@ -409,21 +408,19 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                             name="kodusConfigFileOverridesWebPreferences"
                             control={form.control}
                             render={({ field }) => (
-                                <Card
-                                    data-selected={field.value}
+                                <Button
+                                    size="sm"
+                                    variant="helper"
                                     onClick={() => field.onChange(!field.value)}
-                                    className={cn(
-                                        buttonVariants({ variant: "outline" }),
-                                        "h-auto cursor-pointer px-2 py-1",
-                                    )}>
-                                    <CardHeader className="flex flex-row items-center justify-between">
+                                    className="w-full">
+                                    <CardHeader className="flex flex-row items-center justify-between gap-6">
                                         <div className="flex flex-col gap-1">
                                             <Heading variant="h3">
                                                 kodus Config File Overrides Web
                                                 Preferences
                                             </Heading>
 
-                                            <p className="text-sm text-muted-foreground">
+                                            <p className="text-text-secondary text-sm">
                                                 When the{" "}
                                                 <strong>
                                                     kodus-config.yml{" "}
@@ -440,20 +437,19 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                         </div>
 
                                         <Switch
-                                            disabled
+                                            decorative
                                             checked={field.value}
-                                            className="pointer-events-none opacity-100!"
                                         />
                                     </CardHeader>
-                                </Card>
+                                </Button>
                             )}
                         />
 
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-text-secondary text-xs">
                             Note:{" "}
                             <Link
                                 href={`/settings/code-review/${repositoryId}/kody-rules`}
-                                className="underline-offset-3 text-xs">
+                                className="text-xs underline-offset-3">
                                 Kody Rules
                             </Link>{" "}
                             can only be configured through the web interface.
@@ -464,20 +460,18 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                             name="pullRequestApprovalActive"
                             control={form.control}
                             render={({ field }) => (
-                                <Card
-                                    data-selected={field.value}
+                                <Button
+                                    size="sm"
+                                    variant="helper"
                                     onClick={() => field.onChange(!field.value)}
-                                    className={cn(
-                                        buttonVariants({ variant: "outline" }),
-                                        "h-auto cursor-pointer px-2 py-1",
-                                    )}>
-                                    <CardHeader className="flex flex-row items-center justify-between">
+                                    className="w-full">
+                                    <CardHeader className="flex flex-row items-center justify-between gap-6">
                                         <div className="flex flex-col gap-1">
                                             <Heading variant="h3">
                                                 Enable Pull Request Approval
                                             </Heading>
 
-                                            <p className="text-sm text-muted-foreground">
+                                            <p className="text-text-secondary text-sm">
                                                 When Kody completes an automated
                                                 code review and finds no issues,
                                                 it will automatically approve
@@ -486,12 +480,11 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                         </div>
 
                                         <Switch
-                                            disabled
+                                            decorative
                                             checked={field.value}
-                                            className="pointer-events-none opacity-100!"
                                         />
                                     </CardHeader>
-                                </Card>
+                                </Button>
                             )}
                         />
                     </div>
@@ -501,23 +494,20 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                             disabled={isCodeManagementGitlab}
                             control={form.control}
                             render={({ field }) => (
-                                <Card
+                                <Button
+                                    size="sm"
+                                    variant="helper"
                                     disabled={field.disabled}
-                                    data-selected={field.value}
                                     onClick={() => field.onChange(!field.value)}
-                                    className={cn(
-                                        buttonVariants({ variant: "outline" }),
-                                        "h-auto cursor-pointer px-2 py-1",
-                                        field.disabled && "cursor-not-allowed",
-                                    )}>
-                                    <CardHeader className="flex flex-row items-center justify-between">
+                                    className="w-full">
+                                    <CardHeader className="flex flex-row items-center justify-between gap-6">
                                         <div className="flex flex-col gap-1">
                                             <Heading variant="h3">
                                                 Enable changing status of Review
                                                 to 'Request Changes'
                                             </Heading>
 
-                                            <p className="text-sm text-muted-foreground">
+                                            <p className="text-text-secondary text-sm">
                                                 When Kody completes an automated
                                                 code review and finds critical
                                                 issues, it will automatically
@@ -528,16 +518,15 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                         </div>
 
                                         <Switch
-                                            disabled
+                                            decorative
                                             checked={field.value}
-                                            className="pointer-events-none opacity-100!"
                                         />
                                     </CardHeader>
-                                </Card>
+                                </Button>
                             )}
                         />
 
-                        <p className="text-xs text-muted-foreground">
+                        <p className="text-text-secondary text-xs">
                             Note: This option is not applicable to Gitlab.
                         </p>
                     </div>
@@ -545,7 +534,7 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                         name="reviewOptions"
                         control={form.control}
                         render={({ field }) => (
-                            <FormControl.Root className="space-y-1">
+                            <FormControl.Root className="@container space-y-1">
                                 <FormControl.Label htmlFor="reviewOptions">
                                     Analysis types
                                 </FormControl.Label>
@@ -555,7 +544,7 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                         id="reviewOptions"
                                         type="multiple"
                                         disabled={field.disabled}
-                                        className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3"
+                                        className="grid auto-rows-fr grid-cols-1 gap-2 @lg:grid-cols-2 @3xl:grid-cols-3"
                                         value={Object.entries(
                                             mapReviewOptionsToValues(
                                                 mapToReviewOptions(field.value),
@@ -592,14 +581,16 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                                 asChild
                                                 key={option.value}
                                                 value={option.value}>
-                                                <Card
-                                                    className={cn(
-                                                        buttonVariants({
-                                                            variant: "outline",
-                                                        }),
-                                                        "h-auto cursor-pointer items-start px-5 py-4 disabled:cursor-not-allowed",
-                                                    )}>
-                                                    <div className="flex h-full w-full items-start justify-between">
+                                                <Button
+                                                    size="lg"
+                                                    variant="helper"
+                                                    onClick={() =>
+                                                        field.onChange(
+                                                            !field.value,
+                                                        )
+                                                    }
+                                                    className="w-full items-start py-5">
+                                                    <div className="flex w-full flex-row justify-between gap-6">
                                                         <div className="flex flex-col gap-2">
                                                             <Heading
                                                                 variant="h3"
@@ -607,7 +598,7 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                                                 {option.name}
                                                             </Heading>
 
-                                                            <p className="text-xs text-muted-foreground">
+                                                            <p className="text-text-secondary text-xs">
                                                                 {
                                                                     option.description
                                                                 }
@@ -615,8 +606,7 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                                         </div>
 
                                                         <Checkbox
-                                                            disabled
-                                                            className="pointer-events-none children:opacity-100 disabled:opacity-100"
+                                                            decorative
                                                             checked={
                                                                 field.value?.[
                                                                     option.value as keyof CodeReviewOptions
@@ -624,7 +614,7 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                                             }
                                                         />
                                                     </div>
-                                                </Card>
+                                                </Button>
                                             </ToggleGroup.ToggleGroupItem>
                                         ))}
                                     </ToggleGroup.Root>
@@ -641,10 +631,6 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                 <FormControl.Label htmlFor="ignore-paths">
                                     Ignored files
                                 </FormControl.Label>
-                                <FormControl.Helper className="mb-1 mt-0">
-                                    Glob pattern for file path. One per line.
-                                    Example: **/*.js
-                                </FormControl.Helper>
 
                                 <FormControl.Input>
                                     <Textarea
@@ -665,6 +651,11 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                         className="min-h-40"
                                     />
                                 </FormControl.Input>
+
+                                <FormControl.Helper>
+                                    Glob pattern for file path. One per line.
+                                    Example: **/*.js
+                                </FormControl.Helper>
                             </FormControl.Root>
                         )}
                     />
@@ -677,12 +668,6 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                 <FormControl.Label htmlFor="ignored-title-keywords">
                                     Ignore title keywords
                                 </FormControl.Label>
-                                <FormControl.Helper className="mb-1 mt-0">
-                                    Ignore the review if the pull request title
-                                    contains any of these keywords
-                                    (case-insensitive). 100 characters maximum
-                                    per keyword.
-                                </FormControl.Helper>
 
                                 <FormControl.Input>
                                     <TagInput
@@ -693,6 +678,13 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                         onTagsChange={field.onChange}
                                     />
                                 </FormControl.Input>
+
+                                <FormControl.Helper>
+                                    Ignore the review if the pull request title
+                                    contains any of these keywords
+                                    (case-insensitive). 100 characters maximum
+                                    per keyword.
+                                </FormControl.Helper>
                             </FormControl.Root>
                         )}
                     />
@@ -705,11 +697,6 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                 <FormControl.Label htmlFor="base-branches">
                                     Base Branches
                                 </FormControl.Label>
-                                <FormControl.Helper className="mb-1 mt-0">
-                                    Base branches (besides the default branch)
-                                    to review. Examples: "dev, release, master".
-                                    100 characters maximum per branch.
-                                </FormControl.Helper>
 
                                 <FormControl.Input>
                                     <TagInput
@@ -720,6 +707,12 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                         onTagsChange={field.onChange}
                                     />
                                 </FormControl.Input>
+
+                                <FormControl.Helper>
+                                    Base branches (besides the default branch)
+                                    to review. Examples: "dev, release, master".
+                                    100 characters maximum per branch.
+                                </FormControl.Helper>
                             </FormControl.Root>
                         )}
                     />

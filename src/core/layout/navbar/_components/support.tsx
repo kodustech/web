@@ -14,7 +14,7 @@ export const SupportDropdown = () => {
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" rightIcon={<ChevronDown />}>
+                <Button variant="helper" size="sm" rightIcon={<ChevronDown />}>
                     Support
                 </Button>
             </DropdownMenuTrigger>
@@ -23,24 +23,24 @@ export const SupportDropdown = () => {
                 <NextLink
                     target="_blank"
                     href={process.env.WEB_SUPPORT_DOCS_URL ?? ""}>
-                    <DropdownMenuItem className="flex items-center gap-2">
-                        <FileTextIcon className="size-4" />
+                    <DropdownMenuItem>
+                        <FileTextIcon />
                         View docs
                     </DropdownMenuItem>
                 </NextLink>
                 <NextLink
                     target="_blank"
                     href={process.env.WEB_SUPPORT_DISCORD_INVITE_URL ?? ""}>
-                    <DropdownMenuItem className="flex items-center gap-2">
-                        <SvgDiscord className="size-4" />
+                    <DropdownMenuItem>
+                        <SvgDiscord />
                         Our Discord
                     </DropdownMenuItem>
                 </NextLink>
                 <NextLink
                     target="_blank"
                     href={process.env.WEB_SUPPORT_TALK_TO_FOUNDER_URL ?? ""}>
-                    <DropdownMenuItem className="flex items-center gap-2">
-                        <SvgFounder className="size-4" />
+                    <DropdownMenuItem>
+                        <SvgFounder />
                         Talk to a Founder
                     </DropdownMenuItem>
                 </NextLink>

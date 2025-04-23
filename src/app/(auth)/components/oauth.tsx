@@ -27,16 +27,20 @@ export const OAuthButtons = ({ isSignUp = false }: { isSignUp?: boolean }) => {
                 </Button> */}
 
             <Button
-                variant="outline"
+                size="lg"
+                variant="helper"
+                className="w-full"
                 onClick={() => handleProviderLogin(AuthProviders.GITHUB)}
-                leftIcon={<SvgGithub className="mr-1 size-5" />}>
+                leftIcon={<SvgGithub />}>
                 Sign {isSignUp ? "up" : "in"} with Github
             </Button>
 
             <Button
-                variant="outline"
+                size="lg"
+                variant="helper"
+                className="w-full"
                 onClick={() => handleProviderLogin(AuthProviders.GITLAB)}
-                leftIcon={<SvgGitlab className="mr-1 size-5" />}>
+                leftIcon={<SvgGitlab />}>
                 Sign {isSignUp ? "up" : "in"} with Gitlab
             </Button>
         </div>

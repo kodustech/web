@@ -2,15 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Alert, AlertTitle } from "@components/ui/alert";
+import { Card, CardHeader } from "@components/ui/card";
 import { FormControl } from "@components/ui/form-control";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Eye, EyeClosed, Info, LogInIcon } from "lucide-react";
+import { AlertTriangleIcon, Eye, EyeClosed, LogInIcon } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "src/core/components/ui/button";
 import { Input } from "src/core/components/ui/input";
-import { cn } from "src/core/utils/components";
 import { z } from "zod";
 
 const signInFormSchema = z.object({
@@ -70,12 +69,12 @@ export function UserAuthForm() {
     return (
         <form onSubmit={onSubmit} className="grid w-full gap-6">
             {isError && (
-                <Alert className="border-brand-orange/10 bg-brand-orange/10 text-sm">
-                    <Info className="size-5" />
-                    <AlertTitle className="mt-1">
-                        No user found with this email and password.
-                    </AlertTitle>
-                </Alert>
+                <Card className="bg-warning/10 text-sm">
+                    <CardHeader className="flex-row items-center gap-4">
+                        <AlertTriangleIcon className="text-warning size-5" />
+                        <span>No user found with this email and password.</span>
+                    </CardHeader>
+                </Card>
             )}
 
             <Controller
@@ -121,43 +120,41 @@ export function UserAuthForm() {
                         </FormControl.Label>
 
                         <FormControl.Input>
-                            <div className="relative">
-                                <Input
-                                    {...field}
-                                    id={field.name}
-                                    type={typePassword}
-                                    placeholder="Type your password"
-                                    error={fieldState.error}
-                                    autoCapitalize="none"
-                                    autoCorrect="off"
-                                    autoComplete="off"
-                                    disabled={
-                                        formState.isSubmitting ||
-                                        formState.isLoading ||
-                                        field.disabled
-                                    }
-                                />
-
-                                <Button
-                                    type="button"
-                                    className={cn(
-                                        "absolute top-4 right-4 h-auto bg-transparent p-0 hover:cursor-pointer hover:bg-transparent",
-                                        "focus-visible:border-[#F5922080] focus-visible:ring-[#F5922080] focus-visible:outline-hidden",
-                                    )}
-                                    onClick={() =>
-                                        setTypePassword((typePassword) =>
-                                            typePassword === "password"
-                                                ? "text"
-                                                : "password",
-                                        )
-                                    }>
-                                    {typePassword === "password" ? (
-                                        <EyeClosed className="size-5 text-white" />
-                                    ) : (
-                                        <Eye className="size-5 text-white" />
-                                    )}
-                                </Button>
-                            </div>
+                            <Input
+                                {...field}
+                                id={field.name}
+                                type={typePassword}
+                                placeholder="Type your password"
+                                error={fieldState.error}
+                                autoCapitalize="none"
+                                autoCorrect="off"
+                                autoComplete="off"
+                                disabled={
+                                    formState.isSubmitting ||
+                                    formState.isLoading ||
+                                    field.disabled
+                                }
+                                rightIcon={
+                                    <Button
+                                        variant="helper"
+                                        size="icon-sm"
+                                        type="button"
+                                        className="-mr-2"
+                                        onClick={() =>
+                                            setTypePassword((typePassword) =>
+                                                typePassword === "password"
+                                                    ? "text"
+                                                    : "password",
+                                            )
+                                        }>
+                                        {typePassword === "password" ? (
+                                            <EyeClosed />
+                                        ) : (
+                                            <Eye />
+                                        )}
+                                    </Button>
+                                }
+                            />
                         </FormControl.Input>
 
                         <FormControl.Error>
@@ -170,6 +167,8 @@ export function UserAuthForm() {
             <Button
                 size="lg"
                 type="submit"
+                variant="primary"
+                className="w-full"
                 disabled={!formIsValid}
                 rightIcon={<LogInIcon />}
                 loading={formIsLoading || formIsSubmitting || formIsValidating}>

@@ -1,65 +1,39 @@
 "use client";
 
 import NextLink from "next/link";
-import { Badge } from "@components/ui/badge";
+import { Button } from "@components/ui/button";
 import { AlertTriangle } from "lucide-react";
-import { cn } from "src/core/utils/components";
 import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
-
-const commonClassnames = "h-9";
 
 const SubscriptionTrial = () => {
     return (
-        <NextLink href="/settings/subscription">
-            <Badge
-                className={cn(
-                    commonClassnames,
-                    "bg-brand-red/50 text-brand-red-foreground selected:bg-brand-red/60 hover:bg-brand-red/60",
-                )}>
-                14 days free trial
-            </Badge>
-        </NextLink>
+        <Button size="sm" variant="tertiary">
+            14 days free trial
+        </Button>
     );
 };
 
 const SubscriptionUpgrade = () => {
     return (
-        <NextLink href="/settings/subscription">
-            <Badge
-                className={cn(
-                    commonClassnames,
-                    "bg-brand-orange text-brand-orange-foreground",
-                )}>
-                Upgrade Subscription
-            </Badge>
-        </NextLink>
+        <Button size="sm" variant="primary-dark">
+            Upgrade Subscription
+        </Button>
     );
 };
 
 const SubscriptionActive = () => {
     return (
-        <NextLink href="/settings/subscription">
-            <Badge
-                className={cn(
-                    commonClassnames,
-                    "bg-brand-purple/50 text-brand-purple-foreground selected:bg-brand-purple/60 hover:bg-brand-purple/60",
-                )}>
-                Teams Plan
-            </Badge>
-        </NextLink>
+        <Button size="sm" variant="secondary">
+            Teams Plan
+        </Button>
     );
 };
 
 const SubscriptionPaymentFailed = () => {
     return (
-        <NextLink href="/settings/subscription">
-            <Badge
-                leftIcon={<AlertTriangle />}
-                variant="destructive"
-                className={cn(commonClassnames, "bg-destructive/50")}>
-                Payment failed
-            </Badge>
-        </NextLink>
+        <Button size="sm" leftIcon={<AlertTriangle />} variant="tertiary">
+            Payment failed
+        </Button>
     );
 };
 
@@ -82,5 +56,9 @@ export const SubscriptionBadge = () => {
     const Component = components[status];
 
     if (!Component) return null;
-    return <Component />;
+    return (
+        <NextLink href="/settings/subscription">
+            <Component />
+        </NextLink>
+    );
 };

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Badge } from "@components/ui/badge";
-import { Button, buttonVariants } from "@components/ui/button";
+import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { Checkbox } from "@components/ui/checkbox";
 import {
@@ -19,16 +19,15 @@ import {
 } from "@components/ui/dialog";
 import { Heading } from "@components/ui/heading";
 import { magicModal } from "@components/ui/magic-modal";
-import { Separator } from "@components/ui/separator";
 import { changeStatusKodyRules } from "@services/kodyRules/fetch";
 import { KodyRule, KodyRulesStatus } from "@services/kodyRules/types";
 import { cn } from "src/core/utils/components";
 
 const severityVariantMap = {
-    critical: "bg-destructive/5! border-destructive/10 text-destructive",
-    high: "bg-brand-purple/5! border-brand-purple/10 text-brand-purple",
-    medium: "bg-brand-orange/5! border-brand-orange/10 text-brand-orange",
-    low: "bg-success/5! border-success/10 text-success",
+    critical: "bg-danger/10 text-danger border-danger/64",
+    high: "bg-warning/10 text-warning border-warning/64",
+    medium: "bg-alert/10 text-alert border-alert/64",
+    low: "bg-info/10 text-info border-info/64",
 } as const satisfies Record<string, string>;
 
 export const PendingKodyRulesModal = ({
@@ -46,9 +45,9 @@ export const PendingKodyRulesModal = ({
         magicModal.hide(true);
     };
 
-    if (!pendingRules || pendingRules.length === 0) {
-        return <NoRules />;
-    }
+    // if (!pendingRules || pendingRules.length === 0) {
+    //     return <NoRules />;
+    // }
 
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
@@ -56,29 +55,30 @@ export const PendingKodyRulesModal = ({
                 <DialogHeader>
                     <DialogTitle>New Rules Ready</DialogTitle>
 
-                    <Separator />
-
                     <DialogDescription>
                         Kody analyzed your past reviews and generated these
                         rules:
                     </DialogDescription>
                 </DialogHeader>
-                <span>{selectedRuleIds.length} rules selected.</span>
+
+                <span className="text-text-secondary text-sm">
+                    <strong className="text-text-primary">
+                        {selectedRuleIds.length}
+                    </strong>{" "}
+                    rules selected
+                </span>
 
                 <div className="flex h-full w-full flex-col gap-2 overflow-y-auto px-2 py-0">
                     {pendingRules?.map((rule) => (
                         <Card
                             key={rule.uuid}
                             className={cn(
-                                buttonVariants({
-                                    variant: "outline",
-                                }),
                                 "h-auto w-full cursor-pointer items-start px-5 py-4 disabled:cursor-not-allowed",
                             )}>
                             <Collapsible className="group/collapsible w-full">
                                 <div className="flex h-full w-full items-center gap-5">
                                     <Checkbox
-                                        className="self-center children:opacity-100 disabled:opacity-100"
+                                        className="children:opacity-100 self-center disabled:opacity-100"
                                         checked={selectedRuleIds.includes(
                                             rule.uuid!,
                                         )}
@@ -106,8 +106,7 @@ export const PendingKodyRulesModal = ({
                                     <CollapsibleTrigger asChild>
                                         <Button
                                             size="sm"
-                                            variant="ghost"
-                                            selected={true}
+                                            variant="helper"
                                             className="w-full justify-center p-3"
                                             leftIcon={
                                                 <CollapsibleIndicator className="group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
@@ -121,10 +120,8 @@ export const PendingKodyRulesModal = ({
                                         <p>{rule.rule}</p>
 
                                         <Badge
-                                            disabled
-                                            variant="outline"
                                             className={cn(
-                                                "h-6 cursor-default! px-2.5 text-[10px] uppercase opacity-100!",
+                                                "h-fit rounded-lg border-1 px-2 text-[10px] leading-px uppercase",
                                                 severityVariantMap[
                                                     rule.severity.toLowerCase() as typeof rule.severity
                                                 ],
@@ -139,52 +136,52 @@ export const PendingKodyRulesModal = ({
                 </div>
 
                 <DialogFooter className="flex flex-row justify-end gap-2">
-                    {selectedRuleIds.length < pendingRules.length ? (
-                        <Button
-                            className="mr-auto"
-                            variant="outline"
-                            onClick={() =>
-                                setSelectedRuleIds(
-                                    pendingRules.map((rule) => rule.uuid!),
-                                )
-                            }>
-                            Select all
-                        </Button>
+                    {pendingRules.length === 0 ? (
+                        <div />
                     ) : (
-                        <Button
-                            className="mr-auto"
-                            variant="outline"
-                            onClick={() => setSelectedRuleIds([])}>
-                            Unselect all
-                        </Button>
+                        <>
+                            {selectedRuleIds.length < pendingRules.length ? (
+                                <Button
+                                    size="md"
+                                    variant="helper"
+                                    className="mr-auto"
+                                    onClick={() =>
+                                        setSelectedRuleIds(
+                                            pendingRules.map(
+                                                (rule) => rule.uuid!,
+                                            ),
+                                        )
+                                    }>
+                                    Select all
+                                </Button>
+                            ) : (
+                                <Button
+                                    size="md"
+                                    variant="helper"
+                                    className="mr-auto"
+                                    onClick={() => setSelectedRuleIds([])}>
+                                    Unselect all
+                                </Button>
+                            )}
+                        </>
                     )}
-                    <Button variant="outline" onClick={magicModal.hide}>
+
+                    <Button
+                        size="md"
+                        variant="cancel"
+                        onClick={magicModal.hide}>
                         Cancel
                     </Button>
+
                     <Button
+                        size="md"
+                        variant="primary"
                         onClick={() =>
                             changeStatusRules(KodyRulesStatus.ACTIVE)
                         }>
                         Import rules
                     </Button>
                 </DialogFooter>
-            </DialogContent>
-        </Dialog>
-    );
-};
-
-const NoRules = () => {
-    return (
-        <Dialog open onOpenChange={() => magicModal.hide()}>
-            <DialogContent className="max-h-[60vh] max-w-(--breakpoint-sm)">
-                <DialogHeader>
-                    <DialogTitle>New Rules Ready</DialogTitle>
-                    <Separator />
-                </DialogHeader>
-
-                <div className="flex flex-col gap-2 overflow-y-auto px-2 py-0">
-                    <Heading variant="h3">No pending rules</Heading>
-                </div>
             </DialogContent>
         </Dialog>
     );

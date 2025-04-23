@@ -94,7 +94,7 @@ export default function App() {
                     refactoring: true,
                     security: true,
                     kody_rules: true,
-                    breaking_changes: true
+                    breaking_changes: true,
                 },
                 summary: {
                     generatePRSummary: true,
@@ -132,10 +132,10 @@ export default function App() {
 
     return (
         <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
-            <div className="flex flex-10 flex-col justify-center gap-10 rounded-3xl bg-[#231B2E]/35 p-12 backdrop-blur-sm">
+            <div className="bg-card-lv1 flex flex-10 flex-col justify-center gap-10 rounded-3xl p-12">
                 <SvgKodus className="h-8 min-h-8" />
 
-                <div className="flex flex-1 flex-col justify-center gap-8 text-[15px] text-muted-foreground">
+                <div className="text-text-secondary flex flex-1 flex-col justify-center gap-8 text-[15px]">
                     <div className="flex flex-col gap-4">
                         <svg
                             width="34"
@@ -190,7 +190,7 @@ export default function App() {
                             You're one click away from smarter reviews
                         </Heading>
 
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-sm">
                             Select the repositories where Kody will help your
                             team streamline reviews and boost quality.
                         </p>
@@ -216,6 +216,9 @@ export default function App() {
                         </FormControl.Root>
 
                         <Button
+                            size="lg"
+                            variant="primary"
+                            className="w-full"
                             rightIcon={<PowerIcon />}
                             loading={loadingSaveRepositories}
                             onClick={saveSelectedRepositoriesAction}
@@ -225,12 +228,12 @@ export default function App() {
                     </div>
                 </div>
 
-                <Alert className="max-w-96 border-success/5 bg-success/5">
+                <Alert className="border-success/5 bg-success/5 max-w-96">
                     <InfoIcon className="stroke-success" />
-                    <AlertTitle className="text-sm text-success">
+                    <AlertTitle className="text-success text-sm">
                         You’re in control
                     </AlertTitle>
-                    <AlertDescription className="-mb-1 -ml-8 mt-3 text-success">
+                    <AlertDescription className="text-success mt-3 -mb-1 -ml-8">
                         Kody only acts when you ask — no changes or reviews
                         happen without your approval.
                     </AlertDescription>

@@ -80,7 +80,7 @@
         "remark-gfm": "^4.0.1",
         "seed-color": "^2.0.1",
         "sortablejs": "^1.15.6",
-        "tailwind-merge": "^2.6.0",
+        "tailwind-merge": "3.2.0",
         "tailwindcss-animate": "^1.0.7",
         "tiny-invariant": "^1.3.3",
         "victory": "^37.3.6",

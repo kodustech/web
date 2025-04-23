@@ -214,7 +214,7 @@ export default function FlowMetricsTabs({
                                       <div
                                           className={cn(
                                               buttonVariants({
-                                                  variant: "outline",
+                                                  variant: "helper",
                                               }),
                                               "pointer-events-none mt-2 h-6 px-2",
                                           )}>

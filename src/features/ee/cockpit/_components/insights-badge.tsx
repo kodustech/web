@@ -1,4 +1,5 @@
 import { forwardRef } from "react";
+import { Badge } from "@components/ui/badge";
 import { cn } from "src/core/utils/components";
 
 type InsightsBadgeType = "elite" | "high" | "fair" | "need-focus";
@@ -80,15 +81,13 @@ const icons: Record<InsightsBadgeType, React.ReactNode> = {
 export const InsightsBadge = forwardRef<any, InsightsBadgeProps>(
     (props, ref) => {
         return (
-            <div
+            <Badge
                 ref={ref}
-                className={cn(
-                    "flex h-fit shrink-0 items-center gap-1 rounded-[10px] bg-background/50 px-2.5 py-1 text-xs font-bold uppercase data-state:cursor-pointer",
-                    classNames[props.type],
-                )}>
-                <span className="size-4">{icons[props.type]}</span>
+                variant="secondary"
+                className={cn("h-fit gap-1.5", classNames[props.type])}
+                leftIcon={icons[props.type]}>
                 {names[props.type]}
-            </div>
+            </Badge>
         );
     },
 );

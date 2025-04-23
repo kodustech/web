@@ -59,7 +59,7 @@ export default function App() {
 
     return (
         <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
-            <div className="flex flex-10 flex-col justify-center gap-10 rounded-3xl bg-[#231B2E]/35 p-12 backdrop-blur-sm">
+            <div className="bg-card-lv1 flex flex-10 flex-col justify-center gap-10 rounded-3xl p-12">
                 <SvgKodus className="h-8 min-h-8" />
 
                 <div className="flex-1 overflow-hidden rounded-3xl">
@@ -89,7 +89,7 @@ export default function App() {
                                 Let's create a Workspace
                             </Heading>
 
-                            <p className="text-sm text-muted-foreground">
+                            <p className="text-text-secondary text-sm">
                                 Tell us about your team to customize Kody for
                                 your workflows.
                             </p>
@@ -139,7 +139,7 @@ export default function App() {
                                     <FormControl.Root>
                                         <FormControl.Label htmlFor={field.name}>
                                             Phone{" "}
-                                            <small className="text-muted-foreground">
+                                            <small className="text-text-secondary">
                                                 (optional)
                                             </small>
                                         </FormControl.Label>
@@ -174,7 +174,9 @@ export default function App() {
 
                             <Button
                                 size="lg"
+                                variant="primary"
                                 type="submit"
+                                className="w-full"
                                 rightIcon={<ArrowRight />}
                                 disabled={!isValid}
                                 loading={isSubmitting}>
@@ -184,7 +186,7 @@ export default function App() {
 
                         <Link
                             href="/setup/connecting-git-tool"
-                            className="w-fit self-center">
+                            className="self-center text-sm">
                             Skip this step for now
                         </Link>
                     </div>

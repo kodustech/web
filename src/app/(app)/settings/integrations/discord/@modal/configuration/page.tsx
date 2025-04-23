@@ -88,13 +88,14 @@ export default function Discord() {
                             onOpenChange={setIsPopoverOpen}>
                             <PopoverTrigger asChild>
                                 <Button
-                                    variant="outline"
+                                    size="lg"
+                                    variant="helper"
                                     role="combobox"
-                                    className="h-10 justify-between">
+                                    className="w-full justify-between">
                                     {selectedChannel ? (
                                         selectedChannel.name
                                     ) : (
-                                        <span className="text-muted-foreground">
+                                        <span className="text-text-secondary">
                                             Select channel...
                                         </span>
                                     )}
@@ -104,7 +105,7 @@ export default function Discord() {
 
                             <PopoverContent
                                 align="start"
-                                className="min-w-[var(--radix-popover-trigger-width)] max-w-60 p-0">
+                                className="max-w-60 min-w-[var(--radix-popover-trigger-width)] p-0">
                                 <Command
                                     filter={(value, search) => {
                                         const language = channels.find(
@@ -144,7 +145,7 @@ export default function Discord() {
                                                     {d.name}
                                                     <Check
                                                         className={cn(
-                                                            "ml-auto size-4 text-brand-orange",
+                                                            "text-primary-light ml-auto size-4",
                                                             selectedChannel?.id ===
                                                                 d.id
                                                                 ? "opacity-100"
@@ -163,10 +164,14 @@ export default function Discord() {
 
                 <DialogFooter>
                     <DialogClose>
-                        <Button variant="outline">Cancel</Button>
+                        <Button size="md" variant="cancel">
+                            Cancel
+                        </Button>
                     </DialogClose>
 
                     <Button
+                        size="md"
+                        variant="primary"
                         disabled={!selectedChannel}
                         loading={isSaving}
                         onClick={() => saveChannelSelectedAndGoToNextPage()}>

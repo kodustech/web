@@ -53,7 +53,7 @@
 
 @custom-variant button-hover {
 
-    &:hover:not([data-disabled]):not([data-loading]) {
+    &:hover:not([data-disabled]):not([data-loading]):not([data-decorative]) {
         @slot
     }
 }
@@ -61,7 +61,9 @@
 @custom-variant button-active {
 
     &[data-active]:not([data-disabled]),
-    &[data-state='open'] {
+    &[data-state='open'],
+    &[data-state="checked"],
+    &[data-selected="true"] {
         @slot
     }
 }
@@ -497,6 +499,11 @@
     a,
     button {
         @apply font-sans outline-none;
+    }
+
+    p,
+    span {
+        @apply font-normal;
     }
 
     code,

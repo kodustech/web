@@ -33,14 +33,14 @@ export const columns: ColumnDef<Type>[] = [
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                            <EllipsisVertical className="h-5 w-5" />
+                        <Button variant="cancel" size="icon-sm">
+                            <EllipsisVertical />
                         </Button>
                     </DropdownMenuTrigger>
 
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                            className="text-destructive"
+                            className="text-danger"
                             onClick={async () => {
                                 const response = await magicModal.show(() => (
                                     <DeleteModal member={row.original} />

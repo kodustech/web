@@ -117,7 +117,7 @@ const SortableCheckinSessionsList: React.FC<SectionProps> = ({
                             <div className="flex flex-col gap-1">
                                 <Heading variant="h3">{item.name}</Heading>
 
-                                <span className="text-sm text-muted-foreground">
+                                <span className="text-text-secondary text-sm">
                                     {item.description}
                                 </span>
                             </div>

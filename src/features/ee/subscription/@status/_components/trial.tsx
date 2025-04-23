@@ -31,7 +31,7 @@ export const Trial = ({
                     <p className="text-text-secondary text-sm">
                         14 days free trial
                     </p>
-                    <CardTitle>PRO plan</CardTitle>
+                    <CardTitle className="text-2xl">PRO plan</CardTitle>
 
                     <div className="mt-4 flex gap-6">
                         {/* <p className="text-sm text-text-secondary">
@@ -51,6 +51,9 @@ export const Trial = ({
                 </div>
 
                 <Button
+                    size="lg"
+                    variant="primary"
+                    className="h-fit"
                     leftIcon={<ArrowUpCircle />}
                     loading={isCreatingLinkToCheckout}
                     onClick={() => createLinkToCheckout()}>

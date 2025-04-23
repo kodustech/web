@@ -195,19 +195,20 @@ export const KodyRulesPage = ({
                                 />
                             )}
                             <Button
-                                variant="default"
-                                leftIcon={
-                                    <SvgKodyRulesDiscovery className="size-4!" />
-                                }
+                                size="md"
+                                variant="secondary"
+                                leftIcon={<SvgKodyRulesDiscovery />}
                                 onClick={() =>
                                     router.push("/library/kody-rules")
                                 }>
                                 Discovery
                             </Button>
+
                             <Button
+                                size="md"
                                 type="button"
-                                variant="outline"
-                                leftIcon={<Plus className="size-4!" />}
+                                variant="primary"
+                                leftIcon={<Plus />}
                                 onClick={addNewEmptyRule}>
                                 New rule
                             </Button>
@@ -219,12 +220,12 @@ export const KodyRulesPage = ({
 
                 <div className="flex w-full flex-row gap-3">
                     {repositoryId === "global" ? (
-                        <p className="w-full text-sm text-muted-foreground">
+                        <p className="text-text-secondary w-full text-sm">
                             Set up automated rules and guidelines for your code
                             reviews.
                         </p>
                     ) : (
-                        <p className="w-full text-sm text-muted-foreground">
+                        <p className="text-text-secondary w-full text-sm">
                             This repository follows{" "}
                             <Link
                                 href=""
@@ -242,13 +243,12 @@ export const KodyRulesPage = ({
 
                     {pendingRules.length > 0 && (
                         <Button
-                            variant="outline"
-                            className="rounded-e-sm border-e-8 border-brand-orange text-brand-orange"
-                            leftIcon={
-                                <BellRing className="fill-brand-orange" />
-                            }
+                            size="md"
+                            variant="secondary"
+                            className="border-e-primary-light rounded-e-none border-e-8"
+                            leftIcon={<BellRing />}
                             onClick={showPendingRules}>
-                            <Heading variant="h3">Check out new rules!</Heading>
+                            Check out new rules!
                         </Button>
                     )}
                 </div>
@@ -257,12 +257,12 @@ export const KodyRulesPage = ({
             <Page.Content>
                 <div className="flex flex-col gap-4">
                     {kodyRules?.length === 0 ? (
-                        <div className="flex min-h-[570px] flex-col gap-2 rounded-2xl bg-card/40 px-10 py-8">
+                        <div className="mt-10 flex min-h-[540px] flex-col gap-2">
                             <div className="flex flex-col gap-1">
                                 <Heading variant="h2">
                                     Start with Discovery 🚀
                                 </Heading>
-                                <p className="text-sm text-muted-foreground">
+                                <p className="text-text-secondary text-sm">
                                     <strong>No rules yet?</strong> Import best
                                     practices from top engineering teams in
                                     seconds or create your own by clicking on{" "}
@@ -311,7 +311,7 @@ export const KodyRulesPage = ({
                             />
 
                             {filteredRules.length === 0 ? (
-                                <div className="flex flex-col items-center gap-2 py-20 text-sm text-muted-foreground">
+                                <div className="text-text-secondary flex flex-col items-center gap-2 py-20 text-sm">
                                     No rules found with your search query.
                                 </div>
                             ) : (
@@ -357,17 +357,14 @@ const NoItemsViewMore = () => {
     const router = useRouter();
 
     return (
-        <Card
-            className="group flex cursor-pointer items-center justify-center"
+        <Button
+            size="lg"
+            variant="helper"
+            className="w-full"
             onClick={() => {
                 router.push("/library/kody-rules");
             }}>
-            <Button
-                variant="link"
-                leftIcon={<Plus />}
-                className="pointer-events-none group-hover:text-brand-orange group-hover:underline">
-                View more
-            </Button>
-        </Card>
+            <Plus /> View more
+        </Button>
     );
 };

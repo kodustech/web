@@ -46,10 +46,10 @@ export const SelectDomainStep = () => {
                 <DialogTitle>Jira setup - select domain</DialogTitle>
 
                 <div className="flex flex-row gap-2">
-                    <div className="aspect-[4] h-2 rounded-full bg-brand-orange" />
-                    <div className="aspect-[4] h-2 rounded-full bg-card" />
-                    <div className="aspect-[4] h-2 rounded-full bg-card" />
-                    <div className="aspect-[4] h-2 rounded-full bg-card" />
+                    <div className="bg-primary-light aspect-[4] h-2 rounded-full" />
+                    <div className="bg-card aspect-[4] h-2 rounded-full" />
+                    <div className="bg-card aspect-[4] h-2 rounded-full" />
+                    <div className="bg-card aspect-[4] h-2 rounded-full" />
                 </div>
             </DialogHeader>
 
@@ -64,14 +64,15 @@ export const SelectDomainStep = () => {
                         onOpenChange={setIsPopoverOpen}>
                         <PopoverTrigger asChild>
                             <Button
-                                variant="outline"
+                                size="lg"
+                                variant="helper"
                                 role="combobox"
                                 id="select-jira-domain"
-                                className="h-10 justify-between">
+                                className="w-full justify-between">
                                 {domain ? (
                                     domain.name
                                 ) : (
-                                    <span className="text-muted-foreground">
+                                    <span className="text-text-secondary">
                                         Select domain...
                                     </span>
                                 )}
@@ -80,7 +81,7 @@ export const SelectDomainStep = () => {
                         </PopoverTrigger>
                         <PopoverContent
                             align="start"
-                            className="min-w-[var(--radix-popover-trigger-width)] max-w-60 p-0">
+                            className="max-w-60 min-w-[var(--radix-popover-trigger-width)] p-0">
                             <Command>
                                 <CommandList>
                                     <CommandGroup>
@@ -102,7 +103,7 @@ export const SelectDomainStep = () => {
                                                 {d.name}
                                                 <Check
                                                     className={cn(
-                                                        "ml-auto size-4 text-brand-orange",
+                                                        "text-primary-light ml-auto size-4",
                                                         domain?.id === d.id
                                                             ? "opacity-100"
                                                             : "opacity-0",
@@ -120,11 +121,14 @@ export const SelectDomainStep = () => {
 
             <DialogFooter>
                 <DialogClose>
-                    <Button variant="outline">Cancel</Button>
+                    <Button variant="cancel" size="md">
+                        Cancel
+                    </Button>
                 </DialogClose>
 
                 <Button
-                    className="w-fit self-end"
+                    size="md"
+                    variant="primary"
                     rightIcon={<ArrowRight />}
                     disabled={!domain}
                     onClick={() => multiStep.navigateTo("project")}>

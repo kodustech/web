@@ -29,13 +29,13 @@ export const TrialExpired = ({
         <Card className="w-full">
             <CardHeader className="flex flex-row justify-between gap-2">
                 <div className="flex flex-col gap-2">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-text-secondary text-sm">
                         Trial finished
                     </p>
-                    <CardTitle>No subscription</CardTitle>
+                    <CardTitle className="text-2xl">No subscription</CardTitle>
 
                     <div className="mt-4 flex gap-6">
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-sm">
                             <strong>{licensesAvailableCount}</strong>{" "}
                             {pluralize(licensesAvailableCount, {
                                 singular: "license",
@@ -44,7 +44,7 @@ export const TrialExpired = ({
                             available
                         </p>
 
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-sm">
                             <strong>{organizationAdminsCount}</strong>{" "}
                             organization{" "}
                             {pluralize(organizationAdminsCount, {
@@ -56,6 +56,9 @@ export const TrialExpired = ({
                 </div>
 
                 <Button
+                    size="lg"
+                    variant="primary"
+                    className="h-fit"
                     leftIcon={<ArrowUpCircle />}
                     loading={isCreatingLinkToCheckout}
                     onClick={() => {

@@ -1,17 +1,27 @@
 import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "src/core/utils/components";
+
+const cardVariants = cva("flex flex-col overflow-hidden rounded-xl shadow-sm", {
+    variants: {
+        color: {
+            none: "bg-transparent",
+            lv1: "bg-card-lv1",
+            lv2: "bg-card-lv2",
+            lv3: "bg-card-lv3",
+        },
+    },
+    defaultVariants: { color: "lv2" },
+});
 
 const Card = React.forwardRef<
     HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement> & { disabled?: boolean }
->(({ className, ...props }, ref) => (
+    Omit<React.HTMLAttributes<HTMLDivElement>, "color"> &
+        VariantProps<typeof cardVariants>
+>(({ className, color, ...props }, ref) => (
     <div
         ref={ref}
-        onClick={props.disabled ? undefined : props.onClick}
-        className={cn(
-            "bg-card-lv2 flex flex-col overflow-hidden rounded-xl shadow-sm",
-            className,
-        )}
+        className={cn(cardVariants({ color }), className)}
         {...props}
     />
 ));
@@ -35,7 +45,7 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <h3
         ref={ref}
-        className={cn("text-2xl leading-none font-semibold", className)}
+        className={cn("text-lg leading-none font-bold", className)}
         {...props}
     />
 ));
@@ -71,7 +81,7 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <div
         ref={ref}
-        className={cn("flex shrink-0 items-center p-6 pt-0", className)}
+        className={cn("flex shrink-0 items-center gap-2 p-6 pt-0", className)}
         {...props}
     />
 ));

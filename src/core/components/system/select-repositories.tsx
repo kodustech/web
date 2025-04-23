@@ -46,17 +46,16 @@ export const SelectRepositories = (props: {
 
     return (
         <Popover open={open} onOpenChange={onOpenChange}>
-            <PopoverTrigger asChild disabled={isLoading}>
+            <PopoverTrigger asChild>
                 <Button
-                    variant="outline"
+                    size="lg"
+                    variant="helper"
                     role="combobox"
                     loading={isLoading}
                     aria-expanded={open}
-                    className="justify-between"
+                    className="w-full justify-between"
                     id={id}
-                    rightIcon={
-                        <ChevronsUpDown className="size-4! opacity-50" />
-                    }>
+                    rightIcon={<ChevronsUpDown className="-mr-2 opacity-50" />}>
                     {selectedRepositories.length > 0 ? (
                         `${selectedRepositories.length} ${pluralize(
                             selectedRepositories.length,
@@ -66,9 +65,7 @@ export const SelectRepositories = (props: {
                             },
                         )} selected`
                     ) : (
-                        <p className="text-muted-foreground">
-                            Select repositories...
-                        </p>
+                        <span>Select repositories...</span>
                     )}
                 </Button>
             </PopoverTrigger>
@@ -115,11 +112,14 @@ export const SelectRepositories = (props: {
                                                 ),
                                             );
                                         }}>
-                                        <Check className="mr-2 h-4 w-4 text-brand-orange" />
-                                        <span className="text-muted-foreground">
-                                            {r.organizationName}/
+                                        <span>
+                                            <span className="text-text-secondary">
+                                                {r.organizationName}/
+                                            </span>
+                                            {r.name}
                                         </span>
-                                        {r.name}
+
+                                        <Check className="text-primary-light -mr-2 size-5" />
                                     </CommandItem>
                                 ))}
                             </CommandGroup>
@@ -140,11 +140,12 @@ export const SelectRepositories = (props: {
                                                 )!,
                                             ]);
                                         }}>
-                                        <div className="mr-2 h-4 w-4" />
-                                        <span className="text-muted-foreground">
-                                            {r.organizationName}/
+                                        <span>
+                                            <span className="text-text-secondary">
+                                                {r.organizationName}/
+                                            </span>
+                                            {r.name}
                                         </span>
-                                        {r.name}
                                     </CommandItem>
                                 ))}
                             </CommandGroup>

@@ -29,11 +29,11 @@ export const ConfigsSidebar = () => {
     ];
 
     return (
-        <Sidebar>
+        <Sidebar className="bg-card-lv1">
             <SidebarContent className="gap-4">
                 <SidebarGroupLabel>Settings</SidebarGroupLabel>
                 <SidebarGroupLabel className="flex h-auto flex-col items-start gap-1 text-sm">
-                    <strong className="text-xs uppercase text-muted-foreground">
+                    <strong className="text-text-secondary text-xs uppercase">
                         Organization
                     </strong>
                     <span>{organizationName}</span>
@@ -52,12 +52,12 @@ export const ConfigsSidebar = () => {
                                 return (
                                     <SidebarMenuItem key={project.label}>
                                         <Button
+                                            size="md"
                                             leftIcon={<Icon />}
-                                            size="sm"
+                                            active={selected}
                                             variant={
-                                                selected ? "outline" : "ghost"
+                                                selected ? "helper" : "cancel"
                                             }
-                                            selected={selected}
                                             className="w-full justify-start border-none"
                                             onClick={() =>
                                                 router.push(project.href)

@@ -72,13 +72,15 @@ export const PageHeader = (props: React.ComponentProps<"div">) => {
 };
 
 export const PageHeaderActions = (props: React.PropsWithChildren) => (
-    <div className="flex items-center justify-between gap-4">
+    <div className="flex items-center justify-between gap-2">
         {props.children}
     </div>
 );
 
 export const PageTitle = (props: React.ComponentProps<typeof Heading>) => (
-    <Heading {...props}>{props.children}</Heading>
+    <Heading {...props} className={cn("font-medium", props.className)}>
+        {props.children}
+    </Heading>
 );
 
 export const PageFooter = (props: React.ComponentProps<"div">) => {

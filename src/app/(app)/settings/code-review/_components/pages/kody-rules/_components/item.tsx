@@ -7,8 +7,16 @@ import { useAsyncAction } from "@hooks/use-async-action";
 import { deleteKodyRule } from "@services/kodyRules/fetch";
 import type { KodyRule } from "@services/kodyRules/types";
 import { EditIcon, TrashIcon } from "lucide-react";
+import { cn } from "src/core/utils/components";
 
 import { KodyRuleAddOrUpdateItemModal } from "./modal";
+
+const severityVariantMap = {
+    critical: "bg-danger/10 text-danger border-danger/64",
+    high: "bg-warning/10 text-warning border-warning/64",
+    medium: "bg-alert/10 text-alert border-alert/64",
+    low: "bg-info/10 text-info border-info/64",
+} as const satisfies Record<string, string>;
 
 type Props = {
     rule: KodyRule;
@@ -29,12 +37,12 @@ export const KodyRuleItem = ({ repositoryId, rule, onAnyChange }: Props) => {
                     <Heading variant="h3">{rule.title}</Heading>
 
                     <div className="flex flex-col gap-1">
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-text-secondary text-sm">
                             <strong className="text-foreground">Path:</strong>{" "}
                             {rule.path || "all files (default)"}
                         </span>
 
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-text-secondary text-sm">
                             <strong className="text-foreground">
                                 Instructions:
                             </strong>{" "}
@@ -42,15 +50,20 @@ export const KodyRuleItem = ({ repositoryId, rule, onAnyChange }: Props) => {
                         </span>
                     </div>
 
-                    <Badge variant="outline" className="pointer-events-none">
+                    <Badge
+                        className={cn(
+                            severityVariantMap[
+                                rule.severity as keyof typeof severityVariantMap
+                            ],
+                        )}>
                         {rule.severity}
                     </Badge>
                 </div>
 
                 <div className="flex items-center gap-2">
                     <Button
-                        size="icon"
-                        variant="outline"
+                        size="icon-md"
+                        variant="secondary"
                         onClick={async () => {
                             const response = await magicModal.show(() => (
                                 <KodyRuleAddOrUpdateItemModal
@@ -66,11 +79,12 @@ export const KodyRuleItem = ({ repositoryId, rule, onAnyChange }: Props) => {
                     </Button>
 
                     <Button
-                        size="icon"
-                        variant="outline"
+                        size="icon-md"
+                        variant="secondary"
                         loading={deletingRule}
-                        onClick={deleteRule}>
-                        <TrashIcon className="size-4 text-destructive" />
+                        onClick={deleteRule}
+                        className="[--button-foreground:var(--color-destructive)]">
+                        <TrashIcon />
                     </Button>
                 </div>
             </CardHeader>

@@ -10,7 +10,6 @@ import {
 } from "@components/ui/collapsible";
 import { magicModal } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
-import { Separator } from "@components/ui/separator";
 import {
     Sidebar,
     SidebarContent,
@@ -34,6 +33,17 @@ import {
     PlatformConfigProvider,
 } from "./context";
 import { AddRepoModal } from "./pages/kody-rules/_components/addRepoModal";
+
+const mainRoutes = [
+    {
+        label: "Integrations",
+        href: "/settings/integrations",
+    },
+    {
+        label: "Subscription",
+        href: "/settings/subscription",
+    },
+] satisfies Array<{ label: string; href: string }>;
 
 const routes = [
     { label: "General", href: "general" },
@@ -76,45 +86,29 @@ export const AutomationCodeReviewLayout = ({
 
     return (
         <div className="flex flex-1 flex-row overflow-hidden">
-            <Sidebar>
-                <SidebarContent className="gap-4">
+            <Sidebar className="bg-card-lv1 px-0 py-0">
+                <SidebarContent className="gap-4 px-6 py-6">
                     <SidebarGroup>
                         <SidebarGroupContent>
                             <SidebarMenu className="flex flex-col gap-1">
-                                <SidebarMenuItem>
-                                    <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        selected={pathname.startsWith(
-                                            "/settings/integrations",
-                                        )}
-                                        className="w-full justify-start"
-                                        onClick={() => {
-                                            router.push(
-                                                "/settings/integrations",
-                                            );
-                                        }}>
-                                        Integrations
-                                    </Button>
-                                </SidebarMenuItem>
-
-                                <SidebarMenuItem>
-                                    <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        selected={
-                                            pathname ===
-                                            "/settings/subscription"
-                                        }
-                                        className="w-full justify-start"
-                                        onClick={() => {
-                                            router.push(
-                                                "/settings/subscription",
-                                            );
-                                        }}>
-                                        Subscription
-                                    </Button>
-                                </SidebarMenuItem>
+                                {mainRoutes.map((route) => (
+                                    <SidebarMenuItem key={route.href}>
+                                        <Button
+                                            size="md"
+                                            className="w-full justify-start"
+                                            active={pathname === route.href}
+                                            onClick={() =>
+                                                router.push(route.href)
+                                            }
+                                            variant={
+                                                pathname.startsWith(route.href)
+                                                    ? "helper"
+                                                    : "cancel"
+                                            }>
+                                            {route.label}
+                                        </Button>
+                                    </SidebarMenuItem>
+                                ))}
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>
@@ -128,25 +122,32 @@ export const AutomationCodeReviewLayout = ({
                                     </p>
                                     <SidebarMenuSub>
                                         <SidebarMenuSubItem className="flex flex-col gap-1">
-                                            {routes.map(({ label, href }) => (
-                                                <Button
-                                                    key={label}
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    selected={
-                                                        repositoryParam ===
-                                                            "global" &&
-                                                        pageNameParam === href
-                                                    }
-                                                    className="w-full justify-start"
-                                                    onClick={() => {
-                                                        router.push(
-                                                            `/settings/code-review/global/${href}`,
-                                                        );
-                                                    }}>
-                                                    {label}
-                                                </Button>
-                                            ))}
+                                            {routes.map(({ label, href }) => {
+                                                const active =
+                                                    repositoryParam ===
+                                                        "global" &&
+                                                    pageNameParam === href;
+
+                                                return (
+                                                    <Button
+                                                        key={label}
+                                                        size="md"
+                                                        variant={
+                                                            active
+                                                                ? "helper"
+                                                                : "cancel"
+                                                        }
+                                                        active={active}
+                                                        className="w-full justify-start"
+                                                        onClick={() => {
+                                                            router.push(
+                                                                `/settings/code-review/global/${href}`,
+                                                            );
+                                                        }}>
+                                                        {label}
+                                                    </Button>
+                                                );
+                                            })}
                                         </SidebarMenuSubItem>
                                     </SidebarMenuSub>
                                 </SidebarMenuItem>
@@ -156,8 +157,8 @@ export const AutomationCodeReviewLayout = ({
                                         <div className="flex items-center justify-between">
                                             <strong>Per repository</strong>
                                             <Button
-                                                size="icon"
-                                                variant="outline"
+                                                size="icon-sm"
+                                                variant="secondary"
                                                 className="size-8"
                                                 onClick={addNewRepo}
                                                 disabled={
@@ -168,7 +169,7 @@ export const AutomationCodeReviewLayout = ({
                                                 <Plus className="size-4" />
                                             </Button>
                                         </div>
-                                        <span className="mb-2 mt-2 block text-muted-foreground">
+                                        <span className="text-text-secondary mt-2 mb-2 block max-w-52">
                                             Set custom configurations for each
                                             repository (override global
                                             defaults).
@@ -181,70 +182,89 @@ export const AutomationCodeReviewLayout = ({
                                                 (repository) =>
                                                     repository.isSelected,
                                             )
-                                            .map((repository) => (
-                                                <Collapsible
-                                                    key={repository.id}
-                                                    className="group/collapsible"
-                                                    defaultOpen={
+                                            .map((repository) => {
+                                                const active = routes.some(
+                                                    ({ href }) =>
                                                         repositoryParam ===
-                                                        repository.id
-                                                    }>
-                                                    <CollapsibleTrigger asChild>
-                                                        <Button
-                                                            size="sm"
-                                                            variant="ghost"
-                                                            className="h-auto min-h-9 w-full justify-start py-2"
-                                                            selected={routes.some(
-                                                                ({ href }) =>
-                                                                    repositoryParam ===
-                                                                        repository.id &&
-                                                                    pageNameParam ===
-                                                                        href,
-                                                            )}
-                                                            leftIcon={
-                                                                <CollapsibleIndicator className="group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
-                                                            }>
-                                                            {repository.name}
-                                                        </Button>
-                                                    </CollapsibleTrigger>
+                                                            repository.id &&
+                                                        pageNameParam === href,
+                                                );
 
-                                                    <CollapsibleContent className="group-data-[state=closed]/collapsible:animate-collapsible-up group-data-[state=open]/collapsible:animate-collapsible-down">
-                                                        <SidebarMenuSub>
-                                                            <SidebarMenuSubItem className="flex flex-col gap-1">
-                                                                {routes.map(
-                                                                    ({
-                                                                        label,
-                                                                        href,
-                                                                    }) => (
-                                                                        <Button
-                                                                            key={
-                                                                                label
-                                                                            }
-                                                                            size="sm"
-                                                                            variant="ghost"
-                                                                            selected={
+                                                return (
+                                                    <Collapsible
+                                                        key={repository.id}
+                                                        className="group/collapsible"
+                                                        defaultOpen={
+                                                            repositoryParam ===
+                                                            repository.id
+                                                        }>
+                                                        <CollapsibleTrigger
+                                                            asChild>
+                                                            <Button
+                                                                size="md"
+                                                                variant={
+                                                                    active
+                                                                        ? "helper"
+                                                                        : "cancel"
+                                                                }
+                                                                className="h-fit w-full justify-start py-2"
+                                                                active={active}
+                                                                leftIcon={
+                                                                    <CollapsibleIndicator className="group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
+                                                                }>
+                                                                {
+                                                                    repository.name
+                                                                }
+                                                            </Button>
+                                                        </CollapsibleTrigger>
+
+                                                        <CollapsibleContent className="group-data-[state=closed]/collapsible:animate-collapsible-up group-data-[state=open]/collapsible:animate-collapsible-down">
+                                                            <SidebarMenuSub>
+                                                                <SidebarMenuSubItem className="flex flex-col gap-1">
+                                                                    {routes.map(
+                                                                        ({
+                                                                            label,
+                                                                            href,
+                                                                        }) => {
+                                                                            const active =
                                                                                 repositoryParam ===
                                                                                     repository.id &&
                                                                                 pageNameParam ===
-                                                                                    href
-                                                                            }
-                                                                            className="w-full justify-start"
-                                                                            onClick={() => {
-                                                                                router.push(
-                                                                                    `/settings/code-review/${repository.id}/${href}`,
-                                                                                );
-                                                                            }}>
-                                                                            {
-                                                                                label
-                                                                            }
-                                                                        </Button>
-                                                                    ),
-                                                                )}
-                                                            </SidebarMenuSubItem>
-                                                        </SidebarMenuSub>
-                                                    </CollapsibleContent>
-                                                </Collapsible>
-                                            ))}
+                                                                                    href;
+
+                                                                            return (
+                                                                                <Button
+                                                                                    key={
+                                                                                        label
+                                                                                    }
+                                                                                    size="md"
+                                                                                    variant={
+                                                                                        active
+                                                                                            ? "helper"
+                                                                                            : "cancel"
+                                                                                    }
+                                                                                    active={
+                                                                                        active
+                                                                                    }
+                                                                                    className="w-full justify-start"
+                                                                                    onClick={() => {
+                                                                                        router.push(
+                                                                                            `/settings/code-review/${repository.id}/${href}`,
+                                                                                        );
+                                                                                    }}>
+                                                                                    {
+                                                                                        label
+                                                                                    }
+                                                                                </Button>
+                                                                            );
+                                                                        },
+                                                                    )}
+                                                                </SidebarMenuSubItem>
+                                                            </SidebarMenuSub>
+                                                        </CollapsibleContent>
+                                                    </Collapsible>
+                                                );
+                                            })}
                                     </div>
                                 </SidebarMenuItem>
                             </SidebarMenu>
@@ -252,8 +272,6 @@ export const AutomationCodeReviewLayout = ({
                     </SidebarGroup>
                 </SidebarContent>
             </Sidebar>
-
-            <Separator orientation="vertical" />
 
             <Page.WithSidebar>
                 <AutomationCodeReviewConfigProvider

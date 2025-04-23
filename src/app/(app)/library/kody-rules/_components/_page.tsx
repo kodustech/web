@@ -94,9 +94,10 @@ export const KodyRulesLibrary = ({
             <Page.Header>
                 <div className="flex flex-col gap-1">
                     <Button
-                        className="mb-4 text-xs"
+                        size="sm"
+                        variant="helper"
+                        className="mb-10 text-xs"
                         leftIcon={<ArrowLeft />}
-                        variant="link"
                         onClick={router.back}>
                         Go back to Kody Rules
                     </Button>
@@ -104,7 +105,7 @@ export const KodyRulesLibrary = ({
                     <Page.Title className="text-2xl font-semibold">
                         Discovery Rules
                     </Page.Title>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-text-secondary text-sm">
                         Import automated rules and guidelines for your code
                         reviews.
                     </p>
@@ -121,13 +122,7 @@ export const KodyRulesLibrary = ({
                             onClick={(e) => {
                                 e.preventDefault();
                                 setFilters(DEFAULT_FILTERS);
-                            }}
-                            disabled={
-                                !filters.name?.length &&
-                                !filters.tags?.length &&
-                                !filters.severity &&
-                                !filters.language
-                            }>
+                            }}>
                             Clear all
                         </Link>
                     </div>
@@ -139,24 +134,18 @@ export const KodyRulesLibrary = ({
                             </FormControl.Label>
 
                             <FormControl.Input>
-                                <div className="relative flex-1">
-                                    <Input
-                                        className="h-10 pl-12"
-                                        value={filters.name}
-                                        id="name"
-                                        placeholder="Search rules by name"
-                                        onChange={(e) =>
-                                            setFilters((filters) => ({
-                                                ...filters,
-                                                name: e.target.value,
-                                            }))
-                                        }
-                                    />
-
-                                    <div className="pointer-events-none absolute inset-y-0 left-4 flex items-center">
-                                        <SearchIcon className="size-5 text-muted-foreground" />
-                                    </div>
-                                </div>
+                                <Input
+                                    id="name"
+                                    value={filters.name}
+                                    leftIcon={<SearchIcon />}
+                                    placeholder="Search rules by name"
+                                    onChange={(e) =>
+                                        setFilters((filters) => ({
+                                            ...filters,
+                                            name: e.target.value,
+                                        }))
+                                    }
+                                />
                             </FormControl.Input>
                         </FormControl.Root>
 
@@ -169,18 +158,19 @@ export const KodyRulesLibrary = ({
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
-                                            variant="outline"
+                                            size="lg"
+                                            variant="helper"
                                             role="combobox"
                                             id="severity"
-                                            className="h-10 justify-between">
+                                            className="w-full justify-between"
+                                            rightIcon={
+                                                <ChevronsUpDown className="-mr-2 opacity-50" />
+                                            }>
                                             {filters.severity ? (
                                                 filters.severity
                                             ) : (
-                                                <span className="text-muted-foreground">
-                                                    Select
-                                                </span>
+                                                <span>Select</span>
                                             )}
-                                            <ChevronsUpDown className="size-4 opacity-50" />
                                         </Button>
                                     </PopoverTrigger>
 
@@ -216,7 +206,7 @@ export const KodyRulesLibrary = ({
                                                             {v}
                                                             <Check
                                                                 className={cn(
-                                                                    "ml-auto size-4 text-brand-orange",
+                                                                    "text-primary-light -mr-2 ml-auto size-4",
                                                                     filters.severity ===
                                                                         v
                                                                         ? "opacity-100"
@@ -242,20 +232,21 @@ export const KodyRulesLibrary = ({
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
-                                            variant="outline"
-                                            role="combobox"
+                                            size="lg"
                                             id="language"
-                                            className="h-10 justify-between">
+                                            variant="helper"
+                                            role="combobox"
+                                            className="w-full justify-between"
+                                            rightIcon={
+                                                <ChevronsUpDown className="-mr-2 opacity-50" />
+                                            }>
                                             {filters.language ? (
                                                 ProgrammingLanguage[
                                                     filters.language
                                                 ]
                                             ) : (
-                                                <span className="text-muted-foreground">
-                                                    Select
-                                                </span>
+                                                <span>Select</span>
                                             )}
-                                            <ChevronsUpDown className="size-4 opacity-50" />
                                         </Button>
                                     </PopoverTrigger>
 
@@ -288,7 +279,7 @@ export const KodyRulesLibrary = ({
                                                             {v}
                                                             <Check
                                                                 className={cn(
-                                                                    "ml-auto size-4 text-brand-orange",
+                                                                    "text-primary-light -mr-2 ml-auto size-4",
                                                                     filters.language ===
                                                                         k
                                                                         ? "opacity-100"
@@ -314,10 +305,14 @@ export const KodyRulesLibrary = ({
                                 <Popover>
                                     <PopoverTrigger asChild>
                                         <Button
-                                            variant="outline"
-                                            role="combobox"
                                             id="tags"
-                                            className="h-10 justify-between">
+                                            size="lg"
+                                            variant="helper"
+                                            role="combobox"
+                                            className="w-full justify-between"
+                                            rightIcon={
+                                                <ChevronsUpDown className="-mr-2 opacity-50" />
+                                            }>
                                             {filters.tags?.length ? (
                                                 `${filters.tags.length} ${pluralize(
                                                     filters.tags.length,
@@ -327,21 +322,18 @@ export const KodyRulesLibrary = ({
                                                     },
                                                 )} selected`
                                             ) : (
-                                                <span className="text-muted-foreground">
-                                                    Select
-                                                </span>
+                                                <span>Select</span>
                                             )}
-                                            <ChevronsUpDown className="size-4 opacity-50" />
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent
                                         align="start"
-                                        className="min-w-[var(--radix-popover-trigger-width)] max-w-60 p-0">
+                                        className="max-w-60 min-w-[var(--radix-popover-trigger-width)] p-0">
                                         <Command>
                                             <CommandInput placeholder="Search tag..." />
 
                                             <CommandList>
-                                                <CommandEmpty className="px-4 text-xs text-muted-foreground">
+                                                <CommandEmpty className="text-text-secondary px-4 text-xs">
                                                     No tag found with current
                                                     search query.
                                                 </CommandEmpty>
@@ -379,7 +371,7 @@ export const KodyRulesLibrary = ({
                                                             {tag}
                                                             <Check
                                                                 className={cn(
-                                                                    "ml-auto size-4 text-brand-orange",
+                                                                    "text-primary-light -mr-2 ml-auto size-4",
                                                                     filters.tags?.includes(
                                                                         tag,
                                                                     )
@@ -405,7 +397,7 @@ export const KodyRulesLibrary = ({
 
                 <div className="flex flex-col gap-6">
                     {filteredRules.length === 0 ? (
-                        <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
+                        <div className="text-text-secondary flex flex-col items-center gap-2 text-sm">
                             No rules found with your search query.
                         </div>
                     ) : (
@@ -423,9 +415,10 @@ export const KodyRulesLibrary = ({
                                         );
 
                                         toast({
+                                            variant: "success",
                                             title: "Rule added to your selected repositories",
                                             description: (
-                                                <ul>
+                                                <ul className="list-disc pl-4">
                                                     {r.map((r) => (
                                                         <li key={r.uuid}>
                                                             {r.repositoryId ===

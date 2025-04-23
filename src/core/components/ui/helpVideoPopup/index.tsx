@@ -51,9 +51,9 @@ const YouTubeVideoPopup = ({
                     <CardHeader className="flex-row gap-6">
                         <CardTitle className="text-base">{title}</CardTitle>
                         <Button
-                            size="icon"
-                            variant="ghost"
-                            className="text-brand-red shrink-0"
+                            size="icon-md"
+                            variant="cancel"
+                            className="text-danger shrink-0"
                             onClick={togglePopup}>
                             <X />
                         </Button>
@@ -68,8 +68,9 @@ const YouTubeVideoPopup = ({
                 </Card>
             ) : (
                 <Button
+                    size="md"
+                    variant="primary-dark"
                     leftIcon={<HelpCircle />}
-                    variant="outline"
                     onClick={togglePopup}>
                     Help
                 </Button>

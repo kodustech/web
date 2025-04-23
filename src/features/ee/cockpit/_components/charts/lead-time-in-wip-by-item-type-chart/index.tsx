@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { DotLoader } from "@components/ui/dot-loader";
+import { Spinner } from "@components/ui/spinner";
 import seedColor from "seed-color";
 import {
     VictoryAxis,
@@ -82,7 +82,7 @@ export function LeadTimeInWipByItemTypeChart({
     if (isLoading) {
         return (
             <div className="flex min-h-80 flex-col items-center justify-center gap-4">
-                <DotLoader />
+                <Spinner />
             </div>
         );
     }

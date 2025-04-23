@@ -129,10 +129,10 @@ export default function App() {
 
     return (
         <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
-            <div className="flex flex-10 flex-col justify-center gap-10 rounded-3xl bg-[#231B2E]/35 p-12 backdrop-blur-sm">
+            <div className="bg-card-lv1 flex flex-10 flex-col justify-center gap-10 rounded-3xl p-12">
                 <SvgKodus className="h-8 min-h-8" />
 
-                <div className="flex flex-1 flex-col justify-center gap-8 text-[15px] text-muted-foreground">
+                <div className="text-text-secondary flex flex-1 flex-col justify-center gap-8 text-[15px]">
                     <div className="flex flex-col gap-4">
                         <svg
                             width="34"
@@ -185,7 +185,7 @@ export default function App() {
                     <div className="flex flex-col gap-8">
                         <Heading variant="h2">No repositories found</Heading>
 
-                        <div className="space-y-4 text-sm text-muted-foreground">
+                        <div className="text-text-secondary space-y-4 text-sm">
                             <p className="flex flex-col gap-2">
                                 Possible reasons:
                             </p>
@@ -205,8 +205,8 @@ export default function App() {
                     </div>
 
                     <Button
-                        selected
-                        variant="link"
+                        size="sm"
+                        variant="helper"
                         leftIcon={<ArrowLeftIcon />}
                         onClick={() => {
                             router.push("/setup/connecting-git-tool");

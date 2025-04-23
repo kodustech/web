@@ -91,7 +91,7 @@ export default function App() {
                                         <AlertTitle>
                                             Review requested
                                         </AlertTitle>
-                                        <AlertDescription className="mb-4 text-success-foreground">
+                                        <AlertDescription className="text-success-foreground mb-4">
                                             Soon it will be ready in your PR:
                                         </AlertDescription>
 
@@ -134,6 +134,9 @@ export default function App() {
 
                                     <div className="flex flex-col">
                                         <Button
+                                            size="lg"
+                                            variant="primary"
+                                            className="w-full"
                                             disabled={
                                                 !selectedPR ||
                                                 requestedPullRequestReview
@@ -149,12 +152,13 @@ export default function App() {
                                             Review Pull Request now
                                         </Button>
 
-                                        <div className="mt-10 text-center">
+                                        <div className="mt-8 text-center">
                                             <Link
                                                 href=""
                                                 disabled={
                                                     isFinishingOnboardingWithoutSelectingPR
                                                 }
+                                                className="text-sm"
                                                 onClick={(ev) => {
                                                     ev.preventDefault();
                                                     finishOnboardingWithoutSelectingPR();

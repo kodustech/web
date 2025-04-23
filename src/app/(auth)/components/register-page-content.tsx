@@ -1,17 +1,23 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { Button } from "@components/ui/button";
 import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
-import { SvgCheckList } from "@components/ui/icons/SvgCheckList";
 import { Input } from "@components/ui/input";
 import { Link } from "@components/ui/link";
 import { MultiStep, useMultiStep } from "@components/ui/multi-step";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebouncedCallback } from "@hooks/use-debounced-callback";
-import { ArrowLeft, ArrowRight, Eye, EyeClosed, LogInIcon } from "lucide-react";
+import {
+    ArrowLeft,
+    ArrowRight,
+    CheckIcon,
+    Eye,
+    EyeClosed,
+    LogInIcon,
+} from "lucide-react";
 import { signIn } from "next-auth/react";
-import { useMemo, useState } from "react";
 import {
     Controller,
     FormProvider,
@@ -45,7 +51,7 @@ const GetStarted = () => {
             <div className="flex flex-col gap-2">
                 <Heading variant="h2">Get Started Now</Heading>
 
-                <p className="text-sm text-muted-foreground">
+                <p className="text-text-secondary text-sm">
                     Start automating reviews in minutes and save hours every
                     sprint!
                 </p>
@@ -55,7 +61,7 @@ const GetStarted = () => {
 
             <div className="mt-4 flex w-full flex-row items-center">
                 <hr className="flex-1 border-[#6A57A433]" />
-                <p className="px-6 text-[13px] text-muted-foreground">
+                <p className="text-text-secondary px-6 text-[13px]">
                     Or sign up with
                 </p>
                 <hr className="flex-1 border-[#6A57A433]" />
@@ -107,6 +113,8 @@ const GetStarted = () => {
                 <Button
                     size="lg"
                     type="submit"
+                    variant="primary"
+                    className="w-full"
                     rightIcon={<ArrowRight />}
                     disabled={!isEmailFilled || isEmailInvalid}>
                     Continue
@@ -176,20 +184,19 @@ const WithEmail = () => {
 
     return (
         <div className="flex flex-col gap-10">
-            <Link
-                href=""
-                onClick={(ev) => {
-                    ev.preventDefault();
-                    multiStep.back();
-                }}
-                className="flex w-fit items-center gap-2 text-xs text-muted-foreground">
-                <ArrowLeft className="size-4" /> Back to Sign Up methods
-            </Link>
+            <Button
+                size="sm"
+                variant="helper"
+                className="text-xs"
+                leftIcon={<ArrowLeft />}
+                onClick={() => multiStep.back()}>
+                Back to Sign Up
+            </Button>
 
             <div className="flex flex-col gap-2">
                 <Heading variant="h2">Sign up with e-mail</Heading>
 
-                <p className="text-sm text-muted-foreground">
+                <p className="text-text-secondary text-sm">
                     Start automating reviews in minutes and save hours every
                     sprint!
                 </p>
@@ -239,43 +246,43 @@ const WithEmail = () => {
                             </FormControl.Label>
 
                             <FormControl.Input>
-                                <div className="relative">
-                                    <Input
-                                        {...field}
-                                        id={field.name}
-                                        type={typePassword}
-                                        placeholder="Create your password"
-                                        error={fieldState.error}
-                                        autoCapitalize="none"
-                                        autoCorrect="off"
-                                        autoComplete="off"
-                                        disabled={
-                                            formState.isSubmitting ||
-                                            formState.isLoading ||
-                                            field.disabled
-                                        }
-                                    />
-
-                                    <Button
-                                        type="button"
-                                        className={cn(
-                                            "absolute right-4 top-4 h-auto bg-transparent p-0 hover:cursor-pointer hover:bg-transparent",
-                                            "focus-visible:border-[#F5922080] focus-visible:outline-hidden focus-visible:ring-[#F5922080]",
-                                        )}
-                                        onClick={() =>
-                                            setTypePassword((typePassword) =>
-                                                typePassword === "password"
-                                                    ? "text"
-                                                    : "password",
-                                            )
-                                        }>
-                                        {typePassword === "password" ? (
-                                            <EyeClosed className="size-5 text-white" />
-                                        ) : (
-                                            <Eye className="size-5 text-white" />
-                                        )}
-                                    </Button>
-                                </div>
+                                <Input
+                                    {...field}
+                                    id={field.name}
+                                    type={typePassword}
+                                    placeholder="Create your password"
+                                    error={fieldState.error}
+                                    autoCapitalize="none"
+                                    autoCorrect="off"
+                                    autoComplete="off"
+                                    disabled={
+                                        formState.isSubmitting ||
+                                        formState.isLoading ||
+                                        field.disabled
+                                    }
+                                    rightIcon={
+                                        <Button
+                                            size="icon-sm"
+                                            variant="helper"
+                                            type="button"
+                                            className="-mr-2"
+                                            onClick={() =>
+                                                setTypePassword(
+                                                    (typePassword) =>
+                                                        typePassword ===
+                                                        "password"
+                                                            ? "text"
+                                                            : "password",
+                                                )
+                                            }>
+                                            {typePassword === "password" ? (
+                                                <EyeClosed />
+                                            ) : (
+                                                <Eye />
+                                            )}
+                                        </Button>
+                                    }
+                                />
                             </FormControl.Input>
 
                             <FormControl.Error>
@@ -297,7 +304,7 @@ const WithEmail = () => {
                                                 )}>
                                                 <div className="w-3 text-center">
                                                     {rule.valid ? (
-                                                        <SvgCheckList />
+                                                        <CheckIcon className="text-success size-3" />
                                                     ) : (
                                                         <span>•</span>
                                                     )}
@@ -356,20 +363,19 @@ const WithEmail = () => {
                 <Button
                     size="lg"
                     type="submit"
+                    variant="primary"
+                    className="w-full"
                     disabled={!isFormValid}
                     rightIcon={<LogInIcon />}
                     loading={isFormSubmitting}>
                     Sign up
                 </Button>
 
-                <div className="mt-4 text-center text-xs text-muted-foreground">
+                <div className="text-text-secondary mt-4 text-center text-xs">
                     By signing up, you agree to the{" "}
                     <Link
                         target="blank"
-                        href={process.env.WEB_TERMS_AND_CONDITIONS ?? ""}
-                        className={cn(
-                            "whitespace-nowrap text-xs font-medium text-brand-orange! underline underline-offset-4",
-                        )}>
+                        href={process.env.WEB_TERMS_AND_CONDITIONS ?? ""}>
                         Terms & Conditions.
                     </Link>
                 </div>

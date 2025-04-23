@@ -1,11 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { SvgProfile } from "@components/ui/icons/SvgProfile";
 import { toast } from "@components/ui/toaster/use-toast";
-import { useAsyncAction } from "@hooks/use-async-action";
 import { useSuspenseGetOrganizationId } from "@services/setup/hooks";
-import { deleteCookie } from "cookies-next";
+import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "src/core/components/ui/avatar";
 import { Button } from "src/core/components/ui/button";
 import {
@@ -31,21 +29,17 @@ export function UserNav() {
     const router = useRouter();
     const organizationId = useSuspenseGetOrganizationId();
 
-    const [logout, { loading }] = useAsyncAction(async () => {
-        deleteCookie("teamId", { path: "/" });
-        router.replace("/sign-out");
-    });
-
     const handleChangeWorkspace = (teamId: string) => {
         setTeamId(teamId);
 
         const team = teams.find((team) => team.uuid === teamId);
 
         toast({
+            variant: "info",
             description: (
                 <span>
                     Workspace changed to{" "}
-                    <span className="font-bold text-brand-orange">
+                    <span className="text-primary-light font-bold">
                         {team?.name}
                     </span>
                 </span>
@@ -57,25 +51,22 @@ export function UserNav() {
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
                 <Button
-                    variant="ghost"
-                    className="relative size-8 rounded-full">
-                    <Avatar className="size-8">
+                    size="icon-md"
+                    variant="cancel"
+                    className="rounded-full">
+                    <Avatar className="size-full">
                         {/* TODO: call user's avatar */}
                         {/* <AvatarImage src="" alt="username" /> */}
                         {/* TODO: call user's name and get initials */}
-                        <AvatarFallback className="bg-[#6A57A466]">
-                            <SvgProfile
-                                height={"30px"}
-                                width={"30px"}
-                                className="mt-2"
-                                fill="#DFD8F566"
-                            />
+                        <AvatarFallback>
+                            <UserIcon />
                         </AvatarFallback>
                     </Avatar>
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end" forceMount>
-                <DropdownMenuLabel className="text-xs font-normal">
+
+            <DropdownMenuContent className="w-60" align="end">
+                <DropdownMenuLabel className="text-text-primary text-sm font-normal">
                     {email}
                 </DropdownMenuLabel>
 
@@ -101,11 +92,13 @@ export function UserNav() {
                 {isOwner && (
                     <DropdownMenuItem
                         onClick={() => router.push(`/organization/general`)}>
+                        <SettingsIcon />
                         Settings
                     </DropdownMenuItem>
                 )}
 
-                <DropdownMenuItem disabled={loading} onClick={logout}>
+                <DropdownMenuItem onClick={() => router.replace(`/sign-out`)}>
+                    <LogOutIcon />
                     Sign out
                 </DropdownMenuItem>
             </DropdownMenuContent>

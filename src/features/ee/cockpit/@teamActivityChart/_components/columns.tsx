@@ -7,7 +7,7 @@ type Type = [
     Array<{ date: string; commitCount: number; prCount: number }>,
 ];
 
-const prsClassname = "bg-[hsl(360,96%,72%)]";
+const prsClassname = "bg-(--color-danger)";
 const commitsClassname = "bg-[hsl(244,100%,78%)]";
 
 export const getColumns = ({

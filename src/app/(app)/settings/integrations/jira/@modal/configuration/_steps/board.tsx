@@ -43,6 +43,8 @@ export const SelectBoardStep = () => {
         project.selected,
     );
 
+    console.log(boards);
+
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
     const board = _board.selected;
@@ -55,8 +57,8 @@ export const SelectBoardStep = () => {
             <DialogHeader>
                 <div className="flex flex-row items-center gap-2">
                     <Button
-                        size="icon"
-                        variant="ghost"
+                        size="icon-md"
+                        variant="helper"
                         onClick={() => multiStep.back()}>
                         <ArrowLeft />
                     </Button>
@@ -65,10 +67,10 @@ export const SelectBoardStep = () => {
                         <DialogTitle>Jira setup - select board</DialogTitle>
 
                         <div className="flex flex-row gap-2">
-                            <div className="aspect-[4] h-2 rounded-full bg-card" />
-                            <div className="aspect-[4] h-2 rounded-full bg-card" />
-                            <div className="aspect-[4] h-2 rounded-full bg-brand-orange" />
-                            <div className="aspect-[4] h-2 rounded-full bg-card" />
+                            <div className="bg-card aspect-[4] h-2 rounded-full" />
+                            <div className="bg-card aspect-[4] h-2 rounded-full" />
+                            <div className="bg-primary-light aspect-[4] h-2 rounded-full" />
+                            <div className="bg-card aspect-[4] h-2 rounded-full" />
                         </div>
                     </div>
                 </div>
@@ -85,14 +87,15 @@ export const SelectBoardStep = () => {
                         onOpenChange={setIsPopoverOpen}>
                         <PopoverTrigger asChild>
                             <Button
-                                variant="outline"
+                                size="lg"
+                                variant="helper"
                                 role="combobox"
                                 id="select-jira-board"
-                                className="h-10 justify-between">
+                                className="w-full justify-between">
                                 {board ? (
                                     board.name
                                 ) : (
-                                    <span className="text-muted-foreground">
+                                    <span className="text-text-secondary">
                                         Select board...
                                     </span>
                                 )}
@@ -101,7 +104,7 @@ export const SelectBoardStep = () => {
                         </PopoverTrigger>
                         <PopoverContent
                             align="start"
-                            className="min-w-[var(--radix-popover-trigger-width)] max-w-60 p-0">
+                            className="max-w-60 min-w-[var(--radix-popover-trigger-width)] p-0">
                             <Command>
                                 <CommandList>
                                     <CommandGroup>
@@ -116,7 +119,7 @@ export const SelectBoardStep = () => {
                                                 {d.name}
                                                 <Check
                                                     className={cn(
-                                                        "ml-auto size-4 text-brand-orange",
+                                                        "text-primary-light ml-auto size-4",
                                                         board?.id === d.id
                                                             ? "opacity-100"
                                                             : "opacity-0",
@@ -134,11 +137,14 @@ export const SelectBoardStep = () => {
 
             <DialogFooter>
                 <DialogClose>
-                    <Button variant="outline">Cancel</Button>
+                    <Button variant="cancel" size="md">
+                        Cancel
+                    </Button>
                 </DialogClose>
 
                 <Button
-                    className="w-fit self-end"
+                    size="md"
+                    variant="primary"
                     rightIcon={<ArrowRight />}
                     disabled={!board}
                     loading={isSaving}

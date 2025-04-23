@@ -22,13 +22,14 @@ export const Chart = ({
         <VictoryChart
             theme={VictoryTheme.clean}
             domainPadding={{ x: 30 }}
-            padding={{ left: 35, right: 10, top: 20, bottom: 70 }}>
+            padding={{ left: 35, right: 10, top: 0, bottom: 65 }}>
             <VictoryAxis
                 style={{
                     axis: { stroke: "#444" },
                     tickLabels: {
                         fontSize: 10,
-                        fill: "white",
+                        fill: "var(--color-text-primary)",
+                        fontFamily: "var(--font-sans)",
                         padding: 2,
                         angle: ({ ticks }) => (ticks.length > 6 ? -25 : 0),
                         textAnchor: ({ ticks }) =>
@@ -42,7 +43,10 @@ export const Chart = ({
                 style={{
                     axis: { stroke: "#444" },
                     ticks: { stroke: "#444" },
-                    tickLabels: { fontSize: 10, fill: "white" },
+                    tickLabels: {
+                        fontSize: 10,
+                        fill: "var(--color-text-primary)",
+                    },
                 }}
             />
 
@@ -51,7 +55,11 @@ export const Chart = ({
                 y={274}
                 borderComponent={<div />}
                 style={{
-                    labels: { fontSize: 10, fill: "white" },
+                    labels: {
+                        fontSize: 10,
+                        fill: "var(--color-text-primary)",
+                        fontFamily: "var(--font-sans)",
+                    },
                 }}
                 data={[
                     {
@@ -66,7 +74,15 @@ export const Chart = ({
             />
 
             <VictoryStack
-                labelComponent={<VictoryTooltip style={{ fontSize: 11 }} />}
+                labelComponent={
+                    <VictoryTooltip
+                        style={{
+                            fontSize: 11,
+                            fontFamily: "var(--font-sans)",
+                            fontWeight: 700,
+                        }}
+                    />
+                }
                 style={{
                     data: { width: 20, fill: ({ datum }) => datum.fill },
                 }}>

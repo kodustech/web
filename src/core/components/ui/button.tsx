@@ -9,6 +9,7 @@ const buttonVariants = cva(
         "inline-flex overflow-hidden select-none relative items-center justify-center pointer-events-auto transition h-auto",
         "rounded-xl font-semibold transition text-start shrink-0 text-sm w-fit",
         "bg-(--button-background) text-(--button-foreground) [&_svg]:size-(--icon-size) ring-card-lv3",
+        "[&[aria-haspopup=dialog]]:ring-1",
         "button-disabled:bg-text-placeholder/30 button-disabled:text-text-placeholder button-disabled:cursor-not-allowed",
         "button-focused:ring-3",
         "button-hover:brightness-120 button-active:brightness-120",

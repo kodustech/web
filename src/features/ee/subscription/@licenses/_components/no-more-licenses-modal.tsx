@@ -33,11 +33,16 @@ export const NoMoreLicensesModal = ({ teamId }: { teamId: string }) => {
                 </div>
 
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => magicModal.hide()}>
+                    <Button
+                        size="md"
+                        variant="cancel"
+                        onClick={() => magicModal.hide()}>
                         Cancel
                     </Button>
 
                     <Button
+                        size="md"
+                        variant="primary"
                         leftIcon={<CircleDollarSign />}
                         loading={isCreatingLinkToManageBilling}
                         onClick={() => createLinkToManageBilling()}>

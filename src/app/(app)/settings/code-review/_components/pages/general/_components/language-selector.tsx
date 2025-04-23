@@ -17,7 +17,7 @@ import {
     PopoverTrigger,
 } from "@components/ui/popover";
 import { LanguageValue } from "@services/parameters/types";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { CheckIcon, ChevronsUpDown } from "lucide-react";
 import { Controller, useFormContext } from "react-hook-form";
 import { cn } from "src/core/utils/components";
 
@@ -183,21 +183,22 @@ export const LanguageSelector = () => {
                             onOpenChange={setIsPopoverOpen}>
                             <PopoverTrigger asChild>
                                 <Button
+                                    size="lg"
                                     role="combobox"
-                                    variant="outline"
+                                    variant="helper"
                                     id={field.name}
-                                    className="w-72 justify-between">
+                                    className="w-72 justify-between"
+                                    rightIcon={
+                                        <ChevronsUpDown className="-mr-2 opacity-50" />
+                                    }>
                                     {field.value ? (
                                         languageOptions.find(
                                             ({ value }) =>
                                                 value === field.value,
                                         )?.title
                                     ) : (
-                                        <span className="text-muted-foreground">
-                                            Select language
-                                        </span>
+                                        <span>Select language</span>
                                     )}
-                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                                 </Button>
                             </PopoverTrigger>
 
@@ -243,16 +244,16 @@ export const LanguageSelector = () => {
                                                         field.onChange(l.value);
                                                         setIsPopoverOpen(false);
                                                     }}>
-                                                    <Check
+                                                    {l.title}
+                                                    <CheckIcon
                                                         className={cn(
-                                                            "mr-2 h-4 w-4 text-brand-orange",
+                                                            "text-primary-light -mr-2 size-5",
                                                             field.value ===
                                                                 l.value
                                                                 ? "opacity-100"
                                                                 : "opacity-0",
                                                         )}
                                                     />
-                                                    {l.title}
                                                 </CommandItem>
                                             ))}
                                         </CommandGroup>

@@ -36,21 +36,21 @@ export const PaymentFailed = ({
             <CardHeader className="flex flex-row justify-between gap-2">
                 <div className="flex flex-col gap-2">
                     <div className="flex items-center gap-1.5">
-                        <AlertTriangle className="size-4 text-destructive" />
+                        <AlertTriangle className="text-destructive size-4" />
 
-                        <span className="text-sm text-destructive">
+                        <span className="text-destructive text-sm">
                             Payment failed
                         </span>
                     </div>
-                    <CardTitle>PRO plan</CardTitle>
+                    <CardTitle className="text-2xl">PRO plan</CardTitle>
 
                     <div className="mt-4 flex gap-6">
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-sm">
                             <strong>{assignedLicenses}</strong> of{" "}
                             <strong>{totalLicenses}</strong> licenses assigned
                         </p>
 
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-sm">
                             <strong>{organizationAdminsCount}</strong>{" "}
                             organization{" "}
                             {pluralize(organizationAdminsCount, {
@@ -62,6 +62,9 @@ export const PaymentFailed = ({
                 </div>
 
                 <Button
+                    size="lg"
+                    variant="primary"
+                    className="h-fit"
                     leftIcon={<CircleDollarSign />}
                     loading={isCreatingLinkToCheckout}
                     onClick={() => {

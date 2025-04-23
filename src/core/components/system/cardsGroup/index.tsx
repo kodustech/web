@@ -3,7 +3,6 @@
 import React, { useCallback, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
-import { Card, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { SvgBitbucket } from "@components/ui/icons/SvgBitbucket";
 import { SvgDiscord } from "@components/ui/icons/SvgDiscord";
@@ -34,11 +33,11 @@ import TextTopIntegrations from "./textTopIntegrations";
 
 const communicationPlatforms = {
     [INTEGRATIONS_KEY.SLACK]: {
-        svg: <SvgSlack className="h-10 w-10" />,
+        svg: <SvgSlack />,
         platformName: "Slack",
     },
     [INTEGRATIONS_KEY.DISCORD]: {
-        svg: <SvgDiscord className="h-10 w-10" />,
+        svg: <SvgDiscord />,
         platformName: "Discord",
     },
 } satisfies Partial<
@@ -53,7 +52,7 @@ const communicationPlatforms = {
 
 const projectManagementPlatforms = {
     [INTEGRATIONS_KEY.JIRA]: {
-        svg: <SvgJira className="h-10 w-10" />,
+        svg: <SvgJira />,
         platformName: "Jira",
     },
 } satisfies Partial<
@@ -68,19 +67,19 @@ const projectManagementPlatforms = {
 
 const codeManagementPlatforms = {
     [INTEGRATIONS_KEY.GITHUB]: {
-        svg: <SvgGithub className="h-10 w-10" />,
+        svg: <SvgGithub />,
         platformName: "GitHub",
     },
     [INTEGRATIONS_KEY.GITLAB]: {
-        svg: <SvgGitlab className="h-10 w-10" />,
+        svg: <SvgGitlab />,
         platformName: "Gitlab",
     },
     [INTEGRATIONS_KEY.BITBUCKET]: {
-        svg: <SvgBitbucket className="h-10 w-10" />,
+        svg: <SvgBitbucket />,
         platformName: "Bitbucket",
     },
     // [INTEGRATIONS_KEY.AZUREREPOS]: {
-    //     svg: <SvgAzureRepos className="h-10 w-10" />,
+    //     svg: <SvgAzureRepos  />,
     //     platformName: "Azure Repos",
     // },
 } satisfies Partial<
@@ -292,7 +291,7 @@ export default function CardsGroup({
                                 title: "Integration failed",
                                 description:
                                     "Personal accounts are not supported. Try again with an organization.",
-                                variant: "destructive",
+                                variant: "danger",
                             });
                             break;
                         }
@@ -312,7 +311,7 @@ export default function CardsGroup({
                                         </ul>
                                     </div>
                                 ),
-                                variant: "destructive",
+                                variant: "danger",
                             });
                             break;
                         }
@@ -348,7 +347,7 @@ export default function CardsGroup({
                                 title: "Integration failed",
                                 description:
                                     "Personal accounts are not supported. Try again with an organization.",
-                                variant: "destructive",
+                                variant: "danger",
                             });
                             break;
                         }
@@ -367,7 +366,7 @@ export default function CardsGroup({
                                         </ul>
                                     </div>
                                 ),
-                                variant: "destructive",
+                                variant: "danger",
                             });
                             break;
                         }
@@ -658,19 +657,15 @@ const IntegrationCard = (props: {
 }) => {
     return (
         <Button
-            variant="outline"
-            className="h-auto rounded-2xl border-none p-0"
+            size="lg"
+            variant="helper"
+            className="h-20 w-full justify-start"
             onClick={() => props.onClick()}
-            disabled={props.disabled}>
-            <Card className="h-full w-full">
-                <CardHeader className="flex flex-row items-center gap-4">
-                    {props.connection.svg}
-
-                    <Heading variant="h2">
-                        {props.connection.platformName}
-                    </Heading>
-                </CardHeader>
-            </Card>
+            disabled={props.disabled}
+            leftIcon={
+                <span className="*:size-8!">{props.connection.svg}</span>
+            }>
+            <Heading variant="h2">{props.connection.platformName}</Heading>
         </Button>
     );
 };

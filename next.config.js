@@ -149,6 +149,9 @@ const nextConfig = {
         WEB_PORT_BILLING: process.env.WEB_PORT_BILLING,
         GLOBAL_BILLING_CONTAINER_NAME:
             process.env.GLOBAL_BILLING_CONTAINER_NAME,
+        GLOBAL_SLACK_HOSTNAME: process.env.GLOBAL_SLACK_HOSTNAME,
+        WEB_SLACK_PORT_API: process.env.WEB_SLACK_PORT_API,
+        GLOBAL_DISCORD_HOSTNAME: process.env.GLOBAL_DISCORD_HOSTNAME,
     },
 };
 

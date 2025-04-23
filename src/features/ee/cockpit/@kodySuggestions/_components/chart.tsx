@@ -26,9 +26,9 @@ export const Chart = ({
                         <VictoryLabel
                             lineHeight={1.25}
                             style={{
-                                fontSize: 36,
-                                fill: "white",
-                                fontFamily: "Inter",
+                                fontSize: 40,
+                                fill: "var(--color-text-primary)",
+                                fontFamily: "var(--font-sans)",
                             }}
                         />
                     }
@@ -56,7 +56,7 @@ export const Chart = ({
 
                 <div className="text-text-secondary mt-4 text-xs">
                     <p>Implementation Rate:</p>
-                    <strong className="text-white">
+                    <strong className="text-sm text-white">
                         {data.implementationRate * 100}%
                     </strong>
                 </div>
