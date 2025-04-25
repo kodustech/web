@@ -52,6 +52,13 @@ export default async function DeployFrequencyAnalytics() {
         endDate: formatISO(endDate, { representation: "date" }),
     });
 
+    if (
+        data.currentPeriod.averagePerWeek === 0 &&
+        data.previousPeriod.averagePerWeek === 0
+    ) {
+        throw new Error("NO_DATA");
+    }
+
     const [badge] = Object.entries(comparisonParameters).find(
         ([, { compareFn }]) => compareFn(data?.currentPeriod?.averagePerWeek),
     )!;

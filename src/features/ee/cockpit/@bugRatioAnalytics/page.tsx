@@ -52,6 +52,10 @@ export default async function BugRatioAnalytics() {
         endDate: formatISO(endDate, { representation: "date" }),
     });
 
+    if (data.currentPeriod.ratio === 0 && data.previousPeriod.ratio === 0) {
+        throw new Error("NO_DATA");
+    }
+
     const [badge] = Object.entries(comparisonParameters).find(
         ([, { compareFn }]) => compareFn(data?.currentPeriod?.ratio),
     )!;

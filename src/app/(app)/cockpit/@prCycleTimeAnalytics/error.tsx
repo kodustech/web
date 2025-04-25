@@ -25,7 +25,9 @@ export default function ErrorPage({
 
             <CardContent>
                 <div className="text-text-secondary flex h-full w-full items-center justify-center text-center text-sm">
-                    {errorMessages[error.message] ?? errorMessages.DEFAULT}
+                    <span className="-mt-5">
+                        {errorMessages[error.message] ?? errorMessages.DEFAULT}
+                    </span>
                 </div>
             </CardContent>
         </>

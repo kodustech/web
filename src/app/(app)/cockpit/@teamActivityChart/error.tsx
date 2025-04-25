@@ -14,7 +14,9 @@ export default function ErrorPage({
 }) {
     return (
         <div className="text-text-secondary flex h-full w-full items-center justify-center text-sm">
-            {errorMessages[error.message] ?? errorMessages.DEFAULT}
+            <span className="-mt-10">
+                {errorMessages[error.message] ?? errorMessages.DEFAULT}
+            </span>
         </div>
     );
 }

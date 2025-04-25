@@ -58,6 +58,13 @@ export default async function LeadTimeForChangeAnalytics() {
         endDate: formatISO(endDate, { representation: "date" }),
     });
 
+    if (
+        data.currentPeriod.leadTimeP75Hours === 0 &&
+        data.currentPeriod.leadTimeP75Minutes === 0
+    ) {
+        throw new Error("NO_DATA");
+    }
+
     const [badge] = Object.entries(comparisonParameters).find(
         ([, { compareFn }]) => compareFn(data?.currentPeriod?.leadTimeP75Hours),
     )!;

@@ -52,6 +52,13 @@ export default async function PRSizeAnalytics() {
         endDate: formatISO(endDate, { representation: "date" }),
     });
 
+    if (
+        data.currentPeriod.totalPRs === 0 &&
+        data.previousPeriod.totalPRs === 0
+    ) {
+        throw new Error("NO_DATA");
+    }
+
     const [badge] = Object.entries(comparisonParameters).find(
         ([, { compareFn }]) => compareFn(data?.currentPeriod?.averagePRSize),
     )!;
