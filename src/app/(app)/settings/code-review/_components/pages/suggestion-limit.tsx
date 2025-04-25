@@ -573,7 +573,7 @@ const SeverityLevelsExplanationModal = () => {
                 <div className="text-text-secondary flex flex-col gap-4 overflow-y-auto text-sm">
                     <Section.Root className="gap-0">
                         <Section.Header>
-                            <Section.Title className="text-foreground font-bold">
+                            <Section.Title className="text-text-primary font-bold">
                                 Low Level
                             </Section.Title>
                         </Section.Header>
@@ -588,7 +588,7 @@ const SeverityLevelsExplanationModal = () => {
 
                     <Section.Root className="gap-0">
                         <Section.Header>
-                            <Section.Title className="text-foreground font-bold">
+                            <Section.Title className="text-text-primary font-bold">
                                 Medium Level
                             </Section.Title>
                         </Section.Header>
@@ -603,7 +603,7 @@ const SeverityLevelsExplanationModal = () => {
 
                     <Section.Root className="gap-0">
                         <Section.Header>
-                            <Section.Title className="text-foreground font-bold">
+                            <Section.Title className="text-text-primary font-bold">
                                 High Level
                             </Section.Title>
                         </Section.Header>
@@ -619,7 +619,7 @@ const SeverityLevelsExplanationModal = () => {
 
                     <Section.Root className="gap-0">
                         <Section.Header>
-                            <Section.Title className="text-foreground font-bold">
+                            <Section.Title className="text-text-primary font-bold">
                                 Critical Level
                             </Section.Title>
                         </Section.Header>

@@ -50,7 +50,7 @@ export default function NewChat() {
 //         <Page.Root className="justify-center">
 //             <Page.Header className="-mt-16">
 //                 <div className="flex flex-row items-center gap-6">
-//                     <div className="bg-card aspect-square h-16 w-16 -scale-x-1 overflow-hidden rounded-full">
+//                     <div className="bg-card-lv2 aspect-square h-16 w-16 -scale-x-1 overflow-hidden rounded-full">
 //                         <SvgKody className="h-full w-full" />
 //                     </div>
 

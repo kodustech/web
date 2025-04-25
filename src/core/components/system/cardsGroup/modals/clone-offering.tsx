@@ -24,7 +24,7 @@ export const CloneOfferingModal = () => {
                     </span>
 
                     <span>
-                        <strong className="text-foreground">
+                        <strong className="text-text-primary">
                             Clone Integration:
                         </strong>{" "}
                         When you choose to clone, the tool's authentication
@@ -34,7 +34,7 @@ export const CloneOfferingModal = () => {
                     </span>
 
                     <span>
-                        <strong className="text-foreground">
+                        <strong className="text-text-primary">
                             New Integration:
                         </strong>{" "}
                         If you prefer a new integration, an independent instance

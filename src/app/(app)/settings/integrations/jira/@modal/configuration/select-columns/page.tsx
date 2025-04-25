@@ -139,9 +139,9 @@ export default function BoardColumns() {
                                 </DialogDescription>
 
                                 <div className="flex flex-row gap-2">
-                                    <div className="bg-card aspect-[4] h-2 rounded-full" />
-                                    <div className="bg-card aspect-[4] h-2 rounded-full" />
-                                    <div className="bg-card aspect-[4] h-2 rounded-full" />
+                                    <div className="bg-card-lv2 aspect-[4] h-2 rounded-full" />
+                                    <div className="bg-card-lv2 aspect-[4] h-2 rounded-full" />
+                                    <div className="bg-card-lv2 aspect-[4] h-2 rounded-full" />
                                     <div className="bg-primary-light aspect-[4] h-2 rounded-full" />
                                 </div>
                             </div>
@@ -277,7 +277,7 @@ export default function BoardColumns() {
                         <Accordion type="single" collapsible className="w-full">
                             <AccordionItem
                                 value="item-1"
-                                className="bg-card rounded-2xl px-6">
+                                className="bg-card-lv2 rounded-2xl px-6">
                                 <AccordionTrigger>
                                     How to Setup
                                 </AccordionTrigger>

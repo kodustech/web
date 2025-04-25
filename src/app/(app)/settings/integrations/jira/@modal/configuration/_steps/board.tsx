@@ -67,10 +67,10 @@ export const SelectBoardStep = () => {
                         <DialogTitle>Jira setup - select board</DialogTitle>
 
                         <div className="flex flex-row gap-2">
-                            <div className="bg-card aspect-[4] h-2 rounded-full" />
-                            <div className="bg-card aspect-[4] h-2 rounded-full" />
+                            <div className="bg-card-lv2 aspect-[4] h-2 rounded-full" />
+                            <div className="bg-card-lv2 aspect-[4] h-2 rounded-full" />
                             <div className="bg-primary-light aspect-[4] h-2 rounded-full" />
-                            <div className="bg-card aspect-[4] h-2 rounded-full" />
+                            <div className="bg-card-lv2 aspect-[4] h-2 rounded-full" />
                         </div>
                     </div>
                 </div>

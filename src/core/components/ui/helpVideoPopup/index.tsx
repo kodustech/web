@@ -47,7 +47,7 @@ const YouTubeVideoPopup = ({
     return (
         <div className="fixed bottom-6 left-6">
             {isOpen ? (
-                <Card className="bg-card max-w-md overflow-hidden shadow-2xl">
+                <Card className="max-w-md overflow-hidden shadow-2xl">
                     <CardHeader className="flex-row gap-6">
                         <CardTitle className="text-base">{title}</CardTitle>
                         <Button

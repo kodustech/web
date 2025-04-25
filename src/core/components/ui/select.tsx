@@ -147,7 +147,7 @@ const SelectItem = React.forwardRef<
     <SelectPrimitive.Item
         ref={ref}
         className={cn(
-            "text-foreground flex w-full items-center justify-between rounded-xl text-sm font-normal outline-hidden select-none",
+            "text-text-primary flex w-full items-center justify-between rounded-xl text-sm font-normal outline-hidden select-none",
             "select-item-selected:bg-card-lv3",
             "select-item-focused:ring-1 select-item-focused:ring-primary-light",
             "select-item-disabled:bg-transparent select-item-disabled:text-text-placeholder/30",

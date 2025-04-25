@@ -38,12 +38,12 @@ export const KodyRuleItem = ({ repositoryId, rule, onAnyChange }: Props) => {
 
                     <div className="flex flex-col gap-1">
                         <span className="text-text-secondary text-sm">
-                            <strong className="text-foreground">Path:</strong>{" "}
+                            <strong className="text-text-primary">Path:</strong>{" "}
                             {rule.path || "all files (default)"}
                         </span>
 
                         <span className="text-text-secondary text-sm">
-                            <strong className="text-foreground">
+                            <strong className="text-text-primary">
                                 Instructions:
                             </strong>{" "}
                             {rule.rule}

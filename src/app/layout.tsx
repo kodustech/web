@@ -32,7 +32,7 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
 
             <body
                 className={cn(
-                    "bg-background text-foreground flex h-screen w-screen flex-col overflow-hidden",
+                    "bg-background text-text-primary flex h-screen w-screen flex-col overflow-hidden",
                     overpass_mono.className,
                     dm_sans.className,
                 )}>

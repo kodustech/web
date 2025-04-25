@@ -396,7 +396,7 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                         <p className="text-text-secondary text-xs">
                             When disabled, you can manually start the review by
                             using the command{" "}
-                            <code className="bg-background text-foreground mx-0.5 rounded-lg px-1.5 py-1">
+                            <code className="bg-background text-text-primary mx-0.5 rounded-lg px-1.5 py-1">
                                 @kody start-review
                             </code>{" "}
                             in the Pull Request comments.

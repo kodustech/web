@@ -290,70 +290,19 @@
     --font-sans: 'DM Sans', sans-serif;
     --font-mono: 'Overpass Mono', monospace;
 
+    --color-brand-purple: hsl(255 30.7% 49.2%);
+    --color-brand-red: hsl(0 83.7% 61.6%);
+    --color-brand-orange: hsl(32 91.4% 54.3%);
+    --color-ring: hsl(32 91.4% 54.3%);
 
-
-
-
-
-
-    --color-brand-purple: hsl(var(--brand-purple));
-    --color-brand-purple-foreground: hsl(var(--brand-purple-foreground));
-
-    --color-brand-red: hsl(var(--brand-red));
-    --color-brand-red-foreground: hsl(var(--brand-red-foreground));
-
-    --color-brand-orange: hsl(var(--brand-orange));
-    --color-brand-orange-foreground: hsl(var(--brand-orange-foreground));
-
-    --color-border: hsl(var(--border));
-    --color-input: hsl(var(--input));
-    --color-ring: hsl(var(--ring));
-    --color-foreground: hsl(var(--foreground));
-
-    --color-primary: hsl(var(--primary));
-    --color-primary-foreground: hsl(var(--primary-foreground));
-
-    --color-secondary: hsl(var(--secondary));
-    --color-secondary-foreground: hsl(var(--secondary-foreground));
-
-    --color-destructive: hsl(var(--destructive));
-    --color-destructive-foreground: hsl(var(--destructive-foreground));
-
-    --color-muted: hsl(var(--muted));
-    --color-muted-foreground: hsl(var(--muted-foreground));
-
-    --color-accent: hsl(var(--accent));
-    --color-accent-foreground: hsl(var(--accent-foreground));
-
-    --color-popover: hsl(var(--popover));
-    --color-popover-foreground: hsl(var(--popover-foreground));
-
-    --color-card: hsl(var(--card));
-    --color-card-foreground: hsl(var(--card-foreground));
-
-
-
-
-
-
-    --radius-lg: var(--radius);
-    --radius-md: calc(var(--radius) - 2px);
-    --radius-sm: calc(var(--radius) - 4px);
-
-    --background-image-barberpole: repeating-linear-gradient(-45deg,
-            transparent,
-            transparent 1rem,
-            #fafafa 1rem,
-            #fafafa 2rem);
-
-    --background-size-barberpole: 200% 200%;
+    --radius-lg: 8px;
+    --radius-md: 6px;
+    --radius-sm: 4px;
 
     --animate-collapsible-down: collapsible-down 0.2s ease-out;
     --animate-collapsible-up: collapsible-up 0.2s ease-out;
     --animate-accordion-down: accordion-down 0.2s ease-out;
     --animate-accordion-up: accordion-up 0.2s ease-out;
-    --animate-barberpole: barberpole 30s linear infinite;
-    --animate-fill-right: fill-right var(--animation-duration) linear;
 
     @keyframes accordion-down {
         from {
@@ -394,22 +343,6 @@
             height: 0;
         }
     }
-
-    @keyframes barberpole {
-        to {
-            background-position: 100% 100%;
-        }
-    }
-
-    @keyframes fill-right {
-        from {
-            width: 0;
-        }
-
-        to {
-            width: var(--animation-width);
-        }
-    }
 }
 
 @utility container {
@@ -437,48 +370,6 @@
     ::backdrop,
     ::file-selector-button {
         border-color: var(--color-gray-200, currentcolor);
-    }
-
-    /* for current theme */
-    :root {
-        --foreground: 210 40% 98%;
-
-        --muted: 217.2 32.6% 17.5%;
-        --muted-foreground: 254 59% 90%;
-
-        --popover: 222.2 84% 4.9%;
-        --popover-foreground: 210 40% 98%;
-
-        --card: 265 26% 14%;
-        --card-foreground: 210 40% 98%;
-
-        --border: 255 30.7% 49.2%;
-        --input: 217.2 32.6% 17.5%;
-
-        --primary: 210 40% 98%;
-        --primary-foreground: 0 0% 12.9%;
-
-        --secondary: 32 91.4% 54.3%;
-        --secondary-foreground: 0 0% 12.9%;
-
-        --accent: 217.2 32.6% 17.5%;
-        --accent-foreground: 210 40% 98%;
-
-        --destructive: 353 70% 49%;
-        --destructive-foreground: 210 40% 98%;
-
-        --ring: 32 91.4% 54.3%;
-
-        --brand-purple: 255 30.7% 49.2%;
-        --brand-purple-foreground: 210 40% 98%;
-
-        --brand-red: 0 83.7% 61.6%;
-        --brand-red-foreground: 210 40% 98%;
-
-        --brand-orange: 32 91.4% 54.3%;
-        --brand-orange-foreground: 0 0% 12.9%;
-
-        --radius: 7px;
     }
 }
 
