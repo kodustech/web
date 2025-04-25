@@ -1,4 +1,5 @@
 import { typedFetch } from "@services/fetch";
+import { getOrganizationId } from "@services/organizations/fetch";
 
 import type { PercentageDiff } from "../../_components/percentage-diff";
 
@@ -6,8 +7,7 @@ export const analyticsFetch = async <Data>(
     url: `/${string}`,
     options: Parameters<typeof typedFetch>["1"] = {},
 ) => {
-    // const organizationId = await getOrganizationId();
-    const organizationId = "3bc1e218-0f3b-41e5-adfc-c4b42ee3ed13";
+    const organizationId = await getOrganizationId();
 
     if (!process.env.WEB_ANALYTICS_SECRET) {
         console.warn(
