@@ -470,8 +470,6 @@ export default function CardsGroup({
         (c) => c.serviceType === "codeManagement",
     )?.key as keyof typeof codeManagementPlatforms;
 
-    console.log(connectedCodeManagementPlatform);
-
     const connectedProjectManagementPlatform = connectedPlatforms.find(
         (c) => c.serviceType === "projectManagement",
     )?.key as keyof typeof projectManagementPlatforms;

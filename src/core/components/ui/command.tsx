@@ -138,7 +138,7 @@ const CommandItem = React.forwardRef<
             ref={ref}
             className={cn(
                 buttonVariants({ size: "md", variant: "helper" }),
-                "w-full items-center justify-between data-disabled:pointer-events-none data-disabled:opacity-50",
+                "w-full items-center justify-between data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
                 className,
             )}
             {...props}

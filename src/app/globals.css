@@ -74,7 +74,8 @@
 
 @custom-variant button-disabled {
 
-    &[data-disabled] {
+    &:not([cmdk-item])[data-disabled],
+    &[cmdk-item][data-disabled='true'] {
         @slot
     }
 }
