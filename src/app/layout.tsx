@@ -1,3 +1,4 @@
+import { DM_Sans, Overpass_Mono } from "next/font/google";
 import Script from "next/script";
 import { OptinMonsterRouteChangeListener } from "@components/system/optinmonster-route-change-listener";
 import { MagicModalPortal } from "@components/ui/magic-modal";
@@ -6,8 +7,12 @@ import { TooltipProvider } from "@components/ui/tooltip";
 import { GoogleTagManager } from "@next/third-parties/google";
 import QueryProvider from "src/core/providers/query.provider";
 import { ThemeProvider } from "src/core/providers/theme.provider";
+import { cn } from "src/core/utils/components";
 
 import "./globals.css";
+
+const dm_sans = DM_Sans();
+const overpass_mono = Overpass_Mono();
 
 export const metadata = {
     title: {
@@ -25,7 +30,12 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
         <html lang="en" className="dark" style={{ colorScheme: "dark" }}>
             <GoogleTagManager gtmId="GTM-KN2J57G" />
 
-            <body className="bg-background text-foreground flex h-screen w-screen flex-col overflow-hidden">
+            <body
+                className={cn(
+                    "bg-background text-foreground flex h-screen w-screen flex-col overflow-hidden",
+                    overpass_mono.className,
+                    dm_sans.className,
+                )}>
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="system"
