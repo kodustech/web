@@ -11,7 +11,7 @@ const buttonVariants = cva(
         "bg-(--button-background) text-(--button-foreground) [&_svg]:size-(--icon-size) ring-card-lv3",
         "[&[aria-haspopup=dialog]]:ring-1",
         "button-disabled:bg-text-placeholder/30 button-disabled:text-text-placeholder button-disabled:cursor-not-allowed",
-        "button-focused:ring-3",
+        "button-focused:ring-3!",
         "button-hover:brightness-120 button-active:brightness-120",
         "button-loading:cursor-wait",
     ),
