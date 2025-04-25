@@ -38,7 +38,6 @@ export function Toaster() {
                 id,
                 title,
                 description,
-                action,
                 variant,
                 ...props
             }) {
@@ -56,8 +55,6 @@ export function Toaster() {
                                 )}
                             </div>
                         </div>
-
-                        {action}
 
                         <ToastClose />
                     </Toast>
