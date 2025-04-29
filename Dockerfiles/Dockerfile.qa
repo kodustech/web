@@ -1,23 +1,33 @@
-# Estágio de Produção
-FROM node:lts-alpine AS Homolog
-
-RUN apk update && apk add --no-cache curl
-
+# 1) Builder stage: instala tudo e faz o build
+FROM node:22.14.0-slim AS builder
 WORKDIR /usr/src/app
 
+# Copia somente package.json e lockfile para cache de dependências
+COPY package.json yarn.lock ./
+
+# Instala todas as deps, incluindo devDependencies necessárias para yarn build
+RUN yarn install --frozen-lockfile --production=false
+
+# Copia o restante do código e gera o build de produção
+COPY . .
+RUN yarn build
+
+# 2) Production stage: só pega o resultado final
+FROM node:22.14.0-slim AS Homolog
+WORKDIR /usr/src/app
+
+# Define o ambiente de runtime
+ENV NODE_ENV=production
+ENV WEB_NODE_ENV=production
+
+# Copia artefatos do builder para o container de produção
+COPY --from=builder /usr/src/app/.next ./.next
+COPY --from=builder /usr/src/app/node_modules ./node_modules
+COPY --from=builder /usr/src/app/package.json ./
+COPY --from=builder /usr/src/app/public ./public
+
+# Exponha a porta padrão do Next.js
 EXPOSE 3000
 
-ENV WEB_NODE_ENV=production
-ENV NODE_ENV=production
-
-# Copie o restante do código-fonte
-COPY . .
-
-# Copie apenas os arquivos necessários para instalar as dependências
-COPY package*.json ./
-
-# Instale apenas as dependências de produção
-RUN yarn install && yarn build
-
-# Comando de inicialização para produção
+# Inicia a aplicação em modo produção
 CMD ["yarn", "start"]
