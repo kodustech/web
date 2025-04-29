@@ -26,6 +26,8 @@ COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/package.json ./
 COPY --from=builder /usr/src/app/public ./public
 
+COPY .env .env
+
 # Exponha a porta padrão do Next.js
 EXPOSE 3000
 
