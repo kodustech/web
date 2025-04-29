@@ -10,7 +10,6 @@ import {
 import { FormControl } from "@components/ui/form-control";
 import { Input } from "@components/ui/input";
 import { magicModal } from "@components/ui/magic-modal";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { AxiosError } from "axios";
 
@@ -48,55 +47,56 @@ export const BitbucketModal = (props: Props) => {
         <Dialog open onOpenChange={() => magicModal.hide()}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>New Integration</DialogTitle>
+                    <DialogTitle>
+                        <span>Bitbucket</span> - New Integration
+                    </DialogTitle>
                 </DialogHeader>
 
-                <Tabs defaultValue="token">
-                    <TabsList>
-                        <TabsTrigger value="token">App Password</TabsTrigger>
-                    </TabsList>
+                <FormControl.Root>
+                    <FormControl.Label htmlFor="bitbucket-username-input">
+                        Username
+                    </FormControl.Label>
 
-                    <TabsContent value="token">
-                        <FormControl.Root>
-                            <FormControl.Input>
-                                <Input
-                                    type="text"
-                                    value={username}
-                                    error={error.message}
-                                    onChange={(e) =>
-                                        setUsername(e.target.value)
-                                    }
-                                    placeholder="Bitbucket Username"
-                                />
+                    <FormControl.Input>
+                        <Input
+                            type="text"
+                            value={username}
+                            error={error.message}
+                            id="bitbucket-username-input"
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="Paste your username"
+                        />
+                    </FormControl.Input>
+                </FormControl.Root>
 
-                                <Input
-                                    type="password"
-                                    value={token}
-                                    error={error.message}
-                                    onChange={(e) => setToken(e.target.value)}
-                                    placeholder="Bitbucket App Password"
-                                />
+                <FormControl.Root>
+                    <FormControl.Label htmlFor="bitbucket-app-password-input">
+                        App password
+                    </FormControl.Label>
+                    <FormControl.Input>
+                        <Input
+                            type="password"
+                            value={token}
+                            error={error.message}
+                            id="bitbucket-app-password-input"
+                            onChange={(e) => setToken(e.target.value)}
+                            placeholder="Paste your app password"
+                        />
+                    </FormControl.Input>
 
-                                <FormControl.Error>
-                                    {error.message}
-                                </FormControl.Error>
-                            </FormControl.Input>
-                        </FormControl.Root>
+                    <FormControl.Error>{error.message}</FormControl.Error>
+                </FormControl.Root>
 
-                        <DialogFooter>
-                            <Button
-                                size="md"
-                                variant="primary"
-                                onClick={saveToken}
-                                loading={loadingSaveToken}
-                                disabled={
-                                    !username || !token || !!error.message
-                                }>
-                                Save Token
-                            </Button>
-                        </DialogFooter>
-                    </TabsContent>
-                </Tabs>
+                <DialogFooter>
+                    <Button
+                        size="md"
+                        variant="primary"
+                        onClick={saveToken}
+                        loading={loadingSaveToken}
+                        disabled={!username || !token || !!error.message}>
+                        Save Token
+                    </Button>
+                </DialogFooter>
             </DialogContent>
         </Dialog>
     );
