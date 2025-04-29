@@ -97,14 +97,10 @@ export default function SubscriptionLayout({
                                         size="md"
                                         variant="helper"
                                         leftIcon={<PlusIcon />}
-                                        onClick={async () => {
-                                            const a = await magicModal.show(
-                                                () => (
-                                                    <InviteModal
-                                                        teamId={teamId}
-                                                    />
-                                                ),
-                                            );
+                                        onClick={() => {
+                                            magicModal.show(() => (
+                                                <InviteModal teamId={teamId} />
+                                            ));
                                         }}>
                                         Invite admin
                                     </Button>
