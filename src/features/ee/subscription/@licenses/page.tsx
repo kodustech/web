@@ -10,9 +10,12 @@ import { columns } from "./_components/columns";
 
 export default async function SubscriptionTabs() {
     const teamId = await getGlobalSelectedTeamId();
-    const pullRequestAuthors = await getPullRequestAuthors();
-    const usersWithLicense = await getUsersWithLicense({ teamId });
-    const license = await validateOrganizationLicense({ teamId });
+
+    const [pullRequestAuthors, usersWithLicense, license] = await Promise.all([
+        getPullRequestAuthors().catch(() => []),
+        getUsersWithLicense({ teamId }),
+        validateOrganizationLicense({ teamId }),
+    ]);
 
     const pullRequestAuthorsWithLicense: {
         id: number;
