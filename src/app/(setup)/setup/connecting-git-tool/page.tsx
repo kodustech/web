@@ -180,7 +180,7 @@ export default function App() {
                                 variant="helper"
                                 className="w-full"
                                 onClick={async () => {
-                                    await captureSegmentEvent({
+                                    captureSegmentEvent({
                                         userId: userId!,
                                         event: "try_setup_git_integration",
                                         properties: {
@@ -197,9 +197,7 @@ export default function App() {
                                             />
                                         ));
 
-                                    if (!response) {
-                                        return;
-                                    }
+                                    if (!response) return;
 
                                     router.push("/setup/choosing-repositories");
                                 }}>
@@ -236,7 +234,7 @@ export default function App() {
                                 variant="helper"
                                 className="w-full"
                                 onClick={async () => {
-                                    await captureSegmentEvent({
+                                    captureSegmentEvent({
                                         userId: userId!,
                                         event: "try_setup_git_integration",
                                         properties: {
@@ -253,9 +251,7 @@ export default function App() {
                                             />
                                         ));
 
-                                    if (!response) {
-                                        return;
-                                    }
+                                    if (!response) return;
 
                                     router.push("/setup/choosing-repositories");
                                 }}>
@@ -270,8 +266,8 @@ export default function App() {
                                 size="lg"
                                 variant="primary"
                                 className="w-full"
-                                onClick={async () => {
-                                    await captureSegmentEvent({
+                                onClick={() => {
+                                    captureSegmentEvent({
                                         userId: userId!,
                                         event: "try_setup_git_integration",
                                         properties: {
@@ -298,8 +294,8 @@ export default function App() {
                                 size="lg"
                                 variant="primary"
                                 className="w-full"
-                                onClick={async () => {
-                                    await captureSegmentEvent({
+                                onClick={() => {
+                                    captureSegmentEvent({
                                         userId: userId!,
                                         event: "try_setup_git_integration",
                                         properties: {
