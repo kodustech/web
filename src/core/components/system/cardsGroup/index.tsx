@@ -26,6 +26,7 @@ import { useAllTeams } from "src/core/providers/all-teams-context";
 import { AuthMode, PlatformType } from "src/core/types";
 
 import CardConnection from "./cardConnection";
+import { AzureReposModal } from "./modals/azure-repos-token";
 import { BitbucketModal } from "./modals/bitbucket-token";
 import { CloneOfferingModal } from "./modals/clone-offering";
 import { CloneSelectTeamModal } from "./modals/clone-select-team";
@@ -195,7 +196,10 @@ export default function CardsGroup({
 
     const editIntegration = useCallback((title: string) => {
         const formattedTitle = encodeURIComponent(
-            title.toLowerCase().replace(/[\s-]+/g, "-"),
+            title
+                .toLowerCase()
+                .replace(/[\s-]+/g, "-")
+                .replace("_", "-"),
         );
 
         router.push(`integrations/${formattedTitle}/configuration`);
@@ -251,72 +255,84 @@ export default function CardsGroup({
         [connections, router.push, pathname, hasDisabledConnectionsByType],
     );
 
+    const onSaveToken = async (params: {
+        token: string;
+        username?: string;
+        organizationName?: string;
+        integrationKey: INTEGRATIONS_KEY;
+        integrationType: PlatformType;
+    }) => {
+        const integrationResponse = await createCodeManagementIntegration({
+            integrationType: params.integrationType,
+            authMode: AuthMode.TOKEN,
+            token: params.token,
+            username: params.username,
+            orgName: params.organizationName,
+            organizationAndTeamData: {
+                teamId: team.uuid,
+            },
+        });
+
+        switch (integrationResponse.data.status) {
+            case "SUCCESS": {
+                editIntegration(params.integrationKey);
+                break;
+            }
+
+            case "NO_ORGANIZATION": {
+                toast({
+                    title: "Integration failed",
+                    description:
+                        "Personal accounts are not supported. Try again with an organization.",
+                    variant: "danger",
+                });
+                break;
+            }
+            case "NO_REPOSITORIES": {
+                toast({
+                    title: "No repositories found",
+                    description: (
+                        <div className="mt-4">
+                            <p>Possible reasons:</p>
+
+                            <ul className="list-inside list-disc">
+                                <li>No repositories in this account</li>
+                                <li>Missing permissions</li>
+                            </ul>
+                        </div>
+                    ),
+                    variant: "danger",
+                });
+                break;
+            }
+        }
+    };
+
     const openOauthOrTokenModal = async (
-        key: INTEGRATIONS_KEY,
+        integrationKey: INTEGRATIONS_KEY,
         serviceType: INTEGRATIONS_TYPES,
     ) => {
         magicModal.show(() => (
             <OauthOrTokenModal
-                integration={key}
+                integration={integrationKey}
                 onGoToOauth={async () => {
                     setCookie("selectedTeam", JSON.stringify(team));
-                    connectIntegration(key, serviceType);
+                    connectIntegration(integrationKey, serviceType);
                 }}
-                onSaveToken={async (token: string) => {
+                onSaveToken={async (token) => {
                     let integrationType: PlatformType = PlatformType.GITHUB;
 
-                    if (key === INTEGRATIONS_KEY.GITHUB) {
+                    if (integrationKey === INTEGRATIONS_KEY.GITHUB) {
                         integrationType = PlatformType.GITHUB;
-                    } else if (key === INTEGRATIONS_KEY.GITLAB) {
+                    } else if (integrationKey === INTEGRATIONS_KEY.GITLAB) {
                         integrationType = PlatformType.GITLAB;
                     }
 
-                    const integrationResponse =
-                        await createCodeManagementIntegration({
-                            integrationType,
-                            authMode: AuthMode.TOKEN,
-                            token,
-                            organizationAndTeamData: {
-                                teamId: team.uuid,
-                            },
-                        });
-
-                    switch (integrationResponse.data.status) {
-                        case "SUCCESS": {
-                            editIntegration(key);
-                            break;
-                        }
-
-                        case "NO_ORGANIZATION": {
-                            toast({
-                                title: "Integration failed",
-                                description:
-                                    "Personal accounts are not supported. Try again with an organization.",
-                                variant: "danger",
-                            });
-                            break;
-                        }
-
-                        case "NO_REPOSITORIES": {
-                            toast({
-                                title: "No repositories found",
-                                description: (
-                                    <div className="mt-4">
-                                        <p>Possible reasons:</p>
-
-                                        <ul className="list-inside list-disc">
-                                            <li>
-                                                No repositories in this account
-                                            </li>
-                                            <li>Missing permissions</li>
-                                        </ul>
-                                    </div>
-                                ),
-                                variant: "danger",
-                            });
-                            break;
-                        }
-                    }
+                    await onSaveToken({
+                        token,
+                        integrationType,
+                        integrationKey,
+                    });
                 }}
             />
         ));
@@ -325,53 +341,28 @@ export default function CardsGroup({
     const openBitbucketModal = async () => {
         magicModal.show(() => (
             <BitbucketModal
-                onSave={async (token: string, username: string) => {
-                    const integrationResponse =
-                        await createCodeManagementIntegration({
-                            integrationType: PlatformType.BITBUCKET,
-                            authMode: AuthMode.TOKEN,
-                            token,
-                            username,
-                            organizationAndTeamData: {
-                                teamId: team.uuid,
-                            },
-                        });
+                onSave={async (token, username) => {
+                    await onSaveToken({
+                        token,
+                        username,
+                        integrationKey: INTEGRATIONS_KEY.BITBUCKET,
+                        integrationType: PlatformType.BITBUCKET,
+                    });
+                }}
+            />
+        ));
+    };
 
-                    switch (integrationResponse.data.status) {
-                        case "SUCCESS": {
-                            editIntegration(INTEGRATIONS_KEY.BITBUCKET);
-                            break;
-                        }
-
-                        case "NO_ORGANIZATION": {
-                            toast({
-                                title: "Integration failed",
-                                description:
-                                    "Personal accounts are not supported. Try again with an organization.",
-                                variant: "danger",
-                            });
-                            break;
-                        }
-                        case "NO_REPOSITORIES": {
-                            toast({
-                                title: "No repositories found",
-                                description: (
-                                    <div className="mt-4">
-                                        <p>Possible reasons:</p>
-
-                                        <ul className="list-inside list-disc">
-                                            <li>
-                                                No repositories in this account
-                                            </li>
-                                            <li>Missing permissions</li>
-                                        </ul>
-                                    </div>
-                                ),
-                                variant: "danger",
-                            });
-                            break;
-                        }
-                    }
+    const openAzureReposModal = async () => {
+        magicModal.show(() => (
+            <AzureReposModal
+                onSave={async (token, organizationName) => {
+                    await onSaveToken({
+                        token,
+                        organizationName,
+                        integrationKey: INTEGRATIONS_KEY.AZURE_REPOS,
+                        integrationType: PlatformType.AZURE_REPOS,
+                    });
                 }}
             />
         ));
@@ -382,10 +373,7 @@ export default function CardsGroup({
         serviceType: INTEGRATIONS_TYPES,
     ) => {
         const teamsResponse = await getTeamsWithIntegrations();
-
-        if ("error" in teamsResponse) {
-            return;
-        }
+        if ("error" in teamsResponse) return;
 
         const teamSelected = await magicModal.show<true>(() => (
             <CloneSelectTeamModal
@@ -400,10 +388,25 @@ export default function CardsGroup({
             />
         ));
 
-        if (!teamSelected) {
-            return;
-        }
+        if (!teamSelected) return;
+
         editIntegration(key);
+    };
+
+    const whichIntegrationMethod = async (
+        key: INTEGRATIONS_KEY,
+        serviceType: INTEGRATIONS_TYPES,
+    ) => {
+        if (key === "github" || key === "gitlab") {
+            await openOauthOrTokenModal(key, serviceType);
+        } else if (key === "bitbucket") {
+            await openBitbucketModal();
+        } else if (key === "azure_repos") {
+            await openAzureReposModal();
+        } else {
+            setCookie("selectedTeam", JSON.stringify(team));
+            await connectIntegration(key, serviceType);
+        }
     };
 
     const handleIntegrationClick = useCallback(
@@ -422,22 +425,13 @@ export default function CardsGroup({
             );
 
             if (!hasConnectionInOrganization) {
-                setCookie("selectedTeam", JSON.stringify(team));
-
-                if (key === "github" || key === "gitlab") {
-                    await openOauthOrTokenModal(key, serviceType);
-                } else if (key === "bitbucket") {
-                    await openBitbucketModal();
-                } else {
-                    await connectIntegration(key, serviceType);
-                }
+                await whichIntegrationMethod(key, serviceType);
                 return;
             }
 
             if (findConnection?.hasConnection) {
                 connectIntegration(key, serviceType);
             } else {
-                // handleOpenModal();
                 const cloneOrNew = await magicModal.show<"clone" | "new">(
                     CloneOfferingModal,
                 );
@@ -446,14 +440,7 @@ export default function CardsGroup({
                 if (cloneOrNew === "clone") {
                     await openCloneSelectTeamModal(key, serviceType);
                 } else if (cloneOrNew === "new") {
-                    if (key === "github" || key === "gitlab") {
-                        await openOauthOrTokenModal(key, serviceType);
-                    } else if (key === "bitbucket") {
-                        await openBitbucketModal();
-                    } else {
-                        setCookie("selectedTeam", JSON.stringify(team));
-                        connectIntegration(key, serviceType);
-                    }
+                    await whichIntegrationMethod(key, serviceType);
                 }
             }
         },
