@@ -11,8 +11,14 @@ import { cn } from "src/core/utils/components";
 
 import "./globals.css";
 
-const dm_sans = DM_Sans();
-const overpass_mono = Overpass_Mono();
+const dm_sans = DM_Sans({
+    subsets: ['latin'],
+    preload: true,
+});
+const overpass_mono = Overpass_Mono({
+    subsets: ['latin'],
+    preload: true,
+});
 
 export const metadata = {
     title: {
