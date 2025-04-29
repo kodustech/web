@@ -56,7 +56,10 @@ export const OauthOrTokenModal = (props: Props) => {
         <Dialog open onOpenChange={() => magicModal.hide()}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>New Integration</DialogTitle>
+                    <DialogTitle>
+                        <span className="capitalize">{props.integration}</span>{" "}
+                        - New Integration
+                    </DialogTitle>
                 </DialogHeader>
 
                 <Tabs defaultValue="oauth">
