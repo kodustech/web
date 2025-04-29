@@ -68,7 +68,7 @@ export default function App() {
                 organizationName: repo?.organizationName,
                 language: repo?.language,
                 workspaceId: repo?.workspaceId,
-                project: repo?.project
+                project: repo?.project,
             };
         });
 
@@ -229,12 +229,10 @@ export default function App() {
                     </div>
                 </div>
 
-                <Alert className="border-success/5 bg-success/5 max-w-96">
-                    <InfoIcon className="stroke-success" />
-                    <AlertTitle className="text-success text-sm">
-                        You’re in control
-                    </AlertTitle>
-                    <AlertDescription className="text-success mt-3 -mb-1 -ml-8">
+                <Alert variant="success" className="max-w-96">
+                    <InfoIcon />
+                    <AlertTitle>You’re in control</AlertTitle>
+                    <AlertDescription className="mt-2 -ml-8">
                         Kody only acts when you ask — no changes or reviews
                         happen without your approval.
                     </AlertDescription>

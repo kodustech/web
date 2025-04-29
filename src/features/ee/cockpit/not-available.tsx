@@ -2,14 +2,14 @@ import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Page } from "@components/ui/page";
 import { greeting } from "src/core/utils/helpers";
 
-export default function NotAvailable() {
+export const AnalyticsNotAvailable = () => {
     return (
         <Page.Root>
             <Page.Header className="max-w-(--breakpoint-xl)">
                 <Page.Title>{greeting()}</Page.Title>
             </Page.Header>
             <Page.Content className="max-w-(--breakpoint-xl)">
-                <Alert variant="default">
+                <Alert>
                     <AlertTitle>Analytics Not Available</AlertTitle>
                     <AlertDescription>
                         Analytics features require an Enterprise license or
@@ -19,4 +19,4 @@ export default function NotAvailable() {
             </Page.Content>
         </Page.Root>
     );
-}
+};

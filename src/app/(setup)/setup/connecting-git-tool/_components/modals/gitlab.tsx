@@ -97,8 +97,8 @@ export const GitlabTokenModal = (props: { teamId: string; userId: string }) => {
                         <DialogDescription></DialogDescription>
                     </DialogHeader>
 
-                    <Alert className="border-ring/50 text-ring dark:border-ring [&>svg]:text-ring my-4">
-                        <Info size={18} />
+                    <Alert variant="info" className="mb-4">
+                        <Info />
                         <AlertTitle>Heads up!</AlertTitle>
                         <AlertDescription>
                             Unlike OAuth, reviews will be published using your
