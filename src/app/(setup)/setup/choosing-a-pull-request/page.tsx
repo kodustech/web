@@ -29,7 +29,7 @@ export default function App() {
 
     const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetParameterPlatformConfigs(teamId);
-    if (configValue?.finishOnboard) { redirect("/") };
+    if (configValue?.finishOnboard) redirect("/");
 
     const pullRequests = useSuspenseGetOnboardingPullRequests(teamId);
     const organizationId = useSuspenseGetOrganizationId();
@@ -87,11 +87,11 @@ export default function App() {
                         <div className="flex flex-1 flex-col gap-4">
                             {requestedPullRequestReview ? (
                                 <>
-                                    <Alert className="border-success/30 bg-success/30 text-success-foreground">
+                                    <Alert variant="success">
                                         <AlertTitle>
                                             Review requested
                                         </AlertTitle>
-                                        <AlertDescription className="text-success-foreground mb-4">
+                                        <AlertDescription className="mb-4">
                                             Soon it will be ready in your PR:
                                         </AlertDescription>
 

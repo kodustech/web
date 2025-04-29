@@ -81,8 +81,8 @@ export const OauthOrTokenModal = (props: Props) => {
                     </TabsContent>
 
                     <TabsContent value="token">
-                        <Alert className="border-ring/50 text-ring dark:border-ring [&>svg]:text-ring my-4">
-                            <Info size={18} />
+                        <Alert variant="info" className="mb-4">
+                            <Info />
                             <AlertTitle>Heads up!</AlertTitle>
                             <AlertDescription>
                                 Unlike OAuth, reviews will be published using

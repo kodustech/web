@@ -25,13 +25,13 @@ export default async function IntegrationsPage() {
                 <CardsGroup connections={connections} team={team} />
 
                 <Alert>
-                    <HelpCircleIcon className="h-5 w-5" />
+                    <HelpCircleIcon />
 
                     <AlertTitle>
                         Connect tools so Kody can assist you!
                     </AlertTitle>
 
-                    <AlertDescription className="mt-6 flex flex-col gap-2">
+                    <AlertDescription>
                         <span>
                             By connecting at least one tool, you'll gain access
                             to automations, receive accurate responses, and get
@@ -40,7 +40,7 @@ export default async function IntegrationsPage() {
                         <span>
                             We also recommend connecting a communication tool.
                             It will enable you to:
-                            <li>
+                            <li className="mt-4">
                                 Interact directly with Kody from your favorite
                                 tool;
                             </li>
