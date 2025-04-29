@@ -41,10 +41,10 @@ import type { ProgrammingLanguage } from "src/core/enums/programming-language";
 import { cn } from "src/core/utils/components";
 
 const severityVariantMap = {
-    Critical: "!bg-destructive/5 border-destructive/10 text-destructive",
-    High: "!bg-brand-purple/5 border-brand-purple/10 text-brand-purple",
-    Medium: "!bg-brand-orange/5 border-brand-orange/10 text-brand-orange",
-    Low: "!bg-success/5 border-success/10 text-success",
+    Critical: "bg-danger/10 text-danger border-danger/64",
+    High: "bg-warning/10 text-warning border-warning/64",
+    Medium: "bg-alert/10 text-alert border-alert/64",
+    Low: "bg-info/10 text-info border-info/64",
 } as const satisfies Record<string, string>;
 
 export const KodyRuleLibraryItemModal = ({
@@ -100,10 +100,8 @@ export const KodyRuleLibraryItemModal = ({
                         {rule.title}
 
                         <Badge
-                            disabled
-                            variant="outline"
                             className={cn(
-                                "h-6 !cursor-default px-2.5 text-[10px] uppercase !opacity-100",
+                                "h-fit rounded-lg border-1 px-2 text-[10px] leading-px uppercase",
                                 severityVariantMap[
                                     rule.severity as typeof rule.severity
                                 ],
@@ -122,7 +120,7 @@ export const KodyRuleLibraryItemModal = ({
                                 </Section.Title>
                             </Section.Header>
 
-                            <Section.Content className="text-sm text-muted-foreground">
+                            <Section.Content className="text-text-secondary text-sm">
                                 {rule.why_is_this_important}
                             </Section.Content>
                         </Section.Root>
@@ -132,7 +130,7 @@ export const KodyRuleLibraryItemModal = ({
                                 <Section.Title>Instructions</Section.Title>
                             </Section.Header>
 
-                            <Section.Content className="text-sm text-muted-foreground">
+                            <Section.Content className="text-text-secondary text-sm">
                                 {rule.rule}
                             </Section.Content>
                         </Section.Root>
@@ -158,20 +156,15 @@ export const KodyRuleLibraryItemModal = ({
                 <DialogFooter className="justify-between gap-6">
                     <div className="flex flex-wrap items-center justify-start gap-1">
                         {rule.tags.map((tag) => (
-                            <Badge
-                                key={tag}
-                                disabled
-                                variant="outline"
-                                className="!cursor-default text-xs !opacity-100">
-                                {tag}
-                            </Badge>
+                            <Badge key={tag}>{tag}</Badge>
                         ))}
                     </div>
 
-                    <div className="flex flex-row items-center justify-end">
+                    <div className="flex flex-row items-center justify-end gap-px">
                         {repositoryId && (
                             <Button
-                                size="sm"
+                                size="md"
+                                variant="primary"
                                 leftIcon={<Plus />}
                                 onClick={addToRepositories}
                                 loading={isAddingToRepositories}>
@@ -182,7 +175,8 @@ export const KodyRuleLibraryItemModal = ({
                         {!repositoryId && (
                             <>
                                 <Button
-                                    size="sm"
+                                    size="md"
+                                    variant="primary"
                                     leftIcon={<Plus />}
                                     className="rounded-r-none"
                                     onClick={addToRepositories}
@@ -192,8 +186,6 @@ export const KodyRuleLibraryItemModal = ({
                                     }>
                                     Add to my rules
                                 </Button>
-
-                                <Separator orientation="vertical" />
 
                                 <SelectRepositoriesDropdown
                                     selectedRepositories={
@@ -240,7 +232,10 @@ const SelectRepositoriesDropdown = ({
     return (
         <Popover>
             <PopoverTrigger asChild>
-                <Button size="sm" className="group rounded-l-none pl-2.5">
+                <Button
+                    size="md"
+                    variant="primary"
+                    className="group rounded-l-none px-3">
                     <ChevronDown
                         className={cn(
                             "size-4",
@@ -276,7 +271,7 @@ const SelectRepositoriesDropdown = ({
                     <CommandInput placeholder="Search repositories..." />
 
                     <CommandList>
-                        <CommandEmpty className="px-4 text-xs text-muted-foreground">
+                        <CommandEmpty className="text-text-secondary px-4 text-xs">
                             No repositories found with current search query.
                         </CommandEmpty>
                         <CommandGroup>
@@ -311,7 +306,7 @@ const SelectRepositoriesDropdown = ({
                                         {r.name}
                                         <Check
                                             className={cn(
-                                                "ml-auto size-4 text-brand-orange",
+                                                "text-primary-light ml-auto size-4",
                                                 selectedRepositoriesIds.includes(
                                                     r.id,
                                                 )
@@ -343,11 +338,11 @@ const ExampleSection = ({
         <Section.Header className="gap-4">
             <div
                 className={cn(
-                    "flex size-6 items-center justify-center rounded-full children:size-4",
-                    !example.isCorrect ? "bg-destructive/10" : "bg-success/10",
+                    "children:size-4 flex size-6 items-center justify-center rounded-full",
+                    !example.isCorrect ? "bg-danger/10" : "bg-success/10",
                 )}>
                 {!example.isCorrect ? (
-                    <XIcon className="stroke-destructive" />
+                    <XIcon className="stroke-danger" />
                 ) : (
                     <CheckIcon className="stroke-success" />
                 )}
@@ -358,7 +353,7 @@ const ExampleSection = ({
                 </div>
             </div>
         </Section.Header>
-        <Section.Content className="text-sm text-muted-foreground">
+        <Section.Content className="text-text-secondary text-sm">
             <SyntaxHighlight language={language}>
                 {example.snippet}
             </SyntaxHighlight>

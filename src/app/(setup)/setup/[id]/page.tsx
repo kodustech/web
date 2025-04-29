@@ -3,11 +3,15 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@components/ui/button";
-import { Heading } from "@components/ui/heading";
-import { Icons } from "@components/ui/icons";
-import { Input } from "@components/ui/input";
-import { Label } from "@components/ui/label";
+import {
+    Card,
+    CardDescription,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@components/ui/card";
 import { Page } from "@components/ui/page";
+import { Spinner } from "@components/ui/spinner";
 import { toast } from "@components/ui/toaster/use-toast";
 import { INTEGRATIONS_KEY } from "@enums";
 import { useEffectOnce } from "@hooks/use-effect-once";
@@ -22,6 +26,7 @@ import { SETUP_PATHS } from "@services/setup";
 import { saveOrganizationNameGithub } from "@services/setup/fetch";
 import { useGetGithubOrganizationName } from "@services/setup/hooks";
 import { deleteCookie, getCookie } from "cookies-next";
+import { SaveIcon } from "lucide-react";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { PlatformType } from "src/core/types";
@@ -42,7 +47,6 @@ export default function Redirect() {
 
     const [inputText, setInputText] = useState<string>("");
     const [error, setError] = useState<boolean>(false);
-    const [userTokenError, setUserTokenError] = useState<boolean>(false);
     const searchParams = useSearchParams();
 
     const { data: organizationName } = useGetGithubOrganizationName();
@@ -68,7 +72,6 @@ export default function Redirect() {
 
     const code = searchParams.get("code");
     const installationId = searchParams.get("installation_id");
-    const setupAction = searchParams.get("setup_action");
 
     useEffect(() => {
         const id =
@@ -238,7 +241,7 @@ export default function Redirect() {
                                 title: "Integration with Github failed",
                                 description:
                                     "Personal accounts are not supported. Try again with an organization.",
-                                variant: "destructive",
+                                variant: "warning",
                             });
 
                             cancelIntegration();
@@ -263,7 +266,7 @@ export default function Redirect() {
                                         </ul>
                                     </div>
                                 ),
-                                variant: "destructive",
+                                variant: "warning",
                             });
 
                             cancelIntegration();
@@ -344,7 +347,7 @@ export default function Redirect() {
                                 title: "Integration with Gitlab failed",
                                 description:
                                     "Personal accounts are not supported. Try again with an organization.",
-                                variant: "destructive",
+                                variant: "warning",
                             });
 
                             cancelIntegration();
@@ -369,7 +372,7 @@ export default function Redirect() {
                                         </ul>
                                     </div>
                                 ),
-                                variant: "destructive",
+                                variant: "warning",
                             });
 
                             cancelIntegration();
@@ -379,10 +382,10 @@ export default function Redirect() {
                 }
             }
 
-            case INTEGRATIONS_KEY.AZUREREPOS:
+            case INTEGRATIONS_KEY.AZURE_REPOS:
                 if (integrationResponse?.success) {
                     await redirectToConfiguration(
-                        INTEGRATIONS_KEY.AZUREREPOS,
+                        INTEGRATIONS_KEY.AZURE_REPOS,
                         selectedTeam,
                     );
                 }
@@ -416,75 +419,12 @@ export default function Redirect() {
     return (
         <Suspense>
             {(() => {
-                if (setupAction === "request")
-                    return (
-                        <div className="flex h-full flex-col items-center gap-20 md:w-[70%] xl:w-[50%]">
-                            <span className="text-center text-[24px] font-semibold">
-                                The access request has been sent to the
-                                organization&apos;s owner. Before it is
-                                accepted, please fill out the field below so
-                                that we can complete the process.
-                            </span>
-                            <div className="w-full">
-                                <Label
-                                    className="text-[14px] text-[#DFD8F5]"
-                                    htmlFor="text">
-                                    Please enter the organization&apos;s name
-                                    exactly as it appears on GitHub, including
-                                    spaces, dashes, or special characters.
-                                </Label>
-                                <Input
-                                    id="name"
-                                    placeholder="Organization name"
-                                    type="text"
-                                    className="mt-2 flex h-12 w-full items-center rounded-[5px] border border-[#6A57A433] bg-[#292031] px-4 text-sm focus-visible:border-[#F5922080] focus-visible:outline-none"
-                                    value={inputText}
-                                    onChange={(e) =>
-                                        setInputText(e.target.value)
-                                    }
-                                />
-                            </div>
-                            <Button
-                                className="bg-gradient min-h-[50px] w-52 overflow-hidden rounded-[5px] p-[2px] hover:cursor-pointer"
-                                disabled={!inputText}
-                                onClick={saveOrganizationName}>
-                                <div className="flex size-full items-center justify-center gap-2 rounded-[5px] bg-[#14121766] transition-all duration-150 active:bg-[#14121780] hover:bg-[#1412174D]">
-                                    <p className="pb-1 text-[18px] font-normal text-white">
-                                        Save
-                                    </p>
-                                </div>
-                            </Button>
-                        </div>
-                    );
-
-                if (userTokenError)
-                    return (
-                        <div>
-                            <div className="flex flex-col gap-16">
-                                <span className="text-[26px] font-medium">
-                                    It is not possible to connect with your own
-                                    user account; please connect with your
-                                    organization.
-                                </span>
-                                <Button
-                                    className="bg-gradient min-h-[50px] w-[250px] self-center overflow-hidden rounded-[5px] p-[2px] hover:cursor-pointer"
-                                    onClick={() => router.replace("/setup")}>
-                                    <div className="flex size-full items-center justify-center gap-2 rounded-[5px] bg-[#14121766] px-6 transition-all duration-150 active:bg-[#14121780] hover:bg-[#1412174D]">
-                                        <p className="-mt-1 text-[20px] font-semibold text-white">
-                                            Back to setup
-                                        </p>
-                                    </div>
-                                </Button>
-                            </div>
-                        </div>
-                    );
-
                 if (isIntegrating && integration) {
                     return (
                         <Page.Root>
                             <Page.Content className="flex-row items-center justify-center">
-                                <Icons.spinner className="size-6 animate-spin" />
-                                Connecting {integration}...
+                                <Spinner />
+                                Connecting {integration.toUpperCase()}...
                             </Page.Content>
                         </Page.Root>
                     );
@@ -492,28 +432,41 @@ export default function Redirect() {
 
                 if (showConfirmation) {
                     return (
-                        <div className="flex h-full flex-col items-center justify-center">
-                            <Heading>Confirm Integration</Heading>
-                            <p className="mb-12 text-center text-lg text-muted-foreground">
-                                Are you sure you want to proceed with the
-                                integration for the team{" "}
-                                <strong className="text-white">
-                                    {selectedTeamName}
-                                </strong>
-                                ?
-                            </p>
+                        <div className="flex h-screen w-screen items-center justify-center">
+                            <Card className="w-lg gap-6 p-2 pb-2">
+                                <CardHeader>
+                                    <CardTitle>Confirm Integration</CardTitle>
+                                    <CardDescription>
+                                        Are you sure you want to proceed with
+                                        the integration of{" "}
+                                        <strong className="text-primary-light">
+                                            {integration.toUpperCase()}
+                                        </strong>{" "}
+                                        for the team{" "}
+                                        <strong className="text-primary-light">
+                                            {selectedTeamName}
+                                        </strong>
+                                        ?
+                                    </CardDescription>
+                                </CardHeader>
 
-                            <div className="flex space-x-4">
-                                <Button
-                                    variant="outline"
-                                    onClick={() => cancelIntegration()}>
-                                    Cancel
-                                </Button>
+                                <CardFooter className="flex justify-end gap-4">
+                                    <Button
+                                        size="md"
+                                        variant="cancel"
+                                        onClick={() => cancelIntegration()}>
+                                        Cancel
+                                    </Button>
 
-                                <Button onClick={handleConfirmIntegration}>
-                                    Save Integration
-                                </Button>
-                            </div>
+                                    <Button
+                                        size="md"
+                                        variant="primary"
+                                        leftIcon={<SaveIcon />}
+                                        onClick={handleConfirmIntegration}>
+                                        Save Integration
+                                    </Button>
+                                </CardFooter>
+                            </Card>
                         </div>
                     );
                 }

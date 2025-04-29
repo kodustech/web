@@ -30,7 +30,7 @@ export default async function InvitePage({
                             Welcome to Kodus!
                         </Heading>
 
-                        <p className="text-center text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-center text-sm">
                             You've been invited to join{" "}
                             <strong>{userData?.organization?.name}</strong> with
                             email <strong>{userData?.email}</strong>.

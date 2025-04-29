@@ -1,18 +1,28 @@
 import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "src/core/utils/components";
+
+const cardVariants = cva("flex flex-col overflow-hidden rounded-xl shadow-sm", {
+    variants: {
+        color: {
+            none: "bg-transparent",
+            lv1: "bg-card-lv1",
+            lv2: "bg-card-lv2",
+            lv3: "bg-card-lv3",
+        },
+    },
+    defaultVariants: { color: "lv2" },
+});
 
 const Card = React.forwardRef<
     HTMLDivElement,
-    React.HTMLAttributes<HTMLDivElement> & { disabled?: boolean }
->(({ className, ...props }, ref) => (
+    Omit<React.HTMLAttributes<HTMLDivElement>, "color"> &
+        VariantProps<typeof cardVariants>
+>(({ className, color, ...props }, ref) => (
     <div
         ref={ref}
-        className={cn(
-            "flex flex-col overflow-hidden rounded-2xl border bg-card bg-opacity-50 text-card-foreground shadow-sm",
-            className,
-        )}
+        className={cn(cardVariants({ color }), className)}
         {...props}
-        onClick={props.disabled ? undefined : props.onClick}
     />
 ));
 Card.displayName = "Card";
@@ -35,7 +45,7 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <h3
         ref={ref}
-        className={cn("text-2xl font-semibold leading-none", className)}
+        className={cn("text-lg leading-none font-bold", className)}
         {...props}
     />
 ));
@@ -47,7 +57,7 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <p
         ref={ref}
-        className={cn("text-sm text-muted-foreground", className)}
+        className={cn("text-text-secondary text-sm", className)}
         {...props}
     />
 ));
@@ -71,7 +81,7 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <div
         ref={ref}
-        className={cn("flex flex-shrink-0 items-center p-6 pt-0", className)}
+        className={cn("flex shrink-0 items-center gap-2 p-6 pt-0", className)}
         {...props}
     />
 ));

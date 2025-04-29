@@ -6,6 +6,7 @@ import { Command as CommandPrimitive } from "cmdk";
 import { Search } from "lucide-react";
 import { cn } from "src/core/utils/components";
 
+import { buttonVariants } from "./button";
 import { Dialog, DialogContent } from "./dialog";
 
 const Command = React.forwardRef<
@@ -15,7 +16,7 @@ const Command = React.forwardRef<
     <CommandPrimitive
         ref={ref}
         className={cn(
-            "flex h-full w-full flex-col overflow-hidden rounded-xl bg-[#231b2e] bg-opacity-35 text-popover-foreground",
+            "bg-card-lv2 border-card-lv3 flex h-full w-full flex-col overflow-hidden rounded-xl",
             className,
         )}
         {...props}
@@ -23,13 +24,13 @@ const Command = React.forwardRef<
 ));
 Command.displayName = CommandPrimitive.displayName;
 
-interface CommandDialogProps extends DialogProps { }
+interface CommandDialogProps extends DialogProps {}
 
 const CommandDialog = ({ children, ...props }: CommandDialogProps) => {
     return (
         <Dialog {...props}>
             <DialogContent className="overflow-hidden p-0 shadow-lg">
-                <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:size-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5">
+                <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group]]:px-2 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-input-wrapper]_svg]:size-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:size-5">
                     {children}
                 </Command>
             </DialogContent>
@@ -45,15 +46,15 @@ const CommandInput = React.forwardRef<
 >(({ classNames, ...props }, ref) => (
     <div
         className={cn(
-            "flex items-center border-b px-3",
+            "relative flex justify-center border-b",
             classNames?.inputContainer,
         )}
         cmdk-input-wrapper="">
-        <Search className="mr-2 size-4 shrink-0 opacity-50" />
+        <Search className="pointer-events-none absolute top-3.5 left-4 flex size-5" />
         <CommandPrimitive.Input
             ref={ref}
             className={cn(
-                "flex h-11 w-full rounded-xl bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50",
+                "placeholder:text-text-secondary flex h-12 w-full rounded-xl bg-transparent py-3 pl-12 text-sm outline-hidden disabled:cursor-not-allowed disabled:opacity-50",
                 classNames?.root,
             )}
             {...props}
@@ -70,7 +71,7 @@ const CommandList = React.forwardRef<
     <CommandPrimitive.List
         ref={ref}
         className={cn(
-            "max-h-[300px] overflow-y-auto overflow-x-hidden",
+            "max-h-[300px] overflow-x-hidden overflow-y-auto",
             className,
         )}
         {...props}
@@ -99,7 +100,7 @@ const CommandGroup = React.forwardRef<
     <CommandPrimitive.Group
         ref={ref}
         className={cn(
-            "overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground",
+            "[&_[cmdk-group-heading]]:text-primary-light overflow-hidden p-1 [&_[cmdk-group-heading]]:px-5 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium",
             className,
         )}
         {...props}
@@ -127,28 +128,22 @@ const CommandItem = React.forwardRef<
     // Handler for click events
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
         // Check correct using aria-disabled for accessibility
-        if (props['aria-disabled']) {
-            return;
-        }
+        if (props["aria-disabled"]) return;
 
-        if (onSelect) {
-            onSelect(event as any);
-        }
-
-        if (onClick) {
-            onClick(event);
-        }
+        onSelect?.(event as any);
+        onClick?.(event);
     };
     return (
         <CommandPrimitive.Item
             ref={ref}
             className={cn(
-                "relative flex cursor-pointer select-none items-center rounded-lg px-2 py-1.5 text-sm outline-none aria-selected:bg-[#231b2e] aria-selected:text-accent-foreground aria-disabled:pointer-events-none aria-disabled:opacity-50",
+                buttonVariants({ size: "md", variant: "helper" }),
+                "w-full items-center justify-between data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50",
                 className,
             )}
+            {...props}
             onClick={handleClick}
             onSelect={onSelect}
-            {...props}
         />
     );
 });
@@ -161,7 +156,7 @@ const CommandShortcut = ({
     return (
         <span
             className={cn(
-                "ml-auto text-xs tracking-widest text-muted-foreground",
+                "text-text-secondary ml-auto text-xs tracking-widest",
                 className,
             )}
             {...props}

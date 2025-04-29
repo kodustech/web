@@ -15,11 +15,10 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@components/ui/select";
+import { INTEGRATIONS_TYPES } from "@enums";
 import { useAsyncAction } from "@hooks/use-async-action";
 import type { TeamWithIntegrations } from "@services/teams/types";
 import { Copy } from "lucide-react";
-import { INTEGRATIONS_TYPES } from "@enums";
-
 
 type Props = {
     teams: TeamWithIntegrations[];
@@ -66,7 +65,7 @@ export const CloneSelectTeamModal = ({
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="flex flex-col gap-2 text-sm text-muted-foreground">
+                <div className="text-text-secondary flex flex-col gap-2 text-sm">
                     <Select
                         value={selectedTeamIdToClone}
                         disabled={loading}
@@ -87,6 +86,8 @@ export const CloneSelectTeamModal = ({
 
                 <DialogFooter>
                     <Button
+                        size="md"
+                        variant="primary"
                         leftIcon={<Copy />}
                         disabled={!selectedTeamIdToClone}
                         loading={loading}

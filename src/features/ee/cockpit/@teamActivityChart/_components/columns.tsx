@@ -7,7 +7,7 @@ type Type = [
     Array<{ date: string; commitCount: number; prCount: number }>,
 ];
 
-const prsClassname = "bg-[hsl(360,96%,72%)]";
+const prsClassname = "bg-(--color-danger)";
 const commitsClassname = "bg-[hsl(244,100%,78%)]";
 
 export const getColumns = ({
@@ -39,11 +39,11 @@ export const getColumns = ({
                     <div className="text-sm font-medium">{row.original[0]}</div>
 
                     <div className="flex flex-col gap-1">
-                        <div className="flex gap-2 text-xs text-muted-foreground">
+                        <div className="text-text-secondary flex gap-2 text-xs">
                             <div className={cn("w-1 rounded", prsClassname)} />
                             {all.prCount} PRs
                         </div>
-                        {/* <div className="flex gap-2 text-xs text-muted-foreground">
+                        {/* <div className="flex gap-2 text-xs text-text-secondary">
                             <div
                                 className={cn("w-1 rounded", commitsClassname)}
                             />

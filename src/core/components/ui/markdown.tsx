@@ -13,7 +13,7 @@ type Props = {
 export const Markdown = (props: Props) => (
     <div
         className={cn(
-            "[&_ol]:my-6 [&_ol]:flex [&_ol]:flex-col [&_ol]:gap-2 [&_ol_p]:text-muted-foreground [&_ol_strong]:text-foreground",
+            "[&_ol_p]:text-text-secondary [&_ol_strong]:text-text-primary [&_ol]:my-6 [&_ol]:flex [&_ol]:flex-col [&_ol]:gap-2",
             props.className,
         )}>
         <ReactMarkdown

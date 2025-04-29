@@ -52,6 +52,13 @@ export default async function DeployFrequencyAnalytics() {
         endDate: formatISO(endDate, { representation: "date" }),
     });
 
+    if (
+        data.currentPeriod.averagePerWeek === 0 &&
+        data.previousPeriod.averagePerWeek === 0
+    ) {
+        throw new Error("NO_DATA");
+    }
+
     const [badge] = Object.entries(comparisonParameters).find(
         ([, { compareFn }]) => compareFn(data?.currentPeriod?.averagePerWeek),
     )!;
@@ -80,8 +87,8 @@ export default async function DeployFrequencyAnalytics() {
                                 Deploy Frequency Parameters
                             </span>
 
-                            <div className="flex flex-col gap-2 children:flex children:justify-between">
-                                <div className="text-muted-foreground">
+                            <div className="children:flex children:justify-between flex flex-col gap-2">
+                                <div className="text-text-secondary">
                                     <span>Deploys/week</span>
                                     <span>Level</span>
                                 </div>
@@ -91,7 +98,7 @@ export default async function DeployFrequencyAnalytics() {
                                 {Object.entries(comparisonParameters).map(
                                     ([key, { label }]) => (
                                         <div key={key}>
-                                            <span className="flex-shrink-0">
+                                            <span className="shrink-0">
                                                 {label}
                                             </span>
                                             <DashedLine />
@@ -116,7 +123,7 @@ export default async function DeployFrequencyAnalytics() {
                 <small>/week</small>
             </CardContent>
 
-            <CardFooter className="flex gap-1 text-xs text-muted-foreground">
+            <CardFooter className="text-text-secondary flex gap-1 text-xs">
                 <span>
                     Last 2 weeks was {data?.previousPeriod?.averagePerWeek}
                     /week

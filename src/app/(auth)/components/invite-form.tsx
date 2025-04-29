@@ -4,11 +4,9 @@ import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { FormControl } from "@components/ui/form-control";
 import { SvgCheckList } from "@components/ui/icons/SvgCheckList";
-import { SvgEyeClose } from "@components/ui/icons/SvgEyeClose";
-import { SvgEyeOpen } from "@components/ui/icons/SvgEyeOpen";
 import { toast } from "@components/ui/toaster/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { LogInIcon } from "lucide-react";
+import { Eye, EyeClosed, LogInIcon } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "src/core/components/ui/button";
@@ -110,9 +108,8 @@ export const AcceptInviteForm = (props: {
 
         if (register?.data?.statusCode === 201) {
             toast({
-                title: "Success",
-                description: "Registration completed successfully!",
-                variant: "default",
+                description: "Registration completed!",
+                variant: "success",
             });
 
             await signIn("credentials", {
@@ -183,27 +180,29 @@ export const AcceptInviteForm = (props: {
                                         formState.isLoading ||
                                         field.disabled
                                     }
+                                    rightIcon={
+                                        <Button
+                                            size="icon-sm"
+                                            variant="helper"
+                                            type="button"
+                                            className="-mr-2"
+                                            onClick={() =>
+                                                setTypePassword(
+                                                    (typePassword) =>
+                                                        typePassword ===
+                                                        "password"
+                                                            ? "text"
+                                                            : "password",
+                                                )
+                                            }>
+                                            {typePassword === "password" ? (
+                                                <EyeClosed />
+                                            ) : (
+                                                <Eye />
+                                            )}
+                                        </Button>
+                                    }
                                 />
-
-                                <Button
-                                    type="button"
-                                    className={cn(
-                                        "absolute right-4 top-3 h-auto bg-transparent p-0 hover:cursor-pointer hover:bg-transparent",
-                                        "focus-visible:border-[#F5922080] focus-visible:outline-none focus-visible:ring-[#F5922080]",
-                                    )}
-                                    onClick={() =>
-                                        setTypePassword((typePassword) =>
-                                            typePassword === "password"
-                                                ? "text"
-                                                : "password",
-                                        )
-                                    }>
-                                    {typePassword === "password" ? (
-                                        <SvgEyeClose width={20} />
-                                    ) : (
-                                        <SvgEyeOpen width={20} />
-                                    )}
-                                </Button>
                             </div>
                         </FormControl.Input>
 
@@ -222,7 +221,7 @@ export const AcceptInviteForm = (props: {
                                                 "flex items-center gap-1 rounded-full px-2 py-1",
                                                 "border border-[#6A57A433]",
                                                 rule.valid &&
-                                                    "border-success border-opacity-20",
+                                                    "border-success/20",
                                             )}>
                                             <div className="w-3 text-center">
                                                 {rule.valid ? (
@@ -284,6 +283,7 @@ export const AcceptInviteForm = (props: {
 
             <Button
                 size="lg"
+                variant="primary"
                 type="submit"
                 disabled={!formIsValid}
                 rightIcon={<LogInIcon />}

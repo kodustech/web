@@ -28,40 +28,41 @@ function Calendar({
                 caption_label: "text-sm font-medium",
                 nav: "gap-x-3 flex items-center",
                 nav_button: cn(
-                    buttonVariants({ variant: "outline" }),
-                    "h-7 w-7 p-0 opacity-50 hover:opacity-100",
+                    buttonVariants({ variant: "cancel" }),
+                    "size-7 p-0",
                 ),
                 nav_button_previous: "absolute left-1",
                 nav_button_next: "absolute right-1",
                 table: "w-full border-collapse space-y-1",
                 head_row: "flex",
-                head_cell:
-                    "text-muted-foreground w-8 font-normal text-[0.8rem]",
+                head_cell: "text-text-secondary w-8 font-normal text-[0.8rem]",
                 row: "flex w-full mt-2",
                 cell: cn(
-                    "relative p-0 text-center text-sm focus-within:relative focus-within:z-20 [&:has([aria-selected].day-outside)]:bg-primary/50 [&:has([aria-selected].day-range-end)]:rounded-r-lg",
+                    "relative p-0 text-center text-sm focus-within:relative focus-within:z-20",
+                    "[&:has([aria-selected].day-range-end)]:rounded-r-lg",
 
                     props.mode === "range"
                         ? "[&:has(>.day-range-end)]:rounded-r-lg last:[&:has([aria-selected])]:rounded-r-lg [&:has(>.day-range-start)]:rounded-l-lg first:[&:has([aria-selected])]:rounded-l-lg"
                         : "[&:has([aria-selected])]:rounded-lg",
                 ),
                 day: cn(
-                    buttonVariants({ variant: "ghost" }),
-                    "h-8 w-8 p-0 font-normal aria-selected:opacity-100 hover:bg-primary focus:bg-primary hover:bg-opacity-15 focus:bg-opacity-15",
-                    "[&.day-range-end.day-range-start]:!rounded-l-lg [&.day-range-start.day-range-end]:!rounded-r-lg",
+                    "size-8 p-0 font-normal rounded-lg",
+                    "hover:bg-primary-light/15 [&:not([aria-selected])]:hover:text-primary-light",
+                    "focus:bg-primary-light/15 [&:not([aria-selected])]:focus:text-primary-light",
+                    "[&.day-range-end.day-range-start]:rounded-l-lg [&.day-range-start.day-range-end]:rounded-r-lg",
                 ),
                 day_range_start:
-                    "day-range-start aria-selected:bg-primary aria-selected:text-primary-foreground !rounded-r-none",
+                    "day-range-start aria-selected:bg-primary-light aria-selected:text-primary-dark rounded-r-none!",
                 day_range_end:
-                    "day-range-end aria-selected:bg-primary aria-selected:text-primary-foreground !rounded-l-none",
+                    "day-range-end aria-selected:bg-primary-light aria-selected:text-primary-dark rounded-l-none!",
                 day_selected:
-                    "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground hover:!bg-opacity-75 focus:!bg-opacity-75",
-                day_today: "bg-primary/10",
+                    "bg-primary-light text-primary-dark hover:bg-primary-light/75 hover:text-primary-dark focus:bg-primary-light/75 focus:text-primary-dark",
+                day_today: "bg-card-lv1 text-primary-light",
                 day_outside:
-                    "day-outside text-muted-foreground opacity-50 aria-selected:text-muted-foreground aria-selected:opacity-30",
-                day_disabled: "text-muted-foreground opacity-50",
+                    "day-outside text-text-secondary opacity-50 aria-selected:text-primary-dark aria-selected:opacity-30",
+                day_disabled: "text-text-secondary opacity-50",
                 day_range_middle:
-                    "aria-selected:bg-primary aria-selected:text-primary-foreground !rounded-none",
+                    "aria-selected:bg-primary-light aria-selected:text-primary-dark rounded-none!",
                 day_hidden: "invisible",
                 ...classNames,
             }}

@@ -5,7 +5,7 @@ import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-s
 
 const TrialExpiring = () => {
     return (
-        <div className="bg-brand-red/30 py-2 text-center text-sm text-brand-red-foreground">
+        <div className="bg-danger/30 py-2 text-center text-sm">
             Your free trial is expiring soon...{" "}
             <Link href="/settings/subscription" className="font-bold">
                 Upgrade
@@ -17,7 +17,7 @@ const TrialExpiring = () => {
 
 const SubscriptionInvalid = () => {
     return (
-        <div className="bg-brand-red/30 py-2 text-center text-sm text-brand-red-foreground">
+        <div className="bg-danger/30 py-2 text-center text-sm">
             Kody's off duty!{" "}
             <Link href="/settings/subscription" className="font-bold">
                 Upgrade

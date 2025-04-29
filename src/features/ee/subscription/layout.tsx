@@ -28,7 +28,7 @@ const SelfHostedInfo = () => {
             </div>
             <h2 className="mb-2 text-2xl font-bold">Self-Hosted Mode</h2>
 
-            <div className="mb-6 max-w-md space-y-0.5 text-muted-foreground">
+            <div className="text-text-secondary mb-6 max-w-md space-y-0.5">
                 <p>
                     You're running Kodus in <strong>Self-Hosted</strong> mode.
                 </p>
@@ -73,7 +73,7 @@ export default function SubscriptionLayout({
 
             <Page.Content>
                 <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-                    <TabsList>
+                    <TabsList className="mt-5">
                         <TabsTrigger value={prLicensesTabName}>
                             PR licenses
                         </TabsTrigger>
@@ -81,27 +81,21 @@ export default function SubscriptionLayout({
                             Organization admins
                         </TabsTrigger>
 
-                        <div className="mb-4 flex h-full flex-1 items-center justify-end">
+                        <div className="mb-5 flex h-full flex-1 items-center justify-end">
                             <div className="flex items-center gap-2">
-                                <div className="relative">
-                                    <Input
-                                        placeholder="Find by name"
-                                        className="h-10 w-52 pl-10"
-                                        value={query}
-                                        onChange={(e) =>
-                                            setQuery(e.target.value)
-                                        }
-                                    />
-
-                                    <div className="pointer-events-none absolute left-3 top-3">
-                                        <SearchIcon className="h-4 w-4 text-muted-foreground" />
-                                    </div>
-                                </div>
+                                <Input
+                                    size="md"
+                                    value={query}
+                                    className="w-52"
+                                    leftIcon={<SearchIcon />}
+                                    placeholder="Find by name"
+                                    onChange={(e) => setQuery(e.target.value)}
+                                />
 
                                 {selectedTab === organizationAdminsTabName && (
                                     <Button
-                                        className="h-10"
-                                        variant="outline"
+                                        size="md"
+                                        variant="helper"
                                         leftIcon={<PlusIcon />}
                                         onClick={async () => {
                                             const a = await magicModal.show(
@@ -124,7 +118,7 @@ export default function SubscriptionLayout({
                         <TabsContent value={prLicensesTabName}>
                             <Suspense
                                 fallback={
-                                    <Card className="flex h-40 flex-col items-center justify-center gap-3 rounded-none bg-transparent">
+                                    <Card className="flex h-40 flex-col items-center justify-center gap-3 bg-transparent shadow-none">
                                         <Spinner />
 
                                         <p className="text-sm">

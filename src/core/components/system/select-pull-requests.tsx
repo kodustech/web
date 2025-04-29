@@ -59,21 +59,22 @@ export const SelectPullRequest = (props: {
                 <Button
                     id={id}
                     type="button"
-                    variant="outline"
+                    size="lg"
+                    variant="helper"
                     disabled={disabled}
-                    className="flex h-14 justify-between">
+                    className="flex w-full justify-between">
                     {!value ? (
-                        <span className="text-muted-foreground">Pick a PR</span>
+                        <span>Pick a PR</span>
                     ) : (
                         <div>
-                            <span className="text-xs text-muted-foreground">
+                            <span className="text-primary-light text-xs">
                                 {value.repository}
                             </span>
 
                             <div className="line-clamp-1">
-                                <span className="mr-1">PR</span>
+                                <span className="mr-2">PR</span>
                                 <strong>#{value.pull_number}</strong>
-                                <span className="ml-2 text-muted-foreground">
+                                <span className="text-text-secondary ml-2">
                                     {value.title}
                                 </span>
                             </div>
@@ -122,7 +123,7 @@ export const SelectPullRequest = (props: {
                                                     </strong>
                                                 </span>
 
-                                                <span className="ml-2 line-clamp-2 text-muted-foreground">
+                                                <span className="text-text-secondary ml-2 line-clamp-2">
                                                     {pr.title}
                                                 </span>
                                             </CommandItem>

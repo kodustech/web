@@ -15,7 +15,6 @@ import {
 import { useGetRepositories } from "@services/codeManagement/hooks";
 import type { Repository } from "@services/codeManagement/types";
 import { Check, ChevronsUpDown } from "lucide-react";
-import { cn } from "src/core/utils/components";
 import { pluralize } from "src/core/utils/string";
 
 export const SelectRepositories = (props: {
@@ -47,17 +46,16 @@ export const SelectRepositories = (props: {
 
     return (
         <Popover open={open} onOpenChange={onOpenChange}>
-            <PopoverTrigger asChild disabled={isLoading}>
+            <PopoverTrigger asChild>
                 <Button
-                    variant="outline"
+                    size="lg"
+                    variant="helper"
                     role="combobox"
                     loading={isLoading}
                     aria-expanded={open}
-                    className="justify-between"
+                    className="w-full justify-between"
                     id={id}
-                    rightIcon={
-                        <ChevronsUpDown className="!size-4 opacity-50" />
-                    }>
+                    rightIcon={<ChevronsUpDown className="-mr-2 opacity-50" />}>
                     {selectedRepositories.length > 0 ? (
                         `${selectedRepositories.length} ${pluralize(
                             selectedRepositories.length,
@@ -67,9 +65,7 @@ export const SelectRepositories = (props: {
                             },
                         )} selected`
                     ) : (
-                        <p className="text-muted-foreground">
-                            Select repositories...
-                        </p>
+                        <span>Select repositories...</span>
                     )}
                 </Button>
             </PopoverTrigger>
@@ -95,8 +91,7 @@ export const SelectRepositories = (props: {
                         }
 
                         return 0;
-                    }}
-                >
+                    }}>
                     <CommandInput placeholder="Search repository..." />
 
                     <CommandList className="max-h-56 overflow-y-auto">
@@ -116,13 +111,15 @@ export const SelectRepositories = (props: {
                                                         currentValue,
                                                 ),
                                             );
-                                        }}
-                                    >
-                                        <Check className="mr-2 h-4 w-4 text-brand-orange" />
-                                        <span className="text-muted-foreground">
-                                            {r.organizationName}/
+                                        }}>
+                                        <span>
+                                            <span className="text-text-secondary">
+                                                {r.organizationName}/
+                                            </span>
+                                            {r.name}
                                         </span>
-                                        {r.name}
+
+                                        <Check className="text-primary-light -mr-2 size-5" />
                                     </CommandItem>
                                 ))}
                             </CommandGroup>
@@ -138,16 +135,17 @@ export const SelectRepositories = (props: {
                                                 ...selectedRepositories,
                                                 data.find(
                                                     (repo) =>
-                                                        repo.id === currentValue,
+                                                        repo.id ===
+                                                        currentValue,
                                                 )!,
                                             ]);
-                                        }}
-                                    >
-                                        <div className="mr-2 h-4 w-4" />
-                                        <span className="text-muted-foreground">
-                                            {r.organizationName}/
+                                        }}>
+                                        <span>
+                                            <span className="text-text-secondary">
+                                                {r.organizationName}/
+                                            </span>
+                                            {r.name}
                                         </span>
-                                        {r.name}
                                     </CommandItem>
                                 ))}
                             </CommandGroup>

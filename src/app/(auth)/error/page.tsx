@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 
 export default function ErrorPage() {
     return (
-        <div className="flex flex-col gap-6 text-center text-sm text-muted-foreground">
+        <div className="text-text-secondary flex flex-col gap-6 text-center text-sm">
             <p>It seems there's been an error.</p>
 
             <Link href="/">Return to login</Link>

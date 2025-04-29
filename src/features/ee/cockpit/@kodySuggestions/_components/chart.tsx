@@ -26,9 +26,9 @@ export const Chart = ({
                         <VictoryLabel
                             lineHeight={1.25}
                             style={{
-                                fontSize: 36,
-                                fill: "white",
-                                fontFamily: "Inter",
+                                fontSize: 40,
+                                fill: "var(--color-text-primary)",
+                                fontFamily: "var(--font-sans)",
                             }}
                         />
                     }
@@ -42,7 +42,7 @@ export const Chart = ({
                         style={{ backgroundColor: colorSent }}
                     />
 
-                    <p className="text-sm text-muted-foreground">Sent</p>
+                    <p className="text-text-secondary text-sm">Sent</p>
                 </div>
 
                 <div className="flex gap-2.5">
@@ -51,12 +51,12 @@ export const Chart = ({
                         style={{ backgroundColor: colorImplemented }}
                     />
 
-                    <p className="text-sm text-muted-foreground">Implemented</p>
+                    <p className="text-text-secondary text-sm">Implemented</p>
                 </div>
 
-                <div className="mt-4 text-xs text-muted-foreground">
+                <div className="text-text-secondary mt-4 text-xs">
                     <p>Implementation Rate:</p>
-                    <strong className="text-white">
+                    <strong className="text-sm text-white">
                         {data.implementationRate * 100}%
                     </strong>
                 </div>

@@ -75,7 +75,7 @@ export default function Slack() {
                 toast({
                     description:
                         "It seems that Kody has not been added to the private channel yet, please try again.",
-                    variant: "destructive",
+                    variant: "warning",
                 });
             }
         });
@@ -104,13 +104,14 @@ export default function Slack() {
                             onOpenChange={setIsPopoverOpen}>
                             <PopoverTrigger asChild>
                                 <Button
-                                    variant="outline"
+                                    size="lg"
+                                    variant="helper"
                                     role="combobox"
-                                    className="h-10 justify-between">
+                                    className="w-full justify-between">
                                     {selectedChannel ? (
                                         selectedChannel.name
                                     ) : (
-                                        <span className="text-muted-foreground">
+                                        <span className="text-text-secondary">
                                             Select channel...
                                         </span>
                                     )}
@@ -120,7 +121,7 @@ export default function Slack() {
 
                             <PopoverContent
                                 align="start"
-                                className="min-w-[var(--radix-popover-trigger-width)] max-w-60 p-0">
+                                className="max-w-60 min-w-[var(--radix-popover-trigger-width)] p-0">
                                 <Command
                                     filter={(value, search) => {
                                         const language = channels.find(
@@ -163,7 +164,7 @@ export default function Slack() {
                                                     {d.name}
                                                     <Check
                                                         className={cn(
-                                                            "ml-auto size-4 text-brand-orange",
+                                                            "text-primary-light ml-auto size-4",
                                                             selectedChannel?.id ===
                                                                 d.id
                                                                 ? "opacity-100"
@@ -204,12 +205,11 @@ export default function Slack() {
                                     </p>
                                 </FormControl.Error>
 
-                                <span className="flex items-center gap-1 text-xs">
+                                <span className="mt-3 flex items-center gap-1 text-xs">
                                     <span>Already invited Kody?</span>
                                     <Button
-                                        variant="link"
-                                        selected
-                                        className="text-xs"
+                                        size="xs"
+                                        variant="secondary"
                                         onClick={() => {
                                             setIsUserAwareOfPrivateChannel(
                                                 true,
@@ -224,10 +224,14 @@ export default function Slack() {
 
                 <DialogFooter>
                     <DialogClose>
-                        <Button variant="outline">Cancel</Button>
+                        <Button size="md" variant="cancel">
+                            Cancel
+                        </Button>
                     </DialogClose>
 
                     <Button
+                        size="md"
+                        variant="primary"
                         disabled={
                             !selectedChannel ||
                             (selectedChannel.isPrivate &&

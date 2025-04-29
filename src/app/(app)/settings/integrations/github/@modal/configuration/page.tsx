@@ -122,7 +122,7 @@ export default function Github() {
         await updateCodeReviewParameterRepositories(teamId);
 
         toast({
-            variant: "default",
+            variant: "success",
             title: "Repositories saved",
         });
 
@@ -158,7 +158,7 @@ export default function Github() {
             onOpenChange={() => {
                 router.push(`/settings/integrations`);
             }}>
-            <DialogContent>
+            <DialogContent className="max-w-md">
                 <DialogHeader>
                     <DialogTitle>Github repositories setup</DialogTitle>
 
@@ -183,10 +183,14 @@ export default function Github() {
 
                 <DialogFooter>
                     <DialogClose>
-                        <Button variant="outline">Cancel</Button>
+                        <Button size="md" variant="cancel">
+                            Cancel
+                        </Button>
                     </DialogClose>
 
                     <Button
+                        size="md"
+                        variant="primary"
                         disabled={selectedRepositories.length === 0}
                         onClick={saveSelectedRepositoriesAction}
                         loading={loadingSaveRepositories}>

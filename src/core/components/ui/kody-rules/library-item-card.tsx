@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge } from "@components/ui/badge";
-import { Card, CardContent, CardFooter, CardHeader } from "@components/ui/card";
+import { CardContent, CardFooter, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { magicModal } from "@components/ui/magic-modal";
 import type { KodyRule, LibraryRule } from "@services/kodyRules/types";
@@ -9,13 +9,14 @@ import { ProgrammingLanguage } from "src/core/enums/programming-language";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
 
+import { Button } from "../button";
 import { KodyRuleLibraryItemModal } from "./library-item-modal";
 
 const severityVariantMap = {
-    Critical: "!bg-destructive/5 border-destructive/10 text-destructive",
-    High: "!bg-brand-purple/5 border-brand-purple/10 text-brand-purple",
-    Medium: "!bg-brand-orange/5 border-brand-orange/10 text-brand-orange",
-    Low: "!bg-success/5 border-success/10 text-success",
+    Critical: "bg-danger/10 text-danger border-danger/64",
+    High: "bg-warning/10 text-warning border-warning/64",
+    Medium: "bg-alert/10 text-alert border-alert/64",
+    Low: "bg-info/10 text-info border-info/64",
 } as const satisfies Record<string, string>;
 
 export const KodyRuleLibraryItem = ({
@@ -27,13 +28,20 @@ export const KodyRuleLibraryItem = ({
     rule: LibraryRule;
     repositoryId?: string;
     onAddRule?: (rules: KodyRule[]) => void;
-    selectedRepositories?: Array<{ id: string; name: string; isSelected?: boolean }>;
+    selectedRepositories?: Array<{
+        id: string;
+        name: string;
+        isSelected?: boolean;
+    }>;
 }) => {
     const { teamId } = useSelectedTeamId();
 
     return (
-        <Card
+        <Button
+            size={null}
+            variant="helper"
             key={rule.uuid}
+            className="flex w-full flex-col items-start gap-2"
             onClick={() => {
                 magicModal.show(() => (
                     <KodyRuleLibraryItemModal
@@ -44,20 +52,19 @@ export const KodyRuleLibraryItem = ({
                         selectedRepositories={selectedRepositories}
                     />
                 ));
-            }}
-            className={cn("cursor-pointer transition-colors hover:bg-card")}>
+            }}>
             <CardHeader className="flex-row justify-between gap-4">
-                <Heading variant="h3" className="line-clamp-2 font-semibold">
+                <Heading
+                    variant="h3"
+                    className="line-clamp-2 flex min-h-6 items-center font-semibold">
                     {rule.title}
                 </Heading>
 
                 <Badge
-                    disabled
-                    variant="outline"
                     className={cn(
-                        "h-6 !cursor-default px-2.5 text-[10px] uppercase !opacity-100",
+                        "h-fit rounded-lg border-1 px-2 text-[10px] leading-px uppercase",
                         severityVariantMap[
-                        rule.severity as typeof rule.severity
+                            rule.severity as typeof rule.severity
                         ],
                     )}>
                     {rule.severity}
@@ -65,31 +72,20 @@ export const KodyRuleLibraryItem = ({
             </CardHeader>
 
             <CardContent className="flex flex-1 flex-col">
-                <p className="line-clamp-3 text-[13px] text-muted-foreground">
+                <p className="text-text-secondary line-clamp-3 text-[13px]">
                     {rule.rule}
                 </p>
             </CardContent>
 
             <CardFooter className="flex flex-wrap gap-1">
                 {rule.language && (
-                    <Badge
-                        disabled
-                        variant="outline"
-                        className="!cursor-default text-xs !opacity-100">
-                        {ProgrammingLanguage[rule.language]}
-                    </Badge>
+                    <Badge>{ProgrammingLanguage[rule.language]}</Badge>
                 )}
 
                 {rule.tags.map((tag) => (
-                    <Badge
-                        disabled
-                        key={tag}
-                        variant="outline"
-                        className="!cursor-default text-xs text-muted-foreground !opacity-100">
-                        {tag}
-                    </Badge>
+                    <Badge key={tag}>{tag}</Badge>
                 ))}
             </CardFooter>
-        </Card>
+        </Button>
     );
 };

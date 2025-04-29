@@ -4,6 +4,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
 import { Heading } from "@components/ui/heading";
+import { SvgAzureRepos } from "@components/ui/icons/SvgAzureRepos";
 import { SvgBitbucket } from "@components/ui/icons/SvgBitbucket";
 import { SvgGithub } from "@components/ui/icons/SvgGithub";
 import { SvgGitlab } from "@components/ui/icons/SvgGitlab";
@@ -22,11 +23,10 @@ import { captureSegmentEvent } from "src/core/utils/segment";
 
 import { StepIndicators } from "../_components/step-indicators";
 import { useGoToStep } from "../_hooks/use-goto-step";
+import { AzureReposTokenModal } from "./_components/modals/azure-repos";
 import { BitbucketTokenModal } from "./_components/modals/bitbucket";
 import { GithubTokenModal } from "./_components/modals/github";
 import { GitlabTokenModal } from "./_components/modals/gitlab";
-import { SvgAzureRepos } from "@components/ui/icons/SvgAzureRepos";
-import { AzureReposTokenModal } from "./_components/modals/azure-repos";
 
 export default function App() {
     useGoToStep();
@@ -61,7 +61,7 @@ export default function App() {
 
     return (
         <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
-            <div className="flex flex-[10] flex-col justify-center gap-10 rounded-3xl bg-[#231B2E]/35 p-12 backdrop-blur">
+            <div className="bg-card-lv1 flex flex-10 flex-col justify-center gap-10 rounded-3xl p-12">
                 <SvgKodus className="h-8 min-h-8" />
 
                 <div className="flex flex-1 flex-col justify-center gap-10">
@@ -70,23 +70,23 @@ export default function App() {
                     </Heading>
 
                     <div className="flex flex-col gap-2">
-                        <div className="flex items-center gap-4 rounded-2xl border bg-card/35 px-6 py-4 text-sm">
+                        <div className="bg-card-lv2 flex items-center gap-4 rounded-2xl border px-6 py-4 text-sm">
                             <CheckCircle2 />
                             <p>No code stored</p>
                         </div>
 
-                        <div className="flex items-center gap-4 rounded-2xl border bg-card/35 px-6 py-4 text-sm">
+                        <div className="bg-card-lv2 flex items-center gap-4 rounded-2xl border px-6 py-4 text-sm">
                             <CheckCircle2 />
                             <p>Full privacy</p>
                         </div>
 
-                        <div className="flex items-center gap-4 rounded-2xl border bg-card/35 px-6 py-4 text-sm">
+                        <div className="bg-card-lv2 flex items-center gap-4 rounded-2xl border px-6 py-4 text-sm">
                             <CheckCircle2 />
                             <p>No AI training</p>
                         </div>
                     </div>
 
-                    <div className="flex max-w-124 flex-col gap-4 rounded-2xl border bg-card/35 px-6 py-5 text-sm text-muted-foreground">
+                    <div className="bg-card-lv2 text-text-secondary flex max-w-96 flex-col gap-4 rounded-2xl border px-6 py-5 text-sm">
                         <p>
                             One of our clients{" "}
                             <strong className="text-white">
@@ -101,8 +101,8 @@ export default function App() {
                 </div>
             </div>
 
-            <div className="flex flex-[14] flex-col items-center justify-center gap-20 p-10">
-                <div className="flex max-w-124 flex-1 flex-col justify-center gap-10">
+            <div className="flex flex-14 flex-col items-center justify-center gap-20 p-10">
+                <div className="flex max-w-114 flex-1 flex-col justify-center gap-10">
                     <StepIndicators.Root>
                         <StepIndicators.Item status="completed" />
                         <StepIndicators.Item status="active" />
@@ -112,7 +112,7 @@ export default function App() {
                     <div className="flex flex-col gap-2">
                         <Heading variant="h2">Connect your Git tool</Heading>
 
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-sm">
                             By connecting, Kody starts automating reviews
                             instantly, saving hours every week.
                         </p>
@@ -142,7 +142,8 @@ export default function App() {
                                     Bitbucket
                                 </div>
                             </TabsTrigger>
-                            <TabsTrigger value={GIT_INTEGRATIONS_KEY.AZURE_REPOS}>
+                            <TabsTrigger
+                                value={GIT_INTEGRATIONS_KEY.AZURE_REPOS}>
                                 <div className="flex flex-row items-center gap-2">
                                     <SvgAzureRepos className="size-5" />
                                     Azure Repos
@@ -152,9 +153,11 @@ export default function App() {
 
                         <TabsContent
                             value={GIT_INTEGRATIONS_KEY.GITHUB}
-                            className="flex flex-col gap-2 rounded-3xl border bg-card/50 p-8">
+                            className="bg-card-lv1 flex flex-col gap-2 rounded-3xl border p-8">
                             <Button
-                                variant="default"
+                                size="lg"
+                                variant="primary"
+                                className="w-full"
                                 rightIcon={<ExternalLink />}
                                 onClick={() =>
                                     connectOauthIntegration(
@@ -166,14 +169,16 @@ export default function App() {
 
                             <div className="flex flex-row items-center gap-2">
                                 <Separator className="flex-1" />
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-text-secondary text-xs">
                                     or
                                 </p>
                                 <Separator className="flex-1" />
                             </div>
 
                             <Button
-                                variant="outline"
+                                size="lg"
+                                variant="helper"
+                                className="w-full"
                                 onClick={async () => {
                                     await captureSegmentEvent({
                                         userId: userId!,
@@ -204,9 +209,11 @@ export default function App() {
 
                         <TabsContent
                             value={GIT_INTEGRATIONS_KEY.GITLAB}
-                            className="flex flex-col gap-2 rounded-3xl border bg-card/50 p-8">
+                            className="bg-card-lv1 flex flex-col gap-2 rounded-3xl border p-8">
                             <Button
-                                variant="default"
+                                size="lg"
+                                variant="primary"
+                                className="w-full"
                                 rightIcon={<ExternalLink />}
                                 onClick={() =>
                                     connectOauthIntegration(
@@ -218,14 +225,16 @@ export default function App() {
 
                             <div className="flex flex-row items-center gap-2">
                                 <Separator className="flex-1" />
-                                <p className="text-xs text-muted-foreground">
+                                <p className="text-text-secondary text-xs">
                                     or
                                 </p>
                                 <Separator className="flex-1" />
                             </div>
 
                             <Button
-                                variant="outline"
+                                size="lg"
+                                variant="helper"
+                                className="w-full"
                                 onClick={async () => {
                                     await captureSegmentEvent({
                                         userId: userId!,
@@ -256,9 +265,11 @@ export default function App() {
 
                         <TabsContent
                             value={GIT_INTEGRATIONS_KEY.BITBUCKET}
-                            className="flex flex-col gap-2 rounded-3xl border bg-card/50 p-8 w-full">
+                            className="bg-card-lv1 flex flex-col gap-2 rounded-3xl border p-8">
                             <Button
-                                variant="outline"
+                                size="lg"
+                                variant="primary"
+                                className="w-full"
                                 onClick={async () => {
                                     await captureSegmentEvent({
                                         userId: userId!,
@@ -282,9 +293,11 @@ export default function App() {
 
                         <TabsContent
                             value={GIT_INTEGRATIONS_KEY.AZURE_REPOS}
-                            className="flex flex-col gap-2 rounded-3xl border bg-card/50 p-8 w-full">
+                            className="bg-card-lv1 flex flex-col gap-2 rounded-3xl border p-8">
                             <Button
-                                variant="outline"
+                                size="lg"
+                                variant="primary"
+                                className="w-full"
                                 onClick={async () => {
                                     await captureSegmentEvent({
                                         userId: userId!,
@@ -307,7 +320,7 @@ export default function App() {
                         </TabsContent>
                     </Tabs>
 
-                    <p className="px-4 text-center text-xs text-muted-foreground">
+                    <p className="text-text-secondary px-4 text-center text-xs">
                         Kody complies with LGPD, GDPR, and CCPA to ensure your
                         privacy and security.
                     </p>
@@ -316,7 +329,7 @@ export default function App() {
                 <div className="flex w-full flex-col gap-6">
                     <Separator />
 
-                    <p className="text-center text-xs text-muted-foreground">
+                    <p className="text-text-secondary text-center text-xs">
                         Already trusted by top engineering teams to ship better
                         code faster.
                     </p>

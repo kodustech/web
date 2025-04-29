@@ -2,45 +2,65 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "src/core/utils/components";
 
-import { Icons } from "./icons";
+import { Spinner } from "./spinner";
 
 const buttonVariants = cva(
-    "inline-flex overflow-hidden select-none relative items-center justify-center rounded-xl text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 gap-2 text-start flex-shrink-0 border",
+    cn(
+        "inline-flex overflow-hidden select-none relative items-center justify-center pointer-events-auto transition h-auto",
+        "rounded-xl font-semibold transition text-start shrink-0 text-sm w-fit",
+        "bg-(--button-background) text-(--button-foreground) [&_svg]:size-(--icon-size) ring-card-lv3",
+        "[&[aria-haspopup=dialog]]:ring-1",
+        "button-disabled:bg-text-placeholder/30 button-disabled:text-text-placeholder button-disabled:cursor-not-allowed",
+        "button-focused:ring-3!",
+        "button-hover:brightness-120 button-active:brightness-120",
+        "button-loading:cursor-wait",
+    ),
     {
         variants: {
             variant: {
-                default:
-                    "bg-primary text-primary-foreground hover:bg-primary/70 selected:bg-primary/70 border-transparent",
-                destructive:
-                    "bg-destructive text-destructive-foreground hover:bg-destructive/90 selected:bg-destructive/90 border-transparent",
-                outline:
-                    "bg-[#231b2e] bg-opacity-25 text-foreground hover:bg-[#231b2e] hover:bg-opacity-100 selected:bg-opacity-100 selected:border-opacity-60 border",
-                secondary:
-                    "bg-secondary text-secondary-foreground hover:bg-secondary/80 selected:bg-secondary/80 border-transparent",
-                ghost: "bg-[#231b2e] bg-opacity-0 text-foreground hover:bg-[#231b2e] hover:bg-opacity-100 selected:bg-opacity-100 border-transparent",
-                link: "text-primary underline-offset-4 hover:underline border-transparent !px-0 w-fit hover:text-brand-orange text-muted-foreground selected:text-brand-orange",
-                success:
-                    "bg-green-600 text-white hover:bg-green-500 border-transparent",
+                "primary":
+                    "[--button-background:var(--color-primary-light)] [--button-foreground:var(--color-primary-dark)]",
+
+                "primary-dark":
+                    "[--button-background:var(--color-primary-dark)] [--button-foreground:var(--color-primary-light)]",
+
+                "secondary":
+                    "[--button-background:var(--color-secondary-dark)] [--button-foreground:var(--color-primary-light)]",
+
+                "helper":
+                    "[--button-background:var(--color-card-lv2)] [--button-foreground:var(--color-text-secondary)]",
+
+                "tertiary":
+                    "[--button-background:var(--color-tertiary-dark)] [--button-foreground:var(--color-tertiary-light)]",
+
+                "cancel":
+                    "[--button-foreground:var(--color-text-tertiary)] button-hover:[--button-foreground:var(--color-text-primary)] button-active:[--button-foreground:var(--color-text-primary)]",
             },
             size: {
-                default: "h-11 px-4 py-2",
-                sm: "h-9 px-3",
-                lg: "h-12 px-5",
-                icon: "size-10",
+                "xs": "min-h-6 [--icon-size:calc(var(--spacing)*4)] rounded-full text-xs px-3.5 py-1.5 gap-1",
+                "sm": "min-h-8 [--icon-size:calc(var(--spacing)*4)] px-4 py-2 gap-2",
+                "md": "min-h-10 [--icon-size:calc(var(--spacing)*4.5)] px-5 py-2.5 gap-3",
+                "lg": "min-h-12 [--icon-size:calc(var(--spacing)*5)] px-6 py-3 gap-3",
+                "icon-xs":
+                    "size-6 [--icon-size:calc(var(--spacing)*4)] rounded-full",
+                "icon-sm": "size-8 [--icon-size:calc(var(--spacing)*4)]",
+                "icon-md": "size-10 [--icon-size:calc(var(--spacing)*4.5)]",
+                "icon-lg": "size-12 [--icon-size:calc(var(--spacing)*5)]",
             },
         },
         defaultVariants: {
-            variant: "secondary",
-            size: "default",
+            // variant: "primary",
+            // size: "md",
         },
     },
 );
 
 interface ButtonProps
     extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-        VariantProps<typeof buttonVariants> {
+        Required<VariantProps<typeof buttonVariants>> {
     loading?: boolean;
-    selected?: boolean;
+    active?: boolean;
+    decorative?: boolean;
     leftIcon?: React.ReactNode;
     rightIcon?: React.ReactNode;
 }
@@ -48,41 +68,44 @@ interface ButtonProps
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     (props, ref) => {
         const {
-            className,
             variant,
             size,
             disabled,
+            decorative,
             leftIcon: LeftIcon,
             rightIcon: RightIcon,
             loading,
-            selected,
+            active,
             ...otherProps
         } = props;
+
+        const Component = decorative ? "span" : "button";
+
         return (
-            <button
+            <Component
+                {...(active && { "data-active": true })}
+                {...(loading && { "data-loading": true })}
+                {...(disabled && { "data-disabled": true })}
+                {...(decorative && { "data-decorative": true })}
                 {...otherProps}
                 ref={ref}
-                disabled={disabled || loading}
-                className={cn(buttonVariants({ variant, size }), className)}
-                {...(selected ? { "data-selected": "true" } : {})}>
+                disabled={disabled || loading || decorative}
+                className={cn(
+                    buttonVariants({ variant, size }),
+                    props.className,
+                )}>
                 {loading && (
-                    <div className="absolute inset-0 flex items-center justify-center backdrop-blur-3xl">
-                        <Icons.spinner className="size-5 animate-spin" />
+                    <div className="absolute inset-0 flex items-center justify-center rounded-[inherit] backdrop-blur-3xl">
+                        <Spinner className="size-(--icon-size)! fill-(--button-foreground)/10 text-(--button-foreground)" />
                     </div>
                 )}
 
                 <div className="contents">
-                    {LeftIcon && (
-                        <div className="children:size-4">{LeftIcon}</div>
-                    )}
-
+                    {LeftIcon}
                     {props.children}
-
-                    {RightIcon && (
-                        <div className="children:size-4">{RightIcon}</div>
-                    )}
+                    {RightIcon}
                 </div>
-            </button>
+            </Component>
         );
     },
 );

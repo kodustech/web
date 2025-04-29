@@ -13,10 +13,10 @@ const StepIndicatorItem = ({
         <div
             className={cn(
                 "aspect-[5] h-2 rounded-full",
-                status === "active" && "cursor-pointer bg-brand-orange/100",
-                status === "completed" && "bg-brand-orange/20",
-                status === "error" && "bg-brand-red",
-                status === "inactive" && "bg-foreground/10",
+                status === "active" && "bg-primary-light",
+                status === "completed" && "bg-primary-light/20",
+                status === "error" && "bg-danger",
+                status === "inactive" && "bg-card-lv3/15",
             )}
         />
     );

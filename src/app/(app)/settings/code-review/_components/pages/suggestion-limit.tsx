@@ -8,8 +8,7 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@components/ui/breadcrumb";
-import { Button, buttonVariants } from "@components/ui/button";
-import { Card } from "@components/ui/card";
+import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
 import {
     Dialog,
@@ -165,10 +164,8 @@ export const SuggestionControl = (
             form.reset(finalConfig);
 
             toast({
-                title: "Success",
-                description:
-                    "Code review automation settings saved successfully.",
-                variant: "default",
+                description: "Settings saved",
+                variant: "success",
             });
         } catch (error) {
             console.error("Erro ao salvar as configurações:", error);
@@ -177,7 +174,7 @@ export const SuggestionControl = (
                 title: "Error",
                 description:
                     "An error occurred while saving the settings. Please try again.",
-                variant: "destructive",
+                variant: "danger",
             });
         }
     });
@@ -229,6 +226,8 @@ export const SuggestionControl = (
 
                 <Page.HeaderActions>
                     <Button
+                        size="md"
+                        variant="primary"
                         leftIcon={<Save />}
                         onClick={handleSubmit}
                         disabled={!formIsDirty || !formIsValid}
@@ -241,83 +240,71 @@ export const SuggestionControl = (
             <Page.Content className="mt-10 flex-none">
                 <div className="flex flex-col gap-2">
                     <Heading variant="h2">Suggestion grouping mode</Heading>
-                    <small className="text-sm text-muted-foreground">
+                    <small className="text-text-secondary text-sm">
                         Define how Kody consolidates multiple suggestions in a
                         single PR.
                     </small>
                 </div>
-                <div className="mt-3 flex flex-row">
-                    <div className="flex flex-col gap-8">
-                        <Controller
-                            name="suggestionControl.groupingMode"
-                            control={form.control}
-                            render={({ field }) => (
-                                <FormControl.Root className="space-y-1">
-                                    <FormControl.Label htmlFor="groupingModeOptions">
-                                        Choose mode:
-                                    </FormControl.Label>
 
-                                    <FormControl.Input>
-                                        <ToggleGroup.Root
-                                            id="groupingModeOptions"
-                                            type="single"
-                                            disabled={field.disabled}
-                                            className="mr-[20px] flex flex-col gap-2"
-                                            value={field.value}
-                                            onValueChange={(value) => {
-                                                if (value)
-                                                    field.onChange(value);
-                                            }}>
-                                            {GroupingModeOptions.map(
-                                                (option) => (
-                                                    <ToggleGroup.ToggleGroupItem
-                                                        asChild
-                                                        key={option.value}
-                                                        value={option.value}>
-                                                        <Card
-                                                            className={cn(
-                                                                buttonVariants({
-                                                                    variant:
-                                                                        "outline",
-                                                                }),
-                                                                "h-auto cursor-pointer items-start px-5 py-4 disabled:cursor-not-allowed",
-                                                            )}>
-                                                            <div className="flex h-full w-full items-start justify-between">
-                                                                <div className="flex flex-col gap-2">
-                                                                    <div className="flex items-center gap-2">
-                                                                        <Heading variant="h3">
-                                                                            {
-                                                                                option.name
-                                                                            }
-                                                                        </Heading>
-                                                                        {option.default && (
-                                                                            <small className="text-xm text-muted-foreground">
-                                                                                (default)
-                                                                            </small>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
+                <div className="mt-3 flex flex-row gap-6">
+                    <Controller
+                        name="suggestionControl.groupingMode"
+                        control={form.control}
+                        render={({ field }) => (
+                            <FormControl.Root className="flex-1">
+                                <FormControl.Label htmlFor="groupingModeOptions">
+                                    Choose mode:
+                                </FormControl.Label>
 
-                                                                <Checkbox
-                                                                    disabled
-                                                                    className="pointer-events-none ml-2 children:opacity-100 disabled:opacity-100"
-                                                                    checked={
-                                                                        field.value ===
-                                                                        option.value
-                                                                    }
-                                                                />
-                                                            </div>
-                                                        </Card>
-                                                    </ToggleGroup.ToggleGroupItem>
-                                                ),
-                                            )}
-                                        </ToggleGroup.Root>
-                                    </FormControl.Input>
-                                </FormControl.Root>
-                            )}
-                        />
-                    </div>
-                    <div className="w-3/5">
+                                <FormControl.Input>
+                                    <ToggleGroup.Root
+                                        id="groupingModeOptions"
+                                        type="single"
+                                        disabled={field.disabled}
+                                        className="flex flex-1 flex-col gap-2"
+                                        value={field.value}
+                                        onValueChange={(value) => {
+                                            if (value) field.onChange(value);
+                                        }}>
+                                        {GroupingModeOptions.map((option) => (
+                                            <ToggleGroup.ToggleGroupItem
+                                                asChild
+                                                key={option.value}
+                                                value={option.value}>
+                                                <Button
+                                                    size="md"
+                                                    variant="helper"
+                                                    className="h-auto w-full justify-between py-4">
+                                                    <div className="flex flex-col gap-2">
+                                                        <div className="flex items-center gap-1">
+                                                            <Heading variant="h3">
+                                                                {option.name}
+                                                            </Heading>
+                                                            {option.default && (
+                                                                <small className="text-text-secondary">
+                                                                    (default)
+                                                                </small>
+                                                            )}
+                                                        </div>
+                                                    </div>
+
+                                                    <Checkbox
+                                                        decorative
+                                                        checked={
+                                                            field.value ===
+                                                            option.value
+                                                        }
+                                                    />
+                                                </Button>
+                                            </ToggleGroup.ToggleGroupItem>
+                                        ))}
+                                    </ToggleGroup.Root>
+                                </FormControl.Input>
+                            </FormControl.Root>
+                        )}
+                    />
+
+                    <div className="flex-2">
                         <CodeGroupingExampleCard
                             groupingType={form.getValues(
                                 "suggestionControl.groupingMode",
@@ -329,7 +316,7 @@ export const SuggestionControl = (
                 <div className="mt-10 flex flex-col gap-8">
                     <div className="flex flex-col gap-2">
                         <Heading variant="h2">Suggestion limit</Heading>
-                        <small className="text-sm text-muted-foreground">
+                        <small className="text-text-secondary text-sm">
                             Configure the number of comments Kody can leave
                             during code reviews
                         </small>
@@ -361,39 +348,33 @@ export const SuggestionControl = (
                                                 asChild
                                                 key={option.value}
                                                 value={option.value}>
-                                                <Card
+                                                <Button
+                                                    size="md"
+                                                    variant="helper"
                                                     className={cn(
-                                                        buttonVariants({
-                                                            variant: "outline",
-                                                        }),
-                                                        "h-auto cursor-pointer items-start px-5 py-4 disabled:cursor-not-allowed",
+                                                        "w-full justify-between py-4",
                                                     )}>
-                                                    <div className="flex h-full w-full items-start justify-between">
-                                                        <div className="flex flex-col gap-2">
-                                                            <div className="flex items-center gap-1">
-                                                                <Heading variant="h3">
-                                                                    {
-                                                                        option.name
-                                                                    }
-                                                                </Heading>
-                                                                {option.default && (
-                                                                    <small className="text-muted-foreground">
-                                                                        (default)
-                                                                    </small>
-                                                                )}
-                                                            </div>
+                                                    <div className="flex flex-col gap-2">
+                                                        <div className="flex items-center gap-1">
+                                                            <Heading variant="h3">
+                                                                {option.name}
+                                                            </Heading>
+                                                            {option.default && (
+                                                                <small className="text-text-secondary">
+                                                                    (default)
+                                                                </small>
+                                                            )}
                                                         </div>
-
-                                                        <Checkbox
-                                                            disabled
-                                                            className="pointer-events-none children:opacity-100 disabled:opacity-100"
-                                                            checked={
-                                                                field.value ===
-                                                                option.value
-                                                            }
-                                                        />
                                                     </div>
-                                                </Card>
+
+                                                    <Checkbox
+                                                        decorative
+                                                        checked={
+                                                            field.value ===
+                                                            option.value
+                                                        }
+                                                    />
+                                                </Button>
                                             </ToggleGroup.ToggleGroupItem>
                                         ))}
                                     </ToggleGroup.Root>
@@ -491,16 +472,13 @@ export const SuggestionControl = (
                                 const severityLevel =
                                     severityLevelFilterOptions[field.value];
                                 const numberValue = severityLevel?.value;
-                                const values = numberValue
-                                    ? [numberValue]
-                                    : [0];
 
                                 return (
                                     <div className="mt-6">
                                         <Heading variant="h2">
                                             Minimum severity level
                                         </Heading>
-                                        <small className="text-sm text-muted-foreground">
+                                        <small className="text-text-secondary text-sm">
                                             Select the minimum severity level
                                             for Kody to post code review
                                             suggestions
@@ -514,10 +492,10 @@ export const SuggestionControl = (
                                                         max={3}
                                                         step={1}
                                                         labels={labels}
-                                                        value={values}
-                                                        onValueChange={([
+                                                        value={numberValue}
+                                                        onValueChange={(
                                                             value,
-                                                        ]) =>
+                                                        ) =>
                                                             field.onChange(
                                                                 Object.entries(
                                                                     severityLevelFilterOptions,
@@ -529,16 +507,16 @@ export const SuggestionControl = (
                                                             )
                                                         }
                                                         className={cn({
-                                                            "[--slider-marker-background-active:200,86%,48%]":
+                                                            "[--slider-marker-background-active:#119DE4]":
                                                                 field.value ===
                                                                 "low",
-                                                            "[--slider-marker-background-active:218,86%,48%]":
+                                                            "[--slider-marker-background-active:#115EE4]":
                                                                 field.value ===
                                                                 "medium",
-                                                            "[--slider-marker-background-active:var(--brand-purple)]":
+                                                            "[--slider-marker-background-active:#6A57A4]":
                                                                 field.value ===
                                                                 "high",
-                                                            "[--slider-marker-background-active:var(--brand-red)]":
+                                                            "[--slider-marker-background-active:#EF4B4B]":
                                                                 field.value ===
                                                                 "critical",
                                                         })}
@@ -566,8 +544,8 @@ export const SuggestionControl = (
 
                         <div className="mt-10 flex items-center gap-3">
                             <Button
-                                variant="outline"
                                 size="sm"
+                                variant="secondary"
                                 leftIcon={<Info />}
                                 onClick={() =>
                                     magicModal.show(
@@ -592,15 +570,15 @@ const SeverityLevelsExplanationModal = () => {
                     <DialogTitle>Severity levels</DialogTitle>
                 </DialogHeader>
 
-                <div className="flex flex-col gap-4 overflow-y-auto text-sm text-muted-foreground">
+                <div className="text-text-secondary flex flex-col gap-4 overflow-y-auto text-sm">
                     <Section.Root className="gap-0">
                         <Section.Header>
-                            <Section.Title className="font-bold text-foreground">
+                            <Section.Title className="text-text-primary font-bold">
                                 Low Level
                             </Section.Title>
                         </Section.Header>
 
-                        <Section.Content className="text-sm text-muted-foreground">
+                        <Section.Content className="text-text-secondary text-sm">
                             Minor enhancements that would improve code quality.
                             These represent small optimizations, style
                             improvements, or subtle refinements that would
@@ -610,12 +588,12 @@ const SeverityLevelsExplanationModal = () => {
 
                     <Section.Root className="gap-0">
                         <Section.Header>
-                            <Section.Title className="font-bold text-foreground">
+                            <Section.Title className="text-text-primary font-bold">
                                 Medium Level
                             </Section.Title>
                         </Section.Header>
 
-                        <Section.Content className="text-sm text-muted-foreground">
+                        <Section.Content className="text-text-secondary text-sm">
                             Moderate improvements recommended but not
                             immediately critical. These suggestions focus on
                             enhancing code quality, following best practices,
@@ -625,12 +603,12 @@ const SeverityLevelsExplanationModal = () => {
 
                     <Section.Root className="gap-0">
                         <Section.Header>
-                            <Section.Title className="font-bold text-foreground">
+                            <Section.Title className="text-text-primary font-bold">
                                 High Level
                             </Section.Title>
                         </Section.Header>
 
-                        <Section.Content className="text-sm text-muted-foreground">
+                        <Section.Content className="text-text-secondary text-sm">
                             Significant issues that should be addressed in the
                             near term. These represent important improvements
                             needed in code quality, potential risks, or
@@ -641,12 +619,12 @@ const SeverityLevelsExplanationModal = () => {
 
                     <Section.Root className="gap-0">
                         <Section.Header>
-                            <Section.Title className="font-bold text-foreground">
+                            <Section.Title className="text-text-primary font-bold">
                                 Critical Level
                             </Section.Title>
                         </Section.Header>
 
-                        <Section.Content className="text-sm text-muted-foreground">
+                        <Section.Content className="text-text-secondary text-sm">
                             Issues that require immediate attention and could
                             severely impact system stability, security, or
                             functionality. These problems typically represent

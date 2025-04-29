@@ -47,20 +47,20 @@ const YouTubeVideoPopup = ({
     return (
         <div className="fixed bottom-6 left-6">
             {isOpen ? (
-                <Card className="max-w-md overflow-hidden bg-opacity-100 shadow-2xl">
+                <Card className="max-w-md overflow-hidden shadow-2xl">
                     <CardHeader className="flex-row gap-6">
                         <CardTitle className="text-base">{title}</CardTitle>
                         <Button
-                            size="icon"
-                            variant="ghost"
-                            className="flex-shrink-0 text-brand-red"
+                            size="icon-md"
+                            variant="cancel"
+                            className="text-danger shrink-0"
                             onClick={togglePopup}>
                             <X />
                         </Button>
                     </CardHeader>
                     <CardContent className="relative pt-[56.25%]">
                         <iframe
-                            className="absolute left-0 top-0 h-full w-full"
+                            className="absolute top-0 left-0 h-full w-full"
                             src={`https://www.youtube.com/embed/${videoId}`}
                             allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen></iframe>
@@ -68,8 +68,9 @@ const YouTubeVideoPopup = ({
                 </Card>
             ) : (
                 <Button
+                    size="md"
+                    variant="primary-dark"
                     leftIcon={<HelpCircle />}
-                    variant="outline"
                     onClick={togglePopup}>
                     Help
                 </Button>

@@ -8,6 +8,7 @@ import { magicModal } from "@components/ui/magic-modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createCodeManagementIntegration } from "@services/codeManagement/fetch";
 import { AxiosError } from "axios";
+import { SaveIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import {
     Dialog,
@@ -154,21 +155,25 @@ export const AzureReposTokenModal = (props: {
                             )}
                         />
 
-                        <TokenDocs link="https://docs.kodus.io/config/azure_repos_pat" />
+                        <TokenDocs link="https://docs.kodus.io/how_to_use/en/code_review/general_config/azure_devops_pat" />
                     </div>
 
                     <DialogFooter>
                         <Button
-                            variant="outline"
+                            size="md"
+                            variant="cancel"
                             onClick={() => magicModal.hide()}>
                             Cancel
                         </Button>
 
                         <Button
+                            size="md"
                             type="submit"
+                            variant="primary"
+                            leftIcon={<SaveIcon />}
                             loading={formIsSubmitting}
                             disabled={!formIsValid}>
-                            Next
+                            Validate and save
                         </Button>
                     </DialogFooter>
                 </form>

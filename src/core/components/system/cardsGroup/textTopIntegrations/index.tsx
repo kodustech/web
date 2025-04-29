@@ -22,7 +22,7 @@ const TextTopIntegrations = ({
     return (
         <div className="mb-4 flex flex-col">
             <Heading variant="h2">{textObject.title}</Heading>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-text-secondary text-xs">
                 {textObject.subTitle}
             </span>
         </div>

@@ -9,7 +9,7 @@ import {
     AccordionTrigger,
 } from "@components/ui/accordion";
 import { Badge } from "@components/ui/badge";
-import { Button, buttonVariants } from "@components/ui/button";
+import { Button } from "@components/ui/button";
 import { Card, CardContent, CardHeader } from "@components/ui/card";
 import {
     Dialog,
@@ -26,13 +26,13 @@ import { PROJECT_MANAGEMENT_API_PATHS } from "@services/projectManagement";
 import { createOrUpdateColumnsBoardProjectManagement } from "@services/projectManagement/fetch";
 import { useSuspenseGetColumns } from "@services/projectManagement/hooks";
 import { IColumns } from "@services/setup/types";
-import { Save } from "lucide-react";
+import { SaveIcon } from "lucide-react";
 import { ReactSortable } from "react-sortablejs";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
 
 const DRAGGABLE_ITEMS_CLASSNAMES = cn(
-    "[&.sortable-chosen]:cursor-grab [&.sortable-ghost]:opacity-50 !text-[13px]",
+    "[&.sortable-chosen]:cursor-grab [&.sortable-ghost]:opacity-50 text-[13px]!",
 );
 
 export default function BoardColumns() {
@@ -125,7 +125,7 @@ export default function BoardColumns() {
             <Dialog
                 open
                 onOpenChange={() => router.push(`/settings/integrations`)}>
-                <DialogContent className="max-w-screen-lg">
+                <DialogContent className="max-w-(--breakpoint-lg)">
                     <DialogHeader>
                         <div className="flex flex-row items-center gap-2">
                             <div className="flex flex-col gap-2">
@@ -139,10 +139,10 @@ export default function BoardColumns() {
                                 </DialogDescription>
 
                                 <div className="flex flex-row gap-2">
-                                    <div className="aspect-[4] h-2 rounded-full bg-card" />
-                                    <div className="aspect-[4] h-2 rounded-full bg-card" />
-                                    <div className="aspect-[4] h-2 rounded-full bg-card" />
-                                    <div className="aspect-[4] h-2 rounded-full bg-brand-orange" />
+                                    <div className="bg-card-lv2 aspect-[4] h-2 rounded-full" />
+                                    <div className="bg-card-lv2 aspect-[4] h-2 rounded-full" />
+                                    <div className="bg-card-lv2 aspect-[4] h-2 rounded-full" />
+                                    <div className="bg-primary-light aspect-[4] h-2 rounded-full" />
                                 </div>
                             </div>
                         </div>
@@ -159,17 +159,11 @@ export default function BoardColumns() {
                                 list={columnsDefault}
                                 setList={setColumnsDefault}>
                                 {columnsDefault.map((item) => (
-                                    <div
+                                    <Badge
                                         key={item.id}
-                                        className={cn(
-                                            DRAGGABLE_ITEMS_CLASSNAMES,
-                                            buttonVariants({
-                                                size: "sm",
-                                                variant: "outline",
-                                            }),
-                                        )}>
+                                        className={DRAGGABLE_ITEMS_CLASSNAMES}>
                                         {item.name}
-                                    </div>
+                                    </Badge>
                                 ))}
                             </ReactSortable>
                         </div>
@@ -179,7 +173,7 @@ export default function BoardColumns() {
                                 <CardHeader className="py-4">
                                     <Badge
                                         disabled
-                                        className="h-6 !cursor-default bg-[#6A57A4] px-2 text-xs !opacity-100">
+                                        className="h-6 cursor-default! bg-[#6A57A4] px-2 text-xs opacity-100!">
                                         To do
                                     </Badge>
                                 </CardHeader>
@@ -194,17 +188,13 @@ export default function BoardColumns() {
                                         list={todo}
                                         setList={setTodo}>
                                         {todo.map((item) => (
-                                            <div
+                                            <Badge
                                                 key={item.id}
-                                                className={cn(
-                                                    DRAGGABLE_ITEMS_CLASSNAMES,
-                                                    buttonVariants({
-                                                        size: "sm",
-                                                        variant: "default",
-                                                    }),
-                                                )}>
+                                                className={
+                                                    DRAGGABLE_ITEMS_CLASSNAMES
+                                                }>
                                                 {item.name}
-                                            </div>
+                                            </Badge>
                                         ))}
                                     </ReactSortable>
                                 </CardContent>
@@ -214,7 +204,7 @@ export default function BoardColumns() {
                                 <CardHeader className="py-4">
                                     <Badge
                                         disabled
-                                        className="h-6 !cursor-default bg-[#1E8AFF] px-2 text-xs !opacity-100">
+                                        className="h-6 cursor-default! bg-[#1E8AFF] px-2 text-xs opacity-100!">
                                         Work in progress
                                     </Badge>
                                 </CardHeader>
@@ -240,17 +230,13 @@ export default function BoardColumns() {
                                             setWip(wipFormatted);
                                         }}>
                                         {wip.map((item) => (
-                                            <div
+                                            <Badge
                                                 key={item.id}
-                                                className={cn(
-                                                    DRAGGABLE_ITEMS_CLASSNAMES,
-                                                    buttonVariants({
-                                                        size: "sm",
-                                                        variant: "default",
-                                                    }),
-                                                )}>
+                                                className={
+                                                    DRAGGABLE_ITEMS_CLASSNAMES
+                                                }>
                                                 {item.wipName}
-                                            </div>
+                                            </Badge>
                                         ))}
                                     </ReactSortable>
                                 </CardContent>
@@ -260,7 +246,7 @@ export default function BoardColumns() {
                                 <CardHeader className="py-4">
                                     <Badge
                                         disabled
-                                        className="h-6 !cursor-default bg-success px-2 text-xs !opacity-100">
+                                        className="bg-success h-6 cursor-default! px-2 text-xs opacity-100!">
                                         Done
                                     </Badge>
                                 </CardHeader>
@@ -275,17 +261,13 @@ export default function BoardColumns() {
                                         list={done}
                                         setList={setDone}>
                                         {done.map((item) => (
-                                            <div
+                                            <Badge
                                                 key={item.id}
-                                                className={cn(
-                                                    DRAGGABLE_ITEMS_CLASSNAMES,
-                                                    buttonVariants({
-                                                        size: "sm",
-                                                        variant: "default",
-                                                    }),
-                                                )}>
+                                                className={
+                                                    DRAGGABLE_ITEMS_CLASSNAMES
+                                                }>
                                                 {item.name}
-                                            </div>
+                                            </Badge>
                                         ))}
                                     </ReactSortable>
                                 </CardContent>
@@ -295,28 +277,28 @@ export default function BoardColumns() {
                         <Accordion type="single" collapsible className="w-full">
                             <AccordionItem
                                 value="item-1"
-                                className="rounded-2xl bg-card px-6">
+                                className="bg-card-lv2 rounded-2xl px-6">
                                 <AccordionTrigger>
                                     How to Setup
                                 </AccordionTrigger>
-                                <AccordionContent className="text-muted-foreground">
+                                <AccordionContent className="text-text-secondary">
                                     <span>
                                         The colors represent categories (
                                         <Badge
                                             disabled
-                                            className="h-6 !cursor-default bg-[#9B84CD] px-2 text-xs !opacity-100">
+                                            className="h-6 cursor-default! bg-[#9B84CD] px-2 text-xs opacity-100!">
                                             To Do
                                         </Badge>
                                         ,{" "}
                                         <Badge
                                             disabled
-                                            className="h-6 !cursor-default bg-[#1E8AFF] px-2 text-xs !opacity-100">
+                                            className="h-6 cursor-default! bg-[#1E8AFF] px-2 text-xs opacity-100!">
                                             Work in progress
                                         </Badge>
                                         ,{" "}
                                         <Badge
                                             disabled
-                                            className="h-6 !cursor-default bg-success px-2 text-xs !opacity-100">
+                                            className="bg-success h-6 cursor-default! px-2 text-xs opacity-100!">
                                             Done
                                         </Badge>
                                         ) configured in your project management
@@ -327,7 +309,7 @@ export default function BoardColumns() {
                                         <li>
                                             <Badge
                                                 disabled
-                                                className="h-6 !cursor-default bg-[#9B84CD] px-2 text-xs !opacity-100">
+                                                className="h-6 cursor-default! bg-[#9B84CD] px-2 text-xs opacity-100!">
                                                 To Do
                                             </Badge>
                                             : Add statuses where tasks are ready
@@ -339,7 +321,7 @@ export default function BoardColumns() {
                                         <li>
                                             <Badge
                                                 disabled
-                                                className="h-6 !cursor-default bg-[#1E8AFF] px-2 text-xs !opacity-100">
+                                                className="h-6 cursor-default! bg-[#1E8AFF] px-2 text-xs opacity-100!">
                                                 Work in progress
                                             </Badge>
                                             : Include all statuses that
@@ -357,7 +339,7 @@ export default function BoardColumns() {
                                         <li>
                                             <Badge
                                                 disabled
-                                                className="h-6 !cursor-default bg-success px-2 text-xs !opacity-100">
+                                                className="bg-success h-6 cursor-default! px-2 text-xs opacity-100!">
                                                 Done
                                             </Badge>
                                             : The final status where tasks are
@@ -387,21 +369,23 @@ export default function BoardColumns() {
                         {(!todoFormatted.length ||
                             !wipFormatted.length ||
                             !doneFormatted.length) && (
-                            <span className="text-sm text-brand-red">
+                            <span className="text-brand-red text-sm">
                                 All statuses must have at least one item.
                             </span>
                         )}
 
                         <Button
-                            leftIcon={<Save />}
+                            size="md"
+                            variant="primary"
+                            leftIcon={<SaveIcon />}
                             loading={saveLoading}
+                            onClick={() => createOrUpdateColumns()}
                             disabled={
                                 disabled ||
                                 todoFormatted.length === 0 ||
                                 wipFormatted.length === 0 ||
                                 doneFormatted.length === 0
-                            }
-                            onClick={() => createOrUpdateColumns()}>
+                            }>
                             Save
                         </Button>
                     </DialogFooter>

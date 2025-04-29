@@ -13,8 +13,10 @@ export default function ErrorPage({
     reset: () => void;
 }) {
     return (
-        <div className="-mt-8 flex h-full w-full items-center justify-center text-sm text-muted-foreground">
-            {errorMessages[error.message] ?? errorMessages.DEFAULT}
+        <div className="text-text-secondary flex h-full w-full items-center justify-center text-sm">
+            <span className="-mt-10">
+                {errorMessages[error.message] ?? errorMessages.DEFAULT}
+            </span>
         </div>
     );
 }

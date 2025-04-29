@@ -3,8 +3,8 @@
 import React, { useCallback, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
-import { Card, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
+import { SvgAzureRepos } from "@components/ui/icons/SvgAzureRepos";
 import { SvgBitbucket } from "@components/ui/icons/SvgBitbucket";
 import { SvgDiscord } from "@components/ui/icons/SvgDiscord";
 import { SvgGithub } from "@components/ui/icons/SvgGithub";
@@ -30,17 +30,15 @@ import { BitbucketModal } from "./modals/bitbucket-token";
 import { CloneOfferingModal } from "./modals/clone-offering";
 import { CloneSelectTeamModal } from "./modals/clone-select-team";
 import { OauthOrTokenModal } from "./modals/oauth-or-token";
-import styles from "./styles.module.css";
 import TextTopIntegrations from "./textTopIntegrations";
-import { SvgAzureRepos } from "@components/ui/icons/SvgAzureRepos";
 
 const communicationPlatforms = {
     [INTEGRATIONS_KEY.SLACK]: {
-        svg: <SvgSlack className="h-10 w-10" />,
+        svg: <SvgSlack />,
         platformName: "Slack",
     },
     [INTEGRATIONS_KEY.DISCORD]: {
-        svg: <SvgDiscord className="h-10 w-10" />,
+        svg: <SvgDiscord />,
         platformName: "Discord",
     },
 } satisfies Partial<
@@ -55,7 +53,7 @@ const communicationPlatforms = {
 
 const projectManagementPlatforms = {
     [INTEGRATIONS_KEY.JIRA]: {
-        svg: <SvgJira className="h-10 w-10" />,
+        svg: <SvgJira />,
         platformName: "Jira",
     },
 } satisfies Partial<
@@ -70,19 +68,19 @@ const projectManagementPlatforms = {
 
 const codeManagementPlatforms = {
     [INTEGRATIONS_KEY.GITHUB]: {
-        svg: <SvgGithub className="h-10 w-10" />,
+        svg: <SvgGithub />,
         platformName: "GitHub",
     },
     [INTEGRATIONS_KEY.GITLAB]: {
-        svg: <SvgGitlab className="h-10 w-10" />,
+        svg: <SvgGitlab />,
         platformName: "Gitlab",
     },
     [INTEGRATIONS_KEY.BITBUCKET]: {
-        svg: <SvgBitbucket className="h-10 w-10" />,
+        svg: <SvgBitbucket />,
         platformName: "Bitbucket",
     },
     [INTEGRATIONS_KEY.AZURE_REPOS]: {
-        svg: <SvgAzureRepos className="h-10 w-10" />,
+        svg: <SvgAzureRepos />,
         platformName: "Azure Repos",
     },
 } satisfies Partial<
@@ -294,7 +292,7 @@ export default function CardsGroup({
                                 title: "Integration failed",
                                 description:
                                     "Personal accounts are not supported. Try again with an organization.",
-                                variant: "destructive",
+                                variant: "danger",
                             });
                             break;
                         }
@@ -314,7 +312,7 @@ export default function CardsGroup({
                                         </ul>
                                     </div>
                                 ),
-                                variant: "destructive",
+                                variant: "danger",
                             });
                             break;
                         }
@@ -350,7 +348,7 @@ export default function CardsGroup({
                                 title: "Integration failed",
                                 description:
                                     "Personal accounts are not supported. Try again with an organization.",
-                                variant: "destructive",
+                                variant: "danger",
                             });
                             break;
                         }
@@ -369,7 +367,7 @@ export default function CardsGroup({
                                         </ul>
                                     </div>
                                 ),
-                                variant: "destructive",
+                                variant: "danger",
                             });
                             break;
                         }
@@ -402,7 +400,9 @@ export default function CardsGroup({
             />
         ));
 
-        if (!teamSelected) { return; }
+        if (!teamSelected) {
+            return;
+        }
         editIntegration(key);
     };
 
@@ -450,7 +450,7 @@ export default function CardsGroup({
                         await openOauthOrTokenModal(key, serviceType);
                     } else if (key === "bitbucket") {
                         await openBitbucketModal();
-                    }  else {
+                    } else {
                         setCookie("selectedTeam", JSON.stringify(team));
                         connectIntegration(key, serviceType);
                     }
@@ -469,8 +469,6 @@ export default function CardsGroup({
     const connectedCodeManagementPlatform = connectedPlatforms.find(
         (c) => c.serviceType === "codeManagement",
     )?.key as keyof typeof codeManagementPlatforms;
-
-    console.log(connectedCodeManagementPlatform)
 
     const connectedProjectManagementPlatform = connectedPlatforms.find(
         (c) => c.serviceType === "projectManagement",
@@ -492,7 +490,7 @@ export default function CardsGroup({
 
     return (
         <>
-            <div className={styles.cardsContainer}>
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
                 <div>
                     <TextTopIntegrations serviceType="codeManagement" />
 
@@ -662,19 +660,15 @@ const IntegrationCard = (props: {
 }) => {
     return (
         <Button
-            variant="outline"
-            className="h-auto rounded-2xl border-none p-0"
+            size="lg"
+            variant="helper"
+            className="h-20 w-full justify-start"
             onClick={() => props.onClick()}
-            disabled={props.disabled}>
-            <Card className="h-full w-full">
-                <CardHeader className="flex flex-row items-center gap-4">
-                    {props.connection.svg}
-
-                    <Heading variant="h2">
-                        {props.connection.platformName}
-                    </Heading>
-                </CardHeader>
-            </Card>
+            disabled={props.disabled}
+            leftIcon={
+                <span className="*:size-8!">{props.connection.svg}</span>
+            }>
+            <Heading variant="h2">{props.connection.platformName}</Heading>
         </Button>
     );
 };

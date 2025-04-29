@@ -1,23 +1,91 @@
 import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "src/core/utils/components";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+import { Spinner } from "./spinner";
+
+const inputVariants = cva(
+    cn(
+        "flex w-full items-center rounded-xl px-5 text-sm ring-1 transition",
+        "bg-card-lv2 ring-card-lv3",
+        "placeholder:text-text-placeholder/50",
+        "textinput-focused:ring-3 textinput-focused:brightness-120",
+        "textinput-invalid:border-danger",
+        "textinput-focused-invalid:ring-danger",
+        "textinput-hover:brightness-120",
+        "textinput-disabled:cursor-not-allowed textinput-disabled:bg-text-placeholder/30 textinput-disabled:ring-text-placeholder/30",
+        "textinput-loading:cursor-wait",
+    ),
+    {
+        variants: {
+            size: {
+                md: "h-10",
+                lg: "h-12",
+            },
+        },
+        defaultVariants: {
+            size: "lg",
+        },
+    },
+);
+
+interface InputProps
+    extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size">,
+        VariantProps<typeof inputVariants> {
     error?: unknown;
+    loading?: boolean;
+    leftIcon?: React.ReactNode;
+    rightIcon?: React.ReactNode;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-    ({ className, error, ...props }, ref) => {
+    (
+        {
+            className,
+            leftIcon: LeftIcon,
+            rightIcon: RightIcon,
+            disabled,
+            loading,
+            error,
+            size,
+            ...props
+        },
+        ref,
+    ) => {
         return (
-            <input
-                ref={ref}
-                className={cn(
-                    !!error && "border-1 border-destructive",
-                    "rounded-md backdrop-blur-sm",
-                    "flex h-12 w-full items-center rounded-xl border bg-[#231b2e] bg-opacity-35 px-5 text-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground placeholder:opacity-50 focus-visible:border-brand-orange focus-visible:bg-opacity-100 hover:bg-opacity-100 disabled:cursor-not-allowed disabled:opacity-50",
-                    className,
+            <div className="relative">
+                {LeftIcon && (
+                    <div className="pointer-events-none absolute inset-y-0 left-4 z-1 flex items-center [&_svg]:size-5 [&_svg]:text-current">
+                        {LeftIcon}
+                    </div>
                 )}
-                {...props}
-            />
+
+                <input
+                    ref={ref}
+                    disabled={disabled || loading}
+                    className={cn(
+                        inputVariants({ size }),
+                        !!error && "ring-danger",
+                        LeftIcon && "pl-12",
+                        RightIcon && "pr-12",
+                        className,
+                    )}
+                    {...props}
+                    {...(!!error && { "data-invalid": true })}
+                    {...(disabled && { "data-disabled": true })}
+                    {...(loading && { "data-loading": true })}
+                />
+
+                {(loading || RightIcon) && (
+                    <div className="pointer-events-none absolute inset-y-0 right-4 z-1 flex items-center [&_svg]:size-5 [&_svg]:text-current">
+                        {loading ? (
+                            <Spinner className="fill-card-lv3 text-primary-light" />
+                        ) : (
+                            RightIcon
+                        )}
+                    </div>
+                )}
+            </div>
         );
     },
 );

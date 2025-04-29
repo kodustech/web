@@ -8,7 +8,7 @@ import { magicModal } from "@components/ui/magic-modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createCodeManagementIntegration } from "@services/codeManagement/fetch";
 import { AxiosError } from "axios";
-import { Info } from "lucide-react";
+import { Info, SaveIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import {
     Dialog,
@@ -19,16 +19,16 @@ import {
     DialogTitle,
 } from "src/core/components/ui/dialog";
 import { AuthMode, PlatformType } from "src/core/types";
+import { captureSegmentEvent } from "src/core/utils/segment";
 import { z } from "zod";
 
 import { TokenDocs } from "../token-docs";
-import { captureSegmentEvent } from "src/core/utils/segment";
 
 const tokenFormSchema = z.object({
     token: z.string().min(1, { message: "Enter a Token" }),
 });
 
-export const GithubTokenModal = (props: { teamId: string, userId: string }) => {
+export const GithubTokenModal = (props: { teamId: string; userId: string }) => {
     const form = useForm({
         resolver: zodResolver(tokenFormSchema),
         mode: "all",
@@ -56,7 +56,7 @@ export const GithubTokenModal = (props: { teamId: string, userId: string }) => {
                 properties: {
                     platform: "github",
                     method: "token",
-                    teamId: props?.teamId
+                    teamId: props?.teamId,
                 },
             });
 
@@ -88,7 +88,7 @@ export const GithubTokenModal = (props: { teamId: string, userId: string }) => {
                         <DialogDescription></DialogDescription>
                     </DialogHeader>
 
-                    <Alert className="my-4 border-ring/50 text-ring dark:border-ring [&>svg]:text-ring">
+                    <Alert className="border-ring/50 text-ring dark:border-ring [&>svg]:text-ring my-4">
                         <Info size={18} />
                         <AlertTitle>Heads up!</AlertTitle>
                         <AlertDescription>
@@ -124,16 +124,21 @@ export const GithubTokenModal = (props: { teamId: string, userId: string }) => {
 
                     <DialogFooter>
                         <Button
-                            variant="outline"
+                            size="md"
+                            type="button"
+                            variant="cancel"
                             onClick={() => magicModal.hide()}>
                             Cancel
                         </Button>
 
                         <Button
+                            size="md"
                             type="submit"
+                            variant="primary"
+                            leftIcon={<SaveIcon />}
                             loading={formIsSubmitting}
                             disabled={!formIsValid}>
-                            Next
+                            Validate and save
                         </Button>
                     </DialogFooter>
                 </form>

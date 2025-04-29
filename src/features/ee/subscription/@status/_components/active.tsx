@@ -37,18 +37,18 @@ export const Active = ({
         <Card className="w-full">
             <CardHeader className="flex flex-row justify-between gap-2">
                 <div className="flex flex-col gap-2">
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-text-secondary text-sm">
                         Monthly subscription
                     </p>
-                    <CardTitle>PRO plan</CardTitle>
+                    <CardTitle className="text-2xl">PRO plan</CardTitle>
 
                     <div className="mt-4 flex gap-6">
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-sm">
                             <strong>{assignedLicenses}</strong> of{" "}
                             <strong>{totalLicenses}</strong> licenses assigned
                         </p>
 
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-sm">
                             <strong>{organizationAdminsCount}</strong>{" "}
                             organization{" "}
                             {pluralize(organizationAdminsCount, {
@@ -60,7 +60,9 @@ export const Active = ({
                 </div>
 
                 <Button
-                    variant="outline"
+                    size="lg"
+                    variant="primary"
+                    className="h-fit"
                     leftIcon={<CircleDollarSign />}
                     loading={isCreatingLinkToManageBilling}
                     onClick={() => createLinkToManageBilling()}>

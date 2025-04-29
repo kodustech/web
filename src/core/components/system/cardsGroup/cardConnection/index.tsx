@@ -1,8 +1,8 @@
 import React, { useCallback } from "react";
 import { Heading } from "@components/ui/heading";
+import { CheckCircle2Icon, EditIcon, PlugIcon } from "lucide-react";
 import { Button } from "src/core/components/ui/button";
 import { Card, CardFooter, CardHeader } from "src/core/components/ui/card";
-import { SvgCheck } from "src/core/components/ui/icons/SvgCheck";
 import { INTEGRATIONS_KEY } from "src/core/enums";
 
 type CardProps = {
@@ -50,18 +50,20 @@ export default function CardConnection({
     return (
         <Card>
             <CardHeader className="flex flex-row items-center gap-4">
-                {svg}
+                <span className="*:size-8!">{svg}</span>
                 <Heading variant="h2">{title}</Heading>
             </CardHeader>
 
             <CardFooter className="flex flex-row items-end justify-between">
                 {isSetupComplete ? (
-                    <div className="flex items-center gap-2 text-sm">
-                        <SvgCheck className="h-5 w-5" />
-                        <span className="text-success">Connected</span>
+                    <div className="text-success flex items-center gap-2 text-sm">
+                        <CheckCircle2Icon className="size-5" />
+                        <span>Connected</span>
                     </div>
                 ) : (
                     <Button
+                        size="md"
+                        variant="primary"
                         onClick={() => connectIntegration(title)}
                         disabled={isSetupComplete}>
                         {buttonTopText}
@@ -70,10 +72,10 @@ export default function CardConnection({
 
                 {isSetupComplete && (
                     <Button
+                        size="sm"
+                        variant="primary"
                         disabled={disabled || isDisabled}
-                        style={{
-                            pointerEvents: undefined,
-                        }}
+                        leftIcon={isSetupComplete ? <EditIcon /> : <PlugIcon />}
                         onClick={() => editIntegration(title)}>
                         {isSetupComplete ? "Edit" : "Connect"}
                     </Button>

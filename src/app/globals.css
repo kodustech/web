@@ -1,64 +1,376 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+@plugin 'tailwindcss-animate';
 
-body {
-    @apply m-0 leading-[normal];
+@custom-variant children {
+    & > * {
+        @slot
+    }
 }
 
-*,
-::before,
-::after {
-    border-width: 0;
+@custom-variant selected {
+
+    &[data-state='checked'],
+    &[data-selected='true'],
+    &[data-state='active'],
+    &[data-state='on'] {
+        @slot
+    }
+}
+
+@custom-variant open {
+    &[data-state='open'] {
+        @slot
+    }
+}
+
+@custom-variant hover {
+    &:not(:disabled):hover {
+        @slot
+    }
+}
+
+@custom-variant disabled {
+
+    &:disabled,
+    &[disabled],
+    &[data-disabled] {
+        @slot
+    }
+}
+
+@custom-variant enabled {
+    &:not(:disabled):not([disabled]):not([data-disabled]) {
+        @slot
+    }
+}
+
+
+
+
+
+@custom-variant button-hover {
+
+    &:hover:not([data-disabled]):not([data-loading]):not([data-decorative]) {
+        @slot
+    }
+}
+
+@custom-variant button-active {
+
+    &[data-active]:not([data-disabled]),
+    &[data-state='open'],
+    &[data-state="checked"],
+    &[data-selected="true"] {
+        @slot
+    }
+}
+
+@custom-variant button-loading {
+
+    &[data-loading] {
+        @slot
+    }
+}
+
+@custom-variant button-disabled {
+
+    &:not([cmdk-item])[data-disabled],
+    &[cmdk-item][data-disabled='true'] {
+        @slot
+    }
+}
+
+@custom-variant button-focused {
+
+    &:focus-visible {
+        @slot
+    }
+}
+
+
+@custom-variant textinput-hover {
+    &:hover:not([data-disabled]):not([data-loading]) {
+        @slot
+    }
+}
+
+@custom-variant textinput-disabled {
+    &[data-disabled]:not([data-loading]) {
+        @slot
+    }
+}
+
+@custom-variant textinput-loading {
+    &[data-loading] {
+        @slot
+    }
+}
+
+@custom-variant textinput-active {
+    &:active {
+        @slot
+    }
+}
+
+@custom-variant textinput-focused {
+    &:focus-visible {
+        @slot
+    }
+}
+
+@custom-variant textinput-invalid {
+    &[data-invalid] {
+        @slot
+    }
+}
+
+@custom-variant textinput-focused-invalid {
+    &:focus-visible[data-invalid] {
+        @slot
+    }
+}
+
+@custom-variant switch-checked {
+    &[data-state='checked'] {
+        @slot
+    }
+}
+
+@custom-variant switch-unchecked {
+    &[data-state='unchecked'] {
+        @slot
+    }
+}
+
+@custom-variant switch-disabled {
+    &[data-disabled]:not([data-loading]) {
+        @slot
+    }
+}
+
+@custom-variant switch-loading {
+    &[data-loading] {
+        @slot
+    }
+}
+
+@custom-variant switch-focused {
+    &:focus-visible {
+        @slot
+    }
+}
+
+@custom-variant switch-hover {
+    &:hover:not([data-disabled]):not([data-loading]) {
+        @slot
+    }
+}
+
+@custom-variant select-content-top-side {
+    &[data-side='top'] {
+        @slot
+    }
+}
+
+@custom-variant select-content-bottom-side {
+    &[data-side='bottom'] {
+        @slot
+    }
+}
+
+@custom-variant select-content-left-side {
+    &[data-side='left'] {
+        @slot
+    }
+}
+
+@custom-variant select-content-right-side {
+    &[data-side='right'] {
+        @slot
+    }
+}
+
+@custom-variant select-content-open {
+    &[data-state='open'] {
+        @slot
+    }
+}
+
+@custom-variant select-content-closed {
+    &[data-state='closed'] {
+        @slot
+    }
+}
+
+@custom-variant select-item-focused {
+    &:focus-visible {
+        @slot
+    }
+}
+
+@custom-variant select-item-selected {
+    &[data-state='checked'] {
+        @slot
+    }
+}
+
+@custom-variant select-item-disabled {
+    &[data-disabled] {
+        @slot
+    }
+}
+
+@custom-variant slider-disabled {
+    &[data-disabled] {
+        @slot
+    }
+}
+
+@custom-variant slider-focused {
+    &:focus-visible {
+        @slot
+    }
+}
+
+@custom-variant link-hover {
+    &:hover:not([data-disabled]) {
+        @slot
+    }
+}
+
+@custom-variant link-focused {
+    &:focus-visible:not([data-disabled]) {
+        @slot
+    }
+}
+
+@custom-variant link-disabled {
+    &[data-disabled] {
+        @slot
+    }
+}
+
+
+
+@theme {
+    --color-card-lv1: #181825;
+    --color-card-lv2: #202032;
+    --color-card-lv3: #30304b;
+
+    --color-text-primary: #f3f3f7;
+    --color-text-placeholder: #f3f3f7;
+    --color-text-secondary: #cdcddf;
+    --color-text-tertiary: #f3f3f780;
+
+    --color-primary-light: #f8b76d;
+    --color-primary-dark: #443024;
+
+    --color-secondary-light: #c9bbf2;
+    --color-secondary-dark: #312b4b;
+
+    --color-tertiary-light: #fdbfbf;
+    --color-tertiary-dark: #592830;
+
+    --color-success: #42be65;
+    --color-success-foreground: var(--color-text-primary);
+
+    --color-info: #5190ff;
+    --color-info-foreground: var(--color-text-primary);
+
+    --color-alert: #f2c631;
+    --color-alert-foreground: var(--color-text-primary);
+
+    --color-warning: #ff8b40;
+    --color-warning-foreground: var(--color-text-primary);
+
+    --color-danger: #fa5867;
+    --color-danger-foreground: var(--color-text-primary);
+
+    --color-background: #101019;
+
+    --font-sans: 'DM Sans', sans-serif;
+    --font-mono: 'Overpass Mono', monospace;
+
+    --color-brand-purple: hsl(255 30.7% 49.2%);
+    --color-brand-red: hsl(0 83.7% 61.6%);
+    --color-brand-orange: hsl(32 91.4% 54.3%);
+    --color-ring: hsl(32 91.4% 54.3%);
+
+    --radius-lg: 8px;
+    --radius-md: 6px;
+    --radius-sm: 4px;
+
+    --animate-collapsible-down: collapsible-down 0.2s ease-out;
+    --animate-collapsible-up: collapsible-up 0.2s ease-out;
+    --animate-accordion-down: accordion-down 0.2s ease-out;
+    --animate-accordion-up: accordion-up 0.2s ease-out;
+
+    @keyframes accordion-down {
+        from {
+            height: 0;
+        }
+
+        to {
+            height: var(--radix-accordion-content-height);
+        }
+    }
+
+    @keyframes accordion-up {
+        from {
+            height: var(--radix-accordion-content-height);
+        }
+
+        to {
+            height: 0;
+        }
+    }
+
+    @keyframes collapsible-down {
+        from {
+            height: 0;
+        }
+
+        to {
+            height: var(--radix-collapsible-content-height);
+        }
+    }
+
+    @keyframes collapsible-up {
+        from {
+            height: var(--radix-collapsible-content-height);
+        }
+
+        to {
+            height: 0;
+        }
+    }
+}
+
+@utility container {
+    margin-inline: auto;
+    padding-inline: 2rem;
+
+    @media (width >=--theme(--breakpoint-sm)) {
+        max-width: none;
+    }
 }
 
 @layer base {
 
-    /* for current theme */
-    :root {
-        --background: 264 12% 8%;
-        --foreground: 210 40% 98%;
+    /*
+        The default border color has changed to `currentcolor` in Tailwind CSS v4,
+        so we've added these compatibility styles to make sure everything still
+        looks the same as it did with Tailwind CSS v3.
 
-        --muted: 217.2 32.6% 17.5%;
-        --muted-foreground: 254 59% 90%;
-
-        --popover: 222.2 84% 4.9%;
-        --popover-foreground: 210 40% 98%;
-
-        --card: 265 26% 14%;
-        --card-foreground: 210 40% 98%;
-
-        --border: 255 30.7% 49.2%;
-        --input: 217.2 32.6% 17.5%;
-
-        --primary: 210 40% 98%;
-        --primary-foreground: 0 0% 12.9%;
-
-        --secondary: 32 91.4% 54.3%;
-        --secondary-foreground: 0 0% 12.9%;
-
-        --accent: 217.2 32.6% 17.5%;
-        --accent-foreground: 210 40% 98%;
-
-        --destructive: 353 70% 49%;
-        --destructive-foreground: 210 40% 98%;
-
-        --ring: 32 91.4% 54.3%;
-
-        --success: 151 77.2% 42.9%;
-        --success-foreground: 210 40% 98%;
-
-        --brand-purple: 255 30.7% 49.2%;
-        --brand-purple-foreground: 210 40% 98%;
-
-        --brand-red: 0 83.7% 61.6%;
-        --brand-red-foreground: 210 40% 98%;
-
-        --brand-orange: 32 91.4% 54.3%;
-        --brand-orange-foreground: 0 0% 12.9%;
-
-        --radius: 7px;
+        If we ever want to remove these styles, we need to add an explicit border
+        color utility to any element that depends on these defaults.
+    */
+    *,
+    ::after,
+    ::before,
+    ::backdrop,
+    ::file-selector-button {
+        border-color: var(--color-gray-200, currentcolor);
     }
 }
 
@@ -68,17 +380,20 @@ body {
     input,
     a,
     button {
-        @apply border-border border-opacity-20 font-sans font-normal ring-ring outline-none disabled:cursor-not-allowed disabled:opacity-40;
+        @apply font-sans outline-none;
     }
 
-    body {
-        @apply bg-background text-foreground h-screen w-screen overflow-hidden;
-    }
-}
-
-@layer utilities {
-    .bg-gradient {
-        @apply bg-gradient-to-r from-brand-purple via-brand-red to-brand-orange;
+    p,
+    span {
+        @apply font-normal;
     }
 
+    code,
+    code * {
+        @apply font-mono;
+    }
+
+    * {
+        @apply border-card-lv3;
+    }
 }

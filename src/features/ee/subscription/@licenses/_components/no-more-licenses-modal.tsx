@@ -28,16 +28,21 @@ export const NoMoreLicensesModal = ({ teamId }: { teamId: string }) => {
                     <DialogTitle>You need more licenses</DialogTitle>
                 </DialogHeader>
 
-                <div className="flex flex-col gap-6 text-sm text-muted-foreground">
+                <div className="text-text-secondary flex flex-col gap-6 text-sm">
                     Update your plan licences to assign more devs.
                 </div>
 
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => magicModal.hide()}>
+                    <Button
+                        size="md"
+                        variant="cancel"
+                        onClick={() => magicModal.hide()}>
                         Cancel
                     </Button>
 
                     <Button
+                        size="md"
+                        variant="primary"
                         leftIcon={<CircleDollarSign />}
                         loading={isCreatingLinkToManageBilling}
                         onClick={() => createLinkToManageBilling()}>

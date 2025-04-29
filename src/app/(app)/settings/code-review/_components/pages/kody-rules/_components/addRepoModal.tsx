@@ -17,7 +17,6 @@ import {
     SelectValue,
 } from "@components/ui/select";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
-import { Separator } from "@radix-ui/react-separator";
 import { PARAMETERS_PATHS } from "@services/parameters";
 import { copyCodeReviewParameter } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
@@ -110,19 +109,16 @@ export const AddRepoModal = ({
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Add a repository to configure</DialogTitle>
-                    <Separator />
                 </DialogHeader>
 
-                <div className="-mx-6 flex flex-col gap-8 overflow-y-auto px-6">
+                <div className="-mx-6 flex flex-col gap-8 px-6">
                     <Controller
                         name="repoSettingsToCopy"
                         rules={{ required: "Choose a repository" }}
                         control={form.control}
                         render={({ field }) => (
                             <FormControl.Root>
-                                <FormControl.Label
-                                    className="mb-0 flex flex-row gap-1"
-                                    htmlFor={field.name}>
+                                <FormControl.Label htmlFor={field.name}>
                                     Select a repository to copy settings
                                 </FormControl.Label>
 
@@ -165,14 +161,13 @@ export const AddRepoModal = ({
                         control={form.control}
                         render={({ field }) => (
                             <FormControl.Root>
-                                <FormControl.Label
-                                    className="mb-0 flex flex-row gap-1"
-                                    htmlFor={field.name}>
+                                <FormControl.Label htmlFor={field.name}>
                                     Select the target repository
                                 </FormControl.Label>
 
                                 <FormControl.Input>
                                     <Select
+                                        disabled={!availableRepositories.length}
                                         value={selectedRepository}
                                         onValueChange={(value) => {
                                             setSelectedRepository(value);
@@ -212,6 +207,8 @@ export const AddRepoModal = ({
                 </div>
                 <DialogFooter>
                     <Button
+                        size="md"
+                        variant="primary"
                         formTarget="add-or-update-rule-form"
                         loading={formState.isSubmitting}
                         onClick={handleSubmit}

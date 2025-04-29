@@ -28,14 +28,15 @@ export const Chart = ({
         <VictoryChart
             theme={VictoryTheme.clean}
             domainPadding={{ x: 30 }}
-            padding={{ left: 45, right: 20, top: 20, bottom: 80 }}>
+            padding={{ left: 45, right: 20, top: 0, bottom: 70 }}>
             <VictoryAxis
                 style={{
                     axis: { stroke: "#444" },
                     tickLabels: {
                         fontSize: 10,
-                        fill: "white",
                         padding: 2,
+                        fill: "var(--color-text-primary)",
+                        fontFamily: "var(--font-sans)",
                         angle: ({ ticks }) => (ticks.length > 6 ? -25 : 0),
                         textAnchor: ({ ticks }) =>
                             ticks?.length > 6 ? "end" : "middle",
@@ -48,7 +49,11 @@ export const Chart = ({
                 tickFormat={(tick) => `${tick} h`}
                 style={{
                     axis: { stroke: "#444" },
-                    tickLabels: { fontSize: 10, fill: "white" },
+                    tickLabels: {
+                        fontSize: 10,
+                        fill: "var(--color-text-primary)",
+                        fontFamily: "var(--font-sans)",
+                    },
                 }}
             />
 
@@ -57,7 +62,11 @@ export const Chart = ({
                 y={274}
                 borderComponent={<div />}
                 style={{
-                    labels: { fontSize: 10, fill: "white" },
+                    labels: {
+                        fontSize: 10,
+                        fill: "var(--color-text-primary)",
+                        fontFamily: "var(--font-sans)",
+                    },
                 }}
                 data={[
                     {
@@ -76,9 +85,20 @@ export const Chart = ({
             />
 
             <VictoryStack
-                labelComponent={<VictoryTooltip style={{ fontSize: 11 }} />}
+                labelComponent={
+                    <VictoryTooltip
+                        style={{
+                            fontSize: 11,
+                            fontFamily: "var(--font-sans)",
+                            fontWeight: 700,
+                        }}
+                    />
+                }
                 style={{
-                    data: { width: 20, fill: ({ datum }) => datum.fill },
+                    data: {
+                        width: 20,
+                        fill: ({ datum }) => datum.fill,
+                    },
                 }}>
                 <VictoryBar
                     labels={({ datum }) => {

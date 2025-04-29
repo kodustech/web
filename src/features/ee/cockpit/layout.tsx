@@ -1,9 +1,9 @@
-import type React from "react";
-import { cookies } from "next/headers";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Page } from "@components/ui/page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { getConnections } from "@services/setup/fetch";
+import { cookies } from "next/headers";
+import type React from "react";
 import type { CookieName } from "src/core/utils/cookie";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { greeting } from "src/core/utils/helpers";
@@ -45,10 +45,10 @@ export default async function Layout({
     if (!process.env.WEB_ANALYTICS_SECRET) {
         return (
             <Page.Root>
-                <Page.Header className="max-w-screen-xl">
+                <Page.Header className="max-w-(--breakpoint-xl)">
                     <Page.Title>{greeting()}</Page.Title>
                 </Page.Header>
-                <Page.Content className="max-w-screen-xl">
+                <Page.Content className="max-w-(--breakpoint-xl)">
                     <Alert variant="default">
                         <AlertTitle>Analytics Not Available</AlertTitle>
                         <AlertDescription>
@@ -85,13 +85,13 @@ export default async function Layout({
 
     return (
         <Page.Root>
-            <Page.Header className="max-w-screen-xl">
+            <Page.Header className="max-w-(--breakpoint-xl)">
                 <Page.Title>{greeting()}</Page.Title>
 
                 <Page.HeaderActions></Page.HeaderActions>
             </Page.Header>
 
-            <Page.Content className="max-w-screen-xl">
+            <Page.Content className="max-w-(--breakpoint-xl)">
                 <div className="grid grid-cols-3 grid-rows-2 gap-2">
                     <div>{deployFrequencyAnalytics}</div>
                     <div>{prCycleTimeAnalytics}</div>

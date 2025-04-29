@@ -9,8 +9,8 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@components/ui/breadcrumb";
-import { Button, buttonVariants } from "@components/ui/button";
-import { Card, CardHeader } from "@components/ui/card";
+import { Button } from "@components/ui/button";
+import { CardHeader } from "@components/ui/card";
 import { Checkbox } from "@components/ui/checkbox";
 import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
@@ -30,7 +30,6 @@ import {
 import { Save } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { cn } from "src/core/utils/components";
 
 import { useAutomationCodeReviewConfig, usePlatformConfig } from "../context";
 import GeneratingConfig from "./generating-config";
@@ -106,10 +105,8 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
             form.reset(config);
 
             toast({
-                title: "Success",
-                description:
-                    "Code review automation settings saved successfully.",
-                variant: "default",
+                description: "Settings saved",
+                variant: "success",
             });
         } catch (error) {
             console.error("Erro ao salvar as configurações:", error);
@@ -118,7 +115,7 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
                 title: "Error",
                 description:
                     "An error occurred while saving the settings. Please try again.",
-                variant: "destructive",
+                variant: "danger",
             });
         }
     });
@@ -164,6 +161,8 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
 
                 <Page.HeaderActions>
                     <Button
+                        size="md"
+                        variant="primary"
                         leftIcon={<Save />}
                         onClick={handleSubmit}
                         disabled={!formIsDirty || !formIsValid}
@@ -178,13 +177,11 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
                     name="summary.generatePRSummary"
                     control={form.control}
                     render={({ field }) => (
-                        <Card
-                            data-selected={field.value}
+                        <Button
+                            size="sm"
+                            variant="helper"
                             onClick={() => field.onChange(!field.value)}
-                            className={cn(
-                                buttonVariants({ variant: "outline" }),
-                                "h-auto px-2 py-1 enabled:cursor-pointer",
-                            )}>
+                            className="w-full">
                             <CardHeader className="flex flex-row items-center justify-between">
                                 <div className="flex flex-col gap-1">
                                     <Heading variant="h3">
@@ -193,12 +190,12 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
                                 </div>
 
                                 <Switch
-                                    disabled
+                                    size="md"
+                                    decorative
                                     checked={field.value}
-                                    className="pointer-events-none !opacity-100"
                                 />
                             </CardHeader>
-                        </Card>
+                        </Button>
                     )}
                 />
 
@@ -233,14 +230,11 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
                                             asChild
                                             key={option.value}
                                             value={option.value}>
-                                            <Card
-                                                className={cn(
-                                                    buttonVariants({
-                                                        variant: "outline",
-                                                    }),
-                                                    "h-auto cursor-pointer items-start px-5 py-4 disabled:cursor-not-allowed",
-                                                )}>
-                                                <div className="flex h-full w-full items-start justify-between">
+                                            <Button
+                                                size="lg"
+                                                variant="helper"
+                                                className="w-full items-start py-4">
+                                                <div className="flex items-start justify-between gap-6">
                                                     <div className="flex flex-col gap-2">
                                                         <Heading
                                                             variant="h3"
@@ -249,27 +243,26 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
 
                                                             {"default" in
                                                                 option && (
-                                                                <span className="ml-1 text-xs text-muted-foreground">
+                                                                <small className="text-text-secondary ml-1">
                                                                     (default)
-                                                                </span>
+                                                                </small>
                                                             )}
                                                         </Heading>
 
-                                                        <p className="text-xs text-muted-foreground">
+                                                        <p className="text-text-secondary text-xs">
                                                             {option.description}
                                                         </p>
                                                     </div>
 
                                                     <Checkbox
-                                                        disabled
-                                                        className="pointer-events-none children:opacity-100 disabled:opacity-100"
+                                                        decorative
                                                         checked={
                                                             option.value ===
                                                             field.value
                                                         }
                                                     />
                                                 </div>
-                                            </Card>
+                                            </Button>
                                         </ToggleGroup.ToggleGroupItem>
                                     ))}
                                 </ToggleGroup.Root>
@@ -288,7 +281,7 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
                                 htmlFor="custom-instructions">
                                 Custom Instructions
                             </FormControl.Label>
-                            <FormControl.Helper>
+                            <FormControl.Helper className="mb-3">
                                 You can customize how Kody generates your
                                 summaries.
                             </FormControl.Helper>

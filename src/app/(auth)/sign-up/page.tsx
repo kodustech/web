@@ -1,8 +1,8 @@
 import { Suspense } from "react";
 import { Metadata } from "next";
-import Link from "next/link";
 import { Heading } from "@components/ui/heading";
 import { SvgKodus } from "@components/ui/icons/SvgKodus";
+import { Link } from "@components/ui/link";
 import { Page } from "@components/ui/page";
 import { ScrollArea } from "@components/ui/scroll-area";
 
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function RegisterPage() {
     return (
         <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
-            <div className="flex flex-[10] flex-col justify-center gap-10 rounded-3xl bg-[#231B2E]/35 p-12 backdrop-blur">
+            <div className="bg-card-lv1 flex flex-10 flex-col justify-center gap-10 rounded-3xl p-12">
                 <SvgKodus className="h-8 min-h-8" />
 
                 <div className="flex flex-1 flex-col justify-center gap-10">
@@ -41,14 +41,14 @@ export default function RegisterPage() {
                             It only takes 2 minutes to set up!
                         </p>
 
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-sm">
                             Yes, we timed it.
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div className="flex flex-[14] flex-col justify-center overflow-auto">
+            <div className="flex flex-14 flex-col justify-center overflow-auto">
                 <ScrollArea type="auto">
                     <div className="flex flex-col items-center gap-10 py-10">
                         <Suspense>
@@ -57,13 +57,9 @@ export default function RegisterPage() {
                             </div>
                         </Suspense>
 
-                        <div className="text-center text-[13px] text-muted-foreground">
+                        <div className="text-text-secondary text-center text-[13px]">
                             Already have an account?{" "}
-                            <Link href="/sign-in">
-                                <span className="whitespace-nowrap font-medium !text-brand-orange underline underline-offset-4">
-                                    Log in
-                                </span>
-                            </Link>
+                            <Link href="/sign-in">Log in</Link>
                         </div>
                     </div>
                 </ScrollArea>

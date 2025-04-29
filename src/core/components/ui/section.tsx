@@ -41,7 +41,7 @@ const SectionTitle = (props: React.ComponentProps<"div">) => (
 );
 
 const SectionDescription = (props: React.ComponentProps<"div">) => (
-    <span className="text-sm text-muted-foreground">{props.children}</span>
+    <span className="text-text-secondary text-sm">{props.children}</span>
 );
 
 export const Section = {

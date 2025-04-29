@@ -37,6 +37,7 @@ export const Canceled = ({
             toast({
                 title: "Failed to create billing link",
                 description: "Please try again later",
+                variant: "warning",
             });
         }
     });
@@ -45,18 +46,16 @@ export const Canceled = ({
         <Card className="w-full">
             <CardHeader className="flex flex-row justify-between gap-2">
                 <div className="flex flex-col gap-2">
-                    <p className="text-sm text-destructive">
-                        Canceled subscription
-                    </p>
-                    <CardTitle>PRO plan</CardTitle>
+                    <p className="text-danger text-sm">Canceled subscription</p>
+                    <CardTitle className="text-2xl">PRO plan</CardTitle>
 
                     <div className="mt-4 flex gap-6">
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-sm">
                             <strong>{assignedLicenses}</strong> of{" "}
                             <strong>{totalLicenses}</strong> licenses assigned
                         </p>
 
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-sm">
                             <strong>{organizationAdminsCount}</strong>{" "}
                             organization{" "}
                             {pluralize(organizationAdminsCount, {
@@ -68,6 +67,9 @@ export const Canceled = ({
                 </div>
 
                 <Button
+                    size="lg"
+                    variant="primary"
+                    className="h-fit"
                     leftIcon={<CircleDollarSign />}
                     loading={isCreatingLinkToManageBilling}
                     onClick={() => createLinkToManageBilling()}>

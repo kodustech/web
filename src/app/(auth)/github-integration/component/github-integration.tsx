@@ -2,9 +2,18 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@components/ui/button";
-import Loading from "@components/ui/loading";
+import {
+    Card,
+    CardContent,
+    CardFooter,
+    CardHeader,
+    CardTitle,
+} from "@components/ui/card";
+import { Spinner } from "@components/ui/spinner";
+import { toast } from "@components/ui/toaster/use-toast";
 import { useGetGithubIntegrationByInstallId } from "@services/setup/hooks";
 import { InstallationStatus } from "@services/setup/types";
+import { CopyIcon } from "lucide-react";
 
 export default function GithubIntegrationClient() {
     const router = useRouter();
@@ -23,50 +32,80 @@ export default function GithubIntegrationClient() {
         navigator.clipboard.writeText(
             `${window.location.origin}/setup/github?installation_id=${installationId}`,
         );
+
+        toast({
+            title: "Copied to clipboard",
+            variant: "info",
+        });
     }
 
     if (isLoading) {
-        return <Loading />;
+        return (
+            <div className="flex h-full w-full items-center justify-center">
+                <Spinner />
+            </div>
+        );
     }
 
     if (data?.status === InstallationStatus.SUCCESS) {
         return (
-            <div className="flex flex-col gap-10 text-center">
-                <span className="text-[26px] font-semibold">
-                    GitHub integration with {data?.organizationName} successfully completed!
-                </span>
-                <span className="text-[22px] font-medium">
-                    You can now close this window.
-                </span>
+            <div className="flex h-full w-full items-center justify-center">
+                <Card className="w-lg">
+                    <CardHeader>
+                        <CardTitle>
+                            GitHub integration with{" "}
+                            <span className="text-primary-light">
+                                {data?.organizationName}
+                            </span>{" "}
+                            successfully completed!
+                        </CardTitle>
+                    </CardHeader>
+
+                    <CardContent>
+                        <p className="text-text-secondary text-sm">
+                            You can now close this window.
+                        </p>
+                    </CardContent>
+                </Card>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-col items-center gap-24 text-justify">
-            <span className="w-[80%] text-[22px] font-semibold xl:w-[65%] 2xl:w-[50%]">
-                The automatic integration could not be completed. 
-                Click the button below to log in with the account 
-                that requested the integration, or copy the link 
-                and send it to the person responsible for the account.
-            </span>
+        <div className="flex h-full w-full items-center justify-center">
+            <Card className="w-lg">
+                <CardHeader>
+                    <CardTitle>
+                        The automatic integration could not be completed.
+                    </CardTitle>
+                </CardHeader>
 
-            <div className="flex gap-4">
-                <Button
-                    className="focus:ring-brand-orange/20 min-h-[50px] w-[150px] rounded-[5px] bg-[#382A41] text-[18px] font-semibold text-white transition-all duration-150 hover:brightness-110 focus:ring-1"
-                    onClick={loginToDoIntegration}>
-                    Login
-                </Button>
-                <Button
-                    className="bg-gradient min-h-[50px] w-[150px] self-center overflow-hidden rounded-[5px] p-[2px] hover:cursor-pointer"
-                    onClick={copyLink}>
-                    <div className="flex size-full items-center justify-center gap-2 rounded-[5px] bg-[#14121766] px-6 transition-all duration-150 hover:bg-[#1412174D] active:bg-[#14121780]">
-                        <p className="text-[18px] font-semibold text-white">
-                            Copy link
-                        </p>
-                    </div>
-                </Button>
-            </div>
+                <CardContent>
+                    <p className="text-text-secondary text-sm">
+                        Click the button below to log in with the account that
+                        requested the integration, or copy the link and send it
+                        to the person responsible for the account.
+                    </p>
+                </CardContent>
+
+                <CardFooter className="justify-between">
+                    <Button
+                        size="md"
+                        variant="cancel"
+                        className="px-0"
+                        leftIcon={<CopyIcon />}
+                        onClick={copyLink}>
+                        Copy link
+                    </Button>
+
+                    <Button
+                        size="md"
+                        variant="primary"
+                        onClick={loginToDoIntegration}>
+                        Login
+                    </Button>
+                </CardFooter>
+            </Card>
         </div>
     );
 }

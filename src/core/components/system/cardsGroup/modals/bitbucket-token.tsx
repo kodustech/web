@@ -85,6 +85,8 @@ export const BitbucketModal = (props: Props) => {
 
                         <DialogFooter>
                             <Button
+                                size="md"
+                                variant="primary"
                                 onClick={saveToken}
                                 loading={loadingSaveToken}
                                 disabled={

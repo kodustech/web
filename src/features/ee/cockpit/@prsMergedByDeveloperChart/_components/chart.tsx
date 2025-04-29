@@ -21,13 +21,14 @@ export const Chart = ({
         <VictoryChart
             theme={VictoryTheme.clean}
             domainPadding={{ x: 30 }}
-            padding={{ left: 40, right: 20, top: 20, bottom: 40 }}>
+            padding={{ left: 40, right: 20, top: 0, bottom: 40 }}>
             <VictoryAxis
                 style={{
                     axis: { stroke: "#444" },
                     tickLabels: {
                         fontSize: 10,
-                        fill: "white",
+                        fill: "var(--color-text-primary)",
+                        fontFamily: "var(--font-sans)",
                         padding: 2,
                         angle: ({ ticks }) => (ticks.length > 6 ? -25 : 0),
                         textAnchor: ({ ticks }) =>
@@ -41,13 +42,23 @@ export const Chart = ({
                 style={{
                     axis: { stroke: "#444" },
                     ticks: { stroke: "#444" },
-                    tickLabels: { fontSize: 10, fill: "white" },
+                    tickLabels: {
+                        fontSize: 10,
+                        fill: "var(--color-text-primary)",
+                        fontFamily: "var(--font-sans)",
+                    },
                 }}
             />
 
             <VictoryStack
                 labelComponent={
-                    <VictoryTooltip style={{ fontSize: 11, fill: "black" }} />
+                    <VictoryTooltip
+                        style={{
+                            fontSize: 11,
+                            fontFamily: "var(--font-sans)",
+                            fontWeight: 700,
+                        }}
+                    />
                 }
                 style={{
                     data: { width: 20, fill: ({ datum }) => datum.fill },

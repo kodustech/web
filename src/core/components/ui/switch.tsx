@@ -2,34 +2,67 @@
 
 import * as React from "react";
 import * as SwitchPrimitives from "@radix-ui/react-switch";
+import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "src/core/utils/components";
 
-import { Icons } from "./icons";
+import { Button } from "./button";
+import { Spinner } from "./spinner";
+
+const switchVariants = cva(
+    cn(
+        "aspect-video relative rounded-full px-0 py-0 justify-start transition-transform min-h-auto group",
+        "switch-checked:bg-primary-light",
+        "switch-unchecked:bg-text-placeholder/50",
+        "switch-disabled:bg-text-placeholder/50 switch-disabled:cursor-not-allowed",
+        "switch-focused:ring-3 switch-focused:ring-card-lv3",
+        "switch-hover:brightness-120",
+        "switch-loading:cursor-wait!",
+    ),
+    {
+        variants: {
+            size: {
+                sm: "h-5! *:*:size-4 switch-checked:*:*:translate-x-4 switch-unchecked:*:*:translate-x-0.5",
+                md: "h-6! *:*:size-5 switch-checked:*:*:translate-x-5 switch-unchecked:*:*:translate-x-0.5",
+            },
+        },
+        defaultVariants: {
+            size: "md",
+        },
+    },
+);
 
 const Switch = React.forwardRef<
     React.ComponentRef<typeof SwitchPrimitives.Root>,
     React.ComponentPropsWithoutRef<typeof SwitchPrimitives.Root> & {
         loading?: boolean;
-    }
->(({ className, loading, disabled, ...props }, ref) => (
+        decorative?: boolean;
+    } & VariantProps<typeof switchVariants>
+>(({ className, disabled, size, loading, ...props }, ref) => (
     <SwitchPrimitives.Root
+        ref={ref}
         className={cn(
-            "peer inline-flex h-6 w-11 shrink-0 cursor-pointer items-center overflow-hidden rounded-full border-2 border-transparent bg-muted-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background data-[state=checked]:bg-brand-orange data-[state=unchecked]:bg-opacity-20 disabled:cursor-not-allowed disabled:opacity-50",
+            switchVariants({ size }),
+            props.decorative && "pointer-events-none",
             className,
         )}
         {...props}
         disabled={disabled || loading}
-        ref={ref}>
-        <SwitchPrimitives.Thumb
-            className={cn(
-                "pointer-events-none relative block h-5 w-5 rounded-full bg-brand-orange-foreground opacity-100 shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-5 data-[state=unchecked]:translate-x-0",
-            )}>
-            {loading && (
-                <div className="absolute inset-0 flex items-center justify-center">
-                    <Icons.spinner className="size-5 animate-spin" />
-                </div>
-            )}
-        </SwitchPrimitives.Thumb>
+        {...(loading && { "data-loading": true })}
+        asChild>
+        <Button variant="primary" size="sm">
+            <SwitchPrimitives.Thumb
+                className={cn(
+                    "bg-card-lv2 pointer-events-none relative rounded-full shadow-lg transition duration-300",
+                    "group-switch-disabled:bg-text-placeholder/40",
+                    "group-switch-loading:bg-transparent",
+                )}>
+                {loading && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                        <Spinner className="text-card-lv2 fill-card-lv2/20" />
+                    </div>
+                )}
+            </SwitchPrimitives.Thumb>
+        </Button>
     </SwitchPrimitives.Root>
 ));
 Switch.displayName = SwitchPrimitives.Root.displayName;

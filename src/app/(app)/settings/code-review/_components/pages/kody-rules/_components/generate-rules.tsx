@@ -7,7 +7,7 @@ import {
     HoverCardContent,
     HoverCardTrigger,
 } from "@components/ui/hover-card";
-import { Icons } from "@components/ui/icons";
+import { Spinner } from "@components/ui/spinner";
 import { Switch } from "@components/ui/switch";
 import { toast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
@@ -77,10 +77,8 @@ export const GenerateRulesButton = ({
                 });
 
                 toast({
-                    title: "Success",
-                    description:
-                        "Code review automation settings saved successfully.",
-                    variant: "default",
+                    description: "Settings saved",
+                    variant: "success",
                 });
             } catch (error) {
                 console.error("Erro ao salvar as configurações:", error);
@@ -89,7 +87,7 @@ export const GenerateRulesButton = ({
                     title: "Error",
                     description:
                         "An error occurred while saving the settings. Please try again.",
-                    variant: "destructive",
+                    variant: "danger",
                 });
             }
         },
@@ -103,6 +101,7 @@ export const GenerateRulesButton = ({
                         <Card className="flex w-full flex-row items-center gap-4 p-3">
                             Auto-Generate
                             <Switch
+                                decorative
                                 disabled={isLoadingToggle.loading!}
                                 onClick={handleKodyRulesGeneratorToggle}
                                 checked={config.kodyRulesGeneratorEnabled}
@@ -110,7 +109,7 @@ export const GenerateRulesButton = ({
                         </Card>
                     </HoverCardTrigger>
                     <HoverCardContent className="rounded-2xl">
-                        <p className="text-sm text-muted-foreground">
+                        <p className="text-text-secondary text-sm">
                             Kody learns continuously and generates every week.
                         </p>
                     </HoverCardContent>
@@ -120,9 +119,10 @@ export const GenerateRulesButton = ({
         case KodyLearningStatus.GENERATING_RULES:
             return (
                 <Button
-                    variant="secondary"
-                    disabled
-                    leftIcon={<Icons.spinner className="animate-spin" />}>
+                    size="md"
+                    decorative
+                    variant="primary-dark"
+                    leftIcon={<Spinner />}>
                     Generating Kody Rules...
                 </Button>
             );
@@ -131,7 +131,8 @@ export const GenerateRulesButton = ({
         default:
             return (
                 <Button
-                    variant="secondary"
+                    size="md"
+                    variant="primary-dark"
                     onClick={generateRules}
                     disabled={isLoadingButton.loading}>
                     Generate Kody Rules

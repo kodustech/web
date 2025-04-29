@@ -58,6 +58,13 @@ export default async function LeadTimeForChangeAnalytics() {
         endDate: formatISO(endDate, { representation: "date" }),
     });
 
+    if (
+        data.currentPeriod.leadTimeP75Hours === 0 &&
+        data.currentPeriod.leadTimeP75Minutes === 0
+    ) {
+        throw new Error("NO_DATA");
+    }
+
     const [badge] = Object.entries(comparisonParameters).find(
         ([, { compareFn }]) => compareFn(data?.currentPeriod?.leadTimeP75Hours),
     )!;
@@ -75,7 +82,7 @@ export default async function LeadTimeForChangeAnalytics() {
                 <div className="flex justify-between gap-4">
                     <CardTitle className="text-sm">
                         PR Cycle Time
-                        <small className="ml-1 text-muted-foreground">
+                        <small className="text-text-secondary ml-1">
                             (p75)
                         </small>
                     </CardTitle>
@@ -98,8 +105,8 @@ export default async function LeadTimeForChangeAnalytics() {
                                 PR Cycle Time Parameters
                             </span>
 
-                            <div className="flex flex-col gap-2 children:flex children:justify-between">
-                                <div className="text-muted-foreground">
+                            <div className="children:flex children:justify-between flex flex-col gap-2">
+                                <div className="text-text-secondary">
                                     <span>Hours</span>
                                     <span>Level</span>
                                 </div>
@@ -109,7 +116,7 @@ export default async function LeadTimeForChangeAnalytics() {
                                 {Object.entries(comparisonParameters).map(
                                     ([key, { label }]) => (
                                         <div key={key}>
-                                            <span className="flex-shrink-0">
+                                            <span className="shrink-0">
                                                 {label}
                                             </span>
                                             <DashedLine />
@@ -132,13 +139,13 @@ export default async function LeadTimeForChangeAnalytics() {
             <CardContent className="flex items-center justify-center">
                 <div className="text-3xl font-bold">
                     {currentPeriod.hours}
-                    <small className="text-muted-foreground">h</small>{" "}
+                    <small className="text-text-secondary">h</small>{" "}
                     {currentPeriod.minutes}
-                    <small className="text-muted-foreground">m</small>
+                    <small className="text-text-secondary">m</small>
                 </div>
             </CardContent>
 
-            <CardFooter className="flex gap-1 text-xs text-muted-foreground">
+            <CardFooter className="text-text-secondary flex gap-1 text-xs">
                 <span>
                     Last 2 weeks was {previousPeriod.hours}h{" "}
                     {previousPeriod.minutes}m

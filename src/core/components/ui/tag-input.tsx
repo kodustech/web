@@ -53,7 +53,7 @@ const TagInput: React.FC<TagInputProps> = ({
 
                 {inputValue && (
                     <Badge
-                        className="absolute right-2 top-1/2 -translate-y-1/2"
+                        className="absolute top-1/2 right-2 -translate-y-1/2"
                         leftIcon={<Plus className="size-3" />}
                         onClick={() => {
                             addTag(inputValue);
@@ -63,18 +63,20 @@ const TagInput: React.FC<TagInputProps> = ({
                 )}
             </div>
 
-            <div className="flex flex-wrap gap-2">
-                {tags?.map((tag) => (
-                    <Badge
-                        key={tag}
-                        disabled={disabled}
-                        onClick={() => removeTag(tag)}
-                        variant="outline">
-                        {tag}
-                        <X className="-mr-1 h-4 w-4 text-destructive" />
-                    </Badge>
-                ))}
-            </div>
+            {tags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                    {tags?.map((tag) => (
+                        <Badge
+                            key={tag}
+                            variant="helper"
+                            disabled={disabled}
+                            onClick={() => removeTag(tag)}>
+                            {tag}
+                            <X className="text-danger -mr-1 h-4 w-4" />
+                        </Badge>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

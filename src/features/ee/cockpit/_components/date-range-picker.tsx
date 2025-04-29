@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import {
@@ -9,6 +8,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@components/ui/popover";
+import { Separator } from "@components/ui/separator";
 import { formatDate, isEqual, parseISO, subMonths, subWeeks } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
@@ -112,20 +112,19 @@ export const DateRangePicker = ({ cookieValue, ...props }: Props) => {
         <Popover>
             <PopoverTrigger asChild>
                 <Button
-                    variant="outline"
-                    leftIcon={
-                        <CalendarIcon className="text-muted-foreground" />
-                    }
-                    className="-mt-4 w-64 justify-start text-left font-normal">
+                    size="md"
+                    variant="helper"
+                    leftIcon={<CalendarIcon />}
+                    className="-mt-4 w-68 justify-start">
                     {defaultText ? (
                         defaultText
                     ) : (
-                        <>
+                        <span className="flex items-center gap-1 font-semibold">
                             {selectedRange?.from ? (
                                 selectedRange.to ? (
                                     <>
                                         {from}
-                                        <span className="text-muted-foreground">
+                                        <span className="text-text-secondary">
                                             -
                                         </span>
                                         {to}
@@ -134,18 +133,18 @@ export const DateRangePicker = ({ cookieValue, ...props }: Props) => {
                                     from
                                 )
                             ) : (
-                                <span className="text-muted-foreground">
+                                <span className="text-text-secondary">
                                     Select a range
                                 </span>
                             )}
-                        </>
+                        </span>
                     )}
                 </Button>
             </PopoverTrigger>
 
             <PopoverContent
                 align="end"
-                className="flex w-72 flex-col items-center px-2 py-0">
+                className="flex w-68 flex-col items-center px-0 py-0">
                 <Calendar
                     {...props}
                     mode="range"
@@ -175,16 +174,19 @@ export const DateRangePicker = ({ cookieValue, ...props }: Props) => {
                     }}
                 />
 
-                <div className="grid grid-cols-2 gap-1 px-4 pb-5">
+                <Separator className="mb-3" />
+
+                <div className="grid grid-cols-2 gap-1 px-0 pb-4">
                     {ranges.map((r) => (
-                        <Badge
+                        <Button
                             key={r.label}
-                            className="h-7 w-full text-xs"
+                            size="xs"
+                            className="w-full"
                             variant={
                                 isEqual(selectedRange?.from!, r.range.from) &&
                                 isEqual(selectedRange?.to!, r.range.to)
-                                    ? "secondary"
-                                    : "outline"
+                                    ? "primary-dark"
+                                    : "helper"
                             }
                             onClick={() => {
                                 setDefaultText(r.label);
@@ -195,7 +197,7 @@ export const DateRangePicker = ({ cookieValue, ...props }: Props) => {
                                 setCockpitDateRangeCookie(r.range);
                             }}>
                             {r.label}
-                        </Badge>
+                        </Button>
                     ))}
                 </div>
             </PopoverContent>

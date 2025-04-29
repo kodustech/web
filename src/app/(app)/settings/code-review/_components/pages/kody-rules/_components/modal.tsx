@@ -112,7 +112,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
 
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
-            <DialogContent className="max-w-screen-md">
+            <DialogContent className="max-w-(--breakpoint-md)">
                 <DialogHeader>
                     <DialogTitle>
                         {rule ? "Edit rule" : "Add new rule"}
@@ -140,7 +140,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             id={field.name}
                                             error={fieldState.error}
                                             placeholder="Avoid using 'console.log' statements in production code."
-                                            className="!opacity-100"
+                                            className="opacity-100!"
                                             value={field.value}
                                             onChange={(e) =>
                                                 field.onChange(e.target.value)
@@ -171,7 +171,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             <TooltipTrigger>
                                                 <HelpCircle
                                                     size={16}
-                                                    className="text-brand-orange"
+                                                    className="text-primary-light"
                                                 />
                                             </TooltipTrigger>
 
@@ -185,20 +185,20 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                 </p>
                                                 <p>
                                                     The{" "}
-                                                    <code className="text-brand-orange">
+                                                    <code className="text-primary-light">
                                                         *
                                                     </code>{" "}
                                                     symbol matches any sequence
                                                     of characters, includes
                                                     subdirectories, and{" "}
-                                                    <code className="text-brand-orange">
+                                                    <code className="text-primary-light">
                                                         ?
                                                     </code>{" "}
                                                     matches a single character.
                                                 </p>
                                                 <p>
                                                     For example,{" "}
-                                                    <code className="text-brand-orange">
+                                                    <code className="text-primary-light">
                                                         /*.js
                                                     </code>{" "}
                                                     applies the rule to all .js
@@ -218,7 +218,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                         <Input
                                             id={field.name}
                                             value={field.value}
-                                            className="!opacity-100"
+                                            className="opacity-100!"
                                             placeholder="Example: **/*.js"
                                             onChange={(e) =>
                                                 field.onChange(e.target.value)
@@ -253,7 +253,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             <TooltipTrigger>
                                                 <HelpCircle
                                                     size={16}
-                                                    className="text-brand-orange"
+                                                    className="text-primary-light"
                                                 />
                                             </TooltipTrigger>
 
@@ -295,7 +295,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             onChange={(e) =>
                                                 field.onChange(e.target.value)
                                             }
-                                            className="flex min-h-32 !opacity-100"
+                                            className="flex min-h-32 opacity-100!"
                                         />
 
                                         <FormControl.Error>
@@ -317,7 +317,6 @@ export const KodyRuleAddOrUpdateItemModal = ({
                             const severityLevel =
                                 severityLevelFilterOptions[field.value];
                             const numberValue = severityLevel?.value;
-                            const values = numberValue ? [numberValue] : [0];
 
                             return (
                                 <div className="grid grid-cols-[1fr_2fr] gap-6">
@@ -330,7 +329,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                 <TooltipTrigger>
                                                     <HelpCircle
                                                         size={16}
-                                                        className="text-brand-orange"
+                                                        className="text-primary-light"
                                                     />
                                                 </TooltipTrigger>
 
@@ -348,28 +347,28 @@ export const KodyRuleAddOrUpdateItemModal = ({
 
                                                     <ul className="flex flex-col gap-1">
                                                         <li>
-                                                            <strong className="text-brand-orange">
+                                                            <strong className="text-primary-light">
                                                                 Low:
                                                             </strong>{" "}
                                                             Minimal impact, less
                                                             likely to appear.
                                                         </li>
                                                         <li>
-                                                            <strong className="text-brand-orange">
+                                                            <strong className="text-primary-light">
                                                                 Medium:
                                                             </strong>{" "}
                                                             Moderate importance,
                                                             balanced visibility.
                                                         </li>
                                                         <li>
-                                                            <strong className="text-brand-orange">
+                                                            <strong className="text-primary-light">
                                                                 High:
                                                             </strong>{" "}
                                                             High priority, more
                                                             likely to surface.
                                                         </li>
                                                         <li>
-                                                            <strong className="text-brand-orange">
+                                                            <strong className="text-primary-light">
                                                                 Critical:
                                                             </strong>{" "}
                                                             Maximum priority,
@@ -381,7 +380,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                     <p>
                                                         If no severity is
                                                         selected,{" "}
-                                                        <strong className="text-brand-orange">
+                                                        <strong className="text-primary-light">
                                                             High
                                                         </strong>{" "}
                                                         will be used by default.
@@ -402,8 +401,8 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                 max={3}
                                                 step={1}
                                                 labels={labels}
-                                                value={values}
-                                                onValueChange={([value]) =>
+                                                value={numberValue}
+                                                onValueChange={(value) =>
                                                     field.onChange(
                                                         Object.entries(
                                                             severityLevelFilterOptions,
@@ -415,18 +414,17 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                     )
                                                 }
                                                 className={cn([
-                                                    "!opacity-100",
                                                     {
-                                                        "[--slider-marker-background-active:200,86%,48%]":
+                                                        "[--slider-marker-background-active:#119DE4]":
                                                             field.value ===
                                                             "low",
-                                                        "[--slider-marker-background-active:218,86%,48%]":
+                                                        "[--slider-marker-background-active:#115EE4]":
                                                             field.value ===
                                                             "medium",
-                                                        "[--slider-marker-background-active:var(--brand-purple)]":
+                                                        "[--slider-marker-background-active:#6A57A4]":
                                                             field.value ===
                                                             "high",
-                                                        "[--slider-marker-background-active:var(--brand-red)]":
+                                                        "[--slider-marker-background-active:#EF4B4B]":
                                                             field.value ===
                                                             "critical",
                                                     },
@@ -460,9 +458,9 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             <div className="flex items-center gap-3">
                                                 <div
                                                     className={cn(
-                                                        "flex size-6 items-center justify-center rounded-full bg-destructive/10",
+                                                        "bg-danger/10 flex size-6 items-center justify-center rounded-full",
                                                     )}>
-                                                    <XIcon className="size-4 stroke-destructive" />
+                                                    <XIcon className="stroke-danger size-4" />
                                                 </div>
                                                 <div className="flex flex-1 flex-col gap-3">
                                                     <div className="text-sm font-medium">
@@ -483,7 +481,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                         e.target.value,
                                                     )
                                                 }
-                                                className="flex min-h-32 !opacity-100"
+                                                className="flex min-h-32 opacity-100!"
                                                 placeholder={
                                                     BAD_EXAMPLE_PLACEHOLDER
                                                 }
@@ -511,9 +509,9 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             <div className="flex items-center gap-3">
                                                 <div
                                                     className={cn(
-                                                        "flex size-6 items-center justify-center rounded-full bg-success/10",
+                                                        "bg-success/10 flex size-6 items-center justify-center rounded-full",
                                                     )}>
-                                                    <CheckIcon className="size-4 stroke-success" />
+                                                    <CheckIcon className="stroke-success size-4" />
                                                 </div>
                                                 <div className="flex flex-1 flex-col gap-3">
                                                     <div className="text-sm font-medium">
@@ -534,7 +532,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                         e.target.value,
                                                     )
                                                 }
-                                                className="flex min-h-32 !opacity-100"
+                                                className="flex min-h-32 opacity-100!"
                                                 placeholder={
                                                     GOOD_EXAMPLE_PLACEHOLDER
                                                 }
@@ -553,11 +551,16 @@ export const KodyRuleAddOrUpdateItemModal = ({
                 </div>
 
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => magicModal.hide()}>
+                    <Button
+                        variant="cancel"
+                        size="md"
+                        onClick={() => magicModal.hide()}>
                         Cancel
                     </Button>
 
                     <Button
+                        size="md"
+                        variant="primary"
                         formTarget="add-or-update-rule-form"
                         loading={formState.isSubmitting}
                         onClick={handleSubmit}
