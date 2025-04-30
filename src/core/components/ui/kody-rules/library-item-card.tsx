@@ -1,15 +1,26 @@
 "use client";
 
+import React, { useEffect, useState } from "react";
 import { Badge } from "@components/ui/badge";
 import { CardContent, CardFooter, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { magicModal } from "@components/ui/magic-modal";
 import type { KodyRule, LibraryRule } from "@services/kodyRules/types";
+import {
+    findRuleLikes,
+    getAllRulesWithLikes,
+    getRuleLikeCount,
+    setRuleLike,
+    type RuleLike,
+} from "@services/ruleLike/fetch";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ProgrammingLanguage } from "src/core/enums/programming-language";
+import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
 
 import { Button } from "../button";
+import { LikeButton } from "../like-button";
 import { KodyRuleLibraryItemModal } from "./library-item-modal";
 
 const severityVariantMap = {
@@ -35,6 +46,24 @@ export const KodyRuleLibraryItem = ({
     }>;
 }) => {
     const { teamId } = useSelectedTeamId();
+    const { userId } = useAuth();
+    const queryClient = useQueryClient();
+
+    const [isLiked, setIsLiked] = useState(rule.isLiked);
+    const [likeCount, setLikeCount] = useState(rule.likesCount ?? 0);
+
+    const { mutate: toggleLike } = useMutation<RuleLike, Error, void>({
+        mutationFn: async () => {
+            return setRuleLike(rule.uuid, rule.language, !isLiked, userId);
+        },
+        onSuccess: (data: any) => {
+            setIsLiked(data.data.liked);
+            setLikeCount(data.data.count);
+        },
+        onError: (error) => {
+            console.error("Error toggling like:", error);
+        },
+    });
 
     return (
         <Button
@@ -42,9 +71,11 @@ export const KodyRuleLibraryItem = ({
             variant="helper"
             key={rule.uuid}
             className="flex w-full flex-col items-start gap-2"
-            onClick={() => {
+            onClick={(e) => {
+                e.stopPropagation();
                 magicModal.show(() => (
                     <KodyRuleLibraryItemModal
+                        key={rule.uuid}
                         rule={rule}
                         repositoryId={repositoryId}
                         teamId={teamId}
@@ -77,14 +108,28 @@ export const KodyRuleLibraryItem = ({
                 </p>
             </CardContent>
 
-            <CardFooter className="flex flex-wrap gap-1">
-                {rule.language && (
-                    <Badge>{ProgrammingLanguage[rule.language]}</Badge>
-                )}
+            <CardFooter className="flex w-full items-center justify-between">
+                <div className="flex flex-wrap gap-1">
+                    {rule.language && (
+                        <Badge>{ProgrammingLanguage[rule.language]}</Badge>
+                    )}
 
-                {rule.tags.map((tag) => (
-                    <Badge key={tag}>{tag}</Badge>
-                ))}
+                    {rule.tags.map((tag) => (
+                        <Badge key={tag}>{tag}</Badge>
+                    ))}
+                </div>
+                <div
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        console.log("Like button clicked");
+                        toggleLike();
+                    }}>
+                    <LikeButton
+                        likes={likeCount}
+                        isLiked={isLiked}
+                        onLike={toggleLike}
+                    />
+                </div>
             </CardFooter>
         </Button>
     );

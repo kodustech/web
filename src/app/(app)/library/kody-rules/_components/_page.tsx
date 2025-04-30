@@ -28,6 +28,7 @@ import type {
     FindLibraryKodyRulesFilters,
     LibraryRule,
 } from "@services/kodyRules/types";
+import { RuleLike } from "@services/ruleLike/types";
 import { ArrowLeft, Check, ChevronsUpDown, SearchIcon } from "lucide-react";
 import { ProgrammingLanguage } from "src/core/enums/programming-language";
 import { cn } from "src/core/utils/components";
@@ -41,9 +42,11 @@ const DEFAULT_FILTERS: FindLibraryKodyRulesFilters = {
 
 export const KodyRulesLibrary = ({
     rules,
+    rulesWithLikes,
     configValue,
 }: {
     rules: LibraryRule[];
+    rulesWithLikes: RuleLike[];
     configValue: {
         repositories: Array<{
             id: string;
@@ -57,8 +60,22 @@ export const KodyRulesLibrary = ({
     const [filters, setFilters] =
         useState<FindLibraryKodyRulesFilters>(DEFAULT_FILTERS);
 
+    console.log(rulesWithLikes);
+
+    const formatedRules = useMemo(() => {
+        return rules.map((r) => ({
+            ...r,
+            likesCount:
+                rulesWithLikes.find((rl) => rl.ruleId === r.uuid)?.likeCount ??
+                0,
+            isLiked:
+                rulesWithLikes.find((rl) => rl.ruleId === r.uuid)?.userLiked ??
+                false,
+        }));
+    }, [rules, rulesWithLikes]);
+
     const filteredRules = useMemo(() => {
-        let results = rules;
+        let results = formatedRules;
 
         if (filters.name?.length) {
             results = results?.filter((r) =>
