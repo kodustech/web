@@ -19,63 +19,43 @@ jobs:
             - name: Capture Release Version
               run: echo "RELEASE_VERSION=${{ github.event.release.tag_name }}" >> $GITHUB_ENV
 
-            - name: Configure AWS Credentials
-              uses: aws-actions/configure-aws-credentials@v4.1.0
-              with:
-                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                  aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                  aws-region: ${{ secrets.AWS_REGION }}
-
             - name: Fetch Parameter Store values and create .env
               run: |
                   [ -f .env ] && rm .env
 
-                  echo WEB_NODE_ENV=$(aws ssm get-parameter --name /prod/kodus-web/WEB_NODE_ENV --query 'Parameter.Value' --output text) >> .env
-
-                  echo WEB_HOSTNAME_API=$(aws ssm get-parameter --name /prod/kodus-web/WEB_HOSTNAME_API --query 'Parameter.Value' --output text) >> .env
-
-                  echo WEB_HOSTNAME_BILLING=$(aws ssm get-parameter --name /prod/kodus-web/WEB_HOSTNAME_BILLING --query 'Parameter.Value' --output text) >> .env
-
-                  echo WEB_JWT_SECRET_KEY=$(aws ssm get-parameter --name /prod/kodus-web/WEB_JWT_SECRET_KEY --query 'Parameter.Value' --output text) >> .env
-                  echo WEB_NEXTAUTH_SECRET=$(aws ssm get-parameter --name /prod/kodus-web/WEB_NEXTAUTH_SECRET --query 'Parameter.Value' --output text) >> .env
-                  echo NEXTAUTH_URL=$(aws ssm get-parameter --name /prod/kodus-web/NEXTAUTH_URL --query 'Parameter.Value' --output text) >> .env
-
-                  echo WEB_CONNECTION_SLACK=$(aws ssm get-parameter --name /prod/kodus-web/WEB_CONNECTION_SLACK --query 'Parameter.Value' --output text) >> .env
-
-                  echo GLOBAL_JIRA_CLIENT_ID=$(aws ssm get-parameter --name /prod/kodus-web/GLOBAL_JIRA_CLIENT_ID --query 'Parameter.Value' --output text) >> .env
-                  echo GLOBAL_JIRA_REDIRECT_URL=$(aws ssm get-parameter --name /prod/kodus-web/GLOBAL_JIRA_REDIRECT_URL --query 'Parameter.Value' --output text) >> .env
-                  echo WEB_JIRA_SCOPES=$(aws ssm get-parameter --name /prod/kodus-web/WEB_JIRA_SCOPES --query 'Parameter.Value' --output text) >> .env
-
-                  echo GLOBAL_GITHUB_CLIENT_ID=$(aws ssm get-parameter --name /prod/kodus-web/GLOBAL_GITHUB_CLIENT_ID --query 'Parameter.Value' --output text) >> .env
-                  echo GLOBAL_GITHUB_REDIRECT_URL=$(aws ssm get-parameter --name /prod/kodus-web/GLOBAL_GITHUB_REDIRECT_URL --query 'Parameter.Value' --output text) >> .env
-                  echo WEB_GITHUB_INSTALL_URL=$(aws ssm get-parameter --name /prod/kodus-web/WEB_GITHUB_INSTALL_URL --query 'Parameter.Value' --output text) >> .env
-                  echo GITHUB_CLIENT_SECRET=$(aws ssm get-parameter --name /prod/kodus-web/GITHUB_CLIENT_SECRET --query 'Parameter.Value' --output text) >> .env
-
-                  echo GLOBAL_GITLAB_CLIENT_ID=$(aws ssm get-parameter --name /prod/kodus-web/GLOBAL_GITLAB_CLIENT_ID --query 'Parameter.Value' --output text) >> .env
-                  echo GLOBAL_GITLAB_REDIRECT_URL=$(aws ssm get-parameter --name /prod/kodus-web/GLOBAL_GITLAB_REDIRECT_URL --query 'Parameter.Value' --output text) >> .env
-                  echo WEB_GITLAB_SCOPES=$(aws ssm get-parameter --name /prod/kodus-web/WEB_GITLAB_SCOPES --query 'Parameter.Value' --output text) >> .env
-                  echo WEB_GITLAB_OAUTH_URL=$(aws ssm get-parameter --name /prod/kodus-web/WEB_GITLAB_OAUTH_URL --query 'Parameter.Value' --output text) >> .env
-                  echo GLOBAL_GITLAB_CLIENT_SECRET=$(aws ssm get-parameter --name /prod/kodus-web/GLOBAL_GITLAB_CLIENT_SECRET --query 'Parameter.Value' --output text) >> .env
-
-                  echo WEB_TERMS_AND_CONDITIONS=$(aws ssm get-parameter --name /prod/kodus-web/WEB_TERMS_AND_CONDITIONS --query 'Parameter.Value' --output text) >> .env
-
-                  echo GLOBAL_SLACK_HOSTNAME=$(aws ssm get-parameter --name /prod/kodus-web/GLOBAL_SLACK_HOSTNAME --query 'Parameter.Value' --output text) >> .env
-                  echo WEB_CONNECTION_DISCORD=$(aws ssm get-parameter --name /prod/kodus-web/WEB_CONNECTION_DISCORD --query 'Parameter.Value' --output text) >> .env
-                  echo GLOBAL_DISCORD_HOSTNAME=$(aws ssm get-parameter --name /prod/kodus-web/GLOBAL_DISCORD_HOSTNAME --query 'Parameter.Value' --output text) >> .env
-                  echo AZURE_REPOS_HOSTNAME=$(aws ssm get-parameter --name /prod/kodus-web/AZURE_REPOS_HOSTNAME --query 'Parameter.Value' --output text) >> .env
-
-                  echo WEB_OAUTH_GITLAB_CLIENT_ID=$(aws ssm get-parameter --name /prod/kodus-web/WEB_OAUTH_GITLAB_CLIENT_ID --query 'Parameter.Value' --output text) >> .env
-                  echo WEB_OAUTH_GITLAB_CLIENT_SECRET=$(aws ssm get-parameter --name /prod/kodus-web/WEB_OAUTH_GITLAB_CLIENT_SECRET --query 'Parameter.Value' --output text) >> .env
-
-                  echo WEB_OAUTH_GITHUB_CLIENT_ID=$(aws ssm get-parameter --name /prod/kodus-web/WEB_OAUTH_GITHUB_CLIENT_ID --query 'Parameter.Value' --output text) >> .env
-                  echo WEB_OAUTH_GITHUB_CLIENT_SECRET=$(aws ssm get-parameter --name /prod/kodus-web/WEB_OAUTH_GITHUB_CLIENT_SECRET --query 'Parameter.Value' --output text) >> .env
-
-                  echo WEB_ANALYTICS_HOSTNAME=$(aws ssm get-parameter --name /prod/kodus-web/WEB_ANALYTICS_HOSTNAME --query 'Parameter.Value' --output text) >> .env
-                  echo WEB_ANALYTICS_SECRET=$(aws ssm get-parameter --name /prod/kodus-web/WEB_ANALYTICS_SECRET --query 'Parameter.Value' --output text) >> .env
-
-                  echo WEB_SUPPORT_DOCS_URL=$(aws ssm get-parameter --name /prod/kodus-web/WEB_SUPPORT_DOCS_URL --query 'Parameter.Value' --output text) >> .env
-                  echo WEB_SUPPORT_DISCORD_INVITE_URL=$(aws ssm get-parameter --name /prod/kodus-web/WEB_SUPPORT_DISCORD_INVITE_URL --query 'Parameter.Value' --output text) >> .env
-                  echo WEB_SUPPORT_TALK_TO_FOUNDER_URL=$(aws ssm get-parameter --name /prod/kodus-web/WEB_SUPPORT_TALK_TO_FOUNDER_URL --query 'Parameter.Value' --output text) >> .env
+                  echo WEB_NODE_ENV=self-hosted >> .env
+                  echo WEB_HOSTNAME_API=self-hosted >> .env
+                  echo WEB_HOSTNAME_BILLING= >> .env
+                  echo WEB_JWT_SECRET_KEY= >> .env
+                  echo WEB_NEXTAUTH_SECRET= >> .env
+                  echo NEXTAUTH_URL= >> .env
+                  echo WEB_CONNECTION_SLACK= >> .env
+                  echo GLOBAL_JIRA_CLIENT_ID= >> .env
+                  echo GLOBAL_JIRA_REDIRECT_URL= >> .env
+                  echo WEB_JIRA_SCOPES= >> .env
+                  echo GLOBAL_GITHUB_CLIENT_ID= >> .env
+                  echo GLOBAL_GITHUB_REDIRECT_URL= >> .env
+                  echo WEB_GITHUB_INSTALL_URL= >> .env
+                  echo GITHUB_CLIENT_SECRET= >> .env
+                  echo GLOBAL_GITLAB_CLIENT_ID= >> .env
+                  echo GLOBAL_GITLAB_REDIRECT_URL= >> .env
+                  echo WEB_GITLAB_SCOPES= >> .env
+                  echo WEB_GITLAB_OAUTH_URL= >> .env
+                  echo GLOBAL_GITLAB_CLIENT_SECRET= >> .env
+                  echo WEB_TERMS_AND_CONDITIONS="https://kodus.notion.site/Pol-tica-de-uso-de-dados-e-permiss-es-8e43a48513d74be984c3089a2f9631fd?pvs=4" >> .env
+                  echo GLOBAL_SLACK_HOSTNAME= >> .env
+                  echo WEB_CONNECTION_DISCORD= >> .env
+                  echo GLOBAL_DISCORD_HOSTNAME= >> .env
+                  echo AZURE_REPOS_HOSTNAME= >> .env
+                  echo WEB_OAUTH_GITLAB_CLIENT_ID= >> .env
+                  echo WEB_OAUTH_GITLAB_CLIENT_SECRET= >> .env
+                  echo WEB_OAUTH_GITHUB_CLIENT_ID= >> .env
+                  echo WEB_OAUTH_GITHUB_CLIENT_SECRET= >> .env
+                  echo WEB_ANALYTICS_HOSTNAME= >> .env
+                  echo WEB_ANALYTICS_SECRET= >> .env
+                  echo WEB_SUPPORT_DOCS_URL="https://docs.kodus.io" >> .env
+                  echo WEB_SUPPORT_DISCORD_INVITE_URL="https://discord.gg/CceCdAke" >> .env
+                  echo WEB_SUPPORT_TALK_TO_FOUNDER_URL="https://cal.com/gabrielmalinosqui/30min" >> .env
 
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3.10.0
