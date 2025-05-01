@@ -5,4 +5,6 @@ export const ProgrammingLanguage = {
     CSHARP: "C#",
     DART: "Dart",
     RUBY: "Ruby",
+    PHP: "PHP",
+    GO: "Go"
 };

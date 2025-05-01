@@ -21,6 +21,8 @@ export type LibraryRule = {
     examples: KodyRulesExample[];
     tags: string[];
     language: keyof typeof ProgrammingLanguage;
+    likesCount: number | 0;
+    isLiked: boolean | false;
 };
 
 type KodyRulesExample = {
