@@ -43,7 +43,6 @@ export const KodyRuleLibraryItem = ({
 }) => {
     const { teamId } = useSelectedTeamId();
     const { userId } = useAuth();
-
     const sortedTags = [...rule.tags.sort((a, b) => a.length - b.length)];
 
     const quantityOfCharactersInAllTags = sortedTags.reduce(
