@@ -15,6 +15,8 @@ import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
 
 import { Button } from "../button";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "../hover-card";
+import { Separator } from "../separator";
 import { KodyRuleLibraryItemModal } from "./library-item-modal";
 
 const severityVariantMap = {
@@ -41,6 +43,35 @@ export const KodyRuleLibraryItem = ({
 }) => {
     const { teamId } = useSelectedTeamId();
     const { userId } = useAuth();
+    const sortedTags = [...rule.tags.sort((a, b) => a.length - b.length)];
+
+    const quantityOfCharactersInAllTags = sortedTags.reduce(
+        (acc, item) => acc + item.length,
+        0,
+    );
+
+    const { tagsToShow, tagsToHide } = sortedTags.reduce(
+        (acc, item, _i, arr) => {
+            if (arr.length <= 4 && quantityOfCharactersInAllTags <= 35) {
+                acc.tagsToShow.push(item);
+                return acc;
+            }
+
+            if (acc.charactersCount + item.length <= 30) {
+                acc.charactersCount += item.length;
+                acc.tagsToShow.push(item);
+                return acc;
+            }
+
+            acc.tagsToHide.push(item);
+            return acc;
+        },
+        {
+            tagsToShow: [] as string[],
+            tagsToHide: [] as string[],
+            charactersCount: rule.language?.length ?? 0,
+        },
+    );
 
     const [isLiked, setIsLiked] = useState(rule.isLiked);
     const [likeCount, setLikeCount] = useState(rule.likesCount ?? 0);
@@ -71,7 +102,7 @@ export const KodyRuleLibraryItem = ({
                     }
                 }}
                 className="bg-card-lv2 flex h-full w-full flex-col transition hover:brightness-120 focus-visible:brightness-120"
-                onClick={(ev) => {
+                onClick={() => {
                     magicModal.show(() => (
                         <KodyRuleLibraryItemModal
                             key={rule.uuid}
@@ -110,15 +141,44 @@ export const KodyRuleLibraryItem = ({
                 </CardContent>
             </div>
 
+            <Separator className="opacity-70" />
+
             <CardFooter className="bg-card-lv2 flex w-full cursor-auto items-end justify-between gap-4 px-5 pt-2 pb-4">
                 <div className="flex flex-wrap items-center gap-[3px]">
                     {rule.language && (
-                        <Badge>{ProgrammingLanguage[rule.language]}</Badge>
+                        <Badge className="h-2 px-2.5 font-normal">
+                            {ProgrammingLanguage[rule.language]}
+                        </Badge>
                     )}
 
-                    {rule.tags.map((tag) => (
-                        <Badge key={tag}>{tag}</Badge>
+                    {tagsToShow.map((tag) => (
+                        <Badge key={tag} className="h-2 px-2.5 font-normal">
+                            {tag}
+                        </Badge>
                     ))}
+
+                    {tagsToHide.length > 0 && (
+                        <HoverCard openDelay={0} closeDelay={100}>
+                            <HoverCardTrigger asChild>
+                                <Button
+                                    size="xs"
+                                    variant="cancel"
+                                    className="-ml-1 h-2 px-2">
+                                    + {tagsToHide.length}
+                                </Button>
+                            </HoverCardTrigger>
+
+                            <HoverCardContent className="flex flex-wrap gap-1">
+                                {tagsToHide.map((tag) => (
+                                    <Badge
+                                        key={tag}
+                                        className="h-2 px-2.5 font-normal">
+                                        {tag}
+                                    </Badge>
+                                ))}
+                            </HoverCardContent>
+                        </HoverCard>
+                    )}
                 </div>
 
                 <Button
