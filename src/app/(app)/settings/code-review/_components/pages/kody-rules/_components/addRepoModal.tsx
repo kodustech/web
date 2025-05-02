@@ -45,7 +45,7 @@ export const AddRepoModal = ({
     teamId: string;
 }) => {
     const [availableRepositoriesToCopy, setAvailableRepositoriesToCopy] =
-        useState<Repository[]>();
+        useState<Repository[]>([]);
     const [selectedRepositoryToCopy, setSelectedRepositoryToCopy] =
         useState("");
 
@@ -129,12 +129,15 @@ export const AddRepoModal = ({
                                             setSelectedRepositoryToCopy(value);
                                             field.onChange(value);
                                         }}>
-                                        <SelectTrigger id="repositoryTarget" className="w-full" aria-label="Select target repository">
+                                        <SelectTrigger
+                                            id="repositoryTarget"
+                                            className="w-full"
+                                            aria-label="Select target repository">
                                             <SelectValue placeholder="Select a repo to copy settings" />
                                         </SelectTrigger>
 
-                                        <SelectContent className="w-[var(--radix-popper-anchor-width)] max-h-56 overflow-y-auto">
-                                            {availableRepositoriesToCopy?.map(
+                                        <SelectContent className="max-h-56 w-[var(--radix-popper-anchor-width)] overflow-y-auto">
+                                            {availableRepositoriesToCopy.map(
                                                 (availableRepository) => (
                                                     <SelectItem
                                                         key={
@@ -167,31 +170,44 @@ export const AddRepoModal = ({
 
                                 <FormControl.Input>
                                     <Select
-                                        disabled={!availableRepositories.length}
                                         value={selectedRepository}
                                         onValueChange={(value) => {
                                             setSelectedRepository(value);
                                             field.onChange(value);
                                         }}>
-                                        <SelectTrigger id="repoTarget" className="w-full" aria-label="Select target repository">
+                                        <SelectTrigger
+                                            id="repoTarget"
+                                            className="w-full"
+                                            aria-label="Select target repository">
                                             <SelectValue placeholder="Select" />
                                         </SelectTrigger>
 
-                                        <SelectContent className="w-[var(--radix-popper-anchor-width)] max-h-56 overflow-y-auto">
-                                            {availableRepositories.map(
-                                                (availableRepository) => (
-                                                    <SelectItem
-                                                        key={
-                                                            availableRepository.id
-                                                        }
-                                                        value={
-                                                            availableRepository.id
-                                                        }>
-                                                        {
-                                                            availableRepository.name
-                                                        }
-                                                    </SelectItem>
-                                                ),
+                                        <SelectContent className="max-h-56 w-[var(--radix-popper-anchor-width)] overflow-y-auto">
+                                            {availableRepositories.length ===
+                                            0 ? (
+                                                <div className="text-text-secondary px-5 py-4 text-sm">
+                                                    No repositories to select
+                                                </div>
+                                            ) : (
+                                                <>
+                                                    {availableRepositories.map(
+                                                        (
+                                                            availableRepository,
+                                                        ) => (
+                                                            <SelectItem
+                                                                key={
+                                                                    availableRepository.id
+                                                                }
+                                                                value={
+                                                                    availableRepository.id
+                                                                }>
+                                                                {
+                                                                    availableRepository.name
+                                                                }
+                                                            </SelectItem>
+                                                        ),
+                                                    )}
+                                                </>
                                             )}
                                         </SelectContent>
                                     </Select>

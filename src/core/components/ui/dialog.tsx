@@ -62,7 +62,7 @@ const DialogContent = React.forwardRef<
             <DialogPrimitive.Content
                 ref={ref}
                 className={cn(
-                    "bg-background border-card-lv3 fixed flex-col gap-4 border-1 p-6 shadow-lg duration-200",
+                    "bg-background border-card-lv2 fixed flex-col gap-4 border-1 p-6 shadow-2xl duration-200",
                     "top-[50%] left-[50%] z-50 flex max-h-[calc(100%-(--spacing(16)))] w-full max-w-(--breakpoint-sm) translate-x-[-50%] translate-y-[-50%]",
                     "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-80",
                     "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-80 sm:rounded-2xl",
@@ -92,7 +92,7 @@ const DialogHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
     <div
         className={cn(
-            "mb-4 flex flex-col justify-center gap-y-2 text-center sm:text-left",
+            "flex flex-col justify-center gap-y-2 text-center sm:text-left",
             className,
         )}
         {...props}

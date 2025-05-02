@@ -156,17 +156,17 @@ export const AutomationCodeReviewLayout = ({
                                     <div className="px-2 pb-2 font-semibold">
                                         <div className="flex items-center justify-between">
                                             <strong>Per repository</strong>
+
                                             <Button
                                                 size="icon-sm"
                                                 variant="secondary"
-                                                className="size-8"
                                                 onClick={addNewRepo}
                                                 disabled={
                                                     platformConfig.configValue
                                                         .kodyLearningStatus ===
                                                     KodyLearningStatus.GENERATING_CONFIG
                                                 }>
-                                                <Plus className="size-4" />
+                                                <Plus />
                                             </Button>
                                         </div>
                                         <span className="text-text-secondary mt-2 mb-2 block max-w-52">
