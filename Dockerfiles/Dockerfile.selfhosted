@@ -1,8 +1,8 @@
 # Dockerfile para implantação self-hosted
-FROM node:22.14.0-slim AS SELFHOSTED
+FROM node:22.14.0-slim AS selfhosted
 
 # Instalar dependências básicas
-RUN apk update && apk add --no-cache curl
+RUN apt-get update && apt-get install -y curl
 
 WORKDIR /usr/src/app
 
