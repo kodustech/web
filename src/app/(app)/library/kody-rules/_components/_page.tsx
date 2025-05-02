@@ -60,8 +60,6 @@ export const KodyRulesLibrary = ({
     const [filters, setFilters] =
         useState<FindLibraryKodyRulesFilters>(DEFAULT_FILTERS);
 
-    console.log(rulesWithLikes);
-
     const formatedRules = useMemo(() => {
         return rules.map((r) => ({
             ...r,
@@ -115,7 +113,15 @@ export const KodyRulesLibrary = ({
                         variant="helper"
                         className="mb-10 text-xs"
                         leftIcon={<ArrowLeft />}
-                        onClick={router.back}>
+                        onClick={() => {
+                            if (window.history.length > 1) {
+                                router.back();
+                            } else {
+                                router.push(
+                                    "/settings/code-review/global/kody-rules",
+                                );
+                            }
+                        }}>
                         Go back to Kody Rules
                     </Button>
 

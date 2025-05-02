@@ -119,7 +119,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="-mx-6 flex flex-col gap-8 overflow-y-auto px-6">
+                <div className="-mx-6 flex flex-col gap-8 overflow-y-auto px-6 py-1">
                     <Controller
                         name="title"
                         rules={{ required: "Rule name is required" }}
