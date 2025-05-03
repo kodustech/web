@@ -1,4 +1,5 @@
 import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { Page } from "@components/ui/page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { getConnections } from "@services/setup/fetch";
@@ -6,6 +7,7 @@ import type { CookieName } from "src/core/utils/cookie";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { greeting } from "src/core/utils/helpers";
 
+import { validateOrganizationLicense } from "../subscription/_services/billing/fetch";
 import { DateRangePicker } from "./_components/date-range-picker";
 import { tabs, type TabValue } from "./_constants";
 import { AnalyticsNotAvailable } from "./not-available";
@@ -48,7 +50,12 @@ export default async function Layout({
         getGlobalSelectedTeamId(),
     ]);
 
-    const [connections] = await Promise.all([getConnections(selectedTeamId)]);
+    const organizationLicense = await validateOrganizationLicense({
+        teamId: selectedTeamId,
+    });
+    if (!organizationLicense.valid) redirect("/settings/integrations");
+
+    const connections = await getConnections(selectedTeamId);
 
     const dateRangeCookieValue = cookieStore.get(
         "cockpit-selected-date-range" satisfies CookieName,
