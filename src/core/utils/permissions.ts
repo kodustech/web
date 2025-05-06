@@ -111,7 +111,7 @@ export function handleAuthenticated(
     userTeamRole: TeamRole,
     authPaths: string[],
 ) {
-    // Redireciona a raiz "/" para "/cockpit.ee"
+    // Redireciona a raiz "/" para "/cockpit"
     if (pathname === "/" || pathname === "") {
         return NextResponse.redirect(new URL("/cockpit", req.url), {
             status: 302,
