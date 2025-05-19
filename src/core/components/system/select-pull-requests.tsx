@@ -12,9 +12,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@components/ui/popover";
-import { ScrollArea } from "@components/ui/scroll-area";
 import { ChevronsUpDown } from "lucide-react";
-import { cn } from "src/core/utils/components";
 
 type PullRequest = {
     id: string;
@@ -62,31 +60,27 @@ export const SelectPullRequest = (props: {
                     size="lg"
                     variant="helper"
                     disabled={disabled}
-                    className="flex w-full justify-between">
-                    {!value ? (
-                        <span>Pick a PR</span>
-                    ) : (
-                        <div>
-                            <span className="text-primary-light text-xs">
-                                {value.repository}
+                    className="flex min-h-16 w-full justify-between">
+                    <div className="flex w-full items-center">
+                        {!value ? (
+                            <span className="flex-1">
+                                No pull request selected
                             </span>
+                        ) : (
+                            <div className="flex-1">
+                                <span className="text-primary-light text-xs">
+                                    {value.repository}
+                                </span>
 
-                            <div className="line-clamp-1">
-                                <span className="mr-2">PR</span>
-                                <strong>#{value.pull_number}</strong>
-                                <span className="text-text-secondary ml-2">
+                                <span className="text-text-secondary line-clamp-1 wrap-anywhere">
+                                    <strong>#{value.pull_number}</strong>{" "}
                                     {value.title}
                                 </span>
                             </div>
-                        </div>
-                    )}
-
-                    <ChevronsUpDown
-                        className={cn(
-                            "-mr-2 size-4 opacity-50",
-                            !!value ? "hidden" : "opacity-100",
                         )}
-                    />
+                    </div>
+
+                    <ChevronsUpDown className="-mr-2 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
 
@@ -96,16 +90,38 @@ export const SelectPullRequest = (props: {
                 <Command
                     className="w-full"
                     filter={(value, search) => {
-                        if (value.includes(search)) return 1;
+                        const [repository, pr_number] = value.split("#");
+
+                        const foundPullRequest = pullRequests.find(
+                            (pr) =>
+                                pr.pull_number.toString() === pr_number &&
+                                pr.repository === repository,
+                        );
+
+                        if (
+                            foundPullRequest?.pull_number
+                                .toString()
+                                .includes(search) ||
+                            `#${foundPullRequest?.pull_number}`.includes(
+                                search,
+                            ) ||
+                            foundPullRequest?.title
+                                .toLowerCase()
+                                .includes(search.toLowerCase())
+                        ) {
+                            return 1;
+                        }
+
                         return 0;
                     }}>
-                    <CommandInput placeholder="Search repository..." />
-                    <CommandList>
+                    <CommandInput placeholder="Search by title or number" />
+
+                    <CommandList className="overflow-y-auto">
                         <CommandEmpty className="flex h-full items-center justify-center">
-                            No repository found
+                            No pull request found with current search query
                         </CommandEmpty>
 
-                        <ScrollArea className="h-72">
+                        <div className="max-h-72">
                             {Object.entries(PRsGroupedByRepository).map(
                                 ([repository, prs]) => (
                                     <CommandGroup
@@ -115,15 +131,13 @@ export const SelectPullRequest = (props: {
                                             <CommandItem
                                                 key={`${pr.id}_${pr.pull_number}`}
                                                 value={`${repository}#${pr.pull_number}`}
-                                                onSelect={() => onChange(pr)}>
-                                                <span className="flex items-center">
-                                                    PR
-                                                    <strong>
+                                                onSelect={() => onChange(pr)}
+                                                className="flex items-center justify-start">
+                                                <span className="text-text-secondary line-clamp-2">
+                                                    <strong className="mr-2 font-mono">
                                                         #{pr.pull_number}
                                                     </strong>
-                                                </span>
 
-                                                <span className="text-text-secondary ml-2 line-clamp-2">
                                                     {pr.title}
                                                 </span>
                                             </CommandItem>
@@ -131,7 +145,7 @@ export const SelectPullRequest = (props: {
                                     </CommandGroup>
                                 ),
                             )}
-                        </ScrollArea>
+                        </div>
                     </CommandList>
                 </Command>
             </PopoverContent>

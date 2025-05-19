@@ -97,7 +97,7 @@ export default function App() {
 
                                         <Link
                                             href={selectedPR?.url ?? ""}
-                                            className="[overflow-wrap:anywhere]">
+                                            className="wrap-anywhere">
                                             {selectedPR?.url}
                                         </Link>
                                     </Alert>
@@ -132,27 +132,8 @@ export default function App() {
                                         </FormControl.Input>
                                     </FormControl.Root>
 
-                                    <div className="flex flex-col">
-                                        <Button
-                                            size="lg"
-                                            variant="primary"
-                                            className="w-full"
-                                            disabled={
-                                                !selectedPR ||
-                                                requestedPullRequestReview
-                                            }
-                                            onClick={() =>
-                                                finishOnboardingReviewingPR(
-                                                    selectedPR,
-                                                )
-                                            }
-                                            loading={
-                                                isFinishingOnboardingWithoutSelectingPR
-                                            }>
-                                            Review Pull Request now
-                                        </Button>
-
-                                        <div className="mt-8 text-center">
+                                    <div className="mt-1 -mb-3 flex flex-row items-center justify-between">
+                                        <div className="text-center">
                                             <Link
                                                 href=""
                                                 disabled={
@@ -167,6 +148,25 @@ export default function App() {
                                                 handle it
                                             </Link>
                                         </div>
+
+                                        <Button
+                                            size="lg"
+                                            variant="primary"
+                                            disabled={
+                                                !selectedPR ||
+                                                requestedPullRequestReview ||
+                                                isFinishingOnboardingWithoutSelectingPR
+                                            }
+                                            onClick={() =>
+                                                finishOnboardingReviewingPR(
+                                                    selectedPR,
+                                                )
+                                            }
+                                            loading={
+                                                isFinishingOnboardingReviewingPR
+                                            }>
+                                            Review Pull Request now
+                                        </Button>
                                     </div>
                                 </>
                             )}
