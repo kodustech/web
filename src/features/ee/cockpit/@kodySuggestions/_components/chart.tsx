@@ -57,7 +57,7 @@ export const Chart = ({
                 <div className="text-text-secondary mt-4 text-xs">
                     <p>Implementation Rate:</p>
                     <strong className="text-sm text-white">
-                        {data.implementationRate * 100}%
+                        {Math.round(data.implementationRate * 100)}%
                     </strong>
                 </div>
             </div>

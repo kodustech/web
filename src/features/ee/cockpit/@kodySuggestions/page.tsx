@@ -12,7 +12,7 @@ export default async function KodySuggestions() {
 
     return (
         <>
-            <CardContent className="mt-3.5 pb-3">
+            <CardContent>
                 <Chart data={data} />
             </CardContent>
         </>
