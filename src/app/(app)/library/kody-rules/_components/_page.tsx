@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
 import {
     Command,
@@ -23,16 +22,13 @@ import {
     PopoverTrigger,
 } from "@components/ui/popover";
 import { Separator } from "@components/ui/separator";
-import { toast } from "@components/ui/toaster/use-toast";
 import type {
     FindLibraryKodyRulesFilters,
     LibraryRule,
 } from "@services/kodyRules/types";
-import { RuleLike } from "@services/ruleLike/types";
-import { ArrowLeft, Check, ChevronsUpDown, SearchIcon } from "lucide-react";
+import { Check, ChevronsUpDown, SearchIcon } from "lucide-react";
 import { ProgrammingLanguage } from "src/core/enums/programming-language";
 import { cn } from "src/core/utils/components";
-import { revalidateServerSideTag } from "src/core/utils/revalidate-server-side";
 import { pluralize } from "src/core/utils/string";
 
 const DEFAULT_FILTERS: FindLibraryKodyRulesFilters = {
@@ -40,40 +36,12 @@ const DEFAULT_FILTERS: FindLibraryKodyRulesFilters = {
     tags: [],
 };
 
-export const KodyRulesLibrary = ({
-    rules,
-    rulesWithLikes,
-    configValue,
-}: {
-    rules: LibraryRule[];
-    rulesWithLikes: RuleLike[];
-    configValue: {
-        repositories: Array<{
-            id: string;
-            name: string;
-            isSelected?: boolean;
-        }>;
-    };
-}) => {
-    const router = useRouter();
-
+export const KodyRulesLibrary = ({ rules }: { rules: LibraryRule[] }) => {
     const [filters, setFilters] =
         useState<FindLibraryKodyRulesFilters>(DEFAULT_FILTERS);
 
-    const formatedRules = useMemo(() => {
-        return rules.map((r) => ({
-            ...r,
-            likesCount:
-                rulesWithLikes.find((rl) => rl.ruleId === r.uuid)?.likeCount ??
-                0,
-            isLiked:
-                rulesWithLikes.find((rl) => rl.ruleId === r.uuid)?.userLiked ??
-                false,
-        }));
-    }, [rules, rulesWithLikes]);
-
     const filteredRules = useMemo(() => {
-        let results = formatedRules;
+        let results = rules;
 
         if (filters.name?.length) {
             results = results?.filter((r) =>
@@ -96,7 +64,7 @@ export const KodyRulesLibrary = ({
         }
 
         return results;
-    }, [filters]);
+    }, [filters, rules]);
 
     const tags = useMemo(() => {
         const tags = new Set<string>();
@@ -108,23 +76,6 @@ export const KodyRulesLibrary = ({
         <Page.Root>
             <Page.Header>
                 <div className="flex flex-col gap-1">
-                    <Button
-                        size="sm"
-                        variant="helper"
-                        className="mb-10 text-xs"
-                        leftIcon={<ArrowLeft />}
-                        onClick={() => {
-                            if (window.history.length > 1) {
-                                router.back();
-                            } else {
-                                router.push(
-                                    "/settings/code-review/global/kody-rules",
-                                );
-                            }
-                        }}>
-                        Go back to Kody Rules
-                    </Button>
-
                     <Page.Title className="text-2xl font-semibold">
                         Discovery Rules
                     </Page.Title>
@@ -429,35 +380,7 @@ export const KodyRulesLibrary = ({
                                 <KodyRuleLibraryItem
                                     key={r.uuid}
                                     rule={r}
-                                    selectedRepositories={
-                                        configValue?.repositories
-                                    }
-                                    onAddRule={(r) => {
-                                        revalidateServerSideTag(
-                                            "kody-rules-list",
-                                        );
-
-                                        toast({
-                                            variant: "success",
-                                            title: "Rule added to your selected repositories",
-                                            description: (
-                                                <ul className="list-disc pl-4">
-                                                    {r.map((r) => (
-                                                        <li key={r.uuid}>
-                                                            {r.repositoryId ===
-                                                            "global"
-                                                                ? "Global"
-                                                                : configValue?.repositories?.find(
-                                                                      (cr) =>
-                                                                          cr.id ===
-                                                                          r.repositoryId,
-                                                                  )?.name}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            ),
-                                        });
-                                    }}
+                                    showLikeButton
                                 />
                             ))}
                         </div>
