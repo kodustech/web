@@ -293,10 +293,7 @@ export const KodyRulesPage = ({
                                                 ))}
                                         </>
                                     }>
-                                    <NoItems
-                                        repositoryId={repositoryId}
-                                        onAddRule={refreshRulesList}
-                                    />
+                                    <NoItems repositoryId={repositoryId} />
                                 </Suspense>
 
                                 <NoItemsViewMore />
@@ -332,13 +329,7 @@ export const KodyRulesPage = ({
     );
 };
 
-const NoItems = ({
-    repositoryId,
-    onAddRule,
-}: {
-    repositoryId: string;
-    onAddRule?: () => void;
-}) => {
+const NoItems = ({ repositoryId }: { repositoryId: string }) => {
     const rules = useSuspenseFindLibraryKodyRules();
 
     return rules
@@ -348,7 +339,6 @@ const NoItems = ({
                 key={r.uuid}
                 rule={r}
                 repositoryId={repositoryId}
-                onAddRule={onAddRule}
             />
         ));
 };

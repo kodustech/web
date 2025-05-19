@@ -1,33 +1,22 @@
 import { getLibraryKodyRules } from "@services/kodyRules/fetch";
-import { LibraryRule } from "@services/kodyRules/types";
-import { getTeamParameters } from "@services/parameters/fetch";
-import { ParametersConfigKey } from "@services/parameters/types";
 import { getAllRulesWithLikes } from "@services/ruleLike/fetch";
-import { RuleLike } from "@services/ruleLike/types";
-import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 
 import { KodyRulesLibrary } from "./_components/_page";
 
 export default async function Route() {
-    const [rules, rulesWithLikes] = await Promise.all([
+    const [allRules, allRulesWithLikes] = await Promise.all([
         getLibraryKodyRules(),
-        getAllRulesWithLikes()
+        getAllRulesWithLikes(),
     ]);
 
-    const teamId = await getGlobalSelectedTeamId();
-
-    const { configValue } = await getTeamParameters<{
-        configValue: { repositories: Array<{ id: string; name: string }> };
-    }>({
-        key: ParametersConfigKey.CODE_REVIEW_CONFIG,
-        teamId,
+    const rules = allRules.map((r) => {
+        const likes = allRulesWithLikes.find((rl) => rl.ruleId === r.uuid);
+        return {
+            ...r,
+            isLiked: likes?.userLiked ?? false,
+            likesCount: likes?.likeCount ?? 0,
+        };
     });
 
-    return (
-        <KodyRulesLibrary
-            rules={rules ?? []}
-            rulesWithLikes={rulesWithLikes ?? []}
-            configValue={configValue}
-        />
-    );
+    return <KodyRulesLibrary rules={rules} />;
 }
