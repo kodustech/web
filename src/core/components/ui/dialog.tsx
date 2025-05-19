@@ -74,7 +74,7 @@ const DialogContent = React.forwardRef<
                 {closeable && (
                     <DialogPrimitive.Close
                         asChild
-                        className="absolute top-4 right-4">
+                        className="absolute top-5 right-4">
                         <Button size="icon-sm" variant="cancel">
                             <X />
                         </Button>
@@ -92,7 +92,7 @@ const DialogHeader = ({
 }: React.HTMLAttributes<HTMLDivElement>) => (
     <div
         className={cn(
-            "flex flex-col justify-center gap-y-2 text-center sm:text-left",
+            "flex flex-col justify-center gap-y-2 pr-8 text-center sm:text-left",
             className,
         )}
         {...props}

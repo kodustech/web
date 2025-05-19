@@ -1,23 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Badge } from "@components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
-import { magicModal } from "@components/ui/magic-modal";
-import type { KodyRule, LibraryRule } from "@services/kodyRules/types";
+import type { LibraryRule } from "@services/kodyRules/types";
 import { setRuleLike, type RuleLike } from "@services/ruleLike/fetch";
 import { useMutation } from "@tanstack/react-query";
 import { HeartIcon } from "lucide-react";
 import { ProgrammingLanguage } from "src/core/enums/programming-language";
 import { useAuth } from "src/core/providers/auth.provider";
-import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
 
 import { Button } from "../button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "../hover-card";
 import { Separator } from "../separator";
-import { KodyRuleLibraryItemModal } from "./library-item-modal";
+import { Spinner } from "../spinner";
 
 const severityVariantMap = {
     Critical: "bg-danger/10 text-danger border-danger/64",
@@ -29,20 +28,22 @@ const severityVariantMap = {
 export const KodyRuleLibraryItem = ({
     rule,
     repositoryId,
-    onAddRule,
-    selectedRepositories,
+    showLikeButton,
 }: {
     rule: LibraryRule;
     repositoryId?: string;
-    onAddRule?: (rules: KodyRule[]) => void;
-    selectedRepositories?: Array<{
-        id: string;
-        name: string;
-        isSelected?: boolean;
-    }>;
+    showLikeButton?: boolean;
 }) => {
-    const { teamId } = useSelectedTeamId();
+    const router = useRouter();
     const { userId } = useAuth();
+    const [isLiked, setIsLiked] = useState(rule.isLiked);
+    const [likeCount, setLikeCount] = useState(rule.likesCount ?? 0);
+
+    useEffect(() => {
+        setIsLiked(rule.isLiked);
+        setLikeCount(rule.likesCount);
+    }, [rule.isLiked, rule.likesCount]);
+
     const sortedTags = [...rule.tags.sort((a, b) => a.length - b.length)];
 
     const quantityOfCharactersInAllTags = sortedTags.reduce(
@@ -73,21 +74,19 @@ export const KodyRuleLibraryItem = ({
         },
     );
 
-    const [isLiked, setIsLiked] = useState(rule.isLiked);
-    const [likeCount, setLikeCount] = useState(rule.likesCount ?? 0);
-
-    const { mutate: toggleLike } = useMutation<RuleLike, Error, void>({
-        mutationFn: async () => {
-            return setRuleLike(rule.uuid, rule.language, !isLiked, userId);
-        },
-        onSuccess: (data: any) => {
-            setIsLiked(data.data.liked);
-            setLikeCount(data.data.count);
-        },
-        onError: (error) => {
-            console.error("Error toggling like:", error);
-        },
-    });
+    const { mutate: toggleLike, isPending: isLikeActionInProgress } =
+        useMutation<RuleLike, Error, void>({
+            mutationFn: async () => {
+                return setRuleLike(rule.uuid, rule.language, !isLiked, userId);
+            },
+            onSuccess: (data: any) => {
+                setIsLiked(data.data.liked);
+                setLikeCount(data.data.count);
+            },
+            onError: (error) => {
+                console.error("Error toggling like:", error);
+            },
+        });
 
     return (
         <Card
@@ -97,22 +96,17 @@ export const KodyRuleLibraryItem = ({
                 tabIndex={0}
                 role="button"
                 onKeyDown={(ev) => {
-                    if (ev.code == "Space" || ev.code == "Enter") {
+                    if (ev.code === "Space" || ev.code === "Enter") {
                         (document.activeElement as HTMLDivElement)?.click();
                     }
                 }}
                 className="bg-card-lv2 flex h-full w-full flex-col transition hover:brightness-120 focus-visible:brightness-120"
                 onClick={() => {
-                    magicModal.show(() => (
-                        <KodyRuleLibraryItemModal
-                            key={rule.uuid}
-                            rule={rule}
-                            repositoryId={repositoryId}
-                            teamId={teamId}
-                            onAddRule={onAddRule}
-                            selectedRepositories={selectedRepositories}
-                        />
-                    ));
+                    let route = `/library/kody-rules/${rule.uuid}`;
+                    if (repositoryId)
+                        route = `${route}?repositoryId=${repositoryId}`;
+
+                    router.push(route);
                 }}>
                 <CardHeader className="flex-row justify-between gap-4">
                     <Heading
@@ -143,7 +137,7 @@ export const KodyRuleLibraryItem = ({
 
             <Separator className="opacity-70" />
 
-            <CardFooter className="bg-card-lv2 flex w-full cursor-auto items-end justify-between gap-4 px-5 pt-2 pb-4">
+            <CardFooter className="bg-card-lv2 flex w-full cursor-auto items-end justify-between gap-4 px-5 py-4">
                 <div className="flex flex-wrap items-center gap-[3px]">
                     {rule.language && (
                         <Badge className="h-2 px-2.5 font-normal">
@@ -181,21 +175,28 @@ export const KodyRuleLibraryItem = ({
                     )}
                 </div>
 
-                <Button
-                    size="md"
-                    variant="cancel"
-                    onClick={() => toggleLike()}
-                    className="-mr-2 -mb-2 gap-1.5 px-2"
-                    rightIcon={
-                        <HeartIcon
-                            className={cn(
-                                "transition-colors",
-                                isLiked && "fill-brand-red text-brand-red",
-                            )}
-                        />
-                    }>
-                    {likeCount === 0 ? null : likeCount}
-                </Button>
+                {showLikeButton && (
+                    <Button
+                        size="md"
+                        variant="cancel"
+                        onClick={() => toggleLike()}
+                        className="-my-2 -mr-2 gap-1.5 px-2"
+                        rightIcon={
+                            isLikeActionInProgress ? (
+                                <Spinner className="text-brand-red size-2.5" />
+                            ) : (
+                                <HeartIcon
+                                    className={cn(
+                                        "transition-colors",
+                                        isLiked &&
+                                            "fill-brand-red text-brand-red",
+                                    )}
+                                />
+                            )
+                        }>
+                        {likeCount === 0 ? null : likeCount}
+                    </Button>
+                )}
             </CardFooter>
         </Card>
     );
