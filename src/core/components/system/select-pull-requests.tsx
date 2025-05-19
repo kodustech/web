@@ -98,18 +98,20 @@ export const SelectPullRequest = (props: {
                                 pr.repository === repository,
                         );
 
-                        if (
-                            foundPullRequest?.pull_number
-                                .toString()
-                                .includes(search) ||
-                            `#${foundPullRequest?.pull_number}`.includes(
-                                search,
-                            ) ||
-                            foundPullRequest?.title
-                                .toLowerCase()
-                                .includes(search.toLowerCase())
-                        ) {
-                            return 1;
+                        if (foundPullRequest) {
+                            const prNumberString =
+                                foundPullRequest.pull_number.toString();
+                            const prTitleLower =
+                                foundPullRequest.title.toLowerCase();
+                            const searchLower = search.toLowerCase(); // For case-insensitive title search
+
+                            if (
+                                prNumberString.includes(search) || // Original search term for number
+                                `#${prNumberString}`.includes(search) || // Original search term for #number
+                                prTitleLower.includes(searchLower)
+                            ) {
+                                return 1;
+                            }
                         }
 
                         return 0;
