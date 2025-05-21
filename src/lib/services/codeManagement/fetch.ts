@@ -123,3 +123,10 @@ export const finishOnboarding = (params: {
         pullNumber,
     });
 };
+
+export const deleteIntegration = async (organizationId: string, teamId: string) => {
+    return axiosAuthorized.deleted<any>(
+        CODE_MANAGEMENT_API_PATHS.DELETE_INTEGRATION,
+        { params: { organizationId, teamId } }
+    );
+};

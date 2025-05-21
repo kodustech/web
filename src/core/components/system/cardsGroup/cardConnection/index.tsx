@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { Heading } from "@components/ui/heading";
-import { CheckCircle2Icon, EditIcon, PlugIcon } from "lucide-react";
+import { CheckCircle2Icon, EditIcon, PlugIcon, TrashIcon } from "lucide-react";
 import { Button } from "src/core/components/ui/button";
 import { Card, CardFooter, CardHeader } from "src/core/components/ui/card";
 import { INTEGRATIONS_KEY } from "src/core/enums";
@@ -13,6 +13,7 @@ type CardProps = {
     integrationKey: any;
     connectIntegration: (title: string, serviceType?: string) => void;
     editIntegration: (title: string) => void;
+    deleteIntegration: (title: string) => void;
 };
 
 export default function CardConnection({
@@ -23,6 +24,7 @@ export default function CardConnection({
     integrationKey,
     connectIntegration,
     editIntegration,
+    deleteIntegration,
 }: CardProps): React.ReactNode {
     const [buttonTopText, setButtonsTopText] = React.useState<string>("");
     const [isDisabled, setIsDisabled] = React.useState<boolean>(false);
@@ -71,14 +73,25 @@ export default function CardConnection({
                 )}
 
                 {isSetupComplete && (
-                    <Button
-                        size="sm"
-                        variant="primary"
-                        disabled={disabled || isDisabled}
-                        leftIcon={isSetupComplete ? <EditIcon /> : <PlugIcon />}
-                        onClick={() => editIntegration(title)}>
-                        {isSetupComplete ? "Edit" : "Connect"}
-                    </Button>
+                    <div className="flex flex-col gap-2">
+                        <Button
+                            size="sm"
+                            variant="primary"
+                            disabled={disabled || isDisabled}
+                            leftIcon={isSetupComplete ? <EditIcon /> : <PlugIcon />}
+                            onClick={() => editIntegration(title)}>
+                            {isSetupComplete ? "Edit" : "Connect"}
+                        </Button>
+                        <Button
+                            size="sm"
+                            variant="tertiary"
+                            className="text-danger"
+                            disabled={disabled || isDisabled}
+                            leftIcon={<TrashIcon />}
+                            onClick={() => deleteIntegration(title)}>
+                            Delete
+                        </Button>
+                    </div>
                 )}
             </CardFooter>
         </Card>
