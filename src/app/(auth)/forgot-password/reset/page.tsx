@@ -260,7 +260,7 @@ export default function ForgotPasswordPage() {
                                     formIsSubmitting ||
                                     formIsValidating
                                 }>
-                                Sign in
+                                Reset Password
                             </Button>
                         </form>
                     </Suspense>
