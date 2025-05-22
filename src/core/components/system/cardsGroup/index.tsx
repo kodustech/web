@@ -497,6 +497,17 @@ export default function CardsGroup({
 
     const confirmDeleteIntegration = useCallback(async () => {
         try {
+            if (!organizationId) {
+                toast({
+                    variant: "danger",
+                    title: "Error deleting integration",
+                    description: "Organization ID is missing. Cannot proceed.",
+                });
+                setShowDeleteModal(false);
+                setIntegrationToDelete("");
+                return;
+            }
+
             await deleteIntegration(organizationId!, team.uuid);
 
             toast({
