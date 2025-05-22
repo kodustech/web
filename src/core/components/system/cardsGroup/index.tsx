@@ -30,7 +30,7 @@ import { useOrganizationContext } from "src/features/organization/_providers/org
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { INTEGRATION_CONFIG } from "@services/integrations/integrationConfig";
 import { IntegrationCategory } from "src/core/types";
-
+import { useAuth } from "src/core/providers/auth.provider";
 import CardConnection from "./cardConnection";
 import { AzureReposModal } from "./modals/azure-repos-token";
 import { BitbucketModal } from "./modals/bitbucket-token";
@@ -121,6 +121,7 @@ export default function CardsGroup({
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [integrationToDelete, setIntegrationToDelete] = useState<string>("");
     const { invalidateQueries, generateQueryKey } = useReactQueryInvalidateQueries();
+    const { userId } = useAuth();
 
     const [connections] = useState<
         Array<{
@@ -269,6 +270,7 @@ export default function CardsGroup({
         token: string;
         username?: string;
         organizationName?: string;
+        selfHostedUrl?: string;
         integrationKey: INTEGRATIONS_KEY;
         integrationType: PlatformType;
     }) => {
@@ -276,6 +278,7 @@ export default function CardsGroup({
             integrationType: params.integrationType,
             authMode: AuthMode.TOKEN,
             token: params.token,
+            host: params?.selfHostedUrl,
             username: params.username,
             orgName: params.organizationName,
             organizationAndTeamData: {
@@ -329,7 +332,7 @@ export default function CardsGroup({
                     setCookie("selectedTeam", JSON.stringify(team));
                     connectIntegration(integrationKey, serviceType);
                 }}
-                onSaveToken={async (token) => {
+                onSaveToken={async (token, selfHostedUrl) => {
                     let integrationType: PlatformType = PlatformType.GITHUB;
 
                     if (integrationKey === INTEGRATIONS_KEY.GITHUB) {
@@ -340,10 +343,12 @@ export default function CardsGroup({
 
                     await onSaveToken({
                         token,
+                        selfHostedUrl,
                         integrationType,
                         integrationKey,
                     });
                 }}
+                showSelfHosted={integrationKey === INTEGRATIONS_KEY.GITLAB}
             />
         ));
     };
@@ -526,6 +531,7 @@ export default function CardsGroup({
 
             setShowDeleteModal(false);
             setIntegrationToDelete("");
+
         } catch (error) {
             toast({
                 variant: "warning",
