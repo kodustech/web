@@ -24,7 +24,13 @@ import { deleteCookie, setCookie } from "cookies-next";
 import integrationFactory from "src/core/integrations/integrationFactory";
 import { useAllTeams } from "src/core/providers/all-teams-context";
 import { AuthMode, PlatformType } from "src/core/types";
-
+import { DeleteIntegrationModal } from "./modals/delete-integration";
+import { deleteIntegration } from "@services/codeManagement/fetch";
+import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
+import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
+import { INTEGRATION_CONFIG } from "@services/integrations/integrationConfig";
+import { IntegrationCategory } from "src/core/types";
+import { useAuth } from "src/core/providers/auth.provider";
 import CardConnection from "./cardConnection";
 import { AzureReposModal } from "./modals/azure-repos-token";
 import { BitbucketModal } from "./modals/bitbucket-token";
@@ -111,6 +117,11 @@ export default function CardsGroup({
     const router = useRouter();
     const pathname = usePathname();
     const { teams } = useAllTeams();
+    const { organizationId, organizationName } = useOrganizationContext();
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [integrationToDelete, setIntegrationToDelete] = useState<string>("");
+    const { invalidateQueries, generateQueryKey } = useReactQueryInvalidateQueries();
+    const { userId } = useAuth();
 
     const [connections] = useState<
         Array<{
@@ -259,6 +270,7 @@ export default function CardsGroup({
         token: string;
         username?: string;
         organizationName?: string;
+        selfHostedUrl?: string;
         integrationKey: INTEGRATIONS_KEY;
         integrationType: PlatformType;
     }) => {
@@ -266,6 +278,7 @@ export default function CardsGroup({
             integrationType: params.integrationType,
             authMode: AuthMode.TOKEN,
             token: params.token,
+            host: params?.selfHostedUrl,
             username: params.username,
             orgName: params.organizationName,
             organizationAndTeamData: {
@@ -319,7 +332,7 @@ export default function CardsGroup({
                     setCookie("selectedTeam", JSON.stringify(team));
                     connectIntegration(integrationKey, serviceType);
                 }}
-                onSaveToken={async (token) => {
+                onSaveToken={async (token, selfHostedUrl) => {
                     let integrationType: PlatformType = PlatformType.GITHUB;
 
                     if (integrationKey === INTEGRATIONS_KEY.GITHUB) {
@@ -330,10 +343,12 @@ export default function CardsGroup({
 
                     await onSaveToken({
                         token,
+                        selfHostedUrl,
                         integrationType,
                         integrationKey,
                     });
                 }}
+                showSelfHosted={integrationKey === INTEGRATIONS_KEY.GITLAB}
             />
         ));
     };
@@ -475,6 +490,68 @@ export default function CardsGroup({
         );
     };
 
+    const handleDeleteIntegration = useCallback(async (title: string) => {
+        setIntegrationToDelete(title);
+        setShowDeleteModal(true);
+    }, []);
+
+    const confirmDeleteIntegration = useCallback(async () => {
+        try {
+            if (!organizationId) {
+                toast({
+                    variant: "danger",
+                    title: "Error deleting integration",
+                    description: "Organization ID is missing. Cannot proceed.",
+                });
+                setShowDeleteModal(false);
+                setIntegrationToDelete("");
+                return;
+            }
+
+            await deleteIntegration(organizationId!, team.uuid);
+
+            toast({
+                variant: "success",
+                title: "Integration deleted successfully",
+            });
+
+            await invalidateQueries({
+                type: "all",
+                queryKey: generateQueryKey(
+                    INTEGRATION_CONFIG.GET_INTEGRATION_CONFIG_BY_CATEGORY,
+                    {
+                        params: {
+                            teamId: team.uuid,
+                            integrationCategory: IntegrationCategory.CODE_MANAGEMENT,
+                        },
+                    },
+                ),
+            });
+
+            // Invalidate all queries related to integrations
+            await invalidateQueries({
+                type: "all",
+                queryKey: ["integrations"],
+            });
+
+            // Invalidate team queries
+            await invalidateQueries({
+                type: "all",
+                queryKey: ["teams"],
+            });
+
+            setShowDeleteModal(false);
+            setIntegrationToDelete("");
+
+        } catch (error) {
+            toast({
+                variant: "warning",
+                title: "Error deleting integration",
+                description: "Please try again later",
+            });
+        }
+    }, [organizationId, team.uuid, invalidateQueries, generateQueryKey, router]);
+
     return (
         <>
             <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
@@ -497,6 +574,7 @@ export default function CardsGroup({
                             isSetupComplete={true}
                             connectIntegration={wrappedConnectIntegration}
                             editIntegration={editIntegration}
+                            deleteIntegration={handleDeleteIntegration}
                         />
                     ) : (
                         <div className="flex h-full flex-col gap-2 md:min-h-[220px]">
@@ -543,6 +621,7 @@ export default function CardsGroup({
                             isSetupComplete={true}
                             connectIntegration={wrappedConnectIntegration}
                             editIntegration={editIntegration}
+                            deleteIntegration={handleDeleteIntegration}
                         />
                     ) : (
                         <div className="flex h-full flex-col gap-2 md:min-h-[220px]">
@@ -589,6 +668,7 @@ export default function CardsGroup({
                             isSetupComplete={true}
                             connectIntegration={wrappedConnectIntegration}
                             editIntegration={editIntegration}
+                            deleteIntegration={handleDeleteIntegration}
                         />
                     ) : (
                         <div className="flex h-full flex-col gap-2 md:min-h-[220px]">
@@ -618,24 +698,16 @@ export default function CardsGroup({
                 </div>
             </div>
 
-            {/* <IntegrationModal
-                open={isModalOpen}
-                onClose={handleCloseModal}
-                onNewIntegration={() =>
-                    integrationData?.platform && integrationData?.category
-                        ? connectIntegration(
-                              integrationData.platform,
-                              integrationData.category,
-                          )
-                        : null
-                }
-                onPendingIntegration={setPendingIntegrationData} // Passar função para setar integração pendente
-                refetchConnections={() => router.refresh()}
-                teams={teams}
-                teamId={team.uuid}
-                integrationData={integrationData}
-            />
-            */}
+            {showDeleteModal && (
+                <DeleteIntegrationModal
+                    title={integrationToDelete}
+                    onConfirm={confirmDeleteIntegration}
+                    onCancel={() => {
+                        setShowDeleteModal(false);
+                        setIntegrationToDelete("");
+                    }}
+                />
+            )}
         </>
     );
 }

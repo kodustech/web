@@ -7,6 +7,9 @@ import { JwtPayload, ParsedJwt } from "../types";
 import { isSelfHosted } from "../utils/self-hosted";
 import { isServerSide } from "./server-side";
 
+const containerName =
+    process.env.GLOBAL_API_CONTAINER_NAME || "kodus-orchestrator";
+
 export function pathToApiUrl(
     path: API_ROUTES | string,
     params?: Record<string, string>,
@@ -17,8 +20,7 @@ export function pathToApiUrl(
 
     // if 'true' we are in the server and hostname is not a domain
     if (isServerSide && hostName === "localhost") {
-        hostName =
-            process.env.GLOBAL_API_CONTAINER_NAME || "kodus-orchestrator";
+        hostName = containerName;
     }
 
     if (params) {
@@ -86,7 +88,11 @@ export function createUrl(
     let protocol: string;
     let finalPort: string;
 
-    if (isProduction() || (isSelfHosted && hostName !== "localhost")) {
+    if (
+        isProduction() ||
+        (isSelfHosted &&
+            (hostName !== "localhost" && hostName !== containerName))
+    ) {
         // Cases: Production OR (SelfHosted with a specific domain)
         protocol = "https";
         finalPort = "";
