@@ -4,6 +4,7 @@ import invariant from "tiny-invariant";
 
 import { API_ROUTES } from "../config/constants";
 import { JwtPayload, ParsedJwt } from "../types";
+import { isSelfHosted } from "../utils/self-hosted";
 import { isServerSide } from "./server-side";
 
 export function pathToApiUrl(
@@ -28,7 +29,7 @@ export function pathToApiUrl(
 
     const port = process.env.WEB_PORT_API;
 
-    return createUrl(hostName, port, path, false);
+    return createUrl(hostName, port, path);
 }
 
 export function pathToSlackApiUrl(path: API_ROUTES | string): string {
@@ -54,7 +55,7 @@ export function pathToSlackApiUrl(path: API_ROUTES | string): string {
         );
     }
 
-    return createUrl(hostName, port, path, false);
+    return createUrl(hostName, port, path);
 }
 
 export function pathToDiscordApiUrl(path: API_ROUTES | string): string {
@@ -73,24 +74,32 @@ export function pathToDiscordApiUrl(path: API_ROUTES | string): string {
     return `${serviceUrl}${path}`;
 }
 
+function isProduction() {
+    return process.env.WEB_NODE_ENV === "production";
+}
+
 export function createUrl(
     hostName?: string,
     port?: string,
     path?: string,
-    https?: boolean,
 ): string {
-    if (isProduction()) {
-        https = true;
-        port = "";
+    let protocol: string;
+    let finalPort: string;
+
+    if (isProduction() || (isSelfHosted && hostName !== "localhost")) {
+        // Cases: Production OR (SelfHosted with a specific domain)
+        protocol = "https";
+        finalPort = "";
+    } else {
+        // Cases: Development OR (SelfHosted running on localhost)
+        // Also implicitly covers isDevelopment(), because if it's not production nor self-hosted with a domain,
+        // and isDevelopment() is true, it will fall here.
+        // If it's self-hosted and hostname === "localhost", it will also fall here.
+        protocol = "http";
+        finalPort = port ? `:${port}` : "";
     }
 
-    return `${https ? "https" : "http"}://${hostName}${
-        port ? `:${port}` : ""
-    }${path}`;
-}
-
-function isProduction() {
-    return process.env.WEB_NODE_ENV === "production";
+    return `${protocol}://${hostName}${finalPort}${path}`;
 }
 
 export function isJwtExpired(expirationDate?: number) {
