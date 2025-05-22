@@ -98,3 +98,11 @@ export const loginOAuth = (
         authProvider,
     });
 };
+
+export const sendForgotPasswordMail =async (email:string)=>{
+    return axiosApi.post(pathToApiUrl(API_ROUTES.forgotPassword),{email})
+}
+
+export const resetPassword =async (newPassword:string,token:string)=>{
+    return axiosApi.post(pathToApiUrl(API_ROUTES.resetPassword),{newPassword,token})
+}
