@@ -53,7 +53,7 @@ export default function LoginPage() {
                         <Link href="/sign-up">Sign up for free</Link>
                     </div>
                     <Link
-                        className="mx-auto mt-4 text-center text-sm text-blue-400 underline"
+                        className="mx-auto mt-4 text-center text-sm underline"
                         href="/forgot-password">
                         Forgot Password?
                     </Link>

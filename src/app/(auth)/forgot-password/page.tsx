@@ -104,7 +104,7 @@ export default function ForgotPasswordPage() {
                                     formIsSubmitting ||
                                     formIsValidating
                                 }>
-                                Rest Password
+                                Reset Password
                             </Button>
                         </form>
                     </Suspense>
