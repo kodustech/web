@@ -42,7 +42,7 @@ const resetPassFormSchema = z
 
 type ResetPassFormSchema = z.infer<typeof resetPassFormSchema>;
 
-export default function ForgotPasswordPage() {
+function ResetPasswordForm() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const [typePassword, setTypePassword] = useState<"password" | "text">(
@@ -112,157 +112,163 @@ export default function ForgotPasswordPage() {
     );
 
     return (
+        <form onSubmit={onSubmit} className="grid w-full gap-6">
+            <Controller
+                name="password"
+                control={form.control}
+                render={({ field, fieldState, formState }) => (
+                    <FormControl.Root>
+                        <FormControl.Label htmlFor={field.name}>
+                            Password
+                        </FormControl.Label>
+
+                        <FormControl.Input>
+                            <Input
+                                {...field}
+                                id={field.name}
+                                type={typePassword}
+                                placeholder="Create your password"
+                                error={fieldState.error}
+                                autoCapitalize="none"
+                                autoCorrect="off"
+                                autoComplete="off"
+                                disabled={
+                                    formState.isSubmitting ||
+                                    formState.isLoading ||
+                                    field.disabled
+                                }
+                                rightIcon={
+                                    <Button
+                                        size="icon-sm"
+                                        variant="helper"
+                                        type="button"
+                                        className="-mr-2"
+                                        onClick={() =>
+                                            setTypePassword(
+                                                (
+                                                    typePassword,
+                                                ) =>
+                                                    typePassword ===
+                                                    "password"
+                                                        ? "text"
+                                                        : "password",
+                                            )
+                                        }>
+                                        {typePassword ===
+                                        "password" ? (
+                                            <EyeClosed />
+                                        ) : (
+                                            <Eye />
+                                        )}
+                                    </Button>
+                                }
+                            />
+                        </FormControl.Input>
+
+                        <FormControl.Error>
+                            {fieldState.error?.message}
+                        </FormControl.Error>
+
+                        <FormControl.Helper className="mt-2 flex flex-col gap-1">
+                            <span>
+                                Password must have at least:
+                            </span>
+                            <div className="flex flex-row flex-wrap gap-1">
+                                {Object.values(
+                                    passwordRules,
+                                ).map((rule, index) => (
+                                    <div
+                                        key={index}
+                                        className={cn(
+                                            "flex items-center gap-1 rounded-full px-2 py-1",
+                                            "border border-[#6A57A433]",
+                                            rule.valid &&
+                                                "border-success/20",
+                                        )}>
+                                        <div className="w-3 text-center">
+                                            {rule.valid ? (
+                                                <CheckIcon className="text-success size-3" />
+                                            ) : (
+                                                <span>•</span>
+                                            )}
+                                        </div>
+
+                                        <span
+                                            className={cn(
+                                                rule.valid &&
+                                                    "text-success-foreground",
+                                            )}>
+                                            {rule.text}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        </FormControl.Helper>
+                    </FormControl.Root>
+                )}
+            />
+
+            <Controller
+                name="confirmPassword"
+                control={form.control}
+                render={({ field, fieldState, formState }) => (
+                    <FormControl.Root>
+                        <FormControl.Label htmlFor={field.name}>
+                            Confirm Password
+                        </FormControl.Label>
+
+                        <FormControl.Input>
+                            <Input
+                                {...field}
+                                id={field.name}
+                                type="password"
+                                placeholder="Re-enter your password"
+                                error={fieldState.error}
+                                autoCapitalize="none"
+                                autoCorrect="off"
+                                autoComplete="off"
+                                disabled={
+                                    formState.isSubmitting ||
+                                    formState.isLoading ||
+                                    field.disabled
+                                }
+                            />
+                        </FormControl.Input>
+
+                        <FormControl.Error>
+                            {fieldState.error?.message}
+                        </FormControl.Error>
+                    </FormControl.Root>
+                )}
+            />
+
+            <Button
+                size="lg"
+                type="submit"
+                variant="primary"
+                className="w-full"
+                disabled={!formIsValid}
+                rightIcon={<LogInIcon />}
+                loading={
+                    formIsLoading ||
+                    formIsSubmitting ||
+                    formIsValidating
+                }>
+                Reset Password
+            </Button>
+        </form>
+    );
+}
+
+export default function ForgotPasswordPage() {
+    return (
         <Page.Root className="flex h-full w-full flex-col items-center overflow-auto py-20">
             <div className="flex w-[90%] flex-1 flex-col items-center justify-center gap-10 md:max-w-[500px]">
                 <AuthPageHeader />
 
                 <Page.Content className="flex-none gap-4">
-                    <Suspense>
-                        <form onSubmit={onSubmit} className="grid w-full gap-6">
-                            <Controller
-                                name="password"
-                                control={form.control}
-                                render={({ field, fieldState, formState }) => (
-                                    <FormControl.Root>
-                                        <FormControl.Label htmlFor={field.name}>
-                                            Password
-                                        </FormControl.Label>
-
-                                        <FormControl.Input>
-                                            <Input
-                                                {...field}
-                                                id={field.name}
-                                                type={typePassword}
-                                                placeholder="Create your password"
-                                                error={fieldState.error}
-                                                autoCapitalize="none"
-                                                autoCorrect="off"
-                                                autoComplete="off"
-                                                disabled={
-                                                    formState.isSubmitting ||
-                                                    formState.isLoading ||
-                                                    field.disabled
-                                                }
-                                                rightIcon={
-                                                    <Button
-                                                        size="icon-sm"
-                                                        variant="helper"
-                                                        type="button"
-                                                        className="-mr-2"
-                                                        onClick={() =>
-                                                            setTypePassword(
-                                                                (
-                                                                    typePassword,
-                                                                ) =>
-                                                                    typePassword ===
-                                                                    "password"
-                                                                        ? "text"
-                                                                        : "password",
-                                                            )
-                                                        }>
-                                                        {typePassword ===
-                                                        "password" ? (
-                                                            <EyeClosed />
-                                                        ) : (
-                                                            <Eye />
-                                                        )}
-                                                    </Button>
-                                                }
-                                            />
-                                        </FormControl.Input>
-
-                                        <FormControl.Error>
-                                            {fieldState.error?.message}
-                                        </FormControl.Error>
-
-                                        <FormControl.Helper className="mt-2 flex flex-col gap-1">
-                                            <span>
-                                                Password must have at least:
-                                            </span>
-                                            <div className="flex flex-row flex-wrap gap-1">
-                                                {Object.values(
-                                                    passwordRules,
-                                                ).map((rule, index) => (
-                                                    <div
-                                                        key={index}
-                                                        className={cn(
-                                                            "flex items-center gap-1 rounded-full px-2 py-1",
-                                                            "border border-[#6A57A433]",
-                                                            rule.valid &&
-                                                                "border-success/20",
-                                                        )}>
-                                                        <div className="w-3 text-center">
-                                                            {rule.valid ? (
-                                                                <CheckIcon className="text-success size-3" />
-                                                            ) : (
-                                                                <span>•</span>
-                                                            )}
-                                                        </div>
-
-                                                        <span
-                                                            className={cn(
-                                                                rule.valid &&
-                                                                    "text-success-foreground",
-                                                            )}>
-                                                            {rule.text}
-                                                        </span>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </FormControl.Helper>
-                                    </FormControl.Root>
-                                )}
-                            />
-
-                            <Controller
-                                name="confirmPassword"
-                                control={form.control}
-                                render={({ field, fieldState, formState }) => (
-                                    <FormControl.Root>
-                                        <FormControl.Label htmlFor={field.name}>
-                                            Confirm Password
-                                        </FormControl.Label>
-
-                                        <FormControl.Input>
-                                            <Input
-                                                {...field}
-                                                id={field.name}
-                                                type="password"
-                                                placeholder="Re-enter your password"
-                                                error={fieldState.error}
-                                                autoCapitalize="none"
-                                                autoCorrect="off"
-                                                autoComplete="off"
-                                                disabled={
-                                                    formState.isSubmitting ||
-                                                    formState.isLoading ||
-                                                    field.disabled
-                                                }
-                                            />
-                                        </FormControl.Input>
-
-                                        <FormControl.Error>
-                                            {fieldState.error?.message}
-                                        </FormControl.Error>
-                                    </FormControl.Root>
-                                )}
-                            />
-
-                            <Button
-                                size="lg"
-                                type="submit"
-                                variant="primary"
-                                className="w-full"
-                                disabled={!formIsValid}
-                                rightIcon={<LogInIcon />}
-                                loading={
-                                    formIsLoading ||
-                                    formIsSubmitting ||
-                                    formIsValidating
-                                }>
-                                Reset Password
-                            </Button>
-                        </form>
+                    <Suspense fallback={<div>Loading...</div>}>
+                        <ResetPasswordForm />
                     </Suspense>
 
                     <Link
