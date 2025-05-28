@@ -13,8 +13,8 @@
 </p>
 
 <p align="center">
-   <a href="https://github.com/kodustech/kodus-web" target="_blank"><img src="https://img.shields.io/github/stars/kodustech/kodus-web" alt="Github Stars"></a>
-   <a href="https://github.com/kodustech/kodus-web/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3-red" alt="License"></a>
+   <a href="https://github.com/kodustech/web" target="_blank"><img src="https://img.shields.io/github/stars/kodustech/web" alt="Github Stars"></a>
+   <a href="https://github.com/kodustech/web/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-AGPLv3-red" alt="License"></a>
 </p>
 
 <h3 align="center">A modern, intuitive interface for managing your code reviews.</h3>
@@ -44,8 +44,8 @@ Kodus Web is the official web interface for Kodus, delivering a modern and intui
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/kodustech/kodus-web.git
-cd kodus-web
+git clone https://github.com/kodustech/web.git
+cd web
 ```
 
 2. Build and start the containers:
