@@ -51,7 +51,7 @@ export const PendingKodyRulesModal = ({
 
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
-            <DialogContent className="max-h-[60vh] max-w-(--breakpoint-sm)">
+            <DialogContent className="max-h-[80vh] max-w-(--breakpoint-md)">
                 <DialogHeader>
                     <DialogTitle>New Rules Ready</DialogTitle>
 
@@ -69,70 +69,72 @@ export const PendingKodyRulesModal = ({
                 </span>
 
                 <div className="flex h-full w-full flex-col gap-2 overflow-y-auto px-2 py-0">
-                    {pendingRules?.map((rule) => (
-                        <Card
-                            key={rule.uuid}
-                            className={cn(
-                                "h-auto w-full cursor-pointer items-start px-5 py-4 disabled:cursor-not-allowed",
-                            )}>
-                            <Collapsible className="group/collapsible w-full">
-                                <div className="flex h-full w-full items-center gap-5">
-                                    <Checkbox
-                                        className="children:opacity-100 self-center disabled:opacity-100"
-                                        checked={selectedRuleIds.includes(
-                                            rule.uuid!,
-                                        )}
-                                        onClick={() => {
-                                            selectedRuleIds.includes(rule.uuid!)
-                                                ? setSelectedRuleIds(
-                                                      selectedRuleIds.filter(
-                                                          (id) =>
-                                                              id !== rule.uuid,
-                                                      ),
-                                                  )
-                                                : setSelectedRuleIds([
-                                                      ...selectedRuleIds,
-                                                      rule.uuid!,
-                                                  ]);
-                                        }}
-                                    />
-
-                                    <Heading
-                                        variant="h3"
-                                        className="w-full truncate">
-                                        {rule.title}
-                                    </Heading>
-
-                                    <CollapsibleTrigger asChild>
-                                        <Button
-                                            size="sm"
-                                            variant="helper"
-                                            className="w-full justify-center p-3"
-                                            leftIcon={
-                                                <CollapsibleIndicator className="group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
-                                            }
+                    <div className="flex h-full w-full flex-col gap-2 px-2 py-0">
+                        {pendingRules?.map((rule) => (
+                            <Card
+                                key={rule.uuid}
+                                className={cn(
+                                    "h-auto w-full cursor-pointer items-start px-5 py-4 disabled:cursor-not-allowed",
+                                )}>
+                                <Collapsible className="group/collapsible w-full">
+                                    <div className="flex w-full items-center gap-3 overflow-hidden">
+                                        <Checkbox
+                                            className="children:opacity-100 self-center disabled:opacity-100 flex-shrink-0"
+                                            checked={selectedRuleIds.includes(
+                                                rule.uuid!,
+                                            )}
+                                            onClick={() => {
+                                                selectedRuleIds.includes(rule.uuid!)
+                                                    ? setSelectedRuleIds(
+                                                        selectedRuleIds.filter(
+                                                            (id) =>
+                                                                id !== rule.uuid,
+                                                        ),
+                                                    )
+                                                    : setSelectedRuleIds([
+                                                        ...selectedRuleIds,
+                                                        rule.uuid!,
+                                                    ]);
+                                            }}
                                         />
-                                    </CollapsibleTrigger>
-                                </div>
 
-                                <CollapsibleContent className="group-data-[state=closed]/collapsible:animate-collapsible-up group-data-[state=open]/collapsible:animate-collapsible-down">
-                                    <div className="flex flex-col gap-5 pt-3">
-                                        <p>{rule.rule}</p>
+                                        <Heading
+                                            variant="h3"
+                                            className="w-full truncate">
+                                            {rule.title}
+                                        </Heading>
 
-                                        <Badge
-                                            className={cn(
-                                                "h-fit rounded-lg border-1 px-2 text-[10px] leading-px uppercase",
-                                                severityVariantMap[
-                                                    rule.severity.toLowerCase() as typeof rule.severity
-                                                ],
-                                            )}>
-                                            {rule.severity}
-                                        </Badge>
+                                        <CollapsibleTrigger asChild>
+                                            <Button
+                                                size="sm"
+                                                variant="helper"
+                                                className="w-full justify-center p-3"
+                                                leftIcon={
+                                                    <CollapsibleIndicator className="group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
+                                                }
+                                            />
+                                        </CollapsibleTrigger>
                                     </div>
-                                </CollapsibleContent>
-                            </Collapsible>
-                        </Card>
-                    ))}
+
+                                    <CollapsibleContent className="group-data-[state=closed]/collapsible:animate-collapsible-up group-data-[state=open]/collapsible:animate-collapsible-down">
+                                        <div className="flex flex-col gap-5 pt-3">
+                                            <p>{rule.rule}</p>
+
+                                            <Badge
+                                                className={cn(
+                                                    "h-fit rounded-lg border-1 px-2 text-[10px] leading-px uppercase",
+                                                    severityVariantMap[
+                                                    rule.severity.toLowerCase() as typeof rule.severity
+                                                    ],
+                                                )}>
+                                                {rule.severity}
+                                            </Badge>
+                                        </div>
+                                    </CollapsibleContent>
+                                </Collapsible>
+                            </Card>
+                        ))}
+                    </div>
                 </div>
 
                 <DialogFooter className="flex flex-row justify-end gap-2">
