@@ -3,6 +3,7 @@ export enum API_ROUTES {
     register = "/auth/signup",
     logout = "/auth/logout",
     forgotPassword = "/auth/forgot-password",
+    resetPassword = "/auth/reset-password",
     createNewPassword = "/auth/create-new-password",
     refreshToken = "/auth/refresh",
     post = "/api/post",

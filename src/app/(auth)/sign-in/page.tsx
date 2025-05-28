@@ -52,6 +52,11 @@ export default function LoginPage() {
                         Don't have an account yet?{" "}
                         <Link href="/sign-up">Sign up for free</Link>
                     </div>
+                    <Link
+                        className="mx-auto mt-4 text-center text-sm underline"
+                        href="/forgot-password">
+                        Forgot Password?
+                    </Link>
                 </Page.Content>
             </div>
         </Page.Root>
