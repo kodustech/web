@@ -1,5 +1,9 @@
 import { Role, TeamRole } from "./utils/permissions";
 
+export type LiteralUnion<LiteralType extends string> =
+    | LiteralType
+    | (string & Record<never, never>);
+
 export type IntegrationsCommon = {
     name: string;
     id: string;

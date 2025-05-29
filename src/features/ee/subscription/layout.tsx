@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { DataTableSearchQueryContext } from "@components/ui/data-table";
@@ -16,8 +17,10 @@ import { isSelfHosted } from "src/core/utils/self-hosted";
 
 import { InviteModal } from "./_components/invite-modal";
 
-const prLicensesTabName = "pr-licenses";
-const organizationAdminsTabName = "organization-admins";
+const tabs = {
+    prs: "pr-licenses",
+    admins: "organization-admins",
+} as const;
 
 // Componente para exibir informações de modo self-hosted
 const SelfHostedInfo = () => {
@@ -56,7 +59,10 @@ export default function SubscriptionLayout({
     status: React.ReactNode;
     licenses: React.ReactNode;
 }) {
-    const [selectedTab, setSelectedTab] = useState(prLicensesTabName);
+    const searchParams = useSearchParams();
+    const [selectedTab, setSelectedTab] = useState<string>(
+        tabs[searchParams.get("tab") as keyof typeof tabs] ?? tabs.prs,
+    );
     const [query, setQuery] = useState("");
     const { teamId } = useSelectedTeamId();
 
@@ -74,10 +80,8 @@ export default function SubscriptionLayout({
             <Page.Content>
                 <Tabs value={selectedTab} onValueChange={setSelectedTab}>
                     <TabsList className="mt-5">
-                        <TabsTrigger value={prLicensesTabName}>
-                            PR licenses
-                        </TabsTrigger>
-                        <TabsTrigger value={organizationAdminsTabName}>
+                        <TabsTrigger value={tabs.prs}>PR licenses</TabsTrigger>
+                        <TabsTrigger value={tabs.admins}>
                             Organization admins
                         </TabsTrigger>
 
@@ -92,7 +96,7 @@ export default function SubscriptionLayout({
                                     onChange={(e) => setQuery(e.target.value)}
                                 />
 
-                                {selectedTab === organizationAdminsTabName && (
+                                {selectedTab === tabs.admins && (
                                     <Button
                                         size="md"
                                         variant="helper"
@@ -111,7 +115,7 @@ export default function SubscriptionLayout({
 
                     <DataTableSearchQueryContext.Provider
                         value={{ query, setQuery }}>
-                        <TabsContent value={prLicensesTabName}>
+                        <TabsContent value={tabs.prs}>
                             <Suspense
                                 fallback={
                                     <Card className="flex h-40 flex-col items-center justify-center gap-3 bg-transparent shadow-none">
@@ -127,7 +131,7 @@ export default function SubscriptionLayout({
                         </TabsContent>
 
                         <Suspense>
-                            <TabsContent value={organizationAdminsTabName}>
+                            <TabsContent value={tabs.admins}>
                                 {admins}
                             </TabsContent>
                         </Suspense>

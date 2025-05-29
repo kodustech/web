@@ -1,3 +1,4 @@
+import { GetStartedChecklist } from "@components/system/get-started-checklist";
 import { getAutomationsByTeamId } from "@services/automations/fetch";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 
@@ -19,6 +20,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
     return (
         <AutomationCodeReviewLayout automation={automation} teamId={teamId}>
             {children}
+            <GetStartedChecklist />
         </AutomationCodeReviewLayout>
     );
 }
