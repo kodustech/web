@@ -1,19 +1,36 @@
 import { Heading } from "@components/ui/heading";
-import { Icons } from "@components/ui/icons";
+import { Image } from "@components/ui/image";
 import { Page } from "@components/ui/page";
+import { cn } from "src/core/utils/components";
 
 export default function GeneratingConfig() {
     return (
-        <Page.Root>
-            <Page.Content>
-                <div className="flex h-full w-full flex-col items-center justify-center gap-5">
-                    <Heading variant="h2">
-                        Generating code review parameters
-                    </Heading>
-                    <p>Come back in a few minutes...</p>
-                    <Icons.spinner className="animate-spin" />
+        <Page.Root className="flex flex-row items-center justify-center">
+            <div
+                className={cn(
+                    "flex max-w-3xl flex-col items-start px-6",
+                    "xl:flex-row xl:items-center xl:justify-start xl:gap-6 xl:px-0",
+                )}>
+                <div className="w-64 shrink-0">
+                    <Image src="/assets/images/kody/chemicals.png" />
                 </div>
-            </Page.Content>
+
+                <div className={cn("flex flex-col gap-4 px-6", "xl:px-0")}>
+                    <Heading variant="h2">
+                        Kody is calibrating your review engine...
+                    </Heading>
+
+                    <p>
+                        She’s digging into your past PRs to understand how your
+                        team works — and how to help you merge faster.
+                    </p>
+
+                    <small className="italic">
+                        This usually takes just a few minutes. Feel free to grab
+                        a ☕ or explore the rest of Kodus.
+                    </small>
+                </div>
+            </div>
         </Page.Root>
     );
 }
