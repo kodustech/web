@@ -53,9 +53,11 @@ const GOOD_EXAMPLE_PLACEHOLDER = `for (var i = 1; i <= 10; i += 2)  // Compliant
 export const KodyRuleAddOrUpdateItemModal = ({
     repositoryId,
     rule,
+    onClose,
 }: {
     rule?: KodyRule;
     repositoryId: string;
+    onClose?: () => void;
 }) => {
     const form = useForm<
         Omit<KodyRule, "examples"> & {
@@ -85,33 +87,59 @@ export const KodyRuleAddOrUpdateItemModal = ({
     const formState = form.formState;
 
     const handleSubmit = form.handleSubmit(async (config) => {
-        magicModal.lock();
+        if (onClose) {
+            // Se for usado via callback (novo padrão), não usar magicModal
+            let examples = [];
+            if (config.badExample)
+                examples.push({ isCorrect: false, snippet: config.badExample });
+            if (config.goodExample)
+                examples.push({ isCorrect: true, snippet: config.goodExample });
 
-        let examples = [];
-        if (config.badExample)
-            examples.push({ isCorrect: false, snippet: config.badExample });
-        if (config.goodExample)
-            examples.push({ isCorrect: true, snippet: config.goodExample });
+            await createOrUpdateKodyRule(
+                {
+                    path: config.path,
+                    rule: config.rule,
+                    title: config.title,
+                    severity: config.severity,
+                    uuid: rule?.uuid,
+                    examples: examples,
+                    origin: config.origin ?? KodyRulesOrigin.USER,
+                    status: config.status ?? KodyRulesStatus.ACTIVE,
+                },
+                repositoryId,
+            );
 
-        await createOrUpdateKodyRule(
-            {
-                path: config.path,
-                rule: config.rule,
-                title: config.title,
-                severity: config.severity,
-                uuid: rule?.uuid,
-                examples: examples,
-                origin: config.origin ?? KodyRulesOrigin.USER,
-                status: config.status ?? KodyRulesStatus.ACTIVE,
-            },
-            repositoryId,
-        );
+            onClose();
+        } else {
+            // Padrão antigo com magicModal
+            magicModal.lock();
 
-        magicModal.hide(true);
+            let examples = [];
+            if (config.badExample)
+                examples.push({ isCorrect: false, snippet: config.badExample });
+            if (config.goodExample)
+                examples.push({ isCorrect: true, snippet: config.goodExample });
+
+            await createOrUpdateKodyRule(
+                {
+                    path: config.path,
+                    rule: config.rule,
+                    title: config.title,
+                    severity: config.severity,
+                    uuid: rule?.uuid,
+                    examples: examples,
+                    origin: config.origin ?? KodyRulesOrigin.USER,
+                    status: config.status ?? KodyRulesStatus.ACTIVE,
+                },
+                repositoryId,
+            );
+
+            magicModal.hide(true);
+        }
     });
 
     return (
-        <Dialog open onOpenChange={() => magicModal.hide()}>
+        <Dialog open onOpenChange={() => onClose ? onClose() : magicModal.hide()}>
             <DialogContent className="max-w-(--breakpoint-md)">
                 <DialogHeader>
                     <DialogTitle>
@@ -554,7 +582,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                     <Button
                         variant="cancel"
                         size="md"
-                        onClick={() => magicModal.hide()}>
+                        onClick={() => onClose ? onClose() : magicModal.hide()}>
                         Cancel
                     </Button>
 
