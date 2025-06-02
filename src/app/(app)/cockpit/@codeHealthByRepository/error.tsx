@@ -1,11 +1,14 @@
 "use client";
 
 import { CardContent } from "@components/ui/card";
+import { CockpitNoDataPlaceholder } from "src/features/ee/cockpit/_components/no-data-placeholder";
 
-const errorMessages: Record<string, string> = {
-    NO_DATA: "No data available.",
-    DEFAULT: "It looks like we couldn't fetch the data.",
-};
+const errorMessages = {
+    NO_DATA: () => <CockpitNoDataPlaceholder />,
+    DEFAULT: () => (
+        <span className="w-40">It looks like we couldn't fetch the data.</span>
+    ),
+} as const satisfies Record<string, () => React.JSX.Element>;
 
 export default function ErrorPage({
     error,
@@ -14,9 +17,13 @@ export default function ErrorPage({
     error: Error & { digest?: string };
     reset: () => void;
 }) {
+    const Component =
+        errorMessages[error.message as keyof typeof errorMessages] ??
+        errorMessages.DEFAULT;
+
     return (
-        <CardContent className="text-text-secondary flex h-full w-full items-center justify-center text-sm">
-            {errorMessages[error.message] ?? errorMessages.DEFAULT}
+        <CardContent className="text-text-secondary -mt-4 flex h-full w-full items-center justify-center text-center text-sm">
+            <Component />
         </CardContent>
     );
 }

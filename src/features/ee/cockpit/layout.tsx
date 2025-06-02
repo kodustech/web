@@ -9,7 +9,9 @@ import { greeting } from "src/core/utils/helpers";
 
 import { validateOrganizationLicense } from "../subscription/_services/billing/fetch";
 import { DateRangePicker } from "./_components/date-range-picker";
+import { CockpitNoDataBanner } from "./_components/no-data-banner";
 import { tabs, type TabValue } from "./_constants";
+import { getAnalyticsStatus } from "./_services/analytics/fetch";
 import { AnalyticsNotAvailable } from "./not-available";
 
 export default async function Layout({
@@ -55,7 +57,10 @@ export default async function Layout({
     });
     if (!organizationLicense.valid) redirect("/settings/integrations");
 
-    const connections = await getConnections(selectedTeamId);
+    const [connections, { hasData: hasAnalyticsData }] = await Promise.all([
+        getConnections(selectedTeamId),
+        getAnalyticsStatus(),
+    ]);
 
     const dateRangeCookieValue = cookieStore.get(
         "cockpit-selected-date-range" satisfies CookieName,
@@ -73,6 +78,8 @@ export default async function Layout({
 
     return (
         <Page.Root>
+            {!hasAnalyticsData && <CockpitNoDataBanner />}
+
             <Page.Header className="max-w-(--breakpoint-xl)">
                 <Page.Title>{greeting()}</Page.Title>
             </Page.Header>

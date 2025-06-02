@@ -15,7 +15,7 @@ export const Chart = ({
         <div className="flex gap-4">
             <div className="h-32 w-1/2">
                 <VictoryPie
-                    innerRadius={100}
+                    innerRadius={120}
                     labels={({ datum }) => `${datum.y}`}
                     colorScale={[colorSent, colorImplemented]}
                     data={[
@@ -24,9 +24,9 @@ export const Chart = ({
                     ]}
                     labelComponent={
                         <VictoryLabel
-                            lineHeight={1.25}
+                            lineHeight={1}
                             style={{
-                                fontSize: 40,
+                                fontSize: 36,
                                 fill: "var(--color-text-primary)",
                                 fontFamily: "var(--font-sans)",
                             }}
@@ -42,7 +42,9 @@ export const Chart = ({
                         style={{ backgroundColor: colorSent }}
                     />
 
-                    <p className="text-text-secondary text-sm">Sent</p>
+                    <p className="text-text-secondary text-sm">
+                        Sent <small>({data.suggestionsSent})</small>
+                    </p>
                 </div>
 
                 <div className="flex gap-2.5">
@@ -51,7 +53,10 @@ export const Chart = ({
                         style={{ backgroundColor: colorImplemented }}
                     />
 
-                    <p className="text-text-secondary text-sm">Implemented</p>
+                    <p className="text-text-secondary text-sm">
+                        Implemented{" "}
+                        <small>({data.suggestionsImplemented})</small>
+                    </p>
                 </div>
 
                 <div className="text-text-secondary mt-4 text-xs">
