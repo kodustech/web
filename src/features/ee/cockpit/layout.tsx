@@ -45,7 +45,14 @@ export default async function Layout({
     flowMetrics: React.ReactNode;
     kodySuggestions: React.ReactNode;
 }) {
-    if (!process.env.WEB_ANALYTICS_SECRET) return <AnalyticsNotAvailable />;
+    if (!process.env.WEB_ANALYTICS_SECRET) {
+        return <AnalyticsNotAvailable />;
+    }
+
+    const analyticsPromise = getAnalyticsStatus()
+        .catch((err) => {
+            return { hasData: false };
+        });
 
     const [cookieStore, selectedTeamId] = await Promise.all([
         cookies(),
@@ -55,12 +62,17 @@ export default async function Layout({
     const organizationLicense = await validateOrganizationLicense({
         teamId: selectedTeamId,
     });
-    if (!organizationLicense.valid) redirect("/settings/integrations");
 
-    const [connections, { hasData: hasAnalyticsData }] = await Promise.all([
+    if (!organizationLicense.valid) {
+        redirect("/settings/integrations");
+    }
+
+    const [connections, analyticsResult] = await Promise.all([
         getConnections(selectedTeamId),
-        getAnalyticsStatus(),
+        analyticsPromise,
     ]);
+
+    const hasAnalyticsData = analyticsResult?.hasData;
 
     const dateRangeCookieValue = cookieStore.get(
         "cockpit-selected-date-range" satisfies CookieName,
@@ -104,7 +116,7 @@ export default async function Layout({
                             {entries.map(([value, name]) => {
                                 if (
                                     value ===
-                                        ("flow-metrics" satisfies TabValue) &&
+                                    ("flow-metrics" satisfies TabValue) &&
                                     !hasJIRAConnected
                                 ) {
                                     return;
