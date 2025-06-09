@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { GitTokenDocs } from "@components/system/git-token-docs";
 import { Button } from "@components/ui/button";
 import {
     Dialog,
@@ -89,6 +90,8 @@ export const BitbucketModal = (props: Props) => {
 
                     <FormControl.Error>{error.message}</FormControl.Error>
                 </FormControl.Root>
+
+                <GitTokenDocs provider="bitbucket" />
 
                 <DialogFooter>
                     <Button

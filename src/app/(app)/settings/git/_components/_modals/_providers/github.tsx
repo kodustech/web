@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { GitTokenDocs } from "@components/system/git-token-docs";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
 import {
@@ -100,6 +101,8 @@ export const GithubModal = (props: Props) => {
                                 </FormControl.Error>
                             </FormControl.Input>
                         </FormControl.Root>
+
+                        <GitTokenDocs provider="github" />
 
                         <DialogFooter>
                             <Button

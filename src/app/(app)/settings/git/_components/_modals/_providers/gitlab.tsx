@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { GitTokenDocs } from "@components/system/git-token-docs";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
 import { Card, CardHeader } from "@components/ui/card";
@@ -152,6 +153,8 @@ export const GitlabModal = (props: Props) => {
                                 </Card>
                             </CollapsibleContent>
                         </Collapsible>
+
+                        <GitTokenDocs provider="gitlab" />
 
                         <DialogFooter>
                             <Button
