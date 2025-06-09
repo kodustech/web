@@ -23,7 +23,7 @@ export const CODE_MANAGEMENT_PLATFORMS = {
     },
 } as const satisfies Partial<
     Record<
-        INTEGRATIONS_KEY,
+        Lowercase<keyof typeof INTEGRATIONS_KEY>,
         {
             svg: React.ComponentType;
             platformName: string;

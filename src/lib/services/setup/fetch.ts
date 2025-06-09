@@ -1,3 +1,4 @@
+import type { INTEGRATIONS_KEY } from "@enums";
 import { typedFetch } from "@services/fetch";
 import { axiosAuthorized } from "src/core/utils/axios";
 import { pathToApiUrl } from "src/core/utils/helpers";
@@ -22,7 +23,7 @@ export function getConnectionsOnClient(teamId: string) {
             return [];
         }) as Promise<
         Array<{
-            platformName: string;
+            platformName: keyof typeof INTEGRATIONS_KEY;
             isSetupComplete: boolean;
             hasConnection: boolean;
             category:
@@ -42,7 +43,7 @@ export function getConnections(teamId: string) {
         return [];
     }) as Promise<
         Array<{
-            platformName: string;
+            platformName: keyof typeof INTEGRATIONS_KEY;
             isSetupComplete: boolean;
             hasConnection: boolean;
             category:

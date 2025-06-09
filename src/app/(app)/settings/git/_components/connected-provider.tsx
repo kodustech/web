@@ -19,10 +19,9 @@ export const GitConnectedProvider = ({
     const { teamId } = useSelectedTeamId();
     const { organizationId } = useOrganizationContext();
 
-    const platform =
-        CODE_MANAGEMENT_PLATFORMS[
-            connection.platformName.toLowerCase() as keyof typeof CODE_MANAGEMENT_PLATFORMS
-        ];
+    const platformKey =
+        connection.platformName.toLowerCase() as keyof typeof CODE_MANAGEMENT_PLATFORMS;
+    const platform = CODE_MANAGEMENT_PLATFORMS[platformKey];
 
     return (
         <Card className="min-w-68">
