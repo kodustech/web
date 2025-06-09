@@ -42,7 +42,7 @@ const TableFooter = React.forwardRef<
     <tfoot
         ref={ref}
         className={cn(
-            "bg-card-lv1 border-t font-semibold last:[&>tr]:border-b-0",
+            "bg-card-lv1 border-card-lv1 border-t font-semibold last:[&>tr]:border-b-0",
             className,
         )}
         {...props}
@@ -57,7 +57,7 @@ const TableRow = React.forwardRef<
     <tr
         ref={ref}
         className={cn(
-            "data-[state=selected]:bg-card-lv1 hover:bg-card-lv1/50 border-b transition",
+            "data-[state=selected]:bg-card-lv1 hover:bg-card-lv1/50 transition",
             className,
         )}
         {...props}
@@ -72,7 +72,7 @@ const TableHead = React.forwardRef<
     <th
         ref={ref}
         className={cn(
-            "bg-card-lv1 h-10 border px-4 align-middle font-semibold [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+            "bg-card-lv1 h-14 px-5 align-middle font-semibold [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
             className,
         )}
         {...props}
@@ -89,7 +89,7 @@ const TableCell = React.forwardRef<
         ref={ref}
         align="left"
         className={cn(
-            "border px-4 py-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+            "border-card-lv1 h-14 border-b px-5 py-3 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
             className,
         )}
         {...props}

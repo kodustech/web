@@ -18,11 +18,7 @@ export default async function SubscriptionTabs() {
         <DataTable
             columns={columns}
             data={members}
-            EmptyComponent={
-                <div className="flex h-24 items-center justify-center text-center">
-                    No organization admins found
-                </div>
-            }
+            EmptyComponent="No organization admins found."
         />
     );
 }
