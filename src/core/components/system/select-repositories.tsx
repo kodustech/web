@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Button } from "@components/ui/button";
 import {
     Command,
@@ -23,9 +24,16 @@ export const SelectRepositories = (props: {
     onOpenChange: (open: boolean) => void;
     selectedRepositories: Repository[];
     onChangeSelectedRepositories: (repositories: Repository[]) => void;
+    onFinishLoading?: () => void;
     teamId: string;
 }) => {
-    const { data = [], isLoading } = useGetRepositories(props.teamId);
+    const { data: repositories = [], isLoading } = useGetRepositories(
+        props.teamId,
+    );
+
+    useEffect(() => {
+        if (!isLoading) props.onFinishLoading?.();
+    }, [isLoading]);
 
     const {
         id = "select-repositories",
@@ -34,11 +42,6 @@ export const SelectRepositories = (props: {
         selectedRepositories,
         onChangeSelectedRepositories,
     } = props;
-
-    const repositories = data.map((r) => ({
-        ...r,
-        name: r.name.includes("/") ? r.name.split("/")[1] : r.name,
-    }));
 
     const unselectedRepositories = repositories.filter(
         (r) => !selectedRepositories.some((s) => s.id === r.id),
@@ -133,7 +136,7 @@ export const SelectRepositories = (props: {
                                         onSelect={(currentValue) => {
                                             onChangeSelectedRepositories([
                                                 ...selectedRepositories,
-                                                data.find(
+                                                repositories.find(
                                                     (repo) =>
                                                         repo.id ===
                                                         currentValue,

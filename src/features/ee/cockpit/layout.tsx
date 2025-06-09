@@ -55,7 +55,7 @@ export default async function Layout({
     const organizationLicense = await validateOrganizationLicense({
         teamId: selectedTeamId,
     });
-    if (!organizationLicense.valid) redirect("/settings/integrations");
+    if (!organizationLicense.valid) redirect("/settings/git");
 
     const [connections, { hasData: hasAnalyticsData }] = await Promise.all([
         getConnections(selectedTeamId),

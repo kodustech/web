@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 import { auth } from "./core/config/auth";
+import { CURRENT_PATH_HEADER } from "./core/utils/headers";
 import { parseJwt } from "./core/utils/helpers";
 import { handleAuthenticated, Role, TeamRole } from "./core/utils/permissions";
 
@@ -37,6 +38,10 @@ const authPaths = [
 export default async function middleware(req: NextRequest) {
     const pathname = req.nextUrl.pathname;
 
+    // Add a new header which can be used on Server Components
+    const headers = new Headers(req.headers);
+    headers.set(CURRENT_PATH_HEADER, pathname);
+
     if (pathname === "/register")
         return NextResponse.redirect(new URL("/sign-up", req.url));
 
@@ -45,7 +50,7 @@ export default async function middleware(req: NextRequest) {
 
     // Permite acesso a rotas públicas
     if (publicPaths.some((path) => pathname.startsWith(path))) {
-        return NextResponse.next();
+        return NextResponse.next({ request: { headers } });
     }
 
     const token = await auth();
@@ -57,7 +62,7 @@ export default async function middleware(req: NextRequest) {
         if (!authPaths.some((path) => pathname.startsWith(path))) {
             return NextResponse.redirect(new URL("/sign-in", req.url));
         }
-        return NextResponse.next();
+        return NextResponse.next({ request: { headers } });
     }
 
     const accessToken = token?.user?.accessToken;
@@ -86,6 +91,7 @@ export default async function middleware(req: NextRequest) {
         userRole,
         userTeamRole,
         authPaths,
+        headers,
     );
 }
 

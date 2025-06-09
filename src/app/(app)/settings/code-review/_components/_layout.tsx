@@ -36,8 +36,8 @@ import { AddRepoModal } from "./pages/kody-rules/_components/addRepoModal";
 
 const mainRoutes = [
     {
-        label: "Integrations",
-        href: "/settings/integrations",
+        label: "Git Settings",
+        href: "/settings/git",
     },
     {
         label: "Subscription",
