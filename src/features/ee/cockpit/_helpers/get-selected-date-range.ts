@@ -28,9 +28,7 @@ export const getSelectedDateRange = async (): Promise<{
             const fromDate = new Date(dateRange.from);
             const toDate = new Date(dateRange.to);
 
-            if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
-                console.error("Invalid date format in cookie");
-            } else {
+            if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
                 parsedDateRangeFromCookie = {
                     startDate: dateRange.from,
                     endDate: dateRange.to,

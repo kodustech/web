@@ -45,7 +45,9 @@ export default async function Layout({
     flowMetrics: React.ReactNode;
     kodySuggestions: React.ReactNode;
 }) {
-    if (!process.env.WEB_ANALYTICS_SECRET) return <AnalyticsNotAvailable />;
+    if (!process.env.WEB_ANALYTICS_SECRET) {
+        return <AnalyticsNotAvailable />;
+    }
 
     const [cookieStore, selectedTeamId] = await Promise.all([
         cookies(),
@@ -57,10 +59,12 @@ export default async function Layout({
     });
     if (!organizationLicense.valid) redirect("/settings/git");
 
-    const [connections, { hasData: hasAnalyticsData }] = await Promise.all([
+    const [connections, analyticsResult] = await Promise.all([
         getConnections(selectedTeamId),
-        getAnalyticsStatus(),
+        getAnalyticsStatus().catch(() => ({ hasData: false })),
     ]);
+
+    const hasAnalyticsData = analyticsResult?.hasData;
 
     const dateRangeCookieValue = cookieStore.get(
         "cockpit-selected-date-range" satisfies CookieName,

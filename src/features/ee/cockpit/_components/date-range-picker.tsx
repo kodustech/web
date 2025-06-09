@@ -12,18 +12,15 @@ import { Separator } from "@components/ui/separator";
 import { formatDate, isEqual, parseISO, subMonths, subWeeks } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
-import { type DayPickerRangeProps } from "react-day-picker";
+import { type PropsRange } from "react-day-picker";
 
 import { setCockpitDateRangeCookie } from "../_actions/set-cockpit-date-range";
 
-type Props = Omit<DayPickerRangeProps, "mode"> & {
+type Props = Omit<PropsRange, "mode"> & {
     cookieValue: string | undefined;
 };
 
-type DateRangeString = {
-    from: string | undefined;
-    to: string | undefined;
-};
+type DateRangeString = { from: string; to: string };
 
 const dateToString = (date: Date) => formatDate(date, "yyyy-MM-dd");
 const stringToDate = (date: string) => new Date(parseISO(date));
@@ -69,9 +66,7 @@ const ranges = [
 const defaultItem = ranges[0];
 
 export const DateRangePicker = ({ cookieValue, ...props }: Props) => {
-    const [selectedRange, setSelectedRange] = useState<
-        DateRangeString | undefined
-    >(() => {
+    const [selectedRange, setSelectedRange] = useState<DateRangeString>(() => {
         const cookie = cookieValue;
 
         if (!cookie) return defaultItem.range;
@@ -91,22 +86,19 @@ export const DateRangePicker = ({ cookieValue, ...props }: Props) => {
             to: cookieDateRange.to,
         };
     });
-    const [defaultText, setDefaultText] = useState<string | undefined>(() => {
-        if (!selectedRange?.from || !selectedRange?.to) return undefined;
 
-        return ranges.find(
-            (r) =>
-                isEqual(selectedRange?.from!, r.range.from) &&
-                isEqual(selectedRange?.to!, r.range.to),
-        )?.label;
+    const label = ranges.find(
+        (r) =>
+            isEqual(selectedRange?.from!, r.range.from) &&
+            isEqual(selectedRange?.to!, r.range.to),
+    )?.label;
+
+    const from = formatDate(parseISO(selectedRange.from), "dd/LLL/y", {
+        locale: enUS,
     });
-
-    const from = selectedRange?.from
-        ? formatDate(selectedRange.from, "dd/LLL/y", { locale: enUS })
-        : "";
-    const to = selectedRange?.to
-        ? formatDate(selectedRange.to, "dd/LLL/y", { locale: enUS })
-        : "";
+    const to = formatDate(parseISO(selectedRange.to), "dd/LLL/y", {
+        locale: enUS,
+    });
 
     return (
         <Popover>
@@ -116,8 +108,8 @@ export const DateRangePicker = ({ cookieValue, ...props }: Props) => {
                     variant="helper"
                     leftIcon={<CalendarIcon />}
                     className="-mt-4 w-68 justify-start">
-                    {defaultText ? (
-                        defaultText
+                    {label ? (
+                        label
                     ) : (
                         <span className="flex items-center gap-1 font-semibold">
                             {selectedRange?.from ? (
@@ -148,6 +140,7 @@ export const DateRangePicker = ({ cookieValue, ...props }: Props) => {
                 <Calendar
                     {...props}
                     mode="range"
+                    locale={enUS}
                     disabled={{ after: today }}
                     selected={{
                         from: selectedRange?.from
@@ -160,15 +153,16 @@ export const DateRangePicker = ({ cookieValue, ...props }: Props) => {
                     max={31 * 3} // 3 months max range (considering 31 days per month)
                     onSelect={(d) => {
                         const range = {
-                            from: d?.from ? dateToString(d?.from) : undefined,
+                            from: d?.from
+                                ? dateToString(d?.from)
+                                : defaultItem.range.from,
                             to: d?.to
                                 ? dateToString(d?.to)
                                 : d?.from
-                                  ? dateToString(today)
-                                  : undefined,
+                                  ? dateToString(d.from)
+                                  : defaultItem.range.to,
                         };
 
-                        setDefaultText(undefined);
                         setSelectedRange(range);
                         setCockpitDateRangeCookie(range);
                     }}
@@ -189,7 +183,6 @@ export const DateRangePicker = ({ cookieValue, ...props }: Props) => {
                                     : "helper"
                             }
                             onClick={() => {
-                                setDefaultText(r.label);
                                 setSelectedRange({
                                     from: r.range.from,
                                     to: r.range.to,
