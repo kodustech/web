@@ -50,7 +50,7 @@
 
 @custom-variant button-hover {
 
-    &:hover:not([data-disabled]):not([data-loading]):not([data-decorative]) {
+    &:hover:not([data-disabled]):not([data-loading]) {
         @slot
     }
 }

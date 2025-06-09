@@ -15,6 +15,7 @@ import { cn } from "src/core/utils/components";
 
 import { Button } from "../button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "../hover-card";
+import { Link } from "../link";
 import { Separator } from "../separator";
 import { Spinner } from "../spinner";
 
@@ -88,56 +89,52 @@ export const KodyRuleLibraryItem = ({
             },
         });
 
+    const libraryItemHref = `/library/kody-rules/${rule.uuid}`;
+    const href = repositoryId
+        ? `${libraryItemHref}?repositoryId=${repositoryId}`
+        : libraryItemHref;
+
     return (
         <Card
             key={rule.uuid}
-            className="flex w-full cursor-default flex-col items-start bg-transparent">
-            <div
-                tabIndex={0}
-                role="button"
-                onKeyDown={(ev) => {
-                    if (ev.code === "Space" || ev.code === "Enter") {
-                        (document.activeElement as HTMLDivElement)?.click();
-                    }
-                }}
-                className="bg-card-lv2 flex h-full w-full flex-col transition hover:brightness-120 focus-visible:brightness-120"
-                onClick={() => {
-                    let route = `/library/kody-rules/${rule.uuid}`;
-                    if (repositoryId)
-                        route = `${route}?repositoryId=${repositoryId}`;
+            className="flex w-full cursor-default flex-col items-start overflow-visible bg-transparent">
+            <Link className="w-full flex-1" href={href}>
+                <Button
+                    size="lg"
+                    decorative
+                    variant="helper"
+                    className="h-full w-full flex-col gap-0 rounded-b-none px-0 py-0">
+                    <CardHeader className="flex-row justify-between gap-4">
+                        <Heading
+                            variant="h3"
+                            className="line-clamp-2 flex min-h-6 items-center font-semibold">
+                            {rule.title}
+                        </Heading>
 
-                    router.push(route);
-                }}>
-                <CardHeader className="flex-row justify-between gap-4">
-                    <Heading
-                        variant="h3"
-                        className="line-clamp-2 flex min-h-6 items-center font-semibold">
-                        {rule.title}
-                    </Heading>
+                        {!!rule.severity && (
+                            <Badge
+                                className={cn(
+                                    "h-fit rounded-lg border-1 px-2 text-[10px] leading-px uppercase",
+                                    severityVariantMap[
+                                        rule.severity as typeof rule.severity
+                                    ],
+                                )}>
+                                {rule.severity}
+                            </Badge>
+                        )}
+                    </CardHeader>
 
-                    {!!rule.severity && (
-                        <Badge
-                            className={cn(
-                                "h-fit rounded-lg border-1 px-2 text-[10px] leading-px uppercase",
-                                severityVariantMap[
-                                    rule.severity as typeof rule.severity
-                                ],
-                            )}>
-                            {rule.severity}
-                        </Badge>
-                    )}
-                </CardHeader>
-
-                <CardContent className="flex flex-1 flex-col">
-                    <p className="text-text-secondary line-clamp-3 text-[13px]">
-                        {rule.rule}
-                    </p>
-                </CardContent>
-            </div>
+                    <CardContent className="flex flex-1 flex-col">
+                        <p className="text-text-secondary line-clamp-3 text-[13px]">
+                            {rule.rule}
+                        </p>
+                    </CardContent>
+                </Button>
+            </Link>
 
             <Separator className="opacity-70" />
 
-            <CardFooter className="bg-card-lv2 flex w-full cursor-auto items-end justify-between gap-4 px-5 py-4">
+            <CardFooter className="bg-card-lv2 flex w-full cursor-auto items-end justify-between gap-4 rounded-b-xl px-5 py-4">
                 <div className="flex flex-wrap items-center gap-[3px]">
                     {rule.language && (
                         <Badge className="h-2 px-2.5 font-normal">

@@ -1,7 +1,7 @@
 "use client";
 
-import NextLink from "next/link";
 import { Button } from "@components/ui/button";
+import { Link } from "@components/ui/link";
 import { AlertTriangle } from "lucide-react";
 import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
 
@@ -15,7 +15,7 @@ const SubscriptionTrial = () => {
     }
 
     return (
-        <Button size="sm" variant="tertiary">
+        <Button decorative size="sm" variant="tertiary">
             {subscriptionStatus.trialDaysLeft} days free trial
         </Button>
     );
@@ -23,7 +23,7 @@ const SubscriptionTrial = () => {
 
 const SubscriptionUpgrade = () => {
     return (
-        <Button size="sm" variant="primary-dark">
+        <Button decorative size="sm" variant="primary-dark">
             Upgrade Subscription
         </Button>
     );
@@ -31,7 +31,7 @@ const SubscriptionUpgrade = () => {
 
 const SubscriptionActive = () => {
     return (
-        <Button size="sm" variant="secondary">
+        <Button decorative size="sm" variant="secondary">
             Teams Plan
         </Button>
     );
@@ -39,7 +39,11 @@ const SubscriptionActive = () => {
 
 const SubscriptionPaymentFailed = () => {
     return (
-        <Button size="sm" leftIcon={<AlertTriangle />} variant="tertiary">
+        <Button
+            decorative
+            size="sm"
+            leftIcon={<AlertTriangle />}
+            variant="tertiary">
             Payment failed
         </Button>
     );
@@ -65,8 +69,8 @@ export const SubscriptionBadge = () => {
 
     if (!Component) return null;
     return (
-        <NextLink href="/settings/subscription">
+        <Link href="/settings/subscription">
             <Component />
-        </NextLink>
+        </Link>
     );
 };

@@ -51,13 +51,14 @@ DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 const DropdownMenuItem = React.forwardRef<
     React.ComponentRef<typeof DropdownMenuPrimitive.Item>,
     React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item>
->(({ className, children, ...props }, ref) => (
+>(({ className, children, disabled, ...props }, ref) => (
     <DropdownMenuPrimitive.Item
         ref={ref}
         className={cn("w-full justify-start", className)}
+        disabled={disabled}
         {...props}
         asChild>
-        <Button size="md" variant="helper">
+        <Button decorative disabled={disabled} size="md" variant="helper">
             {children}
         </Button>
     </DropdownMenuPrimitive.Item>

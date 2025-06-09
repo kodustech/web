@@ -194,15 +194,15 @@ export const KodyRulesPage = ({
                                     teamId={teamId}
                                 />
                             )}
-                            <Button
-                                size="md"
-                                variant="secondary"
-                                leftIcon={<SvgKodyRulesDiscovery />}
-                                onClick={() =>
-                                    router.push("/library/kody-rules")
-                                }>
-                                Discovery
-                            </Button>
+                            <Link href="/library/kody-rules">
+                                <Button
+                                    size="md"
+                                    decorative
+                                    variant="secondary"
+                                    leftIcon={<SvgKodyRulesDiscovery />}>
+                                    Discovery
+                                </Button>
+                            </Link>
 
                             <Button
                                 size="md"
@@ -257,7 +257,7 @@ export const KodyRulesPage = ({
             <Page.Content>
                 <div className="flex flex-col gap-4">
                     {kodyRules?.length === 0 ? (
-                        <div className="mt-10 flex min-h-[540px] flex-col gap-2">
+                        <div className="mt-4 flex min-h-[540px] flex-col gap-2">
                             <div className="flex flex-col gap-1">
                                 <Heading variant="h2">
                                     Start with Discovery 🚀
@@ -344,17 +344,16 @@ const NoItems = ({ repositoryId }: { repositoryId: string }) => {
 };
 
 const NoItemsViewMore = () => {
-    const router = useRouter();
-
     return (
-        <Button
-            size="lg"
-            variant="helper"
-            className="w-full"
-            onClick={() => {
-                router.push("/library/kody-rules");
-            }}>
-            <Plus /> View more
-        </Button>
+        <Link href="/library/kody-rules" className="w-full">
+            <Button
+                decorative
+                size="lg"
+                variant="helper"
+                className="h-full w-full"
+                leftIcon={<Plus />}>
+                View more
+            </Button>
+        </Link>
     );
 };

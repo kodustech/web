@@ -1,8 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { Link } from "@components/ui/link";
 import { toast } from "@components/ui/toaster/use-toast";
-import { useSuspenseGetOrganizationId } from "@services/setup/hooks";
 import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "src/core/components/ui/avatar";
 import { Button } from "src/core/components/ui/button";
@@ -25,9 +24,6 @@ export function UserNav() {
     const { email, isOwner } = useAuth();
     const { teams } = useAllTeams();
     const { teamId, setTeamId } = useSelectedTeamId();
-
-    const router = useRouter();
-    const organizationId = useSuspenseGetOrganizationId();
 
     const handleChangeWorkspace = (teamId: string) => {
         setTeamId(teamId);
@@ -90,17 +86,20 @@ export function UserNav() {
                 <DropdownMenuSeparator />
 
                 {isOwner && (
-                    <DropdownMenuItem
-                        onClick={() => router.push(`/organization/general`)}>
-                        <SettingsIcon />
-                        Settings
-                    </DropdownMenuItem>
+                    <Link href="/organization/general">
+                        <DropdownMenuItem>
+                            <SettingsIcon />
+                            Settings
+                        </DropdownMenuItem>
+                    </Link>
                 )}
 
-                <DropdownMenuItem onClick={() => router.replace(`/sign-out`)}>
-                    <LogOutIcon />
-                    Sign out
-                </DropdownMenuItem>
+                <Link href="/sign-out" replace>
+                    <DropdownMenuItem>
+                        <LogOutIcon />
+                        Sign out
+                    </DropdownMenuItem>
+                </Link>
             </DropdownMenuContent>
         </DropdownMenu>
     );
