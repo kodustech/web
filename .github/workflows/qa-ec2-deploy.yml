@@ -72,6 +72,11 @@ jobs:
                   echo WEB_SUPPORT_DISCORD_INVITE_URL=$(aws ssm get-parameter --name /qa/kodus-web/WEB_SUPPORT_DISCORD_INVITE_URL --query 'Parameter.Value' --output text) >> .env
                   echo WEB_SUPPORT_TALK_TO_FOUNDER_URL=$(aws ssm get-parameter --name /qa/kodus-web/WEB_SUPPORT_TALK_TO_FOUNDER_URL --query 'Parameter.Value' --output text) >> .env
 
+                  echo WEB_TOKEN_DOCS_GITHUB=$(aws ssm get-parameter --name /qa/kodus-web/WEB_TOKEN_DOCS_GITHUB --query 'Parameter.Value' --output text) >> .env
+                  echo WEB_TOKEN_DOCS_GITLAB=$(aws ssm get-parameter --name /qa/kodus-web/WEB_TOKEN_DOCS_GITLAB --query 'Parameter.Value' --output text) >> .env
+                  echo WEB_TOKEN_DOCS_BITBUCKET=$(aws ssm get-parameter --name /qa/kodus-web/WEB_TOKEN_DOCS_BITBUCKET --query 'Parameter.Value' --output text) >> .env
+                  echo WEB_TOKEN_DOCS_AZUREREPOS=$(aws ssm get-parameter --name /qa/kodus-web/WEB_TOKEN_DOCS_AZUREREPOS --query 'Parameter.Value' --output text) >> .env
+
             - name: Login to Amazon ECR
               id: login-ecr
               uses: aws-actions/amazon-ecr-login@v2.0.1
