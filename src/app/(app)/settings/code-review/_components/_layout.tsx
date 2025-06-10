@@ -8,6 +8,7 @@ import {
     CollapsibleIndicator,
     CollapsibleTrigger,
 } from "@components/ui/collapsible";
+import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
 import {
@@ -36,8 +37,8 @@ import { AddRepoModal } from "./pages/kody-rules/_components/addRepoModal";
 
 const mainRoutes = [
     {
-        label: "Integrations",
-        href: "/settings/integrations",
+        label: "Git Settings",
+        href: "/settings/git",
     },
     {
         label: "Subscription",
@@ -93,20 +94,24 @@ export const AutomationCodeReviewLayout = ({
                             <SidebarMenu className="flex flex-col gap-1">
                                 {mainRoutes.map((route) => (
                                     <SidebarMenuItem key={route.href}>
-                                        <Button
-                                            size="md"
-                                            className="w-full justify-start"
-                                            active={pathname === route.href}
-                                            onClick={() =>
-                                                router.push(route.href)
-                                            }
-                                            variant={
-                                                pathname.startsWith(route.href)
-                                                    ? "helper"
-                                                    : "cancel"
-                                            }>
-                                            {route.label}
-                                        </Button>
+                                        <Link
+                                            href={route.href}
+                                            className="w-full">
+                                            <Button
+                                                size="md"
+                                                decorative
+                                                className="w-full justify-start"
+                                                active={pathname === route.href}
+                                                variant={
+                                                    pathname.startsWith(
+                                                        route.href,
+                                                    )
+                                                        ? "helper"
+                                                        : "cancel"
+                                                }>
+                                                {route.label}
+                                            </Button>
+                                        </Link>
                                     </SidebarMenuItem>
                                 ))}
                             </SidebarMenu>
@@ -121,34 +126,34 @@ export const AutomationCodeReviewLayout = ({
                                         Global
                                     </p>
                                     <SidebarMenuSub>
-                                        <SidebarMenuSubItem className="flex flex-col gap-1">
-                                            {routes.map(({ label, href }) => {
-                                                const active =
-                                                    repositoryParam ===
-                                                        "global" &&
-                                                    pageNameParam === href;
+                                        {routes.map(({ label, href }) => {
+                                            const active =
+                                                repositoryParam === "global" &&
+                                                pageNameParam === href;
 
-                                                return (
-                                                    <Button
-                                                        key={label}
-                                                        size="md"
-                                                        variant={
-                                                            active
-                                                                ? "helper"
-                                                                : "cancel"
-                                                        }
-                                                        active={active}
-                                                        className="w-full justify-start"
-                                                        onClick={() => {
-                                                            router.push(
-                                                                `/settings/code-review/global/${href}`,
-                                                            );
-                                                        }}>
-                                                        {label}
-                                                    </Button>
-                                                );
-                                            })}
-                                        </SidebarMenuSubItem>
+                                            return (
+                                                <SidebarMenuSubItem
+                                                    key={label}
+                                                    className="flex flex-col gap-1">
+                                                    <Link
+                                                        href={`/settings/code-review/global/${href}`}
+                                                        className="w-full">
+                                                        <Button
+                                                            decorative
+                                                            size="md"
+                                                            variant={
+                                                                active
+                                                                    ? "helper"
+                                                                    : "cancel"
+                                                            }
+                                                            active={active}
+                                                            className="w-full justify-start">
+                                                            {label}
+                                                        </Button>
+                                                    </Link>
+                                                </SidebarMenuSubItem>
+                                            );
+                                        })}
                                     </SidebarMenuSub>
                                 </SidebarMenuItem>
 
@@ -220,46 +225,50 @@ export const AutomationCodeReviewLayout = ({
 
                                                         <CollapsibleContent className="group-data-[state=closed]/collapsible:animate-collapsible-up group-data-[state=open]/collapsible:animate-collapsible-down">
                                                             <SidebarMenuSub>
-                                                                <SidebarMenuSubItem className="flex flex-col gap-1">
-                                                                    {routes.map(
-                                                                        ({
-                                                                            label,
-                                                                            href,
-                                                                        }) => {
-                                                                            const active =
-                                                                                repositoryParam ===
-                                                                                    repository.id &&
-                                                                                pageNameParam ===
-                                                                                    href;
+                                                                {routes.map(
+                                                                    ({
+                                                                        label,
+                                                                        href,
+                                                                    }) => {
+                                                                        const active =
+                                                                            repositoryParam ===
+                                                                                repository.id &&
+                                                                            pageNameParam ===
+                                                                                href;
 
-                                                                            return (
-                                                                                <Button
-                                                                                    key={
-                                                                                        label
-                                                                                    }
-                                                                                    size="md"
-                                                                                    variant={
-                                                                                        active
-                                                                                            ? "helper"
-                                                                                            : "cancel"
-                                                                                    }
-                                                                                    active={
-                                                                                        active
-                                                                                    }
-                                                                                    className="w-full justify-start"
-                                                                                    onClick={() => {
-                                                                                        router.push(
-                                                                                            `/settings/code-review/${repository.id}/${href}`,
-                                                                                        );
-                                                                                    }}>
-                                                                                    {
-                                                                                        label
-                                                                                    }
-                                                                                </Button>
-                                                                            );
-                                                                        },
-                                                                    )}
-                                                                </SidebarMenuSubItem>
+                                                                        return (
+                                                                            <SidebarMenuSubItem
+                                                                                className="flex flex-col gap-1"
+                                                                                key={
+                                                                                    label
+                                                                                }>
+                                                                                <Link
+                                                                                    href={`/settings/code-review/${repository.id}/${href}`}
+                                                                                    className="w-full">
+                                                                                    <Button
+                                                                                        key={
+                                                                                            label
+                                                                                        }
+                                                                                        decorative
+                                                                                        size="md"
+                                                                                        variant={
+                                                                                            active
+                                                                                                ? "helper"
+                                                                                                : "cancel"
+                                                                                        }
+                                                                                        active={
+                                                                                            active
+                                                                                        }
+                                                                                        className="w-full justify-start">
+                                                                                        {
+                                                                                            label
+                                                                                        }
+                                                                                    </Button>
+                                                                                </Link>
+                                                                            </SidebarMenuSubItem>
+                                                                        );
+                                                                    },
+                                                                )}
                                                             </SidebarMenuSub>
                                                         </CollapsibleContent>
                                                     </Collapsible>

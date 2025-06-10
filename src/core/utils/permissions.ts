@@ -110,6 +110,7 @@ export function handleAuthenticated(
     userRole: Role,
     userTeamRole: TeamRole,
     authPaths: string[],
+    headers: Headers,
 ) {
     // Redireciona a raiz "/" para "/cockpit"
     if (pathname === "/" || pathname === "") {
@@ -138,5 +139,5 @@ export function handleAuthenticated(
     }
 
     // Permite acesso à rota
-    return NextResponse.next();
+    return NextResponse.next({ request: { headers } });
 }

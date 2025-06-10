@@ -31,7 +31,7 @@ const TASKS = [
     {
         label: "Connect a new repository",
         key: "get-started/connect-new-repository",
-        href: "/settings/integrations",
+        href: "/settings/git",
     },
     {
         label: "Explore our docs",

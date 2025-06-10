@@ -23,6 +23,7 @@ export const Link = ({
                 props.onClick?.(e);
             }}
             className={cn(
+                "group/link",
                 "w-fit underline-offset-5 transition",
                 "text-primary-light",
                 "link-hover:underline",

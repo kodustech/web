@@ -10,6 +10,7 @@ import { createCodeManagementIntegration } from "@services/codeManagement/fetch"
 import { AxiosError } from "axios";
 import { SaveIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
+import { GitTokenDocs } from "src/core/components/system/git-token-docs";
 import {
     Dialog,
     DialogContent,
@@ -21,8 +22,6 @@ import {
 import { AuthMode, PlatformType } from "src/core/types";
 import { captureSegmentEvent } from "src/core/utils/segment";
 import { z } from "zod";
-
-import { TokenDocs } from "../token-docs";
 
 const tokenFormSchema = z.object({
     token: z.string().min(1, { message: "Enter a Token" }),
@@ -155,7 +154,7 @@ export const AzureReposTokenModal = (props: {
                             )}
                         />
 
-                        <TokenDocs link="https://docs.kodus.io/how_to_use/en/code_review/general_config/azure_devops_pat" />
+                        <GitTokenDocs provider="azure_repos" />
                     </div>
 
                     <DialogFooter>

@@ -35,7 +35,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
                     ref={ref}
                     disabled={disabled || loading}
                     className={cn(
-                        "resize-x-none flex min-h-20 w-full items-center rounded-xl px-5 py-4 text-sm ring-1 transition",
+                        "resize-x-none flex min-h-20 w-full items-center rounded-xl px-6 py-4 text-sm ring-1 transition",
                         "bg-card-lv2 ring-card-lv3",
                         "placeholder:text-text-placeholder/50",
                         "textinput-focused:ring-3 textinput-focused:brightness-120",

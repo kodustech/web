@@ -49,11 +49,6 @@ export default async function Layout({
         return <AnalyticsNotAvailable />;
     }
 
-    const analyticsPromise = getAnalyticsStatus()
-        .catch((err) => {
-            return { hasData: false };
-        });
-
     const [cookieStore, selectedTeamId] = await Promise.all([
         cookies(),
         getGlobalSelectedTeamId(),
@@ -62,14 +57,11 @@ export default async function Layout({
     const organizationLicense = await validateOrganizationLicense({
         teamId: selectedTeamId,
     });
-
-    if (!organizationLicense.valid) {
-        redirect("/settings/integrations");
-    }
+    if (!organizationLicense.valid) redirect("/settings/git");
 
     const [connections, analyticsResult] = await Promise.all([
         getConnections(selectedTeamId),
-        analyticsPromise,
+        getAnalyticsStatus().catch(() => ({ hasData: false })),
     ]);
 
     const hasAnalyticsData = analyticsResult?.hasData;
@@ -116,7 +108,7 @@ export default async function Layout({
                             {entries.map(([value, name]) => {
                                 if (
                                     value ===
-                                    ("flow-metrics" satisfies TabValue) &&
+                                        ("flow-metrics" satisfies TabValue) &&
                                     !hasJIRAConnected
                                 ) {
                                     return;

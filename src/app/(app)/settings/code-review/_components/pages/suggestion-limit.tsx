@@ -565,7 +565,7 @@ export const SuggestionControl = (
 const SeverityLevelsExplanationModal = () => {
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
-            <DialogContent className="gap-0">
+            <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Severity levels</DialogTitle>
                 </DialogHeader>

@@ -139,9 +139,7 @@ export default function Redirect() {
 
         ClientSideCookieHelpers("global-selected-team-id").set(teamId);
 
-        router.replace(
-            `/settings/integrations/${integrationKey.toLowerCase()}/configuration`,
-        );
+        router.replace("/settings/git/repositories");
     };
 
     const newIntegration = async () => {
@@ -413,7 +411,7 @@ export default function Redirect() {
         setShowConfirmation(false);
         deleteCookie("selectedTeam", { path: "/" });
         ClientSideCookieHelpers("global-selected-team-id").set(teamId);
-        router.replace(`/settings/integrations`);
+        router.replace(`/settings/git`);
     };
 
     return (

@@ -62,7 +62,7 @@ export const PageHeader = (props: React.ComponentProps<"div">) => {
         <div
             {...props}
             className={cn(
-                "container flex shrink-0 items-center justify-between gap-6",
+                "container flex min-h-12 shrink-0 items-center justify-between gap-6",
                 hasSidebar ? WITH_SIDEBAR_CONTAINER : WITHOUT_SIDEBAR_CONTAINER,
                 props.className,
             )}>

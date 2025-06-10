@@ -5,7 +5,7 @@ import {
 } from "src/core/types";
 import { axiosAuthorized } from "src/core/utils/axios";
 
-import { AZURE_REPOS_API_PATHS, CODE_MANAGEMENT_API_PATHS } from "./types";
+import { CODE_MANAGEMENT_API_PATHS, type Repository } from "./types";
 
 export const getRepositories = async (
     teamId: string,
@@ -33,9 +33,8 @@ export const reviewOnboardingPullRequest = async (
     );
 };
 
-
 export const createOrUpdateRepositories = (
-    repositories: any[],
+    repositories: Repository[],
     teamId: string,
 ) => {
     return axiosAuthorized.post(
@@ -124,9 +123,12 @@ export const finishOnboarding = (params: {
     });
 };
 
-export const deleteIntegration = async (organizationId: string, teamId: string) => {
+export const deleteIntegration = async (
+    organizationId: string,
+    teamId: string,
+) => {
     return axiosAuthorized.deleted<any>(
         CODE_MANAGEMENT_API_PATHS.DELETE_INTEGRATION,
-        { params: { organizationId, teamId } }
+        { params: { organizationId, teamId } },
     );
 };

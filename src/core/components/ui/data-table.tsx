@@ -10,12 +10,20 @@ import {
     TableRow,
 } from "@components/ui/table";
 import {
+    Column,
     ColumnDef,
     flexRender,
     getCoreRowModel,
     getFilteredRowModel,
+    getSortedRowModel,
     useReactTable,
+    type OnChangeFn,
+    type SortingState,
 } from "@tanstack/react-table";
+import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
+import { cn } from "src/core/utils/components";
+
+import { Button } from "./button";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -32,17 +40,61 @@ export const DataTableSearchQueryContext = createContext<{
     setQuery: () => {},
 });
 
+export const DataTableSortingContext = createContext<{
+    sortingState: SortingState;
+    setSortingState: OnChangeFn<SortingState>;
+}>({
+    sortingState: [],
+    setSortingState: () => [],
+});
+
+interface DataTableColumnHeaderProps<TData, TValue>
+    extends React.HTMLAttributes<HTMLDivElement> {
+    column: Column<TData, TValue>;
+    title: string;
+}
+
+export function DataTableColumnHeader<TData, TValue>({
+    column,
+    title,
+    className,
+}: DataTableColumnHeaderProps<TData, TValue>) {
+    if (!column.getCanSort()) {
+        return <div className={cn(className)}>{title}</div>;
+    }
+
+    return (
+        <div className={cn("flex items-center gap-2", className)}>
+            <Button
+                size="sm"
+                variant="cancel"
+                className="px-0"
+                onClick={() => column.toggleSorting()}
+                rightIcon={
+                    column.getIsSorted() === "desc" ? (
+                        <ArrowDown />
+                    ) : column.getIsSorted() === "asc" ? (
+                        <ArrowUp />
+                    ) : (
+                        <ChevronsUpDown />
+                    )
+                }>
+                {title}
+            </Button>
+        </div>
+    );
+}
+
 export function DataTable<TData, TValue>({
     columns,
     data,
     meta,
-    EmptyComponent = (
-        <div className="flex h-24 items-center justify-center text-center">
-            No results.
-        </div>
-    ),
+    EmptyComponent = "No results found.",
 }: DataTableProps<TData, TValue>) {
     const { query, setQuery } = useContext(DataTableSearchQueryContext);
+    const { sortingState, setSortingState } = useContext(
+        DataTableSortingContext,
+    );
 
     const table = useReactTable({
         data,
@@ -50,9 +102,14 @@ export function DataTable<TData, TValue>({
         meta,
         getCoreRowModel: getCoreRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
+        getSortedRowModel: getSortedRowModel(),
         globalFilterFn: "includesString", // built-in filter function
-        state: { globalFilter: query },
+        state: {
+            globalFilter: query,
+            sorting: sortingState,
+        },
         onGlobalFilterChange: setQuery,
+        onSortingChange: setSortingState,
     });
 
     return (
@@ -80,7 +137,7 @@ export function DataTable<TData, TValue>({
             </TableHeader>
 
             <TableBody>
-                {table.getRowModel().rows?.length ? (
+                {table.getRowModel().rows.length ? (
                     table.getRowModel().rows.map((row) => (
                         <TableRow
                             key={row.id}
@@ -99,7 +156,7 @@ export function DataTable<TData, TValue>({
                         </TableRow>
                     ))
                 ) : (
-                    <TableRow className="data-[state=selected]:bg-transparent hover:bg-transparent">
+                    <TableRow className="hover:bg-transparent data-[state=selected]:bg-transparent">
                         <TableCell colSpan={columns.length}>
                             {EmptyComponent}
                         </TableCell>

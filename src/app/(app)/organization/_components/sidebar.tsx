@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
+import { Link } from "@components/ui/link";
 import { Separator } from "@components/ui/separator";
 import {
     Sidebar,
@@ -51,19 +52,21 @@ export const ConfigsSidebar = () => {
 
                                 return (
                                     <SidebarMenuItem key={project.label}>
-                                        <Button
-                                            size="md"
-                                            leftIcon={<Icon />}
-                                            active={selected}
-                                            variant={
-                                                selected ? "helper" : "cancel"
-                                            }
-                                            className="w-full justify-start border-none"
-                                            onClick={() =>
-                                                router.push(project.href)
-                                            }>
-                                            {project.label}
-                                        </Button>
+                                        <Link href={project.href}>
+                                            <Button
+                                                size="md"
+                                                decorative
+                                                leftIcon={<Icon />}
+                                                active={selected}
+                                                className="w-full justify-start border-none"
+                                                variant={
+                                                    selected
+                                                        ? "helper"
+                                                        : "cancel"
+                                                }>
+                                                {project.label}
+                                            </Button>
+                                        </Link>
                                     </SidebarMenuItem>
                                 );
                             })}
