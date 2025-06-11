@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useContext } from "react";
+import { useEffectOnce } from "@hooks/use-effect-once";
+import posthog from "posthog-js";
 import type { TODO } from "src/core/types";
 
 import { Role, TeamRole } from "../utils/permissions";
@@ -25,6 +27,10 @@ type AuthProviderProps = React.PropsWithChildren & {
 export const AuthProvider = ({ children, jwtPayload }: AuthProviderProps) => {
     const userRole = jwtPayload.role || Role.USER;
     const userTeamRole = jwtPayload.teamRole || TeamRole.MEMBER;
+
+    useEffectOnce(() => {
+        posthog.identify(jwtPayload.sub);
+    });
 
     return (
         <AuthContext.Provider

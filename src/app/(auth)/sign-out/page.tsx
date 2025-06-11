@@ -7,6 +7,7 @@ import { Page } from "@components/ui/page";
 import { Spinner } from "@components/ui/spinner";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { signOut } from "next-auth/react";
+import posthog from "posthog-js";
 import { ClientSideCookieHelpers } from "src/core/utils/cookie";
 
 export default function App() {
@@ -24,6 +25,7 @@ export default function App() {
             router.replace(data.url);
         };
 
+        posthog.reset();
         ClientSideCookieHelpers("global-selected-team-id").delete();
         ClientSideCookieHelpers("started-setup-from-new-setup-page").delete();
         ClientSideCookieHelpers("selectedTeam").delete();
