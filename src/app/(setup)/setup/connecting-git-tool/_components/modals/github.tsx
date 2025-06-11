@@ -87,7 +87,7 @@ export const GithubTokenModal = (props: { teamId: string; userId: string }) => {
                         <DialogDescription></DialogDescription>
                     </DialogHeader>
 
-                    <Alert variant="info" className="mb-4">
+                    <Alert variant="info" className="my-4">
                         <Info />
                         <AlertTitle>Heads up!</AlertTitle>
                         <AlertDescription>
@@ -96,7 +96,7 @@ export const GithubTokenModal = (props: { teamId: string; userId: string }) => {
                         </AlertDescription>
                     </Alert>
 
-                    <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-4">
                         <Controller
                             name="token"
                             control={form.control}

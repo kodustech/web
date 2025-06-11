@@ -111,7 +111,7 @@ export const BitbucketTokenModal = (props: {
                         <DialogDescription></DialogDescription>
                     </DialogHeader>
 
-                    <div className="flex flex-col gap-6">
+                    <div className="mt-4 flex flex-col gap-4">
                         <Controller
                             name="username"
                             control={form.control}
