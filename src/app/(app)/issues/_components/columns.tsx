@@ -1,6 +1,6 @@
 "use client";
 
-import { Badge } from "@components/ui/badge";
+import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level-badge";
 import { Button } from "@components/ui/button";
 import { DataTableColumnHeader } from "@components/ui/data-table";
 import { Link } from "@components/ui/link";
@@ -12,7 +12,6 @@ import {
 import type { getIssuesWithPagination } from "@services/issues/fetch";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDistanceToNow, parseISO } from "date-fns";
-import { cn } from "src/core/utils/components";
 
 import { StatusBadge } from "./status-badge";
 
@@ -30,25 +29,7 @@ export const columns: ColumnDef<Row>[] = [
         ),
         cell: ({ renderValue }) => {
             const value = renderValue<Row["severity"]>();
-
-            const severityVariantMap = {
-                critical: "bg-danger/10 text-danger border-danger/64",
-                high: "bg-warning/10 text-warning border-warning/64",
-                medium: "bg-alert/10 text-alert border-alert/64",
-                low: "bg-info/10 text-info border-info/64",
-            } as const satisfies Record<string, string>;
-
-            return (
-                <Badge
-                    className={cn(
-                        "pointer-events-none h-6 min-h-auto rounded-lg border-1 px-1.5 text-[10px] leading-px uppercase",
-                        severityVariantMap[
-                            value as keyof typeof severityVariantMap
-                        ],
-                    )}>
-                    {value}
-                </Badge>
-            );
+            return <IssueSeverityLevelBadge severity={value} />;
         },
     },
     {

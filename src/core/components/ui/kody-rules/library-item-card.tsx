@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level-badge";
 import { Badge } from "@components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
@@ -19,13 +19,6 @@ import { Link } from "../link";
 import { Separator } from "../separator";
 import { Spinner } from "../spinner";
 
-const severityVariantMap = {
-    Critical: "bg-danger/10 text-danger border-danger/64",
-    High: "bg-warning/10 text-warning border-warning/64",
-    Medium: "bg-alert/10 text-alert border-alert/64",
-    Low: "bg-info/10 text-info border-info/64",
-} as const satisfies Record<string, string>;
-
 export const KodyRuleLibraryItem = ({
     rule,
     repositoryId,
@@ -35,7 +28,6 @@ export const KodyRuleLibraryItem = ({
     repositoryId?: string;
     showLikeButton?: boolean;
 }) => {
-    const router = useRouter();
     const { userId } = useAuth();
     const [isLiked, setIsLiked] = useState(rule.isLiked);
     const [likeCount, setLikeCount] = useState(rule.likesCount ?? 0);
@@ -112,15 +104,13 @@ export const KodyRuleLibraryItem = ({
                         </Heading>
 
                         {!!rule.severity && (
-                            <Badge
-                                className={cn(
-                                    "h-fit rounded-lg border-1 px-2 text-[10px] leading-px uppercase",
-                                    severityVariantMap[
-                                        rule.severity as typeof rule.severity
-                                    ],
-                                )}>
-                                {rule.severity}
-                            </Badge>
+                            <IssueSeverityLevelBadge
+                                severity={
+                                    rule.severity.toLowerCase() as Lowercase<
+                                        typeof rule.severity
+                                    >
+                                }
+                            />
                         )}
                     </CardHeader>
 

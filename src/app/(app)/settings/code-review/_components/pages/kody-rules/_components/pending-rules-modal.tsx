@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Badge } from "@components/ui/badge";
+import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level-badge";
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { Checkbox } from "@components/ui/checkbox";
@@ -22,13 +22,6 @@ import { magicModal } from "@components/ui/magic-modal";
 import { changeStatusKodyRules } from "@services/kodyRules/fetch";
 import { KodyRule, KodyRulesStatus } from "@services/kodyRules/types";
 import { cn } from "src/core/utils/components";
-
-const severityVariantMap = {
-    critical: "bg-danger/10 text-danger border-danger/64",
-    high: "bg-warning/10 text-warning border-warning/64",
-    medium: "bg-alert/10 text-alert border-alert/64",
-    low: "bg-info/10 text-info border-info/64",
-} as const satisfies Record<string, string>;
 
 export const PendingKodyRulesModal = ({
     pendingRules,
@@ -79,22 +72,25 @@ export const PendingKodyRulesModal = ({
                                 <Collapsible className="group/collapsible w-full">
                                     <div className="flex w-full items-center gap-3 overflow-hidden">
                                         <Checkbox
-                                            className="children:opacity-100 self-center disabled:opacity-100 flex-shrink-0"
+                                            className="children:opacity-100 flex-shrink-0 self-center disabled:opacity-100"
                                             checked={selectedRuleIds.includes(
                                                 rule.uuid!,
                                             )}
                                             onClick={() => {
-                                                selectedRuleIds.includes(rule.uuid!)
+                                                selectedRuleIds.includes(
+                                                    rule.uuid!,
+                                                )
                                                     ? setSelectedRuleIds(
-                                                        selectedRuleIds.filter(
-                                                            (id) =>
-                                                                id !== rule.uuid,
-                                                        ),
-                                                    )
+                                                          selectedRuleIds.filter(
+                                                              (id) =>
+                                                                  id !==
+                                                                  rule.uuid,
+                                                          ),
+                                                      )
                                                     : setSelectedRuleIds([
-                                                        ...selectedRuleIds,
-                                                        rule.uuid!,
-                                                    ]);
+                                                          ...selectedRuleIds,
+                                                          rule.uuid!,
+                                                      ]);
                                             }}
                                         />
 
@@ -120,15 +116,9 @@ export const PendingKodyRulesModal = ({
                                         <div className="flex flex-col gap-5 pt-3">
                                             <p>{rule.rule}</p>
 
-                                            <Badge
-                                                className={cn(
-                                                    "h-fit rounded-lg border-1 px-2 text-[10px] leading-px uppercase",
-                                                    severityVariantMap[
-                                                    rule.severity.toLowerCase() as typeof rule.severity
-                                                    ],
-                                                )}>
-                                                {rule.severity}
-                                            </Badge>
+                                            <IssueSeverityLevelBadge
+                                                severity={rule.severity}
+                                            />
                                         </div>
                                     </CollapsibleContent>
                                 </Collapsible>
