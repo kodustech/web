@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useMemo } from "react";
+import { Suspense } from "react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
 import { SvgKodus } from "@components/ui/icons/SvgKodus";
@@ -10,7 +10,7 @@ import {
     NavigationMenuLink,
     NavigationMenuList,
 } from "@components/ui/navigation-menu";
-import { GaugeIcon, SlidersHorizontalIcon } from "lucide-react";
+import { GaugeIcon, InfoIcon, SlidersHorizontalIcon } from "lucide-react";
 import { UserNav } from "src/core/layout/navbar/_components/user-nav";
 import { useAuth } from "src/core/providers/auth.provider";
 import { cn } from "src/core/utils/components";
@@ -24,37 +24,37 @@ export const NavMenu = () => {
     const { isOwner, isTeamLeader } = useAuth();
     const subscription = useSubscriptionStatus();
 
-    const items = useMemo<
-        Array<{
-            label: string;
-            icon: React.JSX.Element;
-            href: string;
-            visible: boolean;
-        }>
-    >(() => {
-        return [
-            // {
-            //     label: "Chat",
-            //     icon: <MessageSquareText size={16} />,
-            //     href: "/chat",
-            //     visible: true,
-            // },
-            {
-                label: "Cockpit",
-                href: "/cockpit",
-                visible: subscription.valid,
-                icon: <GaugeIcon className="size-6" />,
-            },
-
-            {
-                label: "Code Review Settings",
-                icon: <SlidersHorizontalIcon className="size-5" />,
-                href: "/settings",
-                visible: isOwner || isTeamLeader,
-            },
-        ];
-    }, [isOwner, isTeamLeader]);
-
+    const items = [
+        // {
+        //     label: "Chat",
+        //     icon: <MessageSquareText size={16} />,
+        //     href: "/chat",
+        //     visible: true,
+        // },
+        {
+            label: "Cockpit",
+            href: "/cockpit",
+            visible: subscription.valid,
+            icon: <GaugeIcon className="size-6" />,
+        },
+        {
+            label: "Code Review Settings",
+            href: "/settings",
+            visible: isOwner || isTeamLeader,
+            icon: <SlidersHorizontalIcon className="size-5" />,
+        },
+        {
+            label: "Issues",
+            href: "/issues",
+            visible: isOwner || isTeamLeader,
+            icon: <InfoIcon className="size-5" />,
+        },
+    ] satisfies Array<{
+        label: string;
+        href: `/${string}`;
+        visible: boolean;
+        icon: React.JSX.Element;
+    }>;
     const isActive = (route: string) => pathname.startsWith(route);
 
     return (

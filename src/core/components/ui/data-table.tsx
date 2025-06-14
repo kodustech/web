@@ -24,11 +24,13 @@ import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import { cn } from "src/core/utils/components";
 
 import { Button } from "./button";
+import { Spinner } from "./spinner";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
     EmptyComponent?: React.ReactNode;
+    loading?: true | "bottom" | false;
     meta?: Record<string, any>;
 }
 
@@ -60,7 +62,9 @@ export function DataTableColumnHeader<TData, TValue>({
     className,
 }: DataTableColumnHeaderProps<TData, TValue>) {
     if (!column.getCanSort()) {
-        return <div className={cn(className)}>{title}</div>;
+        return (
+            <div className={cn(className, "text-text-tertiary")}>{title}</div>
+        );
     }
 
     return (
@@ -89,6 +93,7 @@ export function DataTable<TData, TValue>({
     columns,
     data,
     meta,
+    loading,
     EmptyComponent = "No results found.",
 }: DataTableProps<TData, TValue>) {
     const { query, setQuery } = useContext(DataTableSearchQueryContext);
@@ -111,6 +116,56 @@ export function DataTable<TData, TValue>({
         onGlobalFilterChange: setQuery,
         onSortingChange: setSortingState,
     });
+
+    const LoadingRow = () => (
+        <TableRow className="hover:bg-transparent data-[state=selected]:bg-transparent">
+            <TableCell colSpan={columns.length} align="center">
+                <Spinner className="size-7" />
+            </TableCell>
+        </TableRow>
+    );
+
+    const ItemsToRender = () => {
+        if (loading === true) return <LoadingRow />;
+
+        return (
+            <>
+                {!table.getRowModel().rows.length ? (
+                    <TableRow className="hover:bg-transparent data-[state=selected]:bg-transparent">
+                        <TableCell colSpan={columns.length}>
+                            {EmptyComponent}
+                        </TableCell>
+                    </TableRow>
+                ) : (
+                    <>
+                        {table.getRowModel().rows.map((row) => (
+                            <TableRow
+                                key={row.id}
+                                data-state={row.getIsSelected() && "selected"}>
+                                {row.getVisibleCells().map((cell) => (
+                                    <TableCell
+                                        key={cell.id}
+                                        align={
+                                            cell.column.columnDef.meta?.align
+                                        }
+                                        style={{
+                                            width: cell.column.getSize(),
+                                        }}>
+                                        {flexRender(
+                                            cell.column.columnDef.cell,
+                                            cell.getContext(),
+                                        )}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))}
+                    </>
+                )}
+
+                {loading === "bottom" && <LoadingRow />}
+            </>
+        );
+    };
 
     return (
         <Table>
@@ -136,33 +191,7 @@ export function DataTable<TData, TValue>({
                 ))}
             </TableHeader>
 
-            <TableBody>
-                {table.getRowModel().rows.length ? (
-                    table.getRowModel().rows.map((row) => (
-                        <TableRow
-                            key={row.id}
-                            data-state={row.getIsSelected() && "selected"}>
-                            {row.getVisibleCells().map((cell) => (
-                                <TableCell
-                                    key={cell.id}
-                                    align={cell.column.columnDef.meta?.align}
-                                    style={{ width: cell.column.getSize() }}>
-                                    {flexRender(
-                                        cell.column.columnDef.cell,
-                                        cell.getContext(),
-                                    )}
-                                </TableCell>
-                            ))}
-                        </TableRow>
-                    ))
-                ) : (
-                    <TableRow className="hover:bg-transparent data-[state=selected]:bg-transparent">
-                        <TableCell colSpan={columns.length}>
-                            {EmptyComponent}
-                        </TableCell>
-                    </TableRow>
-                )}
-            </TableBody>
+            <TableBody>{ItemsToRender()}</TableBody>
         </Table>
     );
 }
