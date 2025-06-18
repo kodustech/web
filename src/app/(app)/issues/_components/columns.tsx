@@ -1,21 +1,32 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level-badge";
 import { Button } from "@components/ui/button";
 import { DataTableColumnHeader } from "@components/ui/data-table";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@components/ui/dropdown-menu";
 import { Link } from "@components/ui/link";
 import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
 } from "@components/ui/tooltip";
-import type { getIssuesWithPagination } from "@services/issues/fetch";
+import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
+import type { getIssues } from "@services/issues/fetch";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDistanceToNow, parseISO } from "date-fns";
+import { Ellipsis } from "lucide-react";
+import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 
 import { StatusBadge } from "./status-badge";
 
-type Row = Awaited<ReturnType<typeof getIssuesWithPagination>>[number];
+type Row = Awaited<ReturnType<typeof getIssues>>[number];
 
 export const columns: ColumnDef<Row>[] = [
     {
@@ -123,7 +134,74 @@ export const columns: ColumnDef<Row>[] = [
         meta: { align: "right" },
         minSize: 50,
         maxSize: 50,
-        cell: ({ row }) => {
+        cell: ({ row, table }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            const router = useRouter();
+            const { teamId } = useSelectedTeamId();
+            const { generateQueryKey, invalidateQueries } =
+                useReactQueryInvalidateQueries();
+
+            // const saveSelectedRepositoriesAction = async () => {
+            //     const repositoriesWithoutThisOne = table
+            //         .getRowModel()
+            //         .rows.map((r) => r.original)
+            //         .filter((r) => r.id !== row.original.id);
+
+            //     await createOrUpdateRepositories(
+            //         repositoriesWithoutThisOne,
+            //         teamId,
+            //     );
+
+            //     await updateCodeReviewParameterRepositories(teamId);
+
+            //     toast({
+            //         variant: "success",
+            //         title: "Integration removed",
+            //         description: (
+            //             <>
+            //                 Integration with{" "}
+            //                 <span className="text-danger">
+            //                     {row.original.organizationName}/
+            //                     {row.original.name}
+            //                 </span>{" "}
+            //                 was removed.
+            //             </>
+            //         ),
+            //     });
+
+            //     await Promise.all([
+            //         invalidateQueries({
+            //             type: "all",
+            //             queryKey: generateQueryKey(
+            //                 PARAMETERS_PATHS.GET_BY_KEY,
+            //                 {
+            //                     params: {
+            //                         key: ParametersConfigKey.CODE_REVIEW_CONFIG,
+            //                         teamId,
+            //                     },
+            //                 },
+            //             ),
+            //         }),
+
+            //         invalidateQueries({
+            //             type: "all",
+            //             queryKey: generateQueryKey(
+            //                 INTEGRATION_CONFIG.GET_INTEGRATION_CONFIG_BY_CATEGORY,
+            //                 {
+            //                     params: {
+            //                         teamId,
+            //                         integrationCategory:
+            //                             IntegrationCategory.CODE_MANAGEMENT,
+            //                     },
+            //                 },
+            //             ),
+            //         }),
+            //         revalidateServerSidePath("/settings/git"),
+            //     ]);
+
+            //     router.refresh();
+            // };
+
             return (
                 <div className="flex items-center justify-end gap-2">
                     <Link href={`/issues/${row.original.uuid}`}>
@@ -131,6 +209,31 @@ export const columns: ColumnDef<Row>[] = [
                             Details
                         </Button>
                     </Link>
+
+                    <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="helper" size="icon-xs">
+                                <Ellipsis />
+                            </Button>
+                        </DropdownMenuTrigger>
+
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                                className="text-danger"
+                                onClick={async () => {
+                                    setIsOpen(false);
+
+                                    // magicModal.show(() => (
+                                    //     <DeleteModal
+                                    //         repository={row.original}
+                                    //         saveFn={saveSelectedRepositoriesAction}
+                                    //     />
+                                    // ));
+                                }}>
+                                Close
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             );
         },

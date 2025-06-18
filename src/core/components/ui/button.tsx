@@ -40,7 +40,7 @@ const buttonVariants = cva(
                     "[--button-foreground:var(--color-text-tertiary)] button-hover:[--button-foreground:var(--color-text-primary)] button-active:[--button-foreground:var(--color-text-primary)]",
             },
             size: {
-                "xs": "min-h-7 [--icon-size:calc(var(--spacing)*4)] rounded-full text-xs px-3.5 py-1.5 gap-1",
+                "xs": "min-h-7 [--icon-size:calc(var(--spacing)*4)] rounded-full text-xs px-3.5 py-1.5 gap-1.5",
                 "sm": "min-h-8 [--icon-size:calc(var(--spacing)*4)] px-4 py-2 gap-2",
                 "md": "min-h-10 [--icon-size:calc(var(--spacing)*4.5)] px-5 py-2.5 gap-3",
                 "lg": "min-h-12 [--icon-size:calc(var(--spacing)*5)] px-6 py-3 gap-3",

@@ -19,6 +19,13 @@ export interface Cookies {
     [key: string]: string | undefined;
 }
 
+export enum SeverityLevel {
+    CRITICAL = "critical",
+    HIGH = "high",
+    MEDIUM = "medium",
+    LOW = "low",
+}
+
 export enum TEAM_STATUS {
     ACTIVE = "active",
     INACTIVE = "inactive",

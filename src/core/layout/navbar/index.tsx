@@ -3,6 +3,7 @@
 import { Suspense } from "react";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
+import { Badge } from "@components/ui/badge";
 import { SvgKodus } from "@components/ui/icons/SvgKodus";
 import {
     NavigationMenu,
@@ -19,7 +20,7 @@ import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-s
 
 import { SupportDropdown } from "./_components/support";
 
-export const NavMenu = () => {
+export const NavMenu = (props: { issuesCount: number }) => {
     const pathname = usePathname();
     const { isOwner, isTeamLeader } = useAuth();
     const subscription = useSubscriptionStatus();
@@ -48,12 +49,20 @@ export const NavMenu = () => {
             href: "/issues",
             visible: isOwner || isTeamLeader,
             icon: <InfoIcon className="size-5" />,
+            badge: (
+                <Badge
+                    variant="secondary"
+                    className="pointer-events-none h-5 min-h-auto min-w-8 px-2">
+                    {props.issuesCount}
+                </Badge>
+            ),
         },
     ] satisfies Array<{
         label: string;
         href: `/${string}`;
         visible: boolean;
         icon: React.JSX.Element;
+        badge?: React.JSX.Element;
     }>;
     const isActive = (route: string) => pathname.startsWith(route);
 
@@ -66,7 +75,7 @@ export const NavMenu = () => {
             <div className="-mb-1 h-full flex-1">
                 <NavigationMenu className="h-full *:h-full">
                     <NavigationMenuList className="h-full gap-0">
-                        {items.map(({ label, icon, href, visible }) => {
+                        {items.map(({ label, icon, href, visible, badge }) => {
                             if (!visible) return null;
 
                             return (
@@ -84,6 +93,7 @@ export const NavMenu = () => {
                                         )}>
                                         {icon}
                                         {label}
+                                        {badge}
                                     </NavigationMenuLink>
                                 </NavigationMenuItem>
                             );

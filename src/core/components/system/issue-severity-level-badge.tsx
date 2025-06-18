@@ -1,23 +1,30 @@
 import { Badge } from "@components/ui/badge";
+import type { SeverityLevel } from "src/core/types";
 import { cn } from "src/core/utils/components";
 
-const severityVariantMap = {
-    critical: "bg-danger/10 text-danger border-danger/64",
-    high: "bg-warning/10 text-warning border-warning/64",
-    medium: "bg-alert/10 text-alert border-alert/64",
-    low: "bg-info/10 text-info border-info/64",
-} as const satisfies Record<string, string>;
+export const severityLevelClassnames = {
+    critical:
+        "bg-danger/10 text-danger ring-danger/64 [--button-foreground:var(--color-danger)]",
+    high: "bg-warning/10 text-warning ring-warning/64 [--button-foreground:var(--color-warning)]",
+    medium: "bg-alert/10 text-alert ring-alert/64 [--button-foreground:var(--color-alert)]",
+    low: "bg-info/10 text-info ring-info/64 [--button-foreground:var(--color-info)]",
+} as const satisfies Record<SeverityLevel, string>;
 
 export const IssueSeverityLevelBadge = ({
     severity,
+    className,
 }: {
-    severity: keyof typeof severityVariantMap;
+    className?: string;
+    severity: keyof typeof severityLevelClassnames;
 }) => {
     return (
         <Badge
             className={cn(
-                "pointer-events-none h-6 min-h-auto rounded-lg border-1 px-1.5 text-[10px] leading-px uppercase",
-                severityVariantMap[severity as keyof typeof severityVariantMap],
+                "pointer-events-none h-6 min-h-auto rounded-lg px-2 text-[10px] leading-px uppercase ring-1",
+                className,
+                severityLevelClassnames[
+                    severity as keyof typeof severityLevelClassnames
+                ],
             )}>
             {severity}
         </Badge>
