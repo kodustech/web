@@ -29,7 +29,9 @@ const getCommonPinningStyles = (
         isPinned === "left" && column.getIsLastColumn("left");
 
     return {
-        className: cn(isLastLeftPinnedColumn && "bg-card-lv1 border-r"),
+        className: cn(
+            isLastLeftPinnedColumn && "bg-card-lv1 border-r border-r-card-lv3",
+        ),
         style: {
             left:
                 isPinned === "left"
@@ -57,11 +59,7 @@ export const DataTable = ({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
-        state: {
-            columnPinning: {
-                left: ["developer"],
-            },
-        },
+        state: { columnPinning: { left: ["developer"] } },
     });
 
     return (
@@ -71,15 +69,21 @@ export const DataTable = ({
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map((header) => {
+                                const commonPinningProps = {
+                                    ...getCommonPinningStyles(header.column),
+                                };
+
                                 return (
                                     <TableHead
                                         key={header.id}
+                                        {...commonPinningProps}
+                                        className={cn(
+                                            commonPinningProps.className,
+                                            "border-card-lv3 border",
+                                        )}
                                         align={
                                             header.column.columnDef.meta?.align
-                                        }
-                                        {...getCommonPinningStyles(
-                                            header.column,
-                                        )}>
+                                        }>
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
@@ -100,21 +104,30 @@ export const DataTable = ({
                             <TableRow
                                 key={row.id}
                                 data-state={row.getIsSelected() && "selected"}>
-                                {row.getVisibleCells().map((cell) => (
-                                    <TableCell
-                                        key={cell.id}
-                                        align={
-                                            cell.column.columnDef.meta?.align
-                                        }
-                                        {...getCommonPinningStyles(
-                                            cell.column,
-                                        )}>
-                                        {flexRender(
-                                            cell.column.columnDef.cell,
-                                            cell.getContext(),
-                                        )}
-                                    </TableCell>
-                                ))}
+                                {row.getVisibleCells().map((cell) => {
+                                    const commonPinningProps = {
+                                        ...getCommonPinningStyles(cell.column),
+                                    };
+
+                                    return (
+                                        <TableCell
+                                            key={cell.id}
+                                            {...commonPinningProps}
+                                            className={cn(
+                                                commonPinningProps.className,
+                                                "border-card-lv3 border",
+                                            )}
+                                            align={
+                                                cell.column.columnDef.meta
+                                                    ?.align
+                                            }>
+                                            {flexRender(
+                                                cell.column.columnDef.cell,
+                                                cell.getContext(),
+                                            )}
+                                        </TableCell>
+                                    );
+                                })}
                             </TableRow>
                         ))
                     ) : (

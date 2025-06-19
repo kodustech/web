@@ -2,7 +2,7 @@ import { CardContent } from "@components/ui/card";
 import { getDeveloperActivity } from "src/features/ee/cockpit/_services/analytics/productivity/fetch";
 
 import { getSelectedDateRange } from "../_helpers/get-selected-date-range";
-import { DataTable } from "./_components/data-table";
+import { TableNoSSR } from "./_components/table.no-ssr";
 
 export default async function TeamActivityChart() {
     const selectedDateRange = await getSelectedDateRange();
@@ -36,7 +36,7 @@ export default async function TeamActivityChart() {
     return (
         <>
             <CardContent className="flex items-center justify-center">
-                <DataTable
+                <TableNoSSR
                     startDate={selectedDateRange.startDate}
                     endDate={selectedDateRange.endDate}
                     data={Object.entries(groupedByDeveloper)}
