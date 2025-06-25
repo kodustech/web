@@ -23,6 +23,7 @@ import { magicModal } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
 import { Section } from "@components/ui/section";
 import { SliderWithMarkers } from "@components/ui/slider-with-markers";
+import { Switch } from "@components/ui/switch";
 import { toast } from "@components/ui/toaster/use-toast";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
@@ -34,6 +35,7 @@ import {
 } from "@services/parameters/types";
 import { Info, Save } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
+import { useEffect } from "react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
 
@@ -96,12 +98,30 @@ export const SuggestionControl = (
                 limitationType: LimitationType.PR,
                 maxSuggestions: 9,
                 severityLevelFilter: SeverityLevel.MEDIUM,
+                applyFiltersToKodyRules: false,
             },
         },
         mode: "all",
         reValidateMode: "onChange",
         criteriaMode: "firstError",
     });
+
+    // Reinicializa o formulário quando config mudar
+    useEffect(() => {
+        if (config) {
+            const formData = {
+                ...config,
+                suggestionControl: config?.suggestionControl ?? {
+                    groupingMode: GroupingModeSuggestions.FULL,
+                    limitationType: LimitationType.PR,
+                    maxSuggestions: 9,
+                    severityLevelFilter: SeverityLevel.MEDIUM,
+                    applyFiltersToKodyRules: false,
+                },
+            };
+            form.reset(formData);
+        }
+    }, [config, form]);
 
     const MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE =
         Object.values(config?.reviewOptions ?? {}).filter((option) => option)
@@ -138,6 +158,7 @@ export const SuggestionControl = (
                 maxSuggestions: legacyMaxSuggestions || 9,
                 severityLevelFilter:
                     legacySeverityLevelFilter || SeverityLevel.MEDIUM,
+                applyFiltersToKodyRules: false,
             };
 
             const finalConfig = {
@@ -321,6 +342,46 @@ export const SuggestionControl = (
                             during code reviews
                         </small>
                     </div>
+
+                    <Controller
+                        name="suggestionControl.applyFiltersToKodyRules"
+                        control={form.control}
+                        render={({ field }) => (
+                            <div className="flex items-center justify-between rounded-lg border border-card-lv3 bg-card-lv2 p-4">
+                                <div className="flex flex-col gap-1">
+                                    <h3 className="text-base font-medium text-text-primary">
+                                        Apply filters to Kody Rules
+                                    </h3>
+                                    <p className="text-sm text-text-secondary">
+                                        When OFF, Kody Rules suggestions bypass the limit and severity filters.
+                                    </p>
+                                </div>
+                                <Switch
+                                    id="applyFiltersToKodyRules"
+                                    checked={field.value}
+                                    onCheckedChange={(checked) => {
+                                        field.onChange(checked);
+                                        field.onBlur();
+                                    }}
+                                    disabled={field.disabled}
+                                    size="md"
+                                />
+                            </div>
+                        )}
+                    />
+
+                    <Controller
+                        name="suggestionControl.limitationType"
+                        control={form.control}
+                        render={({ field }) => (
+                            <FormControl.Root className="space-y-1">
+                                <FormControl.Label htmlFor="reviewOptions">
+                                    Limitation type
+                                </FormControl.Label>
+                            </FormControl.Root>
+                        )}
+                    />
+
                     <Controller
                         name="suggestionControl.limitationType"
                         control={form.control}
