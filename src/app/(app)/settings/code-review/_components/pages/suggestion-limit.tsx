@@ -209,7 +209,6 @@ export const SuggestionControl = (
         isDirty: formIsDirty,
         isValid: formIsValid,
         isSubmitting: formIsSubmitting,
-        dirtyFields,
     } = form.formState;
 
     if (
@@ -247,20 +246,15 @@ export const SuggestionControl = (
                 <hr />
 
                 <Page.HeaderActions>
-                    <div className="flex items-center gap-2">
-                        <small className="text-xs text-text-secondary">
-                            Debug: isDirty={formIsDirty.toString()}, isValid={formIsValid.toString()}, dirtyFields={JSON.stringify(dirtyFields)}
-                        </small>
-                        <Button
-                            size="md"
-                            variant="primary"
-                            leftIcon={<Save />}
-                            onClick={handleSubmit}
-                            disabled={!formIsDirty || !formIsValid}
-                            loading={formIsSubmitting}>
-                            Save settings
-                        </Button>
-                    </div>
+                    <Button
+                        size="md"
+                        variant="primary"
+                        leftIcon={<Save />}
+                        onClick={handleSubmit}
+                        disabled={!formIsDirty || !formIsValid}
+                        loading={formIsSubmitting}>
+                        Save settings
+                    </Button>
                 </Page.HeaderActions>
             </Page.Header>
 
