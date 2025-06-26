@@ -3,11 +3,12 @@ import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import { Card, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
-import { useAsyncAction } from "@hooks/use-async-action";
-import { deleteKodyRule } from "@services/kodyRules/fetch";
+import { magicModal } from "@components/ui/magic-modal";
 import type { KodyRule } from "@services/kodyRules/types";
 import { EditIcon, TrashIcon } from "lucide-react";
 import { cn } from "src/core/utils/components";
+
+import { DeleteKodyRuleConfirmationModal } from "./delete-confirmation-modal";
 
 const severityVariantMap = {
     critical: "bg-danger/10 text-danger border-danger/64",
@@ -24,10 +25,17 @@ type Props = {
 
 export const KodyRuleItem = ({ repositoryId, rule, onAnyChange }: Props) => {
     const router = useRouter();
-    const [deleteRule, { loading: deletingRule }] = useAsyncAction(async () => {
-        await deleteKodyRule(rule.uuid!);
-        onAnyChange?.();
-    });
+
+    const handleDeleteClick = () => {
+        magicModal.show(() => (
+            <DeleteKodyRuleConfirmationModal
+                rule={rule}
+                onSuccess={() => {
+                    onAnyChange?.();
+                }}
+            />
+        ));
+    };
 
     return (
         <Card>
@@ -64,8 +72,6 @@ export const KodyRuleItem = ({ repositoryId, rule, onAnyChange }: Props) => {
                         size="icon-md"
                         variant="secondary"
                         onClick={() => {
-                            console.log('Button clicked!', { repositoryId, ruleId: rule.uuid });
-                            // Igual à library - simplesmente navegar
                             router.push(`/settings/code-review/${repositoryId}/kody-rules/${rule.uuid}`);
                         }}>
                         <EditIcon className="size-4" />
@@ -74,8 +80,7 @@ export const KodyRuleItem = ({ repositoryId, rule, onAnyChange }: Props) => {
                     <Button
                         size="icon-md"
                         variant="secondary"
-                        loading={deletingRule}
-                        onClick={deleteRule}
+                        onClick={handleDeleteClick}
                         className="[--button-foreground:var(--color-danger)]">
                         <TrashIcon />
                     </Button>
