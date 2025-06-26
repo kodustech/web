@@ -357,7 +357,7 @@ export const IssuesFilters = () => {
                                 </TooltipTrigger>
 
                                 <TooltipContent>
-                                    Delete default filter
+                                    Delete default filters
                                 </TooltipContent>
                             </Tooltip>
                         )}
@@ -376,7 +376,7 @@ export const IssuesFilters = () => {
                             </TooltipTrigger>
 
                             <TooltipContent>
-                                Set as default filter
+                                Set as default filters
                             </TooltipContent>
                         </Tooltip>
 
@@ -390,9 +390,13 @@ export const IssuesFilters = () => {
                                 <Button
                                     size="icon-sm"
                                     variant="cancel"
-                                    disabled={filters === DEFAULT_FILTERS}
                                     className="button-disabled:bg-transparent button-disabled:text-text-tertiary/50"
-                                    onClick={() => setFilters(DEFAULT_FILTERS)}>
+                                    onClick={() =>
+                                        setFilters(
+                                            _localStorageFilters ??
+                                                DEFAULT_FILTERS,
+                                        )
+                                    }>
                                     <Undo2Icon />
                                 </Button>
                             </TooltipTrigger>
