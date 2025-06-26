@@ -1,4 +1,3 @@
-import { usePathname } from "next/navigation";
 import {
     IssueSeverityLevelBadge,
     severityLevelClassnames,
@@ -11,11 +10,13 @@ import {
 } from "@components/ui/select";
 import { toast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
-import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { changeIssueParameter } from "@services/issues/fetch";
+import type { IssueItem, IssueListItem } from "@services/issues/types";
+import { useQueryClient } from "@tanstack/react-query";
 import { SeverityLevel } from "src/core/types";
 import { cn } from "src/core/utils/components";
-import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
+import { pathToApiUrl } from "src/core/utils/helpers";
+import { generateQueryKey } from "src/core/utils/reactQuery";
 
 const SEVERITY_OPTIONS = [
     SeverityLevel.LOW,
@@ -31,22 +32,32 @@ export const SeverityLevelSelect = ({
     issueId: string;
     severity: SeverityLevel;
 }) => {
-    const pathname = usePathname();
-    const { invalidateQueries } = useReactQueryInvalidateQueries();
+    const queryClient = useQueryClient();
 
     const [changeIssueParameterAction, { loading }] = useAsyncAction(
-        async (severityLevel: string) => {
+        async (severity: SeverityLevel) => {
             try {
                 await changeIssueParameter({
                     id: issueId,
                     field: "severity",
-                    value: severityLevel as SeverityLevel,
+                    value: severity,
                 });
 
-                await Promise.all([
-                    invalidateQueries({ queryKey: ["issues"] }),
-                    revalidateServerSidePath(pathname),
-                ]);
+                queryClient.setQueryData<IssueItem>(
+                    generateQueryKey(pathToApiUrl(`/issues/${issueId}`)),
+                    (old) => (!old ? old : { ...old, severity }),
+                );
+
+                queryClient.setQueriesData<IssueListItem[]>(
+                    {
+                        exact: false,
+                        queryKey: generateQueryKey(pathToApiUrl("/issues")),
+                    },
+                    (old = []) =>
+                        old.map((d) =>
+                            d.uuid === issueId ? { ...d, severity } : d,
+                        ),
+                );
             } catch {
                 toast({
                     variant: "warning",
@@ -59,17 +70,17 @@ export const SeverityLevelSelect = ({
     return (
         <Select
             value={severity}
-            onValueChange={(v) => changeIssueParameterAction(v)}>
-            <div className="flex items-center">
-                <SelectTrigger
-                    loading={loading}
-                    className={cn(
-                        "min-h-auto w-fit gap-1 rounded-lg py-1 pr-3.5 pl-2 text-xs leading-none uppercase [--icon-size:calc(var(--spacing)*4)]",
-                        severityLevelClassnames[severity],
-                    )}>
-                    {severity}
-                </SelectTrigger>
-            </div>
+            onValueChange={(v) =>
+                changeIssueParameterAction(v as SeverityLevel)
+            }>
+            <SelectTrigger
+                loading={loading}
+                className={cn(
+                    "min-h-auto w-fit gap-1 rounded-lg py-1 pr-3.5 pl-2 text-xs leading-none uppercase [--icon-size:calc(var(--spacing)*4)]",
+                    severityLevelClassnames[severity],
+                )}>
+                {severity}
+            </SelectTrigger>
 
             <SelectContent>
                 {SEVERITY_OPTIONS.map((s) => (

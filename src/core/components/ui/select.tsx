@@ -63,16 +63,16 @@ const SelectTrigger = React.forwardRef<
         )}
         asChild>
         <Button
-            size="lg"
-            variant="helper"
+            size={props.size ?? "lg"}
+            variant={props.variant ?? "helper"}
             data-disabled={undefined}
             data-loading={loading ? "true" : undefined}
             rightIcon={
                 loading ? (
-                    <Spinner className="-mr-2 size-(--icon-size)! fill-(--button-foreground)/10 text-(--button-foreground)" />
+                    <Spinner className="-mr-1.5 size-(--icon-size)! fill-(--button-foreground)/10 text-(--button-foreground)" />
                 ) : (
                     <SelectPrimitive.Icon asChild>
-                        <ChevronDown className="-mr-2" />
+                        <ChevronDown className="-mr-1.5" />
                     </SelectPrimitive.Icon>
                 )
             }>

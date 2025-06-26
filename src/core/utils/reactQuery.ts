@@ -70,7 +70,7 @@ export const useFetch = <T>(
     params?: AxiosRequestConfig<any>,
     enabledCondition?: boolean,
     config?: Omit<UseQueryOptions<T, Error>, "queryKey" | "queryFn">,
-) => {
+): ReturnType<typeof useQuery<T, Error>> => {
     const queryKey = generateQueryKey(url!, params);
 
     const mergedConfig = {

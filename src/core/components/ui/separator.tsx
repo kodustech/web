@@ -18,7 +18,9 @@ const Separator = React.forwardRef<
             orientation={orientation}
             className={cn(
                 "bg-card-lv3 pointer-events-none shrink-0",
-                orientation === "horizontal" ? "h-px w-full" : "h-full w-px",
+                orientation === "horizontal"
+                    ? "h-px w-full"
+                    : "h-auto min-h-full w-px",
                 className,
             )}
             {...props}

@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { SetupAndOnboardingLock } from "@components/system/setup-lock";
-import { getIssues } from "@services/issues/fetch";
 import {
     getOrganizationId,
     getOrganizationName,
@@ -23,21 +22,19 @@ export default async function Layout({ children }: React.PropsWithChildren) {
     const jwtPayload = await getJwtPayload();
     if (!jwtPayload) return redirect("/sign-in");
 
-    const [teams, teamId, organizationId, organizationName, issues] =
-        await Promise.all([
+    const [teams, teamId, organizationId, organizationName] = await Promise.all(
+        [
             getTeams(),
             getGlobalSelectedTeamId(),
             getOrganizationId(),
             getOrganizationName(),
-            getIssues(),
-        ]);
+        ],
+    );
 
     const [organizationLicense, usersWithAssignedLicense] = await Promise.all([
         validateOrganizationLicense({ teamId }),
         getUsersWithLicense({ teamId }),
     ]);
-
-    const issuesCount = issues.length;
 
     return (
         <Providers
@@ -51,7 +48,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
                 license={organizationLicense}
                 usersWithAssignedLicense={usersWithAssignedLicense}>
                 <SetupAndOnboardingLock />
-                <NavMenu issuesCount={issuesCount} />
+                <NavMenu />
                 <FinishedTrialModal />
                 <SubscriptionStatusTopbar />
                 {children}

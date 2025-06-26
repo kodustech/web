@@ -5,6 +5,7 @@ import { MagicModalPortal } from "@components/ui/magic-modal";
 import { Toaster } from "@components/ui/toaster/toaster";
 import { TooltipProvider } from "@components/ui/tooltip";
 import { GoogleTagManager } from "@next/third-parties/google";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 import QueryProvider from "src/core/providers/query.provider";
 import { ThemeProvider } from "src/core/providers/theme.provider";
 import { cn } from "src/core/utils/components";
@@ -12,11 +13,11 @@ import { cn } from "src/core/utils/components";
 import "./globals.css";
 
 const dm_sans = DM_Sans({
-    subsets: ['latin'],
+    subsets: ["latin"],
     preload: true,
 });
 const overpass_mono = Overpass_Mono({
-    subsets: ['latin'],
+    subsets: ["latin"],
     preload: true,
 });
 
@@ -46,12 +47,13 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
                     attribute="class"
                     defaultTheme="system"
                     enableSystem>
-                    <TooltipProvider delayDuration={0}>
+                    <TooltipProvider delayDuration={0} skipDelayDuration={0}>
                         <QueryProvider>
-                            {children}
-
-                            <MagicModalPortal />
-                            <Toaster />
+                            <NuqsAdapter>
+                                {children}
+                                <MagicModalPortal />
+                                <Toaster />
+                            </NuqsAdapter>
                         </QueryProvider>
                     </TooltipProvider>
                 </ThemeProvider>

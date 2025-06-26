@@ -1,9 +1,9 @@
 "use client";
 
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
-import { Badge } from "@components/ui/badge";
 import { SvgKodus } from "@components/ui/icons/SvgKodus";
 import {
     NavigationMenu,
@@ -11,6 +11,7 @@ import {
     NavigationMenuLink,
     NavigationMenuList,
 } from "@components/ui/navigation-menu";
+import { Spinner } from "@components/ui/spinner";
 import { GaugeIcon, InfoIcon, SlidersHorizontalIcon } from "lucide-react";
 import { UserNav } from "src/core/layout/navbar/_components/user-nav";
 import { useAuth } from "src/core/providers/auth.provider";
@@ -20,7 +21,19 @@ import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-s
 
 import { SupportDropdown } from "./_components/support";
 
-export const NavMenu = (props: { issuesCount: number }) => {
+const NoSSRIssuesCount = dynamic(
+    () => import("./_components/issues-count").then((f) => f.IssuesCount),
+    {
+        ssr: false,
+        loading: () => (
+            <div className="flex size-full items-center justify-center">
+                <Spinner className="size-4" />
+            </div>
+        ),
+    },
+);
+
+export const NavMenu = () => {
     const pathname = usePathname();
     const { isOwner, isTeamLeader } = useAuth();
     const subscription = useSubscriptionStatus();
@@ -50,11 +63,9 @@ export const NavMenu = (props: { issuesCount: number }) => {
             visible: isOwner || isTeamLeader,
             icon: <InfoIcon className="size-5" />,
             badge: (
-                <Badge
-                    variant="secondary"
-                    className="pointer-events-none h-5 min-h-auto min-w-8 px-2">
-                    {props.issuesCount}
-                </Badge>
+                <div className="h-5 min-h-auto min-w-8">
+                    <NoSSRIssuesCount />
+                </div>
             ),
         },
     ] satisfies Array<{

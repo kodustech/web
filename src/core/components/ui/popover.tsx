@@ -18,7 +18,7 @@ const PopoverContent = React.forwardRef<
             align={align}
             sideOffset={sideOffset}
             className={cn(
-                "bg-card-lv2 border-card-lv3 z-50 w-72 rounded-xl border-1 p-4 shadow-md backdrop-blur-3xl",
+                "bg-card-lv2 border-card-lv3 z-50 w-72 rounded-xl border-1 px-5 py-4 shadow-md backdrop-blur-3xl",
                 "data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95",
                 "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95",
                 "data-[side=bottom]:slide-in-from-top-2",
@@ -36,23 +36,23 @@ PopoverContent.displayName = PopoverPrimitive.Content.displayName;
 export { Popover, PopoverContent, PopoverTrigger };
 
 export interface ConditionalPortalProps {
-    portal: React.FC<{ children?: React.ReactNode }>
-    children: React.ReactNode
+    portal: React.FC<{ children?: React.ReactNode }>;
+    children: React.ReactNode;
 }
 
 export const ConditionalPortal = ({
     portal: Portal,
-    children
+    children,
 }: ConditionalPortalProps) => {
-    const [hasDialog, setHasDialog] = React.useState(false)
+    const [hasDialog, setHasDialog] = React.useState(false);
 
     React.useEffect(() => {
-        setHasDialog(!!document.querySelector('[role=dialog]'))
-    }, [])
+        setHasDialog(!!document.querySelector("[role=dialog]"));
+    }, []);
 
     if (hasDialog) {
-        return children
+        return children;
     }
 
-    return <Portal>{children}</Portal>
-}
+    return <Portal>{children}</Portal>;
+};

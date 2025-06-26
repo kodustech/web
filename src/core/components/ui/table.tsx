@@ -1,25 +1,40 @@
 import * as React from "react";
 import { cn } from "src/core/utils/components";
 
+const TableContainer = React.forwardRef<
+    HTMLDivElement,
+    React.HTMLAttributes<HTMLDivElement>
+>((props, ref) => (
+    <div
+        {...props}
+        className={cn("relative w-full overflow-x-auto", props.className)}
+    />
+));
+TableContainer.displayName = "TableContainer";
+
 const Table = React.forwardRef<
     HTMLTableElement,
     React.HTMLAttributes<HTMLTableElement>
 >(({ className, ...props }, ref) => (
-    <div className="relative w-full overflow-auto">
-        <table
-            ref={ref}
-            className={cn("w-full caption-bottom text-sm", className)}
-            {...props}
-        />
-    </div>
+    <table
+        ref={ref}
+        className={cn("w-full caption-bottom text-sm", className)}
+        {...props}
+    />
 ));
 Table.displayName = "Table";
 
 const TableHeader = React.forwardRef<
     HTMLTableSectionElement,
-    React.HTMLAttributes<HTMLTableSectionElement>
->(({ className, ...props }, ref) => (
-    <thead ref={ref} className={cn("", className)} {...props} />
+    React.HTMLAttributes<HTMLTableSectionElement> & {
+        sticky?: boolean;
+    }
+>(({ className, sticky, ...props }, ref) => (
+    <thead
+        ref={ref}
+        className={cn("", sticky && "sticky top-0 z-1", className)}
+        {...props}
+    />
 ));
 TableHeader.displayName = "TableHeader";
 
@@ -57,7 +72,11 @@ const TableRow = React.forwardRef<
     <tr
         ref={ref}
         className={cn(
-            "data-[state=selected]:bg-card-lv1 hover:bg-card-lv1/50 transition",
+            "relative transition",
+            "hover:bg-card-lv1/50",
+
+            "data-peek:bg-card-lv2",
+            "data-peek:hover:bg-card-lv2/75",
             className,
         )}
         {...props}
@@ -72,7 +91,7 @@ const TableHead = React.forwardRef<
     <th
         ref={ref}
         className={cn(
-            "bg-card-lv1 h-14 px-5 align-middle font-semibold [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+            "bg-card-lv1 relative h-14 px-5 align-middle font-semibold [&:has([role=checkbox])]:px-0",
             className,
         )}
         {...props}
@@ -89,7 +108,7 @@ const TableCell = React.forwardRef<
         ref={ref}
         align="left"
         className={cn(
-            "border-card-lv1 h-14 border-b px-5 py-3 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+            "border-card-lv1 relative h-14 border-b px-5 py-3 align-middle [&:has([role=checkbox])]:px-0",
             className,
         )}
         {...props}
@@ -110,6 +129,7 @@ export {
     TableBody,
     TableCaption,
     TableCell,
+    TableContainer,
     TableFooter,
     TableHead,
     TableHeader,

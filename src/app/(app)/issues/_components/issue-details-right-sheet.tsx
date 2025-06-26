@@ -1,11 +1,11 @@
 "use client";
 
-import { Fragment, use, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { Fragment, useEffect, useMemo } from "react";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import { Card, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
+import { Keycap } from "@components/ui/keycap";
 import { Link } from "@components/ui/link";
 import { Progress } from "@components/ui/progress";
 import { ScrollArea } from "@components/ui/scroll-area";
@@ -18,108 +18,158 @@ import {
     SheetHeader,
     SheetTitle,
 } from "@components/ui/sheet";
-import { SyntaxHighlight } from "@components/ui/syntax-highlight";
-import { useArrowShortcut } from "@hooks/use-arrow-shortcut";
-import { useEffectOnce } from "@hooks/use-effect-once";
-import { type getIssue } from "@services/issues/fetch";
 import {
-    ArrowLeft,
-    ArrowRight,
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@components/ui/tooltip";
+import { usePrevious } from "@hooks/use-previous";
+import { useShortcut } from "@hooks/use-shortcut";
+import { useIssue } from "@services/issues/hooks";
+import type { IssueListItem } from "@services/issues/types";
+import { useQueryClient } from "@tanstack/react-query";
+import {
+    ArrowDownIcon,
+    ArrowRightToLineIcon,
+    ArrowUpIcon,
     FileIcon,
     FolderGit2Icon,
     GitPullRequestArrowIcon,
-    ThumbsDown,
-    ThumbsUp,
+    RefreshCwIcon,
+    ThumbsDownIcon,
+    ThumbsUpIcon,
 } from "lucide-react";
+import { useQueryState } from "nuqs";
 import { cn } from "src/core/utils/components";
+import { pathToApiUrl } from "src/core/utils/helpers";
+import { generateQueryKey } from "src/core/utils/reactQuery";
 
-import { IssuesListContext } from "../../../_contexts/issues-list";
 import { SeverityLevelSelect } from "./severity-level-select";
 import { ShareButton } from "./share-button";
+import { StatusSelect } from "./status-select";
 
-const DISABLE_ANIMATION_SESSION_STORAGE_KEY = "disable-animation";
-
-export const RightSheet = ({
-    issue,
-    issueId,
+export const IssueDetailsRightSheet = ({
+    issues,
 }: {
-    issueId: string;
-    issue: Awaited<ReturnType<typeof getIssue>>;
+    issues: IssueListItem[];
 }) => {
-    const router = useRouter();
-    const issues = use(IssuesListContext);
+    const queryClient = useQueryClient();
+    const [peek, setPeek] = useQueryState("peek");
+    const previousPeek = usePrevious(peek);
 
-    /* START: disable opening animation when navigating between issues */
-    const disableAnimation = useRef(
-        globalThis.sessionStorage?.getItem(
-            DISABLE_ANIMATION_SESSION_STORAGE_KEY,
-        ) === "true",
-    ).current;
+    const query = useIssue(peek);
+    const issue = query.data;
 
-    const setDisableAnimation = () =>
-        globalThis.sessionStorage.setItem(
-            DISABLE_ANIMATION_SESSION_STORAGE_KEY,
-            "true",
-        );
+    const currentIssueIndex = useMemo(
+        () => issues.findIndex((i) => i.uuid === peek),
+        [issues, peek],
+    );
 
-    useEffectOnce(() => {
-        globalThis.sessionStorage.removeItem(
-            DISABLE_ANIMATION_SESSION_STORAGE_KEY,
-        );
+    const previousIssueId = useMemo<string | undefined>(
+        () => issues[currentIssueIndex - 1]?.uuid,
+        [currentIssueIndex],
+    );
+
+    const nextIssueId = useMemo<string | undefined>(
+        () => issues[currentIssueIndex + 1]?.uuid,
+        [currentIssueIndex],
+    );
+
+    useEffect(() => {
+        if (!previousPeek || previousPeek === peek) return;
+
+        queryClient.cancelQueries({
+            queryKey: generateQueryKey(pathToApiUrl(`/issues/${previousPeek}`)),
+        });
+    }, [peek]);
+
+    useShortcut("escape", () => {
+        if (!peek) return;
+        setPeek(null);
     });
-    /* END: disable opening animation when navigating between issues */
 
-    const currentIssueIndex = issues.findIndex((i) => i.uuid === issueId);
-    const previousIssueId: string | undefined =
-        issues[currentIssueIndex - 1]?.uuid;
-    const nextIssueId: string | undefined = issues[currentIssueIndex + 1]?.uuid;
-
-    useArrowShortcut("left", () => {
+    useShortcut("k", () => {
         if (!previousIssueId) return;
-        setDisableAnimation();
-        router.push(`/issues/${previousIssueId}`);
-    });
-    useArrowShortcut("right", () => {
-        if (!nextIssueId) return;
-        setDisableAnimation();
-        router.push(`/issues/${nextIssueId}`);
+        setPeek(previousIssueId);
     });
 
-    const descriptionSplittedInParagraphs = issue.description.split(". ");
+    useShortcut("j", () => {
+        if (!nextIssueId || currentIssueIndex + 1 === 0) return;
+        setPeek(nextIssueId);
+    });
 
-    const fileLinesAffected =
-        issue.startLine === issue.endLine
-            ? issue.startLine.toString()
-            : `${issue.startLine}~${issue.endLine}`;
+    if (!peek || !issue) return null;
 
     return (
-        <Sheet open onOpenChange={() => router.push("/issues")}>
-            <SheetContent
-                className="sm:max-w-2xl"
-                disableAnimation={disableAnimation}>
-                <div className="mb-6 flex h-8 justify-between pr-14 pl-6">
-                    <div className="flex gap-1">
-                        <Link
-                            disabled={!previousIssueId}
-                            href={`/issues/${previousIssueId}`}
-                            onClick={() => setDisableAnimation()}>
-                            <Button variant="helper" size="icon-sm" decorative>
-                                <ArrowLeft />
+        <Sheet modal={false} open>
+            <SheetContent className="sm:max-w-2xl">
+                <SheetHeader className="mb-6 flex flex-row justify-between px-6">
+                    <div className="flex items-center gap-1">
+                        <div className="flex items-center">
+                            <Button
+                                size="sm"
+                                variant="cancel"
+                                className="p-0"
+                                onClick={() => setPeek(null)}>
+                                <ArrowRightToLineIcon />
+                                <Keycap>Esc</Keycap>
                             </Button>
-                        </Link>
+                        </div>
 
-                        <Link
-                            disabled={!nextIssueId}
-                            href={`/issues/${nextIssueId}`}
-                            onClick={() => setDisableAnimation()}>
-                            <Button variant="helper" size="icon-sm" decorative>
-                                <ArrowRight />
-                            </Button>
-                        </Link>
+                        <Separator orientation="vertical" className="mx-2" />
+
+                        <Tooltip delayDuration={500}>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    size="icon-sm"
+                                    variant="helper"
+                                    disabled={!nextIssueId}
+                                    onClick={() => setPeek(nextIssueId!)}>
+                                    <ArrowDownIcon />
+                                </Button>
+                            </TooltipTrigger>
+
+                            <TooltipContent>
+                                Press <Keycap>J</Keycap> to next issue
+                            </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    size="icon-sm"
+                                    variant="helper"
+                                    disabled={!previousIssueId}
+                                    onClick={() => setPeek(previousIssueId!)}>
+                                    <ArrowUpIcon />
+                                </Button>
+                            </TooltipTrigger>
+
+                            <TooltipContent>
+                                Press <Keycap>K</Keycap> to previous issue
+                            </TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <Button
+                                    variant="cancel"
+                                    size="icon-sm"
+                                    loading={query.isFetching}
+                                    onClick={() => query.refetch()}>
+                                    <RefreshCwIcon />
+                                </Button>
+                            </TooltipTrigger>
+
+                            <TooltipContent>Refresh</TooltipContent>
+                        </Tooltip>
                     </div>
 
-                    <ShareButton />
-                </div>
+                    <div className="flex items-center gap-3">
+                        <ShareButton />
+                        <StatusSelect issueId={peek} status={issue.status} />
+                    </div>
+                </SheetHeader>
 
                 <SheetHeader>
                     <SheetTitle>{issue.title}</SheetTitle>
@@ -127,7 +177,7 @@ export const RightSheet = ({
 
                     <div className="mt-4 flex gap-2">
                         <SeverityLevelSelect
-                            issueId={issueId}
+                            issueId={peek}
                             severity={issue.severity}
                         />
                     </div>
@@ -172,7 +222,7 @@ export const RightSheet = ({
                                 href={issue.fileLink.url}
                                 target="_blank"
                                 className="text-text-secondary link-hover:text-primary-light link-focused:text-primary-light underline">
-                                {issue.fileLink.label}:{fileLinesAffected}
+                                {issue.fileLink.label}
                             </Link>
                         </div>
                     </div>
@@ -183,7 +233,7 @@ export const RightSheet = ({
                         </Heading>
 
                         <div className="space-y-2">
-                            {descriptionSplittedInParagraphs.map((d) => (
+                            {issue.description.split(". ").map((d) => (
                                 <p
                                     key={d}
                                     className="text-text-secondary text-sm">
@@ -192,16 +242,6 @@ export const RightSheet = ({
                                 </p>
                             ))}
                         </div>
-                    </div>
-
-                    <div className="mt-10 px-6">
-                        <Heading variant="h3" className="mb-2">
-                            Current code
-                        </Heading>
-
-                        <SyntaxHighlight language={issue.language}>
-                            {issue.currentCode.trim()}
-                        </SyntaxHighlight>
                     </div>
                 </ScrollArea>
 
@@ -216,9 +256,9 @@ export const RightSheet = ({
                                 <Badge
                                     size="xs"
                                     variant="helper"
-                                    className="pointer-events-none"
+                                    className="pointer-events-none min-w-16"
                                     leftIcon={
-                                        <ThumbsUp className="text-success mr-1" />
+                                        <ThumbsUpIcon className="text-success mr-1" />
                                     }>
                                     {issue.reactions.thumbsUp}
                                 </Badge>
@@ -226,9 +266,9 @@ export const RightSheet = ({
                                 <Badge
                                     size="xs"
                                     variant="helper"
-                                    className="pointer-events-none"
+                                    className="pointer-events-none min-w-16"
                                     leftIcon={
-                                        <ThumbsDown className="text-danger mr-1" />
+                                        <ThumbsDownIcon className="text-danger mr-1" />
                                     }>
                                     {issue.reactions.thumbsDown}
                                 </Badge>
