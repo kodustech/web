@@ -7,5 +7,9 @@ export const TableFilterContext = createContext<{
     setQuery: (q: string) => void;
 }>({
     query: "",
-    setQuery: () => {},
+    setQuery: () => {
+        throw new Error(
+            "setQuery was called outside of the TableFilterContext",
+        );
+    },
 });

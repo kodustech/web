@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useLayoutEffect, useRef } from "react";
 import { Spinner } from "@components/ui/spinner";
 import {
     Table,
@@ -40,12 +40,28 @@ export const IssuesDataTable = (
     const { rows } = table.getRowModel();
 
     const parentRef = useRef<HTMLDivElement>(null);
+    const tableBodyRef = useRef<HTMLTableSectionElement>(null);
 
     const virtualizer = useVirtualizer({
         count: rows.length,
         getScrollElement: () => parentRef.current,
         estimateSize: () => 56,
     });
+
+    useLayoutEffect(() => {
+        const tableBodyEl = tableBodyRef.current;
+        if (!tableBodyEl) return;
+
+        const height =
+            virtualizer.getTotalSize() -
+            tableBodyEl.getBoundingClientRect().height;
+
+        // '--table-body-height' is required for sticky header to work
+        document.documentElement.style.setProperty(
+            "--table-body-height",
+            `${height}px`,
+        );
+    }, [virtualizer]);
 
     return (
         <div
@@ -84,20 +100,7 @@ export const IssuesDataTable = (
                         ))}
                     </TableHeader>
 
-                    <TableBody
-                        ref={(ref) => {
-                            if (!ref) return;
-
-                            const height =
-                                virtualizer.getTotalSize() -
-                                ref.getBoundingClientRect().height;
-
-                            // '--table-body-height' is required for sticky header to work
-                            document.documentElement.style.setProperty(
-                                "--table-body-height",
-                                `${height}px`,
-                            );
-                        }}>
+                    <TableBody ref={tableBodyRef}>
                         {props.loading === true ? (
                             <TableRow className="hover:bg-transparent">
                                 <TableCell
@@ -132,11 +135,7 @@ export const IssuesDataTable = (
                                                         }
                                                         style={{
                                                             height: `${virtualRow.size}px`,
-                                                            transform: `translateY(${
-                                                                virtualRow.start -
-                                                                index *
-                                                                    virtualRow.size
-                                                            }px)`,
+                                                            transform: `translateY(${virtualRow.start - index * virtualRow.size}px)`,
                                                         }}>
                                                         {row
                                                             .getVisibleCells()

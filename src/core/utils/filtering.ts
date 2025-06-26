@@ -69,8 +69,8 @@ const isValueValid = <T extends Record<string, any>>(
         const splittedByDots = f.field.split(".");
 
         if (splittedByDots.length > 1) {
-            fieldValue = splittedByDots.reduce<any>(
-                (acc, current) => acc[current as keyof typeof acc],
+            fieldValue = splittedByDots.reduce(
+                (acc, current) => acc?.[current],
                 obj,
             );
         }
