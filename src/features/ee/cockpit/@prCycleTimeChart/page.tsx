@@ -2,7 +2,7 @@ import { CardContent } from "@components/ui/card";
 import { getLeadTimeForChange } from "src/features/ee/cockpit/_services/analytics/productivity/fetch";
 
 import { getSelectedDateRange } from "../_helpers/get-selected-date-range";
-import { Chart } from "./_components/chart";
+import { ChartNoSSR } from "./_components/chart.no-ssr";
 
 export default async function LeadTimeForChangeChart() {
     const selectedDateRange = await getSelectedDateRange();
@@ -17,7 +17,7 @@ export default async function LeadTimeForChangeChart() {
     return (
         <>
             <CardContent className="flex items-center justify-center">
-                <Chart data={data} />
+                <ChartNoSSR data={data} />
             </CardContent>
         </>
     );

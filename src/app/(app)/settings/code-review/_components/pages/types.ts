@@ -59,6 +59,7 @@ type SuggestionControlConfig = {
     limitationType: LimitationType;
     maxSuggestions: number;
     severityLevelFilter: SeverityLevel;
+    applyFiltersToKodyRules: boolean;
 };
 
 export type CodeReviewGlobalConfig = {
