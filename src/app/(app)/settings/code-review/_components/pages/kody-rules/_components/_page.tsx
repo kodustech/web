@@ -26,6 +26,7 @@ import { type KodyRule } from "@services/kodyRules/types";
 import { KodyLearningStatus } from "@services/parameters/types";
 import { BellRing, Plus } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { SeverityLevel } from "src/core/types";
 import { revalidateServerSideTag } from "src/core/utils/revalidate-server-side";
 
 import {
@@ -39,7 +40,6 @@ import {
     CodeReviewSummaryOptions,
     GroupingModeSuggestions,
     LimitationType,
-    SeverityLevel,
 } from "../../types";
 import { GenerateRulesButton } from "./generate-rules";
 import { KodyRuleItem } from "./item";

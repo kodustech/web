@@ -21,7 +21,7 @@ export const billingFetch = async <Data>(
     }
 
     const port = process.env.WEB_PORT_BILLING;
-    const url = createUrl(hostName, port, `/api/billing/${_url}`, false);
+    const url = createUrl(hostName, port, `/api/billing/${_url}`);
 
     const urlWithParams =
         searchParams.size > 0 ? `${url}?${searchParams.toString()}` : url;

@@ -37,6 +37,7 @@ import { Info, Save } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { useEffect } from "react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { SeverityLevel } from "src/core/types";
 import { cn } from "src/core/utils/components";
 
 import CodeGroupingExampleCard from "../CodeGroupingExampleCard";
@@ -45,7 +46,6 @@ import GeneratingConfig from "./generating-config";
 import {
     GroupingModeSuggestions,
     LimitationType,
-    SeverityLevel,
     type AutomationCodeReviewConfigPageProps,
     type CodeReviewGlobalConfig,
 } from "./types";

@@ -1,5 +1,6 @@
 import type { TeamAutomation } from "@services/automations/types";
 import type { LiteralUnion } from "react-hook-form";
+import type { SeverityLevel } from "src/core/types";
 
 export type AutomationCodeReviewConfigPageProps = {
     automation: TeamAutomation;
@@ -25,13 +26,6 @@ export enum GroupingModeSuggestions {
 enum ClusteringType {
     PARENT = "parent",
     RELATED = "related",
-}
-
-export enum SeverityLevel {
-    CRITICAL = "critical",
-    HIGH = "high",
-    MEDIUM = "medium",
-    LOW = "low",
 }
 
 type CodeReviewSummary = {

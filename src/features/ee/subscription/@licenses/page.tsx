@@ -1,4 +1,3 @@
-import { DataTable } from "@components/ui/data-table";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 
 import {
@@ -6,7 +5,7 @@ import {
     getUsersWithLicense,
     validateOrganizationLicense,
 } from "../_services/billing/fetch";
-import { columns } from "./_components/columns";
+import { LicensesPageClient } from "./_components/page.client";
 
 export default async function SubscriptionTabs() {
     const teamId = await getGlobalSelectedTeamId();
@@ -38,5 +37,5 @@ export default async function SubscriptionTabs() {
         };
     });
 
-    return <DataTable columns={columns} data={pullRequestAuthorsWithLicense} />;
+    return <LicensesPageClient data={pullRequestAuthorsWithLicense} />;
 }

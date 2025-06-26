@@ -7,6 +7,7 @@ import { Page } from "@components/ui/page";
 import { Spinner } from "@components/ui/spinner";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { signOut } from "next-auth/react";
+import { deleteFiltersInLocalStorage } from "src/app/(app)/issues/_constants";
 import { ClientSideCookieHelpers } from "src/core/utils/cookie";
 
 export default function App() {
@@ -27,7 +28,10 @@ export default function App() {
         ClientSideCookieHelpers("global-selected-team-id").delete();
         ClientSideCookieHelpers("started-setup-from-new-setup-page").delete();
         ClientSideCookieHelpers("selectedTeam").delete();
+        deleteFiltersInLocalStorage();
+
         removeQueries();
+
         redirectToSignInPage();
     }, []);
 

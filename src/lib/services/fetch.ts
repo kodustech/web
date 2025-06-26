@@ -16,7 +16,7 @@ export class TypedFetchError extends Error {
 export const typedFetch = async <Data>(
     url: Parameters<typeof globalThis.fetch>[0],
     config?: Parameters<typeof globalThis.fetch>[1] & {
-        params?: Record<string, string>;
+        params?: Record<string, string | number | boolean>;
         signedIn?: false;
     },
 ): Promise<Data> => {
@@ -34,8 +34,16 @@ export const typedFetch = async <Data>(
         accessToken = session?.user?.accessToken;
     }
 
-    const { params, ...paramsRest } = config ?? {};
-    const searchParams = new URLSearchParams(params);
+    const { params = {}, ...paramsRest } = config ?? {};
+    const searchParams = new URLSearchParams(
+        Object.entries(params).reduce(
+            (acc, current) => {
+                acc[current[0]] = current[1].toString();
+                return acc;
+            },
+            {} as Record<string, string>,
+        ),
+    );
     const urlWithParams =
         searchParams.size > 0 ? `${url}?${searchParams.toString()}` : url;
 

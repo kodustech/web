@@ -14,9 +14,7 @@ import { EllipsisVertical } from "lucide-react";
 
 import { DeleteModal } from "./delete-modal";
 
-type Type = MembersSetup;
-
-export const columns: ColumnDef<Type>[] = [
+export const columns: ColumnDef<MembersSetup>[] = [
     {
         accessorKey: "name",
         header: "Username",

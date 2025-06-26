@@ -35,7 +35,7 @@ const ProgressRoot = ({
     variant,
     ...props
 }: React.ComponentProps<typeof ProgressPrimitive.Root> &
-    Required<VariantProps<typeof progressVariants>>) => (
+    VariantProps<typeof progressVariants>) => (
     <ProgressPrimitive.Root
         {...props}
         className={cn(progressVariants({ variant }), props.className)}>

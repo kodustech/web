@@ -1,21 +1,13 @@
 import { useRouter } from "next/navigation";
-import { Badge } from "@components/ui/badge";
+import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level-badge";
 import { Button } from "@components/ui/button";
 import { Card, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { magicModal } from "@components/ui/magic-modal";
 import type { KodyRule } from "@services/kodyRules/types";
 import { EditIcon, TrashIcon } from "lucide-react";
-import { cn } from "src/core/utils/components";
 
 import { DeleteKodyRuleConfirmationModal } from "./delete-confirmation-modal";
-
-const severityVariantMap = {
-    critical: "bg-danger/10 text-danger border-danger/64",
-    high: "bg-warning/10 text-warning border-warning/64",
-    medium: "bg-alert/10 text-alert border-alert/64",
-    low: "bg-info/10 text-info border-info/64",
-} as const satisfies Record<string, string>;
 
 type Props = {
     rule: KodyRule;
@@ -57,14 +49,7 @@ export const KodyRuleItem = ({ repositoryId, rule, onAnyChange }: Props) => {
                         </span>
                     </div>
 
-                    <Badge
-                        className={cn(
-                            severityVariantMap[
-                                rule.severity as keyof typeof severityVariantMap
-                            ],
-                        )}>
-                        {rule.severity}
-                    </Badge>
+                    <IssueSeverityLevelBadge severity={rule.severity} />
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -72,7 +57,9 @@ export const KodyRuleItem = ({ repositoryId, rule, onAnyChange }: Props) => {
                         size="icon-md"
                         variant="secondary"
                         onClick={() => {
-                            router.push(`/settings/code-review/${repositoryId}/kody-rules/${rule.uuid}`);
+                            router.push(
+                                `/settings/code-review/${repositoryId}/kody-rules/${rule.uuid}`,
+                            );
                         }}>
                         <EditIcon className="size-4" />
                     </Button>

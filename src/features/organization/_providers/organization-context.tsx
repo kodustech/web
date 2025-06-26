@@ -5,13 +5,11 @@ import { createContext, useContext } from "react";
 const OrganizationContext = createContext<{
     organizationId: string;
     organizationName: string;
-}>({
-    organizationId: "",
-    organizationName: "",
-});
+}>(null as any);
 
 export const useOrganizationContext = () => {
     const context = useContext(OrganizationContext);
+    if (!context) throw new Error("OrganizationContext is not being used");
     return context;
 };
 

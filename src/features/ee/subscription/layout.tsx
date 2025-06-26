@@ -4,7 +4,6 @@ import { Suspense, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
-import { DataTableSearchQueryContext } from "@components/ui/data-table";
 import { Input } from "@components/ui/input";
 import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
@@ -16,6 +15,7 @@ import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { isSelfHosted } from "src/core/utils/self-hosted";
 
 import { InviteModal } from "./_components/invite-modal";
+import { TableFilterContext } from "./_providers/table-filter-context";
 
 const tabs = {
     prs: "pr-licenses",
@@ -78,49 +78,53 @@ export default function SubscriptionLayout({
             <Page.Header>{status}</Page.Header>
 
             <Page.Content>
-                <Tabs value={selectedTab} onValueChange={setSelectedTab}>
-                    <TabsList className="mt-5">
-                        <TabsTrigger value={tabs.prs}>PR licenses</TabsTrigger>
-                        <TabsTrigger value={tabs.admins}>
-                            Organization admins
-                        </TabsTrigger>
+                <TableFilterContext value={{ query, setQuery }}>
+                    <Tabs value={selectedTab} onValueChange={setSelectedTab}>
+                        <TabsList className="mt-5">
+                            <TabsTrigger value={tabs.prs}>
+                                PR licenses
+                            </TabsTrigger>
+                            <TabsTrigger value={tabs.admins}>
+                                Organization admins
+                            </TabsTrigger>
 
-                        <div className="mb-5 flex h-full flex-1 items-center justify-end">
-                            <div className="flex items-center gap-2">
-                                <Input
-                                    size="md"
-                                    value={query}
-                                    className="w-52"
-                                    leftIcon={<SearchIcon />}
-                                    placeholder="Find by name"
-                                    onChange={(e) => setQuery(e.target.value)}
-                                />
-
-                                {selectedTab === tabs.admins && (
-                                    <Button
+                            <div className="mb-5 flex h-full flex-1 items-center justify-end">
+                                <div className="flex items-center gap-2">
+                                    <Input
                                         size="md"
-                                        variant="helper"
-                                        leftIcon={<PlusIcon />}
-                                        onClick={() => {
-                                            magicModal.show(() => (
-                                                <InviteModal teamId={teamId} />
-                                            ));
-                                        }}>
-                                        Invite admin
-                                    </Button>
-                                )}
-                            </div>
-                        </div>
-                    </TabsList>
+                                        value={query}
+                                        className="w-52"
+                                        leftIcon={<SearchIcon />}
+                                        placeholder="Find by name"
+                                        onChange={(e) =>
+                                            setQuery(e.target.value)
+                                        }
+                                    />
 
-                    <DataTableSearchQueryContext.Provider
-                        value={{ query, setQuery }}>
+                                    {selectedTab === tabs.admins && (
+                                        <Button
+                                            size="md"
+                                            variant="helper"
+                                            leftIcon={<PlusIcon />}
+                                            onClick={() => {
+                                                magicModal.show(() => (
+                                                    <InviteModal
+                                                        teamId={teamId}
+                                                    />
+                                                ));
+                                            }}>
+                                            Invite admin
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+                        </TabsList>
+
                         <TabsContent value={tabs.prs}>
                             <Suspense
                                 fallback={
                                     <Card className="flex h-40 flex-col items-center justify-center gap-3 bg-transparent shadow-none">
                                         <Spinner />
-
                                         <p className="text-sm">
                                             Loading users...
                                         </p>
@@ -135,8 +139,8 @@ export default function SubscriptionLayout({
                                 {admins}
                             </TabsContent>
                         </Suspense>
-                    </DataTableSearchQueryContext.Provider>
-                </Tabs>
+                    </Tabs>
+                </TableFilterContext>
             </Page.Content>
         </Page.Root>
     );
