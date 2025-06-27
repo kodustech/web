@@ -1,18 +1,23 @@
 import { PostHog } from "posthog-node";
 import { getJwtPayload } from "src/lib/auth/utils";
 
-export const PosthogServerSide = async <P>(
-    promise: (instance: PostHog) => P,
-) => {
-    const posthog = new PostHog(process.env.WEB_POSTHOG_KEY!, {
+const PosthogServerSide = async <P>(promise: (instance: PostHog) => P) => {
+    const apiKey = process.env.WEB_POSTHOG_KEY;
+    if (!apiKey) {
+        throw new Error("PostHog API key (WEB_POSTHOG_KEY) is not configured.");
+    }
+
+    const posthog = new PostHog(apiKey, {
         flushAt: 1,
         flushInterval: 0,
         host: "https://us.i.posthog.com",
     });
 
-    const response = await promise(posthog);
-    await posthog.shutdown();
-    return response;
+    try {
+        return await promise(posthog);
+    } finally {
+        await posthog.shutdown();
+    }
 };
 
 /**
