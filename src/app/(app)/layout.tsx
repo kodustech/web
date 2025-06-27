@@ -7,6 +7,7 @@ import {
 import { getTeams } from "@services/teams/fetch";
 import { NavMenu } from "src/core/layout/navbar";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
+import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 import { FinishedTrialModal } from "src/features/ee/subscription/_components/finished-trial-modal";
 import { SubscriptionStatusTopbar } from "src/features/ee/subscription/_components/subscription-status-topbar";
 import { SubscriptionProvider } from "src/features/ee/subscription/_providers/subscription-context";
@@ -31,9 +32,14 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         ],
     );
 
-    const [organizationLicense, usersWithAssignedLicense] = await Promise.all([
+    const [
+        organizationLicense,
+        usersWithAssignedLicense,
+        issuesPageFeatureFlag,
+    ] = await Promise.all([
         validateOrganizationLicense({ teamId }),
         getUsersWithLicense({ teamId }),
+        getFeatureFlagWithPayload({ feature: "issues-page" }),
     ]);
 
     return (
@@ -48,7 +54,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
                 license={organizationLicense}
                 usersWithAssignedLicense={usersWithAssignedLicense}>
                 <SetupAndOnboardingLock />
-                <NavMenu />
+                <NavMenu issuesPageFeatureFlag={issuesPageFeatureFlag} />
                 <FinishedTrialModal />
                 <SubscriptionStatusTopbar />
                 {children}
