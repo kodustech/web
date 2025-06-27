@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useRef } from "react";
+import { useRef } from "react";
 import { Spinner } from "@components/ui/spinner";
 import {
     Table,
@@ -40,28 +40,12 @@ export const IssuesDataTable = (
     const { rows } = table.getRowModel();
 
     const parentRef = useRef<HTMLDivElement>(null);
-    const tableBodyRef = useRef<HTMLTableSectionElement>(null);
 
     const virtualizer = useVirtualizer({
         count: rows.length,
         getScrollElement: () => parentRef.current,
         estimateSize: () => 56,
     });
-
-    useLayoutEffect(() => {
-        const tableBodyEl = tableBodyRef.current;
-        if (!tableBodyEl) return;
-
-        const height =
-            virtualizer.getTotalSize() -
-            tableBodyEl.getBoundingClientRect().height;
-
-        // '--table-body-height' is required for sticky header to work
-        document.documentElement.style.setProperty(
-            "--table-body-height",
-            `${height}px`,
-        );
-    }, [virtualizer]);
 
     return (
         <div
@@ -100,7 +84,20 @@ export const IssuesDataTable = (
                         ))}
                     </TableHeader>
 
-                    <TableBody ref={tableBodyRef}>
+                    <TableBody
+                        ref={(ref) => {
+                            if (!ref) return;
+
+                            const height =
+                                virtualizer.getTotalSize() -
+                                ref.getBoundingClientRect().height;
+
+                            // '--table-body-height' is required for sticky header to work
+                            document.documentElement.style.setProperty(
+                                "--table-body-height",
+                                `${height}px`,
+                            );
+                        }}>
                         {props.loading === true ? (
                             <TableRow className="hover:bg-transparent">
                                 <TableCell

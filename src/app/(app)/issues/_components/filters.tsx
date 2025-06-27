@@ -2,6 +2,7 @@
 
 import { Fragment, use, useMemo, useState } from "react";
 import { Button } from "@components/ui/button";
+import { ButtonWithFeedback } from "@components/ui/button-with-feedback";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
 import {
@@ -24,11 +25,13 @@ import {
 } from "@components/ui/tooltip";
 import { useIssues } from "@services/issues/hooks";
 import {
+    CheckIcon,
     ListFilterIcon,
     PlusIcon,
     SaveIcon,
     TrashIcon,
     Undo2Icon,
+    XCircleIcon,
     XIcon,
 } from "lucide-react";
 import { cn } from "src/core/utils/components";
@@ -320,7 +323,7 @@ export const IssuesFilters = () => {
     );
 
     return (
-        <Popover>
+        <Popover modal>
             <PopoverTrigger asChild>
                 <Button
                     size="xs"
@@ -341,19 +344,28 @@ export const IssuesFilters = () => {
                         <Label>Filters</Label>
                     </div>
 
-                    <div className="flex gap-1">
-                        {_localStorageFilters && (
+                    <div className="flex">
+                        {_localStorageFilters?.items.length && (
                             <Tooltip>
                                 <TooltipTrigger asChild>
-                                    <Button
+                                    <ButtonWithFeedback
                                         size="icon-sm"
                                         variant="cancel"
+                                        data-disabled={undefined}
                                         onClick={() => {
                                             deleteFiltersInLocalStorage();
+                                        }}
+                                        onHideFeedback={() => {
                                             _setLocalStorageFilters(undefined);
                                         }}>
-                                        <TrashIcon />
-                                    </Button>
+                                        <ButtonWithFeedback.Feedback>
+                                            <XCircleIcon className="text-danger" />
+                                        </ButtonWithFeedback.Feedback>
+
+                                        <ButtonWithFeedback.Content>
+                                            <TrashIcon />
+                                        </ButtonWithFeedback.Content>
+                                    </ButtonWithFeedback>
                                 </TooltipTrigger>
 
                                 <TooltipContent>
@@ -364,15 +376,24 @@ export const IssuesFilters = () => {
 
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button
+                                <ButtonWithFeedback
                                     size="icon-sm"
                                     variant="cancel"
+                                    data-disabled={undefined}
                                     onClick={() => {
                                         saveFiltersToLocalStorage(filters);
+                                    }}
+                                    onHideFeedback={() => {
                                         _setLocalStorageFilters(filters);
                                     }}>
-                                    <SaveIcon />
-                                </Button>
+                                    <ButtonWithFeedback.Feedback>
+                                        <CheckIcon className="text-success" />
+                                    </ButtonWithFeedback.Feedback>
+
+                                    <ButtonWithFeedback.Content>
+                                        <SaveIcon />
+                                    </ButtonWithFeedback.Content>
+                                </ButtonWithFeedback>
                             </TooltipTrigger>
 
                             <TooltipContent>
@@ -382,23 +403,30 @@ export const IssuesFilters = () => {
 
                         <Separator
                             orientation="vertical"
-                            className="bg-card-lv3"
+                            className="bg-card-lv3 mx-1"
                         />
 
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <Button
+                                <ButtonWithFeedback
+                                    delay={800}
                                     size="icon-sm"
                                     variant="cancel"
-                                    className="button-disabled:bg-transparent button-disabled:text-text-tertiary/50"
-                                    onClick={() =>
+                                    data-disabled={undefined}
+                                    onClick={() => {
                                         setFilters(
                                             _localStorageFilters ??
                                                 DEFAULT_FILTERS,
-                                        )
-                                    }>
-                                    <Undo2Icon />
-                                </Button>
+                                        );
+                                    }}>
+                                    <ButtonWithFeedback.Feedback>
+                                        <CheckIcon className="text-success" />
+                                    </ButtonWithFeedback.Feedback>
+
+                                    <ButtonWithFeedback.Content>
+                                        <Undo2Icon />
+                                    </ButtonWithFeedback.Content>
+                                </ButtonWithFeedback>
                             </TooltipTrigger>
 
                             <TooltipContent>

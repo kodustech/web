@@ -3,6 +3,7 @@
 import { Fragment, useEffect, useMemo } from "react";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
+import { ButtonWithFeedback } from "@components/ui/button-with-feedback";
 import { Card, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { Keycap } from "@components/ui/keycap";
@@ -36,16 +37,17 @@ import {
     FolderGit2Icon,
     GitPullRequestArrowIcon,
     RefreshCwIcon,
+    Share2Icon,
     ThumbsDownIcon,
     ThumbsUpIcon,
 } from "lucide-react";
 import { useQueryState } from "nuqs";
+import { ClipboardHelpers } from "src/core/utils/clipboard";
 import { cn } from "src/core/utils/components";
 import { pathToApiUrl } from "src/core/utils/helpers";
 import { generateQueryKey } from "src/core/utils/reactQuery";
 
 import { SeverityLevelSelect } from "./severity-level-select";
-import { ShareButton } from "./share-button";
 import { StatusSelect } from "./status-select";
 
 export const IssueDetailsRightSheet = ({
@@ -166,7 +168,29 @@ export const IssueDetailsRightSheet = ({
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <ShareButton />
+                        <ButtonWithFeedback
+                            size="xs"
+                            variant="helper"
+                            data-disabled={undefined}
+                            className="min-w-21 py-2"
+                            onClick={async () => {
+                                try {
+                                    await ClipboardHelpers.copyTextToClipboard(
+                                        window.location.toString(),
+                                    );
+                                } catch {}
+                            }}>
+                            <ButtonWithFeedback.Feedback>
+                                <span className="text-success font-semibold">
+                                    Copied!
+                                </span>
+                            </ButtonWithFeedback.Feedback>
+
+                            <ButtonWithFeedback.Content>
+                                <Share2Icon /> Share
+                            </ButtonWithFeedback.Content>
+                        </ButtonWithFeedback>
+
                         <StatusSelect issueId={peek} status={issue.status} />
                     </div>
                 </SheetHeader>

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from "react";
+import { Suspense, useMemo } from "react";
 import dynamic from "next/dynamic";
 import NextLink from "next/link";
 import { usePathname } from "next/navigation";
@@ -16,6 +16,7 @@ import { GaugeIcon, InfoIcon, SlidersHorizontalIcon } from "lucide-react";
 import { UserNav } from "src/core/layout/navbar/_components/user-nav";
 import { useAuth } from "src/core/providers/auth.provider";
 import { cn } from "src/core/utils/components";
+import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 import { SubscriptionBadge } from "src/features/ee/subscription/_components/subscription-badge";
 import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
 
@@ -33,48 +34,63 @@ const NoSSRIssuesCount = dynamic(
     },
 );
 
-export const NavMenu = () => {
+export const NavMenu = ({
+    issuesPageFeatureFlag,
+}: {
+    issuesPageFeatureFlag: Awaited<
+        ReturnType<typeof getFeatureFlagWithPayload>
+    >;
+}) => {
     const pathname = usePathname();
     const { isOwner, isTeamLeader } = useAuth();
     const subscription = useSubscriptionStatus();
 
-    const items = [
-        // {
-        //     label: "Chat",
-        //     icon: <MessageSquareText size={16} />,
-        //     href: "/chat",
-        //     visible: true,
-        // },
-        {
-            label: "Cockpit",
-            href: "/cockpit",
-            visible: subscription.valid,
-            icon: <GaugeIcon className="size-6" />,
-        },
-        {
-            label: "Code Review Settings",
-            href: "/settings",
-            visible: isOwner || isTeamLeader,
-            icon: <SlidersHorizontalIcon className="size-5" />,
-        },
-        {
-            label: "Issues",
-            href: "/issues",
-            visible: isOwner || isTeamLeader,
-            icon: <InfoIcon className="size-5" />,
-            badge: (
-                <div className="h-5 min-h-auto min-w-8">
-                    <NoSSRIssuesCount />
-                </div>
-            ),
-        },
-    ] satisfies Array<{
-        label: string;
-        href: `/${string}`;
-        visible: boolean;
-        icon: React.JSX.Element;
-        badge?: React.JSX.Element;
-    }>;
+    const items = useMemo(() => {
+        const items: Array<{
+            label: string;
+            icon: React.JSX.Element;
+            href: string;
+            visible: boolean;
+            badge?: React.JSX.Element;
+        }> = [
+            // {
+            //     label: "Chat",
+            //     icon: <MessageSquareText size={16} />,
+            //     href: "/chat",
+            //     visible: true,
+            // },
+            {
+                label: "Cockpit",
+                href: "/cockpit",
+                visible: subscription.valid,
+                icon: <GaugeIcon className="size-6" />,
+            },
+
+            {
+                label: "Code Review Settings",
+                icon: <SlidersHorizontalIcon className="size-5" />,
+                href: "/settings",
+                visible: isOwner || isTeamLeader,
+            },
+        ];
+
+        if (issuesPageFeatureFlag?.value) {
+            items.push({
+                label: "Issues",
+                href: "/issues",
+                visible: isOwner || isTeamLeader,
+                icon: <InfoIcon className="size-5" />,
+                badge: (
+                    <div className="h-5 min-h-auto min-w-8">
+                        <NoSSRIssuesCount />
+                    </div>
+                ),
+            });
+        }
+
+        return items;
+    }, [isOwner, isTeamLeader, issuesPageFeatureFlag?.value]);
+
     const isActive = (route: string) => pathname.startsWith(route);
 
     return (

@@ -81,6 +81,8 @@ jobs:
                   echo WEB_TOKEN_DOCS_BITBUCKET=$(aws ssm get-parameter --name /prod/kodus-web/WEB_TOKEN_DOCS_BITBUCKET --query 'Parameter.Value' --output text) >> .env
                   echo WEB_TOKEN_DOCS_AZUREREPOS=$(aws ssm get-parameter --name /prod/kodus-web/WEB_TOKEN_DOCS_AZUREREPOS --query 'Parameter.Value' --output text) >> .env
 
+                  echo WEB_POSTHOG_KEY=$(aws ssm get-parameter --name /prod/kodus-web/WEB_POSTHOG_KEY --query 'Parameter.Value' --output text) >> .env
+
             - name: Login to Amazon ECR
               id: login-ecr
               uses: aws-actions/amazon-ecr-login@v2.0.1
