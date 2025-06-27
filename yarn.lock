@@ -5466,6 +5466,11 @@ postcss@^8.4.4, postcss@^8.4.41, postcss@^8.5.3:
     picocolors "^1.1.1"
     source-map-js "^1.2.1"
 
+posthog-node@^5.1.1:
+  version "5.1.1"
+  resolved "https://registry.yarnpkg.com/posthog-node/-/posthog-node-5.1.1.tgz#86e37b946364cf95999d5d4a9f642b2da616cb78"
+  integrity sha512-6VISkNdxO24ehXiDA4dugyCSIV7lpGVaEu5kn/dlAj+SJ1lgcDru9PQ8p/+GSXsXVxohd1t7kHL2JKc9NoGb0w==
+
 preact-render-to-string@6.5.11:
   version "6.5.11"
   resolved "https://registry.yarnpkg.com/preact-render-to-string/-/preact-render-to-string-6.5.11.tgz#467e69908a453497bb93d4d1fc35fb749a78e027"
