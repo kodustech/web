@@ -323,7 +323,7 @@ export const IssuesFilters = () => {
     );
 
     return (
-        <Popover>
+        <Popover modal>
             <PopoverTrigger asChild>
                 <Button
                     size="xs"
