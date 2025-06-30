@@ -178,18 +178,6 @@ const authOptions: NextAuthConfig = {
         },
     },
     trustHost: true,
-    useSecureCookies: process.env.WEB_NODE_ENV === "production",
-    cookies: {
-        sessionToken: {
-            name: `__Secure-authjs.session-token`,
-            options: {
-                httpOnly: true,
-                sameSite: "lax",
-                path: "/",
-                secure: process.env.WEB_NODE_ENV === "production",
-            },
-        },
-    },
 };
 
 export const { auth, handlers, signIn, signOut } = NextAuth(authOptions);
