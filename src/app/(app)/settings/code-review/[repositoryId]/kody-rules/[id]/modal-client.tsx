@@ -15,11 +15,8 @@ export function KodyRuleModalClient({
     const router = useRouter();
 
     const handleClose = () => {
-        console.log('Modal closed, redirecting to listing...');
         router.push(`/settings/code-review/${repositoryId}/kody-rules`);
     };
-
-    console.log('Rendering modal directly for rule:', rule.title);
 
     // Renderizar o modal diretamente, como na library
     return (

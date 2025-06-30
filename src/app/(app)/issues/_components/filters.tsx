@@ -317,17 +317,10 @@ const FilterItem = ({
 };
 
 export const IssuesFilters = () => {
-    console.log("🔧 IssuesFilters: Component rendering");
-
     const { filters, setFilters } = use(FiltersContext);
     const [_localStorageFilters, _setLocalStorageFilters] = useState(
         getFiltersInLocalStorage(),
     );
-
-    console.log("🔧 IssuesFilters: State", {
-        filters,
-        localStorageFilters: _localStorageFilters
-    });
 
     return (
         <Popover modal>
@@ -336,7 +329,7 @@ export const IssuesFilters = () => {
                     size="xs"
                     variant="helper"
                     leftIcon={<ListFilterIcon />}
-                    onClick={() => console.log("🔧 IssuesFilters: Filter button clicked")}>
+                >
                     Filters{" "}
                     {filters.items.length > 0 && <>({filters.items.length})</>}
                 </Button>
@@ -361,11 +354,9 @@ export const IssuesFilters = () => {
                                         variant="cancel"
                                         data-disabled={undefined}
                                         onClick={() => {
-                                            console.log("🔧 IssuesFilters: Deleting default filters");
                                             deleteFiltersInLocalStorage();
                                         }}
                                         onHideFeedback={() => {
-                                            console.log("🔧 IssuesFilters: Default filters deleted");
                                             _setLocalStorageFilters(undefined);
                                         }}>
                                         <ButtonWithFeedback.Feedback>
@@ -391,11 +382,9 @@ export const IssuesFilters = () => {
                                     variant="cancel"
                                     data-disabled={undefined}
                                     onClick={() => {
-                                        console.log("🔧 IssuesFilters: Saving filters to localStorage", { filters });
                                         saveFiltersToLocalStorage(filters);
                                     }}
                                     onHideFeedback={() => {
-                                        console.log("🔧 IssuesFilters: Filters saved to localStorage");
                                         _setLocalStorageFilters(filters);
                                     }}>
                                     <ButtonWithFeedback.Feedback>
@@ -426,10 +415,6 @@ export const IssuesFilters = () => {
                                     variant="cancel"
                                     data-disabled={undefined}
                                     onClick={() => {
-                                        console.log("🔧 IssuesFilters: Resetting to default filters", {
-                                            localStorageFilters: _localStorageFilters,
-                                            defaultFilters: DEFAULT_FILTERS
-                                        });
                                         setFilters(
                                             _localStorageFilters ??
                                             DEFAULT_FILTERS,
@@ -462,10 +447,6 @@ export const IssuesFilters = () => {
                     <FilterItemGroup
                         filters={filters}
                         setFilters={(newFilters) => {
-                            console.log("🔧 IssuesFilters: Filters updated", {
-                                oldFilters: filters,
-                                newFilters
-                            });
                             setFilters(newFilters);
                         }}
                     />

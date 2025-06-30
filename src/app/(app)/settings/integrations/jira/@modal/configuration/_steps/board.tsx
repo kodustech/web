@@ -43,8 +43,6 @@ export const SelectBoardStep = () => {
         project.selected,
     );
 
-    console.log(boards);
-
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
     const board = _board.selected;
