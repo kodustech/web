@@ -114,8 +114,11 @@ export function handleAuthenticated(
     authPaths: string[],
     headers: Headers,
 ) {
-    // Redireciona a raiz "/" para "/cockpit"
-    if (pathname === "/" || pathname === "") {
+    // Não redirecionar requisições RSC (React Server Components)
+    const isRSCRequest = req.nextUrl.searchParams.has("_rsc");
+
+    // Redireciona a raiz "/" para "/cockpit" (apenas se não for RSC)
+    if ((pathname === "/" || pathname === "") && !isRSCRequest) {
         return NextResponse.redirect(new URL("/cockpit", req.url), {
             status: 302,
         });
@@ -137,7 +140,9 @@ export function handleAuthenticated(
     // Se o usuário não tiver permissão, bloqueia o acesso
     if (!canAccessRoute(userRole, userTeamRole, pathname)) {
         const referer = req.headers.get("referer");
-        return NextResponse.redirect(referer || new URL("/", req.url));
+        // Use URL relativa para evitar problemas com localhost
+        const redirectUrl = referer ? new URL(referer) : new URL("/", req.url);
+        return NextResponse.redirect(redirectUrl);
     }
 
     // Permite acesso à rota
