@@ -68,8 +68,6 @@ function ResetPasswordForm() {
                 return;
             }
 
-            console.log("sub");
-
             await resetPassword(password, token);
             router.push("/forgot-password/reset/success");
         } catch (error) {
@@ -149,13 +147,13 @@ function ResetPasswordForm() {
                                                     typePassword,
                                                 ) =>
                                                     typePassword ===
-                                                    "password"
+                                                        "password"
                                                         ? "text"
                                                         : "password",
                                             )
                                         }>
                                         {typePassword ===
-                                        "password" ? (
+                                            "password" ? (
                                             <EyeClosed />
                                         ) : (
                                             <Eye />
@@ -183,7 +181,7 @@ function ResetPasswordForm() {
                                             "flex items-center gap-1 rounded-full px-2 py-1",
                                             "border border-[#6A57A433]",
                                             rule.valid &&
-                                                "border-success/20",
+                                            "border-success/20",
                                         )}>
                                         <div className="w-3 text-center">
                                             {rule.valid ? (
@@ -196,7 +194,7 @@ function ResetPasswordForm() {
                                         <span
                                             className={cn(
                                                 rule.valid &&
-                                                    "text-success-foreground",
+                                                "text-success-foreground",
                                             )}>
                                             {rule.text}
                                         </span>
