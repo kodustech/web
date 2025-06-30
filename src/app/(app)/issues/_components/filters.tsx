@@ -124,9 +124,9 @@ const FilterItemGroup = ({
                     filters.items.length === 0
                         ? false
                         : filters.items.some((f) => {
-                              if (isFilterValueGroup(f)) return false;
-                              return f.value.trim().length === 0;
-                          })
+                            if (isFilterValueGroup(f)) return false;
+                            return f.value.trim().length === 0;
+                        })
                 }
                 onClick={() =>
                     setFilters({
@@ -268,39 +268,39 @@ const FilterItem = ({
                 <>
                     {(filter.operator === "is" ||
                         filter.operator === "is-not") && (
-                        <Select
-                            value={filter.value}
-                            onValueChange={(v) =>
-                                setFilter({ ...filter, value: v })
-                            }>
-                            <SelectTrigger size="xs" className="w-fit">
-                                <SelectValue placeholder="Value" />
-                            </SelectTrigger>
+                            <Select
+                                value={filter.value}
+                                onValueChange={(v) =>
+                                    setFilter({ ...filter, value: v })
+                                }>
+                                <SelectTrigger size="xs" className="w-fit">
+                                    <SelectValue placeholder="Value" />
+                                </SelectTrigger>
 
-                            <SelectContent className="min-w-36">
-                                {values.map((s) => (
-                                    <SelectItem
-                                        key={s}
-                                        value={s}
-                                        className="min-h-auto gap-1.5 px-3 py-1.5 pr-4 text-xs [--icon-size:calc(var(--spacing)*4)]">
-                                        {s}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    )}
+                                <SelectContent className="min-w-36">
+                                    {values.map((s) => (
+                                        <SelectItem
+                                            key={s}
+                                            value={s}
+                                            className="min-h-auto gap-1.5 px-3 py-1.5 pr-4 text-xs [--icon-size:calc(var(--spacing)*4)]">
+                                            {s}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        )}
 
                     {(filter.operator === "contains" ||
                         filter.operator === "does-not-contain") && (
-                        <Input
-                            className="h-7 w-32 rounded-full px-3 text-xs"
-                            placeholder="Type something..."
-                            value={filter.value ?? ""}
-                            onChange={(ev) =>
-                                setFilter({ ...filter, value: ev.target.value })
-                            }
-                        />
-                    )}
+                            <Input
+                                className="h-7 w-32 rounded-full px-3 text-xs"
+                                placeholder="Type something..."
+                                value={filter.value ?? ""}
+                                onChange={(ev) =>
+                                    setFilter({ ...filter, value: ev.target.value })
+                                }
+                            />
+                        )}
                 </>
             )}
 
@@ -317,10 +317,17 @@ const FilterItem = ({
 };
 
 export const IssuesFilters = () => {
+    console.log("🔧 IssuesFilters: Component rendering");
+
     const { filters, setFilters } = use(FiltersContext);
     const [_localStorageFilters, _setLocalStorageFilters] = useState(
         getFiltersInLocalStorage(),
     );
+
+    console.log("🔧 IssuesFilters: State", {
+        filters,
+        localStorageFilters: _localStorageFilters
+    });
 
     return (
         <Popover modal>
@@ -328,7 +335,8 @@ export const IssuesFilters = () => {
                 <Button
                     size="xs"
                     variant="helper"
-                    leftIcon={<ListFilterIcon />}>
+                    leftIcon={<ListFilterIcon />}
+                    onClick={() => console.log("🔧 IssuesFilters: Filter button clicked")}>
                     Filters{" "}
                     {filters.items.length > 0 && <>({filters.items.length})</>}
                 </Button>
@@ -353,9 +361,11 @@ export const IssuesFilters = () => {
                                         variant="cancel"
                                         data-disabled={undefined}
                                         onClick={() => {
+                                            console.log("🔧 IssuesFilters: Deleting default filters");
                                             deleteFiltersInLocalStorage();
                                         }}
                                         onHideFeedback={() => {
+                                            console.log("🔧 IssuesFilters: Default filters deleted");
                                             _setLocalStorageFilters(undefined);
                                         }}>
                                         <ButtonWithFeedback.Feedback>
@@ -381,9 +391,11 @@ export const IssuesFilters = () => {
                                     variant="cancel"
                                     data-disabled={undefined}
                                     onClick={() => {
+                                        console.log("🔧 IssuesFilters: Saving filters to localStorage", { filters });
                                         saveFiltersToLocalStorage(filters);
                                     }}
                                     onHideFeedback={() => {
+                                        console.log("🔧 IssuesFilters: Filters saved to localStorage");
                                         _setLocalStorageFilters(filters);
                                     }}>
                                     <ButtonWithFeedback.Feedback>
@@ -414,9 +426,13 @@ export const IssuesFilters = () => {
                                     variant="cancel"
                                     data-disabled={undefined}
                                     onClick={() => {
+                                        console.log("🔧 IssuesFilters: Resetting to default filters", {
+                                            localStorageFilters: _localStorageFilters,
+                                            defaultFilters: DEFAULT_FILTERS
+                                        });
                                         setFilters(
                                             _localStorageFilters ??
-                                                DEFAULT_FILTERS,
+                                            DEFAULT_FILTERS,
                                         );
                                     }}>
                                     <ButtonWithFeedback.Feedback>
@@ -445,7 +461,13 @@ export const IssuesFilters = () => {
 
                     <FilterItemGroup
                         filters={filters}
-                        setFilters={setFilters}
+                        setFilters={(newFilters) => {
+                            console.log("🔧 IssuesFilters: Filters updated", {
+                                oldFilters: filters,
+                                newFilters
+                            });
+                            setFilters(newFilters);
+                        }}
                     />
                 </div>
             </PopoverContent>
