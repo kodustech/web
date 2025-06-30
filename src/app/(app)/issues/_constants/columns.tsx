@@ -2,6 +2,7 @@
 
 import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level-badge";
 import { DataTableColumnHeader } from "@components/ui/data-table";
+import { Markdown } from "@components/ui/markdown";
 import type { IssueListItem } from "@services/issues/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { formatDistanceToNow } from "date-fns";
@@ -101,7 +102,9 @@ export const columns: ColumnDef<Row>[] = [
             <DataTableColumnHeader column={column} title="Title" />
         ),
         cell: ({ getValue, row }) => (
-            <TableLink id={row.original.uuid}>{getValue<string>()}</TableLink>
+            <TableLink id={row.original.uuid}>
+                <Markdown>{getValue<string>()}</Markdown>
+            </TableLink>
         ),
     },
     {
