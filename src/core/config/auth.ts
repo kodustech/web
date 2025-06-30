@@ -73,11 +73,7 @@ const gitlabProvider = GitlabProvider({
 });
 
 const authOptions: NextAuthConfig = {
-    providers: [
-        credentialsProvider,
-        githubProvider,
-        gitlabProvider,
-    ],
+    providers: [credentialsProvider, githubProvider, gitlabProvider],
     session: {
         strategy: "jwt",
     },

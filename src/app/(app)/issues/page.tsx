@@ -18,9 +18,36 @@ export default function IssuesPage() {
     const [peek] = useQueryState("peek");
 
     const [_filtersQuery, setFilters] = useQueryState("filters", {
-        ...parseAsJson((j) => j as FilterValueGroup),
+        ...parseAsJson((j) => {
+            try {
+                if (!j) { return DEFAULT_FILTERS };
+
+                if (typeof j === 'string') {
+                    return JSON.parse(j) as FilterValueGroup;
+                }
+
+                return j as FilterValueGroup;
+            } catch (error) {
+                console.warn("Failed to parse filters from URL, using default:", error);
+                return DEFAULT_FILTERS;
+            }
+        }),
         history: "push",
         clearOnDefault: false,
+        parse: (value) => {
+            try {
+                return JSON.parse(decodeURIComponent(value));
+            } catch {
+                return DEFAULT_FILTERS;
+            }
+        },
+        serialize: (value) => {
+            try {
+                return encodeURIComponent(JSON.stringify(value));
+            } catch {
+                return encodeURIComponent(JSON.stringify(DEFAULT_FILTERS));
+            }
+        }
     });
 
     const savedFiltersOrDefault = getFiltersInLocalStorage() ?? DEFAULT_FILTERS;

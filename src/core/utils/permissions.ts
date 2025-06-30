@@ -20,6 +20,7 @@ const permissions = {
             "/chat/:id",
             "/sign-out",
             "/settings/subscription",
+            "/issues",
         ],
         [TeamRole.TEAM_LEADER]: [
             "/teams",
@@ -57,6 +58,7 @@ const permissions = {
             "/chat/:id",
             "/sign-out",
             "/library/kody-rules",
+            "/issues",
         ],
     },
     components: {
