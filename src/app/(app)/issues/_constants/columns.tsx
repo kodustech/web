@@ -175,7 +175,7 @@ export const columns: ColumnDef<Row>[] = [
         ),
         cell: ({ getValue, row }) => (
             <TableLink id={row.original.uuid}>
-                {getValue<string[]>().join()}
+                {getValue<string[]>().join(", ")}
             </TableLink>
         ),
     },
