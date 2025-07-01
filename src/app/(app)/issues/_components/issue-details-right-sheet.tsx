@@ -8,6 +8,7 @@ import { Card, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { Keycap } from "@components/ui/keycap";
 import { Link } from "@components/ui/link";
+import { Markdown } from "@components/ui/markdown";
 import { Progress } from "@components/ui/progress";
 import { ScrollArea } from "@components/ui/scroll-area";
 import { Separator } from "@components/ui/separator";
@@ -196,7 +197,12 @@ export const IssueDetailsRightSheet = ({
                 </SheetHeader>
 
                 <SheetHeader>
-                    <SheetTitle>{issue.title}</SheetTitle>
+                    <SheetTitle>
+                        <Markdown className="*:font-bold">
+                            {issue.title}
+                        </Markdown>
+                    </SheetTitle>
+
                     <SheetDescription>Opened {issue.age}</SheetDescription>
 
                     <div className="mt-4 flex gap-2">
@@ -256,15 +262,20 @@ export const IssueDetailsRightSheet = ({
                             Description
                         </Heading>
 
-                        <div className="space-y-2">
-                            {issue.description.split(". ").map((d) => (
-                                <p
-                                    key={d}
-                                    className="text-text-secondary text-sm">
-                                    {d}
-                                    {!d.endsWith(".") && "."}
-                                </p>
-                            ))}
+                        <div className="mb-10 flex flex-col gap-4">
+                            {issue.description
+                                // break after `. ` that is not inside double quotes
+                                .split(new RegExp(/(?![^"]*"\B)[.]\s/g))
+                                .map((p, i) => (
+                                    <Markdown
+                                        key={i}
+                                        className="text-text-secondary text-sm">
+                                        {/* splitted string cut a `. ` in the end of each part */}
+                                        {p.endsWith("..") || !p.endsWith(".")
+                                            ? `${p}.`
+                                            : p}
+                                    </Markdown>
+                                ))}
                         </div>
                     </div>
                 </ScrollArea>
