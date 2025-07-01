@@ -23,6 +23,7 @@ export type IssueListItem = {
     status: IssueStatus;
     title: string;
     uuid: string;
+    prNumbers: string[];
 };
 
 export type IssueItem = {

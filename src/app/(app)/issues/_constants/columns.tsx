@@ -157,4 +157,26 @@ export const columns: ColumnDef<Row>[] = [
             </TableLink>
         ),
     },
+    {
+        id: "prNumbers",
+        size: 60,
+        minSize: 60,
+        meta: {
+            name: "PR numbers",
+            filters: {
+                "contains": true,
+                "does-not-contain": true,
+            },
+        },
+        enableSorting: false,
+        accessorFn: (item) => item.prNumbers,
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="#PR(s)" />
+        ),
+        cell: ({ getValue, row }) => (
+            <TableLink id={row.original.uuid}>
+                {getValue<string[]>().join()}
+            </TableLink>
+        ),
+    },
 ];

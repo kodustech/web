@@ -41,6 +41,8 @@ const filterItem = <T extends Record<string, any>>(
     filters: FilterValueGroup,
     obj: T,
 ): T | undefined => {
+    if (filters.items.length === 0) return obj;
+
     const predicate = (f: (typeof filters.items)[number]) =>
         isFilterValueGroup(f)
             ? filterItem(f, obj) !== undefined
@@ -75,34 +77,50 @@ const isValueValid = <T extends Record<string, any>>(
             );
         }
 
-        if (f.operator === "contains") {
-            if (!f.value.trim().length) return true;
+        const searchQuery = f.value?.toLowerCase();
+        if (!searchQuery || searchQuery.trim().length === 0) return true;
 
-            return String(fieldValue)
-                .toLowerCase()
-                .includes(f.value?.toLowerCase());
+        const searchQuerySplittedByComma = searchQuery
+            .split(",")
+            .map((s) => s.trim());
+
+        if (f.operator === "contains") {
+            if (Array.isArray(fieldValue)) {
+                return (fieldValue as any[]).some((v) =>
+                    searchQuerySplittedByComma.includes(
+                        String(v).toLowerCase(),
+                    ),
+                );
+            }
+
+            return String(fieldValue).toLowerCase().includes(searchQuery);
         }
 
         if (f.operator === "does-not-contain") {
-            if (!f.value.trim().length) return true;
+            if (Array.isArray(fieldValue)) {
+                return (fieldValue as any[]).every(
+                    (v) =>
+                        !searchQuerySplittedByComma.includes(
+                            String(v).toLowerCase(),
+                        ),
+                );
+            }
 
-            return !String(fieldValue)
-                .toLowerCase()
-                .includes(f.value?.toLowerCase());
+            return !String(fieldValue).toLowerCase().includes(searchQuery);
         }
 
         if (f.operator === "is")
-            return String(fieldValue).toLowerCase() === f.value?.toLowerCase();
+            return String(fieldValue).toLowerCase() === searchQuery;
 
         if (f.operator === "is-not")
-            return String(fieldValue).toLowerCase() !== f.value?.toLowerCase();
+            return String(fieldValue).toLowerCase() !== searchQuery;
 
         if (f.operator === "less-than")
-            return Number(fieldValue) > Number(f.value);
+            return Number(fieldValue) > Number(searchQuery);
 
         if (f.operator === "more-than")
-            return Number(fieldValue) < Number(f.value);
+            return Number(fieldValue) < Number(searchQuery);
 
-        return false;
+        return true;
     };
 };

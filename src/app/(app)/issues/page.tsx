@@ -24,7 +24,7 @@ export default function IssuesPage() {
                     return DEFAULT_FILTERS;
                 }
 
-                if (typeof j === 'string') {
+                if (typeof j === "string") {
                     const parsed = JSON.parse(j) as FilterValueGroup;
                     return parsed;
                 }
@@ -51,17 +51,14 @@ export default function IssuesPage() {
             } catch {
                 return encodeURIComponent(JSON.stringify(DEFAULT_FILTERS));
             }
-        }
+        },
     });
 
     const savedFiltersOrDefault = getFiltersInLocalStorage() ?? DEFAULT_FILTERS;
     const filters = _filtersQuery ?? savedFiltersOrDefault;
 
     const filteredData = useMemo(
-        () => {
-            const filtered = filterArray(filters, issues);
-            return filtered;
-        },
+        () => filterArray(filters, issues),
         [filters, issues],
     );
 
