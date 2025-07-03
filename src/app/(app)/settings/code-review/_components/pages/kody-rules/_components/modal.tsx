@@ -41,12 +41,10 @@ const scopeOptions = [
     {
         value: "file",
         name: "File",
-        //description: "Apply this rule to specific files based on the path pattern",
     },
     {
         value: "pull-request",
         name: "Pull Request",
-        //description: "Apply this rule to the entire pull request regardless of files",
     },
 ] as const;
 
@@ -247,9 +245,6 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                                 className="text-sm font-medium">
                                                                 {option.name}
                                                             </Heading>
-                                                            {/* <p className="text-text-secondary text-xs text-left">
-                                                                {option.description}
-                                                            </p> */}
                                                         </div>
 
                                                         <Checkbox
