@@ -208,8 +208,33 @@ export const KodyRuleAddOrUpdateItemModal = ({
                         render={({ field }) => (
                             <div className="grid grid-cols-[1fr_2fr] gap-6">
                                 <FormControl.Root>
-                                    <FormControl.Label className="mb-0">
+                                    <FormControl.Label className="mb-0 flex flex-row gap-1">
                                         Scope
+                                        <Tooltip>
+                                            <TooltipTrigger>
+                                                <HelpCircle
+                                                    size={16}
+                                                    className="text-primary-light"
+                                                />
+                                            </TooltipTrigger>
+
+                                            <TooltipContent
+                                                align="start"
+                                                className="flex max-w-prose flex-col gap-1 text-xs">
+                                                <p>
+                                                    <strong className="text-primary-light">
+                                                        File:
+                                                    </strong>{" "}
+                                                    When the rule should be applied to one file at a time.
+                                                </p>
+                                                <p>
+                                                    <strong className="text-primary-light">
+                                                        Pull Request:
+                                                    </strong>{" "}
+                                                    When the rule should be applied cross-file, considering all files in the PR at once.
+                                                </p>
+                                            </TooltipContent>
+                                        </Tooltip>
                                     </FormControl.Label>
                                     <FormControl.Helper>
                                         Define how this rule should be applied
