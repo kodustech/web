@@ -13,6 +13,8 @@ import { magicModal } from "@components/ui/magic-modal";
 import { Separator } from "@components/ui/separator";
 import { SliderWithMarkers } from "@components/ui/slider-with-markers";
 import { Textarea } from "@components/ui/textarea";
+import { ToggleGroup } from "@components/ui/toggle-group";
+import { Checkbox } from "@components/ui/checkbox";
 import {
     Tooltip,
     TooltipContent,
@@ -34,6 +36,17 @@ const severityLevelFilterOptions = {
     high: { label: "High", value: 2 },
     critical: { label: "Critical", value: 3 },
 } satisfies Record<KodyRule["severity"], { label: string; value: number }>;
+
+const scopeOptions = [
+    {
+        value: "file",
+        name: "File",
+    },
+    {
+        value: "pull-request",
+        name: "Pull Request",
+    },
+] as const;
 
 const INSTRUCTIONS_PLACEHOLDER = `Write the instructions for this rule. Example:
 - Focus on security changes and performance impacts.
@@ -73,6 +86,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
             rule: rule?.rule ?? "",
             title: rule?.title ?? "",
             severity: rule?.severity ?? "high",
+            scope: rule?.scope ?? "file",
             badExample:
                 rule?.examples?.find(({ isCorrect }) => !isCorrect)?.snippet ??
                 "",
@@ -85,6 +99,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
     });
 
     const formState = form.formState;
+    const watchScope = form.watch("scope");
 
     const handleSubmit = form.handleSubmit(async (config) => {
         if (onClose) {
@@ -97,10 +112,11 @@ export const KodyRuleAddOrUpdateItemModal = ({
 
             await createOrUpdateKodyRule(
                 {
-                    path: config.path,
+                    path: config.scope === "file" ? config.path : "", // Se for pull-request, path fica vazio
                     rule: config.rule,
                     title: config.title,
                     severity: config.severity,
+                    scope: config.scope,
                     uuid: rule?.uuid,
                     examples: examples,
                     origin: config.origin ?? KodyRulesOrigin.USER,
@@ -122,10 +138,11 @@ export const KodyRuleAddOrUpdateItemModal = ({
 
             await createOrUpdateKodyRule(
                 {
-                    path: config.path,
+                    path: config.scope === "file" ? config.path : "", // Se for pull-request, path fica vazio
                     rule: config.rule,
                     title: config.title,
                     severity: config.severity,
+                    scope: config.scope,
                     uuid: rule?.uuid,
                     examples: examples,
                     origin: config.origin ?? KodyRulesOrigin.USER,
@@ -180,6 +197,92 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             {fieldState.error?.message}
                                         </FormControl.Error>
                                     </div>
+                                </FormControl.Input>
+                            </div>
+                        )}
+                    />
+
+                    <Controller
+                        name="scope"
+                        control={form.control}
+                        render={({ field }) => (
+                            <div className="grid grid-cols-[1fr_2fr] gap-6">
+                                <FormControl.Root>
+                                    <FormControl.Label className="mb-0 flex flex-row gap-1">
+                                        Scope
+                                        <Tooltip>
+                                            <TooltipTrigger>
+                                                <HelpCircle
+                                                    size={16}
+                                                    className="text-primary-light"
+                                                />
+                                            </TooltipTrigger>
+
+                                            <TooltipContent
+                                                align="start"
+                                                className="flex max-w-prose flex-col gap-1 text-xs">
+                                                <p>
+                                                    <strong className="text-primary-light">
+                                                        File:
+                                                    </strong>{" "}
+                                                    When the rule should be applied to one file at a time.
+                                                </p>
+                                                <p>
+                                                    <strong className="text-primary-light">
+                                                        Pull Request:
+                                                    </strong>{" "}
+                                                    When the rule should be applied cross-file, considering all files in the PR at once.
+                                                </p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </FormControl.Label>
+                                    <FormControl.Helper>
+                                        Define how this rule should be applied
+                                    </FormControl.Helper>
+                                </FormControl.Root>
+
+                                <FormControl.Input>
+                                    <ToggleGroup.Root
+                                        type="single"
+                                        className="grid grid-cols-2 gap-3"
+                                        value={field.value}
+                                        onValueChange={(value) => {
+                                            if (!value) return;
+                                            field.onChange(value);
+                                            // Se mudou para pull-request, limpa o path
+                                            if (value === "pull-request") {
+                                                form.setValue("path", "");
+                                            }
+                                        }}>
+                                        {scopeOptions.map((option) => (
+                                            <ToggleGroup.ToggleGroupItem
+                                                asChild
+                                                key={option.value}
+                                                value={option.value}>
+                                                <Button
+                                                    size="md"
+                                                    variant="helper"
+                                                    className="h-auto w-full items-start py-3">
+                                                    <div className="flex w-full items-center justify-between gap-3">
+                                                        <div className="flex flex-col gap-1">
+                                                            <Heading
+                                                                variant="h3"
+                                                                className="text-sm font-medium">
+                                                                {option.name}
+                                                            </Heading>
+                                                        </div>
+
+                                                        <Checkbox
+                                                            decorative
+                                                            checked={
+                                                                option.value === field.value
+                                                            }
+                                                        />
+                                                    </div>
+                                                </Button>
+                                            </ToggleGroup.ToggleGroupItem>
+                                        ))}
+                                    </ToggleGroup.Root>
                                 </FormControl.Input>
                             </div>
                         )}
@@ -248,6 +351,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             value={field.value}
                                             className="opacity-100!"
                                             placeholder="Example: **/*.js"
+                                            disabled={watchScope === "pull-request"}
                                             onChange={(e) =>
                                                 field.onChange(e.target.value)
                                             }
@@ -255,8 +359,10 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                         />
 
                                         <FormControl.Helper>
-                                            If empty, rule will be applied to
-                                            all files.
+                                            {watchScope === "pull-request"
+                                                ? "Path is not applicable for pull request scope"
+                                                : "If empty, rule will be applied to all files."
+                                            }
                                         </FormControl.Helper>
                                     </div>
                                 </FormControl.Input>
