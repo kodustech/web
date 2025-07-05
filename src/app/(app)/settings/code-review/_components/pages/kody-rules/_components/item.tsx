@@ -47,6 +47,15 @@ export const KodyRuleItem = ({ repositoryId, rule, onAnyChange }: Props) => {
                             </strong>{" "}
                             {rule.rule}
                         </span>
+
+                        <span className="text-text-secondary text-sm">
+                            <strong className="text-text-primary">
+                                Scope:
+                            </strong>{" "}
+                            {rule?.scope === "pull-request"
+                                ? "Pull-request"
+                                : "File"}
+                        </span>
                     </div>
 
                     <IssueSeverityLevelBadge severity={rule.severity} />
