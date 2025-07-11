@@ -6,7 +6,7 @@ import { Spinner } from "./spinner";
 
 const inputVariants = cva(
     cn(
-        "flex w-full items-center rounded-xl px-6 text-sm ring-1 transition",
+        "flex w-full items-center rounded-xl text-sm ring-1 transition",
         "bg-card-lv2 ring-card-lv3",
         "placeholder:text-text-placeholder/50",
         "textinput-focused:ring-3 textinput-focused:brightness-120",
@@ -19,8 +19,8 @@ const inputVariants = cva(
     {
         variants: {
             size: {
-                md: "h-10",
-                lg: "h-12",
+                md: "h-10 px-5",
+                lg: "h-12 px-6",
             },
         },
         defaultVariants: {

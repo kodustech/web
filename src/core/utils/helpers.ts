@@ -12,7 +12,7 @@ const containerName =
 
 export function pathToApiUrl(
     path: API_ROUTES | string,
-    params?: Record<string, string>,
+    params?: Record<string, string | number | boolean>,
 ): string {
     invariant(path, "Api path doesn't exist");
 
@@ -25,7 +25,7 @@ export function pathToApiUrl(
 
     if (params) {
         Object.keys(params).forEach((key) => {
-            path = path.replace(`:${key}`, params[key]);
+            path = path.replace(`:${key}`, params[key].toString());
         });
     }
 
@@ -90,8 +90,7 @@ export function createUrl(
 
     if (
         isProduction() ||
-        (isSelfHosted &&
-            (hostName !== "localhost" && hostName !== containerName))
+        (isSelfHosted && hostName !== "localhost" && hostName !== containerName)
     ) {
         // Cases: Production OR (SelfHosted with a specific domain)
         protocol = "https";

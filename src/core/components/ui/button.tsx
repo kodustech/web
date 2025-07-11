@@ -18,6 +18,7 @@ const buttonVariants = cva(
         "button-loading:cursor-wait",
 
         "group-disabled/link:bg-text-placeholder/30 group-disabled/link:text-text-placeholder group-disabled/link:cursor-not-allowed",
+        "group-disabled/link:[&:hover]:brightness-100!",
         "group-button-focused/link:ring-3!",
     ),
     {

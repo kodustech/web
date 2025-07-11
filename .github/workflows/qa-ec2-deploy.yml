@@ -79,6 +79,9 @@ jobs:
 
                   echo WEB_POSTHOG_KEY=$(aws ssm get-parameter --name /qa/kodus-web/WEB_POSTHOG_KEY --query 'Parameter.Value' --output text) >> .env
 
+                  echo WEB_HOSTNAME_MCP_MANAGER=$(aws ssm get-parameter --name /qa/kodus-web/WEB_HOSTNAME_MCP_MANAGER --query 'Parameter.Value' --output text) >> .env
+                  echo WEB_PORT_MCP_MANAGER=$(aws ssm get-parameter --name /qa/kodus-web/WEB_PORT_MCP_MANAGER --query 'Parameter.Value' --output text) >> .env
+
             - name: Login to Amazon ECR
               id: login-ecr
               uses: aws-actions/amazon-ecr-login@v2.0.1
