@@ -83,11 +83,11 @@
         "remark-gfm": "^4.0.1",
         "seed-color": "^2.0.1",
         "sortablejs": "^1.15.6",
-        "tailwind-merge": "3.3.0",
+        "tailwind-merge": "3.3.1",
         "tailwindcss-animate": "^1.0.7",
         "tiny-invariant": "^1.3.3",
         "victory": "^37.3.6",
-        "zod": "^3.24.4"
+        "zod": "^3.25.76"
     },
     "devDependencies": {
         "@ianvs/prettier-plugin-sort-imports": "^4.4.1",
