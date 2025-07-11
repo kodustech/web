@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -9,6 +10,7 @@ import {
     BreadcrumbSeparator,
 } from "@components/ui/breadcrumb";
 import { Button } from "@components/ui/button";
+import { Card, CardHeader } from "@components/ui/card";
 import { Checkbox } from "@components/ui/checkbox";
 import {
     Dialog,
@@ -35,7 +37,6 @@ import {
 } from "@services/parameters/types";
 import { Info, Save } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
-import { useEffect } from "react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { SeverityLevel } from "src/core/types";
 import { cn } from "src/core/utils/components";
@@ -347,38 +348,32 @@ export const SuggestionControl = (
                         name="suggestionControl.applyFiltersToKodyRules"
                         control={form.control}
                         render={({ field }) => (
-                            <div className="flex items-center justify-between rounded-lg border border-card-lv3 bg-card-lv2 p-4">
-                                <div className="flex flex-col gap-1">
-                                    <h3 className="text-base font-medium text-text-primary">
-                                        Apply filters to Kody Rules
-                                    </h3>
-                                    <p className="text-sm text-text-secondary">
-                                        When OFF, Kody Rules suggestions bypass the limit and severity filters.
-                                    </p>
-                                </div>
-                                <Switch
-                                    id="applyFiltersToKodyRules"
-                                    checked={field.value}
-                                    onCheckedChange={(checked) => {
-                                        field.onChange(checked);
-                                        field.onBlur();
-                                    }}
-                                    disabled={field.disabled}
-                                    size="md"
-                                />
-                            </div>
-                        )}
-                    />
+                            <label className="**:select-none">
+                                <Card>
+                                    <CardHeader className="flex-row items-center justify-between">
+                                        <div>
+                                            <span className="text-text-primary text-base font-semibold">
+                                                Apply filters to Kody Rules
+                                            </span>
+                                            <p className="text-text-secondary text-sm">
+                                                When OFF, Kody Rules suggestions
+                                                bypass the limit and severity
+                                                filters.
+                                            </p>
+                                        </div>
 
-                    <Controller
-                        name="suggestionControl.limitationType"
-                        control={form.control}
-                        render={({ field }) => (
-                            <FormControl.Root className="space-y-1">
-                                <FormControl.Label htmlFor="reviewOptions">
-                                    Limitation type
-                                </FormControl.Label>
-                            </FormControl.Root>
+                                        <Switch
+                                            size="md"
+                                            checked={field.value}
+                                            disabled={field.disabled}
+                                            onCheckedChange={(checked) => {
+                                                field.onChange(checked);
+                                                field.onBlur();
+                                            }}
+                                        />
+                                    </CardHeader>
+                                </Card>
+                            </label>
                         )}
                     />
 
