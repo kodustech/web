@@ -1,6 +1,7 @@
 "use client";
 
-import { useParams, usePathname, useRouter } from "next/navigation";
+import { useMemo } from "react";
+import { useParams, usePathname } from "next/navigation";
 import { Button } from "@components/ui/button";
 import {
     Collapsible,
@@ -28,23 +29,13 @@ import {
 } from "@services/parameters/hooks";
 import { KodyLearningStatus } from "@services/parameters/types";
 import { Plus } from "lucide-react";
+import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
 import {
     AutomationCodeReviewConfigProvider,
     PlatformConfigProvider,
 } from "./context";
 import { AddRepoModal } from "./pages/kody-rules/_components/addRepoModal";
-
-const mainRoutes = [
-    {
-        label: "Git Settings",
-        href: "/settings/git",
-    },
-    {
-        label: "Subscription",
-        href: "/settings/subscription",
-    },
-] satisfies Array<{ label: string; href: string }>;
 
 const routes = [
     { label: "General", href: "general" },
@@ -57,17 +48,42 @@ export const AutomationCodeReviewLayout = ({
     children,
     automation,
     teamId,
+    pluginsPageFeatureFlag,
 }: React.PropsWithChildren & {
     automation: TeamAutomation | undefined;
     teamId: string;
+    pluginsPageFeatureFlag: Awaited<
+        ReturnType<typeof getFeatureFlagWithPayload>
+    >;
 }) => {
-    const router = useRouter();
     const pathname = usePathname();
 
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
     const { params: [repositoryParam, pageNameParam] = [] } = useParams<{
         params: [string, string];
     }>();
+
+    const mainRoutes = useMemo(() => {
+        const routes = [
+            {
+                label: "Git Settings",
+                href: "/settings/git",
+            },
+            {
+                label: "Subscription",
+                href: "/settings/subscription",
+            },
+        ] satisfies Array<{ label: string; href: string }>;
+
+        if (pluginsPageFeatureFlag?.value) {
+            routes.push({
+                label: "Plugins",
+                href: "/settings/plugins",
+            });
+        }
+
+        return routes;
+    }, [pluginsPageFeatureFlag?.value]);
 
     const platformConfig = useSuspenseGetParameterPlatformConfigs(teamId);
 

@@ -7,21 +7,17 @@ export const Link = ({
     disabled,
     ...props
 }: React.ComponentProps<typeof NextLink> & { disabled?: boolean }) => {
+    if (disabled) {
+        return (
+            <div data-disabled className="group/link contents">
+                {props.children}
+            </div>
+        );
+    }
+
     return (
         <NextLink
             {...props}
-            tabIndex={disabled ? -1 : 0}
-            {...(disabled && { "data-disabled": true })}
-            href={disabled ? "#" : props.href}
-            onClick={(e) => {
-                if (disabled) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return;
-                }
-
-                props.onClick?.(e);
-            }}
             className={cn(
                 "group/link",
                 "w-fit underline-offset-5 transition",

@@ -5,7 +5,17 @@ import * as CollapsiblePrimitive from "@radix-ui/react-collapsible";
 import { ChevronDownIcon } from "lucide-react";
 import { cn } from "src/core/utils/components";
 
-const Collapsible = CollapsiblePrimitive.Root;
+const Collapsible = React.forwardRef<
+    React.ComponentRef<typeof CollapsiblePrimitive.Root>,
+    React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Root>
+>(({ className, ...props }, ref) => (
+    <CollapsiblePrimitive.Root
+        ref={ref}
+        {...props}
+        className={cn(className, "group/collapsible")}
+    />
+));
+Collapsible.displayName = ChevronDownIcon.displayName;
 
 const CollapsibleIndicator = React.forwardRef<
     React.ComponentRef<typeof ChevronDownIcon>,
@@ -15,8 +25,9 @@ const CollapsibleIndicator = React.forwardRef<
         ref={ref}
         {...props}
         className={cn(
-            className,
             "text-text-secondary size-4! shrink-0 transition duration-200",
+            "group-data-[state=closed]/collapsible:rotate-0 group-data-[state=open]/collapsible:rotate-180",
+            className,
         )}
     />
 ));

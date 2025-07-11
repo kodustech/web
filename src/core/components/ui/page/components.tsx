@@ -1,10 +1,23 @@
 "use client";
 
-import { forwardRef, useContext } from "react";
+import { createContext, forwardRef, useContext } from "react";
 import { cn } from "src/core/utils/components";
 
 import { Heading } from "../heading";
-import { PageContext, PageScrollableContext } from "./context";
+
+const PageContext = createContext<{
+    hasSidebar: boolean;
+}>({ hasSidebar: false });
+
+const PageScrollableContext = createContext<boolean>(false);
+
+export const PageWithSidebar = (props: React.PropsWithChildren) => {
+    return (
+        <PageContext.Provider value={{ hasSidebar: true }}>
+            {props.children}
+        </PageContext.Provider>
+    );
+};
 
 const WITH_SIDEBAR_CONTAINER = "max-w-(--breakpoint-lg)";
 const WITHOUT_SIDEBAR_CONTAINER = "max-w-(--breakpoint-lg)";
@@ -73,6 +86,20 @@ export const PageHeader = (props: React.ComponentProps<"div">) => {
 
 export const PageHeaderActions = (props: React.PropsWithChildren) => (
     <div className="flex items-center justify-between gap-2">
+        {props.children}
+    </div>
+);
+
+export const PageDescription = (props: React.ComponentProps<"div">) => (
+    <div
+        {...props}
+        className={cn("text-text-secondary text-sm", props.className)}>
+        {props.children}
+    </div>
+);
+
+export const PageTitleContainer = (props: React.ComponentProps<"div">) => (
+    <div {...props} className={cn("flex flex-col", props.className)}>
         {props.children}
     </div>
 );
