@@ -96,6 +96,7 @@ export const KodyRulesPage = ({
             generatePRSummary: config?.summary?.generatePRSummary ?? false,
         },
         suggestionControl: {
+            applyFiltersToKodyRules: false,
             groupingMode:
                 config?.suggestionControl?.groupingMode ??
                 GroupingModeSuggestions.FULL,
