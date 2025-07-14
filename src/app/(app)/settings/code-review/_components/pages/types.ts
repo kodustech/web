@@ -16,6 +16,7 @@ export enum CodeReviewSummaryOptions {
 export enum LimitationType {
     FILE = "file",
     PR = "pr",
+    SEVERITY = "severity",
 }
 
 export enum GroupingModeSuggestions {
@@ -60,6 +61,12 @@ type SuggestionControlConfig = {
     maxSuggestions: number;
     severityLevelFilter: SeverityLevel;
     applyFiltersToKodyRules: boolean;
+    severityLimits?: {
+        low: number;
+        medium: number;
+        high: number;
+        critical: number;
+    };
 };
 
 export type CodeReviewGlobalConfig = {
