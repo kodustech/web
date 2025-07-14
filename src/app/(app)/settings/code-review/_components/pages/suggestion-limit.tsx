@@ -10,7 +10,7 @@ import {
     BreadcrumbSeparator,
 } from "@components/ui/breadcrumb";
 import { Button } from "@components/ui/button";
-import { Card, CardHeader } from "@components/ui/card";
+import { Card, CardHeader, CardContent } from "@components/ui/card";
 import { Checkbox } from "@components/ui/checkbox";
 import {
     Dialog,
@@ -40,6 +40,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { SeverityLevel } from "src/core/types";
 import { cn } from "src/core/utils/components";
+import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level-badge";
 
 import CodeGroupingExampleCard from "../CodeGroupingExampleCard";
 import { useAutomationCodeReviewConfig, usePlatformConfig } from "../context";
@@ -62,6 +63,10 @@ const limitationTypeOptions = [
         default: true,
         value: LimitationType.PR,
         name: "By pull request",
+    },
+    {
+        value: LimitationType.SEVERITY,
+        name: "By severity",
     },
 ] satisfies Array<{ value: string; name: string; default?: boolean }>;
 
@@ -100,6 +105,12 @@ export const SuggestionControl = (
                 maxSuggestions: 9,
                 severityLevelFilter: SeverityLevel.MEDIUM,
                 applyFiltersToKodyRules: false,
+                severityLimits: {
+                    low: 0,
+                    medium: 0,
+                    high: 0,
+                    critical: 0,
+                },
             },
         },
         mode: "all",
@@ -118,6 +129,12 @@ export const SuggestionControl = (
                     maxSuggestions: 9,
                     severityLevelFilter: SeverityLevel.MEDIUM,
                     applyFiltersToKodyRules: false,
+                    severityLimits: {
+                        low: 0,
+                        medium: 0,
+                        high: 0,
+                        critical: 0,
+                    },
                 },
             };
             form.reset(formData);
@@ -160,6 +177,12 @@ export const SuggestionControl = (
                 severityLevelFilter:
                     legacySeverityLevelFilter || SeverityLevel.MEDIUM,
                 applyFiltersToKodyRules: false,
+                severityLimits: {
+                    low: 0,
+                    medium: 0,
+                    high: 0,
+                    critical: 0,
+                },
             };
 
             const finalConfig = {
@@ -439,89 +462,319 @@ export const SuggestionControl = (
                         )}
                     />
 
-                    <Controller
-                        name="suggestionControl.maxSuggestions"
-                        control={form.control}
-                        rules={{
-                            validate: (value) => {
-                                if (value === 0) return;
-
-                                if (
-                                    form.getValues(
-                                        "suggestionControl.limitationType",
-                                    ) === "file"
-                                ) {
-                                    if (
-                                        value <=
-                                        MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE
-                                    )
-                                        return;
-
-                                    return `Maximum limit is ${MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE}`;
-                                }
-
-                                if (
-                                    form.getValues(
-                                        "suggestionControl.limitationType",
-                                    ) === "pr"
-                                ) {
-                                    if (
-                                        value >=
-                                        MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE
-                                    )
-                                        return;
-
-                                    return `The configured limit is too low. Please increase it to at least ${MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE} based on the selected categories.`;
-                                }
-                            },
-                        }}
-                        render={({ field, fieldState }) => (
-                            <FormControl.Root>
-                                <FormControl.Label htmlFor="max-suggestions">
-                                    Maximum number of suggestions
-                                </FormControl.Label>
-
-                                <FormControl.Input>
-                                    <Input
-                                        id="max-suggestions"
-                                        disabled={field.disabled}
-                                        error={fieldState.error}
-                                        type="number"
-                                        value={field.value}
-                                        onChange={(e) =>
-                                            field.onChange(
-                                                validateNumberInput(
-                                                    e.target.value,
-                                                ),
-                                            )
-                                        }
-                                        min={0}
-                                        max={MAX_SUGGESTIONS}
-                                        className="w-[25%]"
-                                        placeholder="0"
-                                    />
-                                </FormControl.Input>
-
-                                <FormControl.Error>
-                                    {fieldState.error?.message}
-                                </FormControl.Error>
-
-                                <FormControl.Helper>
-                                    Enter a number, or leave it as 0 for no
-                                    limit{" "}
-                                    {limitationType === "file"
-                                        ? `(no min, max: ${MAX_SUGGESTIONS})`
-                                        : `(min: ${MIN_SUGGESTIONS}, no max)`}
-                                </FormControl.Helper>
-                            </FormControl.Root>
-                        )}
-                    />
-
-                    <div className="flex flex-col gap-3">
+                    {/* Só mostra o campo de máximo de sugestões se não for "By Severity" */}
+                    {limitationType !== LimitationType.SEVERITY && (
                         <Controller
-                            name="suggestionControl.severityLevelFilter"
+                            name="suggestionControl.maxSuggestions"
                             control={form.control}
-                            render={({ field, fieldState }) => {
+                            rules={{
+                                validate: (value) => {
+                                    if (value === 0) return;
+
+                                    if (
+                                        form.getValues(
+                                            "suggestionControl.limitationType",
+                                        ) === "file"
+                                    ) {
+                                        if (
+                                            value <=
+                                            MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE
+                                        )
+                                            return;
+
+                                        return `Maximum limit is ${MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE}`;
+                                    }
+
+                                    if (
+                                        form.getValues(
+                                            "suggestionControl.limitationType",
+                                        ) === "pr"
+                                    ) {
+                                        if (
+                                            value >=
+                                            MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE
+                                        )
+                                            return;
+
+                                        return `The configured limit is too low. Please increase it to at least ${MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE} based on the selected categories.`;
+                                    }
+                                },
+                            }}
+                            render={({ field, fieldState }) => (
+                                <FormControl.Root>
+                                    <FormControl.Label htmlFor="max-suggestions">
+                                        Maximum number of suggestions
+                                    </FormControl.Label>
+
+                                    <FormControl.Input>
+                                        <Input
+                                            id="max-suggestions"
+                                            disabled={field.disabled}
+                                            error={fieldState.error}
+                                            type="number"
+                                            value={field.value}
+                                            onChange={(e) =>
+                                                field.onChange(
+                                                    validateNumberInput(
+                                                        e.target.value,
+                                                    ),
+                                                )
+                                            }
+                                            min={0}
+                                            max={MAX_SUGGESTIONS}
+                                            className="w-[25%]"
+                                            placeholder="0"
+                                        />
+                                    </FormControl.Input>
+
+                                    <FormControl.Error>
+                                        {fieldState.error?.message}
+                                    </FormControl.Error>
+
+                                    <FormControl.Helper>
+                                        Enter a number, or leave it as 0 for no
+                                        limit{" "}
+                                        {limitationType === "file"
+                                            ? `(no min, max: ${MAX_SUGGESTIONS})`
+                                            : `(min: ${MIN_SUGGESTIONS}, no max)`}
+                                    </FormControl.Helper>
+                                </FormControl.Root>
+                            )}
+                        />
+                    )}
+
+                    {/* Campos de configuração por severidade */}
+                    {limitationType === LimitationType.SEVERITY && (
+                        <div className="flex flex-col gap-6">
+                            <div className="flex flex-col gap-2">
+                                <Heading variant="h2">
+                                    Suggestions per severity level
+                                </Heading>
+                                <small className="text-text-secondary text-sm">
+                                    Configure the maximum number of suggestions
+                                    for each severity level
+                                </small>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <Controller
+                                    name="suggestionControl.severityLimits.low"
+                                    control={form.control}
+                                    render={({ field, fieldState }) => (
+                                        <Card className="hover:shadow-md transition-shadow">
+                                            <CardHeader className="pb-3">
+                                                <div className="flex items-center gap-3">
+                                                    <IssueSeverityLevelBadge severity="low" />
+                                                    <Heading variant="h3" className="font-medium">
+                                                        Low Level
+                                                    </Heading>
+                                                </div>
+                                                <p className="text-text-secondary text-sm">
+                                                    Minor improvements and optimizations
+                                                </p>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <FormControl.Root>
+                                                    <FormControl.Label htmlFor="severity-low" className="text-sm font-medium">
+                                                        Maximum suggestions
+                                                    </FormControl.Label>
+                                                    <FormControl.Input>
+                                                        <Input
+                                                            id="severity-low"
+                                                            disabled={field.disabled}
+                                                            error={fieldState.error}
+                                                            type="number"
+                                                            value={field.value || 0}
+                                                            onChange={(e) =>
+                                                                field.onChange(
+                                                                    validateNumberInput(
+                                                                        e.target.value,
+                                                                    ),
+                                                                )
+                                                            }
+                                                            min={0}
+                                                            className="w-full"
+                                                            placeholder="0"
+                                                        />
+                                                    </FormControl.Input>
+                                                    <FormControl.Error>
+                                                        {fieldState.error?.message}
+                                                    </FormControl.Error>
+                                                    <FormControl.Helper>
+                                                        Enter 0 for no limit
+                                                    </FormControl.Helper>
+                                                </FormControl.Root>
+                                            </CardContent>
+                                        </Card>
+                                    )}
+                                />
+
+                                <Controller
+                                    name="suggestionControl.severityLimits.medium"
+                                    control={form.control}
+                                    render={({ field, fieldState }) => (
+                                        <Card className="hover:shadow-md transition-shadow">
+                                            <CardHeader className="pb-3">
+                                                <div className="flex items-center gap-3">
+                                                    <IssueSeverityLevelBadge severity="medium" />
+                                                    <Heading variant="h3" className="font-medium">
+                                                        Medium Level
+                                                    </Heading>
+                                                </div>
+                                                <p className="text-text-secondary text-sm">
+                                                    Recommended improvements for code quality
+                                                </p>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <FormControl.Root>
+                                                    <FormControl.Label htmlFor="severity-medium" className="text-sm font-medium">
+                                                        Maximum suggestions
+                                                    </FormControl.Label>
+                                                    <FormControl.Input>
+                                                        <Input
+                                                            id="severity-medium"
+                                                            disabled={field.disabled}
+                                                            error={fieldState.error}
+                                                            type="number"
+                                                            value={field.value || 0}
+                                                            onChange={(e) =>
+                                                                field.onChange(
+                                                                    validateNumberInput(
+                                                                        e.target.value,
+                                                                    ),
+                                                                )
+                                                            }
+                                                            min={0}
+                                                            className="w-full"
+                                                            placeholder="0"
+                                                        />
+                                                    </FormControl.Input>
+                                                    <FormControl.Error>
+                                                        {fieldState.error?.message}
+                                                    </FormControl.Error>
+                                                    <FormControl.Helper>
+                                                        Enter 0 for no limit
+                                                    </FormControl.Helper>
+                                                </FormControl.Root>
+                                            </CardContent>
+                                        </Card>
+                                    )}
+                                />
+
+                                <Controller
+                                    name="suggestionControl.severityLimits.high"
+                                    control={form.control}
+                                    render={({ field, fieldState }) => (
+                                        <Card className="hover:shadow-md transition-shadow">
+                                            <CardHeader className="pb-3">
+                                                <div className="flex items-center gap-3">
+                                                    <IssueSeverityLevelBadge severity="high" />
+                                                    <Heading variant="h3" className="font-medium">
+                                                        High Level
+                                                    </Heading>
+                                                </div>
+                                                <p className="text-text-secondary text-sm">
+                                                    Significant issues that need attention
+                                                </p>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <FormControl.Root>
+                                                    <FormControl.Label htmlFor="severity-high" className="text-sm font-medium">
+                                                        Maximum suggestions
+                                                    </FormControl.Label>
+                                                    <FormControl.Input>
+                                                        <Input
+                                                            id="severity-high"
+                                                            disabled={field.disabled}
+                                                            error={fieldState.error}
+                                                            type="number"
+                                                            value={field.value || 0}
+                                                            onChange={(e) =>
+                                                                field.onChange(
+                                                                    validateNumberInput(
+                                                                        e.target.value,
+                                                                    ),
+                                                                )
+                                                            }
+                                                            min={0}
+                                                            className="w-full"
+                                                            placeholder="0"
+                                                        />
+                                                    </FormControl.Input>
+                                                    <FormControl.Error>
+                                                        {fieldState.error?.message}
+                                                    </FormControl.Error>
+                                                    <FormControl.Helper>
+                                                        Enter 0 for no limit
+                                                    </FormControl.Helper>
+                                                </FormControl.Root>
+                                            </CardContent>
+                                        </Card>
+                                    )}
+                                />
+
+                                <Controller
+                                    name="suggestionControl.severityLimits.critical"
+                                    control={form.control}
+                                    render={({ field, fieldState }) => (
+                                        <Card className="hover:shadow-md transition-shadow">
+                                            <CardHeader className="pb-3">
+                                                <div className="flex items-center gap-3">
+                                                    <IssueSeverityLevelBadge severity="critical" />
+                                                    <Heading variant="h3" className="font-medium">
+                                                        Critical Level
+                                                    </Heading>
+                                                </div>
+                                                <p className="text-text-secondary text-sm">
+                                                    Issues requiring immediate attention
+                                                </p>
+                                            </CardHeader>
+                                            <CardContent>
+                                                <FormControl.Root>
+                                                    <FormControl.Label htmlFor="severity-critical" className="text-sm font-medium">
+                                                        Maximum suggestions
+                                                    </FormControl.Label>
+                                                    <FormControl.Input>
+                                                        <Input
+                                                            id="severity-critical"
+                                                            disabled={field.disabled}
+                                                            error={fieldState.error}
+                                                            type="number"
+                                                            value={field.value || 0}
+                                                            onChange={(e) =>
+                                                                field.onChange(
+                                                                    validateNumberInput(
+                                                                        e.target.value,
+                                                                    ),
+                                                                )
+                                                            }
+                                                            min={0}
+                                                            className="w-full"
+                                                            placeholder="0"
+                                                        />
+                                                    </FormControl.Input>
+                                                    <FormControl.Error>
+                                                        {fieldState.error?.message}
+                                                    </FormControl.Error>
+                                                    <FormControl.Helper>
+                                                        Enter 0 for no limit
+                                                    </FormControl.Helper>
+                                                </FormControl.Root>
+                                            </CardContent>
+                                        </Card>
+                                    )}
+                                />
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Só mostra o campo de severidade mínima se não for "By Severity" */}
+                    {limitationType !== LimitationType.SEVERITY && (
+                        <div className="flex flex-col gap-3">
+                            <Controller
+                                name="suggestionControl.severityLevelFilter"
+                                control={form.control}
+                                render={({ field, fieldState }) => {
                                 const labels = Object.values(
                                     severityLevelFilterOptions,
                                 ).map((option) => option.label);
@@ -612,6 +865,7 @@ export const SuggestionControl = (
                             </Button>
                         </div>
                     </div>
+                    )}
                 </div>
             </Page.Content>
         </Page.Root>
