@@ -99,17 +99,19 @@ export const SuggestionControl = (
     const form = useForm<CodeReviewGlobalConfig & { id?: string }>({
         defaultValues: {
             ...config,
-            suggestionControl: config?.suggestionControl ?? {
+            suggestionControl: {
                 groupingMode: GroupingModeSuggestions.FULL,
                 limitationType: LimitationType.PR,
                 maxSuggestions: 9,
                 severityLevelFilter: SeverityLevel.MEDIUM,
                 applyFiltersToKodyRules: false,
+                ...config?.suggestionControl,
                 severityLimits: {
                     low: 0,
                     medium: 0,
                     high: 0,
                     critical: 0,
+                    ...config?.suggestionControl?.severityLimits,
                 },
             },
         },
@@ -123,17 +125,19 @@ export const SuggestionControl = (
         if (config) {
             const formData = {
                 ...config,
-                suggestionControl: config?.suggestionControl ?? {
+                suggestionControl: {
                     groupingMode: GroupingModeSuggestions.FULL,
                     limitationType: LimitationType.PR,
                     maxSuggestions: 9,
                     severityLevelFilter: SeverityLevel.MEDIUM,
                     applyFiltersToKodyRules: false,
+                    ...config?.suggestionControl,
                     severityLimits: {
                         low: 0,
                         medium: 0,
                         high: 0,
                         critical: 0,
+                        ...config?.suggestionControl?.severityLimits,
                     },
                 },
             };
