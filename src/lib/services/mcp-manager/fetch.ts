@@ -56,6 +56,7 @@ export const getMCPPluginTools = ({
             name: string;
             description: string;
             provider: string;
+            warning: boolean;
         }>
     >(`/mcp/${provider}/integrations/${id}/tools`);
 
