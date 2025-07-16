@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarImage } from "@components/ui/avatar";
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
+import { Checkbox } from "@components/ui/checkbox";
 import {
     Dialog,
     DialogClose,
@@ -14,6 +15,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@components/ui/dialog";
+import { Label } from "@components/ui/label";
 import { MagicModalContext } from "@components/ui/magic-modal";
 import { useAsyncAction } from "@hooks/use-async-action";
 import {
@@ -40,8 +42,21 @@ export const PluginModal = ({
         Record<string, string>
     >({});
 
+    const [
+        confirmInstallationOfToolsWithWarnings,
+        setConfirmInstallationOfToolsWithWarnings,
+    ] = useState(false);
+
     const [selectedTools, setSelectedTools] = useState<Array<string>>(
-        tools.map(({ slug }) => slug),
+        tools.filter(({ warning }) => !warning).map(({ slug }) => slug),
+    );
+
+    const hasToolsWithWarningSelected = useMemo(
+        () =>
+            selectedTools.some(
+                (tool) => tools.find(({ slug }) => slug === tool)?.warning,
+            ),
+        [selectedTools, tools],
     );
 
     const areRequiredParametersValid =
@@ -73,7 +88,7 @@ export const PluginModal = ({
     return (
         <MagicModalContext value={{ closeable: !isInstallPluginLoading }}>
             <Dialog open onOpenChange={() => router.push("/settings/plugins")}>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-4xl">
                     <DialogHeader className="flex-row items-start justify-start gap-4">
                         <Avatar className="bg-card-lv3 size-16 rounded-lg p-1">
                             <AvatarImage src={plugin.logo} />
@@ -92,7 +107,7 @@ export const PluginModal = ({
                         </div>
                     </DialogHeader>
 
-                    <div className="-mx-6 max-h-130 overflow-auto px-6">
+                    <div className="-mx-6 overflow-auto px-6">
                         <div className="flex flex-col gap-3">
                             {plugin.authScheme === "OAUTH2" && (
                                 <div className="mb-2 flex items-center gap-2">
@@ -120,30 +135,65 @@ export const PluginModal = ({
                                 tools={tools}
                                 defaultOpen={plugin.requiredParams.length === 0}
                                 selectedTools={selectedTools}
-                                setSelectedTools={setSelectedTools}
+                                setSelectedTools={(tools) => {
+                                    setSelectedTools(tools);
+                                    setConfirmInstallationOfToolsWithWarnings(
+                                        false,
+                                    );
+                                }}
                             />
                         </div>
                     </div>
 
-                    <DialogFooter className="mt-0">
-                        <DialogClose disabled={isInstallPluginLoading}>
-                            <Button size="md" variant="cancel">
-                                Go back
-                            </Button>
-                        </DialogClose>
+                    <DialogFooter className="mt-0 items-center justify-between">
+                        <div>
+                            {hasToolsWithWarningSelected && (
+                                <Label className="flex items-center gap-4 select-none">
+                                    <Checkbox
+                                        variant="tertiary"
+                                        checked={
+                                            confirmInstallationOfToolsWithWarnings
+                                        }
+                                        onCheckedChange={(c) => {
+                                            if (c === "indeterminate") return;
 
-                        <Button
-                            size="md"
-                            variant="primary"
-                            leftIcon={<PlugIcon />}
-                            loading={isInstallPluginLoading}
-                            onClick={() => installPlugin()}
-                            disabled={
-                                !areRequiredParametersValid ||
-                                selectedTools.length === 0
-                            }>
-                            Install plugin
-                        </Button>
+                                            setConfirmInstallationOfToolsWithWarnings(
+                                                c,
+                                            );
+                                        }}
+                                    />
+
+                                    <span className="text-danger max-w-80 leading-tight">
+                                        I understand there are dangerous tools
+                                        selected and I confirm the installation
+                                        of these tools
+                                    </span>
+                                </Label>
+                            )}
+                        </div>
+
+                        <div className="flex flex-row gap-x-2">
+                            <DialogClose disabled={isInstallPluginLoading}>
+                                <Button size="md" variant="cancel">
+                                    Go back
+                                </Button>
+                            </DialogClose>
+
+                            <Button
+                                size="md"
+                                variant="primary"
+                                leftIcon={<PlugIcon />}
+                                loading={isInstallPluginLoading}
+                                onClick={() => installPlugin()}
+                                disabled={
+                                    !areRequiredParametersValid ||
+                                    selectedTools.length === 0 ||
+                                    (hasToolsWithWarningSelected &&
+                                        !confirmInstallationOfToolsWithWarnings)
+                                }>
+                                Install plugin
+                            </Button>
+                        </div>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

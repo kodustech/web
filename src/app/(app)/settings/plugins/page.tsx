@@ -22,7 +22,14 @@ export default async function PluginsPage() {
         <Page.Root>
             <Page.Header>
                 <Page.TitleContainer>
-                    <Page.Title>Plugins</Page.Title>
+                    <div className="flex items-center gap-2">
+                        <Page.Title>Plugins</Page.Title>
+                        <Badge
+                            variant="secondary"
+                            className="pointer-events-none">
+                            Alpha
+                        </Badge>
+                    </div>
 
                     <Page.Description>
                         Connect Kody to external tools and APIs to enhance your
@@ -46,7 +53,7 @@ export default async function PluginsPage() {
                                 size="lg"
                                 decorative
                                 variant="helper"
-                                className="w-full items-start gap-0 px-0 py-0">
+                                className="h-full w-full items-start gap-0 px-0 py-0">
                                 <Card className="flex w-full gap-0 bg-transparent shadow-none">
                                     <CardHeader className="gap-4">
                                         <div className="flex h-fit flex-row items-center gap-5">

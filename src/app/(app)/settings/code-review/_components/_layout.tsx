@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { useParams, usePathname } from "next/navigation";
+import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import {
     Collapsible,
@@ -64,7 +65,11 @@ export const AutomationCodeReviewLayout = ({
     }>();
 
     const mainRoutes = useMemo(() => {
-        const routes = [
+        const routes: Array<{
+            label: string;
+            href: string;
+            badge?: React.ReactNode;
+        }> = [
             {
                 label: "Git Settings",
                 href: "/settings/git",
@@ -73,12 +78,19 @@ export const AutomationCodeReviewLayout = ({
                 label: "Subscription",
                 href: "/settings/subscription",
             },
-        ] satisfies Array<{ label: string; href: string }>;
+        ];
 
         if (pluginsPageFeatureFlag?.value) {
             routes.push({
                 label: "Plugins",
                 href: "/settings/plugins",
+                badge: (
+                    <Badge
+                        variant="secondary"
+                        className="pointer-events-none -my-1 h-6 min-h-auto px-2.5">
+                        Alpha
+                    </Badge>
+                ),
             });
         }
 
@@ -118,6 +130,7 @@ export const AutomationCodeReviewLayout = ({
                                                 decorative
                                                 className="w-full justify-start"
                                                 active={pathname === route.href}
+                                                rightIcon={route.badge}
                                                 variant={
                                                     pathname.startsWith(
                                                         route.href,

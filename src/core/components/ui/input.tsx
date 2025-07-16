@@ -53,7 +53,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         ref,
     ) => {
         return (
-            <div className="relative">
+            <div className="relative flex-1">
                 {LeftIcon && (
                     <div className="pointer-events-none absolute inset-y-0 left-4 z-1 flex items-center [&_svg]:size-5 [&_svg]:text-current">
                         {LeftIcon}
