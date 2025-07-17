@@ -14,8 +14,16 @@ import { CardHeader } from "@components/ui/card";
 import { Checkbox } from "@components/ui/checkbox";
 import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
+import { Input } from "@components/ui/input";
 import { Link } from "@components/ui/link";
 import { Page } from "@components/ui/page";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@components/ui/select";
 import { Switch } from "@components/ui/switch";
 import TagInput from "@components/ui/tag-input";
 import { Textarea } from "@components/ui/textarea";
@@ -52,7 +60,9 @@ import type {
     AutomationCodeReviewConfigPageProps,
     CodeReviewGlobalConfig,
     CodeReviewOptions,
+    ReviewCadence,
 } from "../types";
+import { ReviewCadenceType } from "../types";
 import { LanguageSelector } from "./_components/language-selector";
 
 interface CheckboxCardOption {
@@ -115,6 +125,11 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
             ...config,
             language,
             automatedReviewActive: config?.automatedReviewActive ?? false,
+            reviewCadence: config?.reviewCadence ?? {
+                type: ReviewCadenceType.AUTOMATIC,
+                timeWindow: 15,
+                pushesToTrigger: 3,
+            },
             ignorePaths: config?.ignorePaths ?? [],
             ignoredTitleKeywords: config?.ignoredTitleKeywords ?? [],
             baseBranches: config?.baseBranches ?? [],
@@ -361,46 +376,156 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                             name="automatedReviewActive"
                             control={form.control}
                             render={({ field }) => (
-                                <Button
-                                    size="sm"
-                                    variant="helper"
-                                    className="w-full"
-                                    onClick={() =>
-                                        field.onChange(!field.value)
-                                    }>
-                                    <CardHeader className="flex flex-row items-center justify-between gap-6">
-                                        <div className="flex flex-col gap-1">
-                                            <Heading variant="h3">
-                                                Enable Automated Code Review
-                                            </Heading>
+                                <div className="w-full">
+                                    <Button
+                                        size="sm"
+                                        variant="helper"
+                                        className="w-full"
+                                        onClick={() =>
+                                            field.onChange(!field.value)
+                                        }>
+                                        <CardHeader className="flex flex-row items-center justify-between gap-6">
+                                            <div className="flex flex-col gap-1">
+                                                <Heading variant="h3">
+                                                    Enable Automated Code Review
+                                                </Heading>
 
-                                            <p className="text-text-secondary text-sm">
-                                                Whenever a Pull Request is
-                                                opened, Kody will automatically
-                                                review the code, highlighting
-                                                improvements, issues, and
-                                                suggestions to ensure code
-                                                quality.
-                                            </p>
+                                                <p className="text-text-secondary text-sm">
+                                                    Whenever a Pull Request is
+                                                    opened, Kody will automatically
+                                                    review the code, highlighting
+                                                    improvements, issues, and
+                                                    suggestions to ensure code
+                                                    quality.
+                                                </p>
+                                                <p className="text-text-tertiary text-sm">
+                                                    When disabled, you can manually
+                                                    start the review by using the
+                                                    command{" "}
+                                                    <code className="bg-background text-text-primary mx-0.5 rounded-lg px-1.5 py-1">
+                                                        @kody start-review
+                                                    </code>{" "}
+                                                    in the Pull Request comments.
+                                                </p>
+                                            </div>
+
+                                            <Switch
+                                                decorative
+                                                checked={field.value}
+                                            />
+                                        </CardHeader>
+                                    </Button>
+
+                                    {field.value && (
+                                        <div className="mt-2 flex flex-col gap-4 border-card-lv3 bg-card-lv2 rounded-xl border p-4">
+                                            <Controller
+                                                name="reviewCadence.type"
+                                                control={form.control}
+                                                render={({ field: cadenceField }) => (
+                                                    <FormControl.Root>
+                                                        <FormControl.Label htmlFor="review-cadence">
+                                                            Review Cadence
+                                                        </FormControl.Label>
+                                                        <FormControl.Helper className="text-text-secondary mb-2 text-xs">
+                                                            Decide how Kody should run
+                                                            follow‑up reviews after the
+                                                            first one.
+                                                        </FormControl.Helper>
+
+                                                        <FormControl.Input>
+                                                            <Select
+                                                                value={cadenceField.value || ReviewCadenceType.AUTOMATIC}
+                                                                onValueChange={cadenceField.onChange}>
+                                                                <SelectTrigger>
+                                                                    <SelectValue placeholder="Select review cadence" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem
+                                                                        value={ReviewCadenceType.AUTOMATIC}>
+                                                                        Automatic
+                                                                    </SelectItem>
+                                                                    <SelectItem
+                                                                        value={ReviewCadenceType.AUTO_PAUSE}>
+                                                                        Auto-pause
+                                                                    </SelectItem>
+                                                                    <SelectItem
+                                                                        value={ReviewCadenceType.MANUAL}>
+                                                                        Manual
+                                                                    </SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                        </FormControl.Input>
+
+                                                        <FormControl.Helper className="text-text-secondary text-xs">
+                                                            {(cadenceField.value || ReviewCadenceType.AUTOMATIC) === ReviewCadenceType.AUTOMATIC &&
+                                                                "Review every new push"}
+                                                            {(cadenceField.value || ReviewCadenceType.AUTOMATIC) === ReviewCadenceType.AUTO_PAUSE &&
+                                                                "Pause if a push burst is detected."}
+                                                            {(cadenceField.value || ReviewCadenceType.AUTOMATIC) === ReviewCadenceType.MANUAL &&
+                                                                "Only run when you comment @kody start‑review."}
+                                                        </FormControl.Helper>
+                                                    </FormControl.Root>
+                                                )}
+                                            />
+
+                                            {(form.watch("reviewCadence.type") || ReviewCadenceType.AUTOMATIC) === ReviewCadenceType.AUTO_PAUSE && (
+                                                <div className="flex flex-row gap-4">
+                                                    <Controller
+                                                        name="reviewCadence.pushesToTrigger"
+                                                        control={form.control}
+                                                        render={({ field: pushesField }) => (
+                                                            <FormControl.Root className="flex-1">
+                                                                <FormControl.Label htmlFor="pushes-to-trigger">
+                                                                    Pushes to trigger pause
+                                                                </FormControl.Label>
+                                                                <FormControl.Input>
+                                                                    <Input
+                                                                        id="pushes-to-trigger"
+                                                                        type="number"
+                                                                        min="1"
+                                                                        value={pushesField.value || 3}
+                                                                        onChange={(e) =>
+                                                                            pushesField.onChange(
+                                                                                parseInt(e.target.value) || 3,
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </FormControl.Input>
+                                                            </FormControl.Root>
+                                                        )}
+                                                    />
+
+                                                    <Controller
+                                                        name="reviewCadence.timeWindow"
+                                                        control={form.control}
+                                                        render={({ field: timeField }) => (
+                                                            <FormControl.Root className="flex-1">
+                                                                <FormControl.Label htmlFor="time-window">
+                                                                    Time window (minutes)
+                                                                </FormControl.Label>
+                                                                <FormControl.Input>
+                                                                    <Input
+                                                                        id="time-window"
+                                                                        type="number"
+                                                                        min="1"
+                                                                        value={timeField.value || 15}
+                                                                        onChange={(e) =>
+                                                                            timeField.onChange(
+                                                                                parseInt(e.target.value) || 15,
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                </FormControl.Input>
+                                                            </FormControl.Root>
+                                                        )}
+                                                    />
+                                                </div>
+                                            )}
                                         </div>
-
-                                        <Switch
-                                            decorative
-                                            checked={field.value}
-                                        />
-                                    </CardHeader>
-                                </Button>
+                                    )}
+                                </div>
                             )}
                         />
-
-                        <p className="text-text-secondary text-xs">
-                            When disabled, you can manually start the review by
-                            using the command{" "}
-                            <code className="bg-background text-text-primary mx-0.5 rounded-lg px-1.5 py-1">
-                                @kody start-review
-                            </code>{" "}
-                            in the Pull Request comments.
-                        </p>
                     </div>
 
                     <div className="flex flex-col gap-2">

@@ -197,6 +197,7 @@ export const codeReviewConfigRemovePropertiesNotInType = (
         "id",
         "name",
         "automatedReviewActive",
+        "reviewCadence",
         "baseBranches",
         "ignoredTitleKeywords",
         "ignorePaths",
