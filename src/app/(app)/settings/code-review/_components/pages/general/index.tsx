@@ -161,7 +161,9 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
         },
     });
 
-    const handleSubmit = form.handleSubmit(async ({ language, ...config }) => {
+        const handleSubmit = form.handleSubmit(async (formData) => {
+        const { language, ...config } = formData;
+
         try {
             const [languageResult, reviewResult] = await Promise.all([
                 createOrUpdateParameter(
@@ -381,9 +383,21 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                         size="sm"
                                         variant="helper"
                                         className="w-full"
-                                        onClick={() =>
-                                            field.onChange(!field.value)
-                                        }>
+                                        onClick={() => {
+                                            const newValue = !field.value;
+                                            field.onChange(newValue);
+
+                                            // Force form to detect changes when enabling review
+                                            if (newValue) {
+                                                // Get current reviewCadence or set default
+                                                const currentCadence = form.getValues("reviewCadence");
+                                                if (!currentCadence?.type) {
+                                                    form.setValue("reviewCadence.type", ReviewCadenceType.AUTOMATIC, { shouldDirty: true });
+                                                }
+                                                // Trigger revalidation
+                                                form.trigger();
+                                            }
+                                        }}>
                                         <CardHeader className="flex flex-row items-center justify-between gap-6">
                                             <div className="flex flex-col gap-1">
                                                 <Heading variant="h3">
