@@ -4,12 +4,6 @@ import { useMemo } from "react";
 import { useParams, usePathname } from "next/navigation";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleIndicator,
-    CollapsibleTrigger,
-} from "@components/ui/collapsible";
 import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
@@ -28,8 +22,6 @@ import {
     useSuspenseGetCodeReviewParameter,
     useSuspenseGetParameterPlatformConfigs,
 } from "@services/parameters/hooks";
-import { KodyLearningStatus } from "@services/parameters/types";
-import { Plus } from "lucide-react";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
 import {
@@ -37,6 +29,7 @@ import {
     PlatformConfigProvider,
 } from "./context";
 import { AddRepoModal } from "./pages/kody-rules/_components/addRepoModal";
+import { PerRepository } from "./per-repository";
 
 const routes = [
     { label: "General", href: "general" },
@@ -186,125 +179,14 @@ export const AutomationCodeReviewLayout = ({
                                     </SidebarMenuSub>
                                 </SidebarMenuItem>
 
-                                <SidebarMenuItem>
-                                    <div className="px-2 pb-2 font-semibold">
-                                        <div className="flex items-center justify-between">
-                                            <strong>Per repository</strong>
-
-                                            <Button
-                                                size="icon-sm"
-                                                variant="secondary"
-                                                onClick={addNewRepo}
-                                                disabled={
-                                                    platformConfig.configValue
-                                                        .kodyLearningStatus ===
-                                                    KodyLearningStatus.GENERATING_CONFIG
-                                                }>
-                                                <Plus />
-                                            </Button>
-                                        </div>
-                                        <span className="text-text-secondary mt-2 mb-2 block max-w-52">
-                                            Set custom configurations for each
-                                            repository (override global
-                                            defaults).
-                                        </span>
-                                    </div>
-
-                                    <div className="flex flex-col gap-1">
-                                        {configValue?.repositories
-                                            ?.filter(
-                                                (repository) =>
-                                                    repository.isSelected,
-                                            )
-                                            .map((repository) => {
-                                                const active = routes.some(
-                                                    ({ href }) =>
-                                                        repositoryParam ===
-                                                            repository.id &&
-                                                        pageNameParam === href,
-                                                );
-
-                                                return (
-                                                    <Collapsible
-                                                        key={repository.id}
-                                                        className="group/collapsible"
-                                                        defaultOpen={
-                                                            repositoryParam ===
-                                                            repository.id
-                                                        }>
-                                                        <CollapsibleTrigger
-                                                            asChild>
-                                                            <Button
-                                                                size="md"
-                                                                variant={
-                                                                    active
-                                                                        ? "helper"
-                                                                        : "cancel"
-                                                                }
-                                                                className="h-fit w-full justify-start py-2"
-                                                                active={active}
-                                                                leftIcon={
-                                                                    <CollapsibleIndicator className="group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
-                                                                }>
-                                                                {
-                                                                    repository.name
-                                                                }
-                                                            </Button>
-                                                        </CollapsibleTrigger>
-
-                                                        <CollapsibleContent className="group-data-[state=closed]/collapsible:animate-collapsible-up group-data-[state=open]/collapsible:animate-collapsible-down">
-                                                            <SidebarMenuSub>
-                                                                {routes.map(
-                                                                    ({
-                                                                        label,
-                                                                        href,
-                                                                    }) => {
-                                                                        const active =
-                                                                            repositoryParam ===
-                                                                                repository.id &&
-                                                                            pageNameParam ===
-                                                                                href;
-
-                                                                        return (
-                                                                            <SidebarMenuSubItem
-                                                                                className="flex flex-col gap-1"
-                                                                                key={
-                                                                                    label
-                                                                                }>
-                                                                                <Link
-                                                                                    href={`/settings/code-review/${repository.id}/${href}`}
-                                                                                    className="w-full">
-                                                                                    <Button
-                                                                                        key={
-                                                                                            label
-                                                                                        }
-                                                                                        decorative
-                                                                                        size="md"
-                                                                                        variant={
-                                                                                            active
-                                                                                                ? "helper"
-                                                                                                : "cancel"
-                                                                                        }
-                                                                                        active={
-                                                                                            active
-                                                                                        }
-                                                                                        className="w-full justify-start">
-                                                                                        {
-                                                                                            label
-                                                                                        }
-                                                                                    </Button>
-                                                                                </Link>
-                                                                            </SidebarMenuSubItem>
-                                                                        );
-                                                                    },
-                                                                )}
-                                                            </SidebarMenuSub>
-                                                        </CollapsibleContent>
-                                                    </Collapsible>
-                                                );
-                                            })}
-                                    </div>
-                                </SidebarMenuItem>
+                                <PerRepository
+                                    routes={routes}
+                                    addNewRepo={addNewRepo}
+                                    configValue={configValue}
+                                    pageNameParam={pageNameParam}
+                                    repositoryParam={repositoryParam}
+                                    platformConfig={platformConfig}
+                                />
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>
