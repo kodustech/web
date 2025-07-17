@@ -6,19 +6,19 @@ import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team
 import { SelectRepositoriesModal } from "../../_components/_modals/select-repositories-modal";
 
 const providers = {
-    "azure-repos": {
+    azure_repos: {
         readableName: "Azure Repos",
         segmentKey: "azure_repos",
     },
-    "github": {
+    github: {
         readableName: "Github",
         segmentKey: "github",
     },
-    "gitlab": {
+    gitlab: {
         readableName: "Gitlab",
         segmentKey: "gitlab",
     },
-    "bitbucket": {
+    bitbucket: {
         readableName: "Bitbucket",
         segmentKey: "bitbucket",
     },
