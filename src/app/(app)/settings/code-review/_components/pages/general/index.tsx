@@ -125,11 +125,11 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
             ...config,
             language,
             automatedReviewActive: config?.automatedReviewActive ?? false,
-            reviewCadence: config?.reviewCadence ?? {
+            reviewCadence: config?.reviewCadence ?? (config?.automatedReviewActive ? {
                 type: ReviewCadenceType.AUTOMATIC,
                 timeWindow: 15,
                 pushesToTrigger: 3,
-            },
+            } : undefined),
             ignorePaths: config?.ignorePaths ?? [],
             ignoredTitleKeywords: config?.ignoredTitleKeywords ?? [],
             baseBranches: config?.baseBranches ?? [],
@@ -161,8 +161,13 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
         },
     });
 
-        const handleSubmit = form.handleSubmit(async (formData) => {
+            const handleSubmit = form.handleSubmit(async (formData) => {
         const { language, ...config } = formData;
+
+        // Remove reviewCadence when automation is disabled
+        if (!formData.automatedReviewActive) {
+            delete config.reviewCadence;
+        }
 
         try {
             const [languageResult, reviewResult] = await Promise.all([
@@ -383,18 +388,20 @@ export const General = (props: AutomationCodeReviewConfigPageProps) => {
                                         size="sm"
                                         variant="helper"
                                         className="w-full"
-                                        onClick={() => {
+                                                                                onClick={() => {
                                             const newValue = !field.value;
                                             field.onChange(newValue);
 
-                                            // Force form to detect changes when enabling review
                                             if (newValue) {
-                                                // Get current reviewCadence or set default
+                                                // Enabling automation - set default reviewCadence
                                                 const currentCadence = form.getValues("reviewCadence");
                                                 if (!currentCadence?.type) {
                                                     form.setValue("reviewCadence.type", ReviewCadenceType.AUTOMATIC, { shouldDirty: true });
                                                 }
-                                                // Trigger revalidation
+                                                form.trigger();
+                                            } else {
+                                                // Disabling automation - clear reviewCadence
+                                                form.setValue("reviewCadence", undefined, { shouldDirty: true });
                                                 form.trigger();
                                             }
                                         }}>
