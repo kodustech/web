@@ -69,12 +69,25 @@ type SuggestionControlConfig = {
     };
 };
 
+export enum ReviewCadenceType {
+    AUTOMATIC = 'automatic',
+    MANUAL = 'manual',
+    AUTO_PAUSE = 'auto_pause',
+}
+
+export type ReviewCadence = {
+    type: ReviewCadenceType;
+    timeWindow?: number;
+    pushesToTrigger?: number;
+}
+
 export type CodeReviewGlobalConfig = {
     ignorePaths: string[];
     baseBranches: string[];
     reviewOptions: CodeReviewOptions;
     ignoredTitleKeywords: string[];
     automatedReviewActive: boolean;
+    reviewCadence?: ReviewCadence;
     summary: CodeReviewSummary;
     suggestionControl?: SuggestionControlConfig;
     pullRequestApprovalActive: boolean;
