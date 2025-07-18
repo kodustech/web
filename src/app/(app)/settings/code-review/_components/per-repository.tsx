@@ -34,6 +34,7 @@ export const PerRepository = ({
     repositoryParam,
     platformConfig,
     pageNameParam,
+    teamId,
 }: {
     addNewRepo: () => void;
     configValue: AutomationCodeReviewConfigType;
@@ -41,6 +42,7 @@ export const PerRepository = ({
     repositoryParam: string | undefined;
     platformConfig: ReturnType<typeof useSuspenseGetParameterPlatformConfigs>;
     routes: Array<{ label: string; href: string }>;
+    teamId: string;
 }) => {
     return (
         <SidebarMenuItem>
@@ -117,6 +119,7 @@ export const PerRepository = ({
                                                                 id: repository.id,
                                                                 name: repository.name,
                                                             }}
+                                                            teamId={teamId}
                                                         />
                                                     ));
                                                 }}>

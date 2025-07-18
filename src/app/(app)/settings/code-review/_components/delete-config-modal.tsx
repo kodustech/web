@@ -10,16 +10,23 @@ import {
     DialogTitle,
 } from "@components/ui/dialog";
 import { magicModal } from "@components/ui/magic-modal";
+import { toast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { useTimeout } from "@hooks/use-timeout";
+import { deleteRepositoryCodeReviewParameter } from "@services/parameters/fetch";
+import { PARAMETERS_PATHS } from "@services/parameters";
+import { generateQueryKey } from "src/core/utils/reactQuery";
+import { ParametersConfigKey } from "@services/parameters/types";
 
 import type { CodeReviewRepositoryConfig } from "./pages/types";
 
 export const DeleteRepoConfigModal = ({
     repository,
+    teamId,
 }: {
     repository: Pick<CodeReviewRepositoryConfig, "id" | "name">;
+    teamId: string;
 }) => {
     const [enabled, setEnabled] = useState(false);
     const { invalidateQueries } = useReactQueryInvalidateQueries();
@@ -29,25 +36,45 @@ export const DeleteRepoConfigModal = ({
     }, 5000);
 
     const [handleSubmit, { loading }] = useAsyncAction(async () => {
+        if (!teamId) {
+            toast({
+                title: "Erro",
+                description: "ID do time não encontrado. Tente recarregar a página.",
+                variant: "danger",
+            });
+            return;
+        }
+
         try {
             magicModal.lock();
-            // TODO: do something using `repository.id`
-        } catch {
-            // TODO: handle error if needed
+
+            await deleteRepositoryCodeReviewParameter(teamId, repository.id);
+
+            await invalidateQueries({
+                type: "all",
+                queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
+                    params: {
+                        key: ParametersConfigKey.CODE_REVIEW_CONFIG,
+                        teamId,
+                    },
+                }),
+            });
+        } catch (error: any) {
+            console.error("Erro completo:", error);
+
+            const errorMessage =
+                error?.response?.data?.message ||
+                error?.message ||
+                "Não foi possível deletar a configuração do repositório. Tente novamente.";
+
+            toast({
+                title: "Erro ao deletar configuração",
+                description: errorMessage,
+                variant: "danger",
+            });
         } finally {
             magicModal.hide(true);
         }
-
-        // TODO: invalidate queries if needed
-        // await invalidateQueries({
-        //     type: "all",
-        //     queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
-        //         params: {
-        //             key: ParametersConfigKey.CODE_REVIEW_CONFIG,
-        //             teamId,
-        //         },
-        //     }),
-        // });
     });
 
     return (

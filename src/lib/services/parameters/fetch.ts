@@ -142,3 +142,19 @@ export const generateCodeReviewParameter = async (
         return { error: error.response?.status || "Erro desconhecido" };
     }
 };
+
+export const deleteRepositoryCodeReviewParameter = async (
+    teamId: string,
+    repositoryId: string,
+) => {
+    try {
+        const response = await axiosAuthorized.post<any>(
+            PARAMETERS_PATHS.DELETE_REPOSITORY_CODE_REVIEW_PARAMETER,
+            { teamId, repositoryId },
+        );
+
+        return response.data;
+    } catch (error: any) {
+        throw error; // Re-throw para ser capturado no modal
+    }
+};

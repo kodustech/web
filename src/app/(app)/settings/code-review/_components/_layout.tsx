@@ -186,6 +186,7 @@ export const AutomationCodeReviewLayout = ({
                                     pageNameParam={pageNameParam}
                                     repositoryParam={repositoryParam}
                                     platformConfig={platformConfig}
+                                    teamId={teamId}
                                 />
                             </SidebarMenu>
                         </SidebarGroupContent>
