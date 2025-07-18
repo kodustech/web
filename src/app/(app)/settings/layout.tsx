@@ -7,6 +7,7 @@ import { AutomationCodeReviewLayout } from "./code-review/_components/_layout";
 
 export const metadata = {
     title: "Code Review Settings",
+    openGraph: { title: "Code Review Settings" },
 };
 
 export default async function Layout({ children }: React.PropsWithChildren) {
