@@ -21,4 +21,7 @@ export const PARAMETERS_PATHS = {
     GENERATE_CODE_REVIEW_PARAMETER: pathToApiUrl(
         "/parameters/generate-code-review-parameter",
     ),
+    DELETE_REPOSITORY_CODE_REVIEW_PARAMETER: pathToApiUrl(
+        "/parameters/delete-repository-code-review-parameter",
+    ),
 } as const;
