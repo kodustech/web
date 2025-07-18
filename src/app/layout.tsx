@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { DM_Sans, Overpass_Mono } from "next/font/google";
 import Script from "next/script";
 import { OptinMonsterRouteChangeListener } from "@components/system/optinmonster-route-change-listener";
@@ -21,14 +22,20 @@ const overpass_mono = Overpass_Mono({
     preload: true,
 });
 
-export const metadata = {
+export const metadata: Metadata = {
     title: {
-        default: "Kodus AI",
-        template: "%s | Kodus AI",
+        default: "Kodus",
+        template: "%s | Kodus",
     },
-    icons: {
-        icon: "/favicon.ico",
-        shortcut: "/favicon-16x16.png",
+    icons: { icon: "/favicon.ico" },
+    openGraph: {
+        locale: "en_US",
+        type: "website",
+        siteName: "Kodus",
+        title: {
+            default: "Kodus",
+            template: "%s | Kodus",
+        },
     },
 };
 
