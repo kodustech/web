@@ -14,7 +14,7 @@ import { toast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { useTimeout } from "@hooks/use-timeout";
-import { deleteRepositoryCodeReviewParameter } from "@services/parameters/fetch";
+import { deleteRepositoryCodeReviewParameter, updateCodeReviewParameterRepositories } from "@services/parameters/fetch";
 import { PARAMETERS_PATHS } from "@services/parameters";
 import { generateQueryKey } from "src/core/utils/reactQuery";
 import { ParametersConfigKey } from "@services/parameters/types";
@@ -49,6 +49,7 @@ export const DeleteRepoConfigModal = ({
             magicModal.lock();
 
             await deleteRepositoryCodeReviewParameter(teamId, repository.id);
+            await updateCodeReviewParameterRepositories(teamId);
 
             await invalidateQueries({
                 type: "all",
