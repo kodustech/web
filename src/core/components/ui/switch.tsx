@@ -58,7 +58,7 @@ const Switch = React.forwardRef<
                 )}>
                 {loading && (
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <Spinner className="text-card-lv2 fill-card-lv2/20" />
+                        <Spinner className="text-card-lv2 fill-card-lv2/50" />
                     </div>
                 )}
             </SwitchPrimitives.Thumb>

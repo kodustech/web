@@ -3,7 +3,7 @@ import { cn } from "src/core/utils/components";
 
 type Props = React.ComponentProps<"h1"> & VariantProps<typeof headingVariants>;
 
-const headingVariants = cva("font-semibold", {
+const headingVariants = cva("font-semibold text-text-primary", {
     variants: {
         variant: {
             h1: "text-2xl",
