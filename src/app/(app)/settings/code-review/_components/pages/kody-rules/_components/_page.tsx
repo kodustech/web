@@ -25,7 +25,6 @@ import { useSuspenseFindLibraryKodyRules } from "@services/kodyRules/hooks";
 import { type KodyRule } from "@services/kodyRules/types";
 import { KodyLearningStatus } from "@services/parameters/types";
 import { BellRing, Plus } from "lucide-react";
-import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { SeverityLevel } from "src/core/types";
 import { revalidateServerSideTag } from "src/core/utils/revalidate-server-side";
 
@@ -41,12 +40,10 @@ import {
     GroupingModeSuggestions,
     LimitationType,
 } from "../../types";
-import { GenerateRulesButton } from "./generate-rules";
 import { KodyRuleItem } from "./item";
 import { KodyRuleAddOrUpdateItemModal } from "./modal";
 import { PendingKodyRulesModal } from "./pending-rules-modal";
 import { KodyRulesRepoFollowsGlobalRulesModal } from "./repo-global-rules-modal";
-import { SyncAndGenerateRules } from "./sync-and-generate-rules";
 
 export const KodyRulesPage = ({
     kodyRules,
@@ -59,7 +56,6 @@ export const KodyRulesPage = ({
     pendingRules: KodyRule[];
 }) => {
     const platformConfig = usePlatformConfig();
-    const { teamId } = useSelectedTeamId();
     const router = useRouter();
     const config = useAutomationCodeReviewConfig(repositoryId);
     const [filterQuery, setFilterQuery] = useState("");
@@ -189,13 +185,6 @@ export const KodyRulesPage = ({
 
                     <div className="flex items-center justify-end">
                         <Page.HeaderActions>
-                            {repositoryId !== "global" && config && (
-                                <GenerateRulesButton
-                                    config={newConfig}
-                                    repositoryId={repositoryId}
-                                    teamId={teamId}
-                                />
-                            )}
                             <Link href="/library/kody-rules">
                                 <Button
                                     size="md"
@@ -257,8 +246,6 @@ export const KodyRulesPage = ({
             </Page.Header>
 
             <Page.Content>
-                <SyncAndGenerateRules />
-
                 <div className="flex flex-col gap-4">
                     {kodyRules?.length === 0 ? (
                         <div className="mt-4 flex min-h-[540px] flex-col gap-2">
