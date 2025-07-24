@@ -55,6 +55,16 @@ const DialogContent = React.forwardRef<
 >(({ className, children, ...props }, ref) => {
     const { closeable } = useMagicModalState();
 
+    React.useLayoutEffect(() => {
+        return () => {
+            const timeout = setTimeout(() => {
+                document.body.style.pointerEvents = "";
+                document.body.style.overflow = "";
+                clearTimeout(timeout);
+            }, 300);
+        };
+    }, []);
+
     return (
         <DialogPortal>
             <DialogOverlay />
