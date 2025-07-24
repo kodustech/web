@@ -84,13 +84,23 @@ export function createUrl(
     hostName?: string,
     port?: string,
     path?: string,
+    options?: {
+        containerName?: string;
+    },
 ): string {
     let protocol: string;
     let finalPort: string;
 
+    const defaultOptions = {
+        containerName,
+    };
+    const config = { ...defaultOptions, ...options };
+
     if (
         isProduction() ||
-        (isSelfHosted && hostName !== "localhost" && hostName !== containerName)
+        (isSelfHosted &&
+            hostName !== "localhost" &&
+            hostName !== config.containerName)
     ) {
         // Cases: Production OR (SelfHosted with a specific domain)
         protocol = "https";
