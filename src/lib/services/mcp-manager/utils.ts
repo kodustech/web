@@ -41,7 +41,9 @@ export const mcpManagerFetch = async <Data>(
     }
 
     const port = process.env.WEB_PORT_MCP_MANAGER;
-    const url = createUrl(hostName, port, _url.toString());
+    const url = createUrl(hostName, port, _url.toString(), {
+        containerName: hostName,
+    });
 
     const urlWithParams =
         searchParams.size > 0 ? `${url}?${searchParams.toString()}` : url;
