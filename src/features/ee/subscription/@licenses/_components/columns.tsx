@@ -46,6 +46,7 @@ export const columns: ColumnDef<Type>[] = [
                             codeManagementConnection?.platformName.toLowerCase()!,
                         licenseStatus,
                     },
+                    userName: row.original.name,
                 });
             });
 
