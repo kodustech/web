@@ -81,6 +81,11 @@ export const assignOrDeassignUserLicense = async (params: {
         gitTool: string;
         licenseStatus: "active" | "inactive";
     };
+    currentUser?: {
+        userId?: string;
+        email?: string;
+    };
+    userName?: string;
 }) => {
     const organizationId = await getOrganizationId();
 
@@ -93,6 +98,8 @@ export const assignOrDeassignUserLicense = async (params: {
             organizationId,
             teamId: params.teamId,
             users: [params.user],
+            editedBy: params.currentUser,
+            userName: params.userName,
         }),
     });
 };
