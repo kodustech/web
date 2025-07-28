@@ -44,6 +44,7 @@ import { KodyRuleItem } from "./item";
 import { KodyRuleAddOrUpdateItemModal } from "./modal";
 import { PendingKodyRulesModal } from "./pending-rules-modal";
 import { KodyRulesRepoFollowsGlobalRulesModal } from "./repo-global-rules-modal";
+import { SyncAndGenerateRules } from "./sync-and-generate-rules";
 
 export const KodyRulesPage = ({
     kodyRules,
@@ -246,6 +247,13 @@ export const KodyRulesPage = ({
             </Page.Header>
 
             <Page.Content>
+                {repositoryId !== "global" && (
+                    <SyncAndGenerateRules
+                        config={newConfig}
+                        repositoryId={repositoryId}
+                    />
+                )}
+
                 <div className="flex flex-col gap-4">
                     {kodyRules?.length === 0 ? (
                         <div className="mt-4 flex min-h-[540px] flex-col gap-2">
