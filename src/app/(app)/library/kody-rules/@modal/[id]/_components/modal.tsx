@@ -217,7 +217,9 @@ export const KodyRuleLibraryItemModal = ({
                 <DialogFooter className="justify-between gap-8">
                     <div className="flex flex-wrap items-center justify-start gap-1">
                         {rule.tags.map((tag) => (
-                            <Badge key={tag} className="h-2 px-2.5 font-normal">
+                            <Badge
+                                key={tag}
+                                className="pointer-events-none h-2 px-2.5 font-normal">
                                 {tag}
                             </Badge>
                         ))}

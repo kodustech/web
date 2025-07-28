@@ -179,7 +179,7 @@ export const InviteModal = ({
                                     <Badge
                                         key={email}
                                         variant="helper"
-                                        className="gap-1"
+                                        className="pointer-events-none gap-1"
                                         rightIcon={
                                             <Button
                                                 size="icon-xs"

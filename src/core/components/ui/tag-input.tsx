@@ -55,9 +55,7 @@ const TagInput: React.FC<TagInputProps> = ({
                     <Badge
                         className="absolute top-1/2 right-2 -translate-y-1/2"
                         leftIcon={<Plus className="size-3" />}
-                        onClick={() => {
-                            addTag(inputValue);
-                        }}>
+                        onClick={() => addTag(inputValue)}>
                         Add item
                     </Badge>
                 )}
