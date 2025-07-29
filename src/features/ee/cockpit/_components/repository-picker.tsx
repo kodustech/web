@@ -39,11 +39,9 @@ export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
         }
     });
 
-    const selectedRepo = repositories.find(r => r.name === selectedRepository);
-
-    const handleSelect = (repositoryName: string) => {
-        setSelectedRepository(repositoryName);
-        setCockpitRepositoryCookie(repositoryName);
+    const handleSelect = (repositoryFullName: string) => {
+        setSelectedRepository(repositoryFullName);
+        setCockpitRepositoryCookie(repositoryFullName);
         setOpen(false);
     };
 
@@ -64,7 +62,7 @@ export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
                     className="w-64 justify-start">
                     {selectedRepository ? (
                         <span className="truncate">
-                            {selectedRepo?.organizationName}/{selectedRepository}
+                            {selectedRepository}
                         </span>
                     ) : (
                         <span className="text-text-secondary">
@@ -78,13 +76,13 @@ export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
                 <Command
                     filter={(value, search) => {
                         const repository = repositories.find(
-                            (r) => r.name === value,
+                            (r) => r.full_name === value,
                         );
 
                         if (!repository) return 0;
 
                         if (
-                            repository.name
+                            repository.full_name
                                 .toLowerCase()
                                 .includes(search.toLowerCase()) ||
                             repository.organizationName
@@ -122,15 +120,12 @@ export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
                             {repositories.map((r) => (
                                 <CommandItem
                                     key={r.id}
-                                    value={r.name}
-                                    onSelect={() => handleSelect(r.name)}>
+                                    value={r.full_name}
+                                    onSelect={() => handleSelect(r.full_name)}>
                                     <span>
-                                        <span className="text-text-secondary">
-                                            {r.organizationName}/
-                                        </span>
-                                        {r.name}
+                                        {r.full_name}
                                     </span>
-                                    {selectedRepository === r.name && (
+                                    {selectedRepository === r.full_name && (
                                         <Check className="text-primary-light -mr-2 size-5" />
                                     )}
                                 </CommandItem>

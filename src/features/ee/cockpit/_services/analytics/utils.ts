@@ -25,17 +25,12 @@ export const analyticsFetch = async <Data>(
     let hostName = process.env.WEB_ANALYTICS_HOSTNAME;
     let port = process.env.WEB_PORT_ANALYTICS;
 
-    console.log("hostName", hostName);
-    console.log("isServerSide", isServerSide);
-
     // if 'true' we are in the server and hostname is not a domain
     if (isServerSide && hostName === "localhost") {
         hostName =
             process.env.GLOBAL_ANALYTICS_CONTAINER_NAME ||
             "kodus-analytics-service";
     }
-
-    console.log("hostName", hostName);
 
     const params = {
         ...options.params,
@@ -46,8 +41,6 @@ export const analyticsFetch = async <Data>(
     const finalUrl = createUrl(`${hostName}`, port, `/api${url}`, {
         containerName: hostName,
     });
-
-    console.log("finalUrl", finalUrl);
 
     try {
         return await typedFetch<Data>(finalUrl, {
