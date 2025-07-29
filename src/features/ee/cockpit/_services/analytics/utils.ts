@@ -1,13 +1,19 @@
 import { typedFetch } from "@services/fetch";
 import { getOrganizationId } from "@services/organizations/fetch";
+import { createUrl } from "src/core/utils/helpers";
+import { isServerSide } from "src/core/utils/server-side";
 
 import type { PercentageDiff } from "../../_components/percentage-diff";
+import { getSelectedRepository } from "../../_helpers/get-selected-repository";
 
 export const analyticsFetch = async <Data>(
     url: `/${string}`,
     options: Parameters<typeof typedFetch>["1"] = {},
 ) => {
-    const organizationId = await getOrganizationId();
+    const [organizationId, selectedRepository] = await Promise.all([
+        getOrganizationId(),
+        getSelectedRepository(),
+    ]);
 
     if (!process.env.WEB_ANALYTICS_SECRET) {
         console.warn(
@@ -16,21 +22,44 @@ export const analyticsFetch = async <Data>(
         return null as Data;
     }
 
+    let hostName = process.env.WEB_ANALYTICS_HOSTNAME;
+    let port = process.env.WEB_PORT_ANALYTICS;
+
+    console.log("hostName", hostName);
+    console.log("isServerSide", isServerSide);
+
+    // if 'true' we are in the server and hostname is not a domain
+    if (isServerSide && hostName === "localhost") {
+        hostName =
+            process.env.GLOBAL_ANALYTICS_CONTAINER_NAME ||
+            "kodus-analytics-service";
+    }
+
+    console.log("hostName", hostName);
+
+    const params = {
+        ...options.params,
+        organizationId,
+        ...(selectedRepository && { repository: selectedRepository }),
+    };
+
+    const finalUrl = createUrl(`${hostName}`, port, `/api${url}`, {
+        containerName: hostName,
+    });
+
+    console.log("finalUrl", finalUrl);
+
     try {
-        return await typedFetch<Data>(
-            `${process.env.WEB_ANALYTICS_HOSTNAME}/api/${url}`,
-            {
-                ...options,
-                params: { ...options.params, organizationId },
-                headers: {
-                    ...options?.headers,
-                    "x-api-key": process.env.WEB_ANALYTICS_SECRET,
-                },
+        return await typedFetch<Data>(finalUrl, {
+            ...options,
+            params,
+            headers: {
+                ...options?.headers,
+                "x-api-key": process.env.WEB_ANALYTICS_SECRET,
             },
-        );
+        });
     } catch (error) {
         if (error instanceof Error) {
-            // Avoid throwing errors that could cause unwanted redirects
             console.error(`Analytics request failed: ${error.message}`);
             return null as Data;
         }

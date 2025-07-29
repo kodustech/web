@@ -9,6 +9,7 @@ import { greeting } from "src/core/utils/helpers";
 
 import { validateOrganizationLicense } from "../subscription/_services/billing/fetch";
 import { DateRangePicker } from "./_components/date-range-picker";
+import { RepositoryPicker } from "./_components/repository-picker";
 import { CockpitNoDataBanner } from "./_components/no-data-banner";
 import { tabs, type TabValue } from "./_constants";
 import { getAnalyticsStatus } from "./_services/analytics/fetch";
@@ -69,6 +70,10 @@ export default async function Layout({
     const dateRangeCookieValue = cookieStore.get(
         "cockpit-selected-date-range" satisfies CookieName,
     )?.value;
+    
+    const repositoryCookieValue = cookieStore.get(
+        "cockpit-selected-repository" satisfies CookieName,
+    )?.value;
 
     const hasJIRAConnected =
         connections?.find(
@@ -86,6 +91,12 @@ export default async function Layout({
 
             <Page.Header className="max-w-(--breakpoint-xl)">
                 <Page.Title>{greeting()}</Page.Title>
+                <div className="ml-auto">
+                    <RepositoryPicker
+                        cookieValue={repositoryCookieValue}
+                        teamId={selectedTeamId}
+                    />
+                </div>
             </Page.Header>
 
             <Page.Content className="max-w-(--breakpoint-xl)">
