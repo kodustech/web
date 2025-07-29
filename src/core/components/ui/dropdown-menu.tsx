@@ -38,7 +38,7 @@ const DropdownMenuContent = React.forwardRef<
             ref={ref}
             sideOffset={sideOffset}
             className={cn(
-                "bg-card-lv2 border-card-lv3 z-50 mt-1 overflow-hidden rounded-xl border-1 p-1 shadow-md backdrop-blur-2xl",
+                "bg-card-lv2 border-card-lv3 z-50 mt-1 flex flex-col gap-1 overflow-hidden rounded-xl border-1 p-1 shadow-md backdrop-blur-2xl *:w-full",
                 "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
                 className,
             )}

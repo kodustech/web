@@ -1,4 +1,3 @@
-import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { atomDark } from "react-syntax-highlighter/dist/cjs/styles/prism";
 import type { ProgrammingLanguage } from "src/core/enums/programming-language";
@@ -38,27 +37,16 @@ export const SyntaxHighlight: React.FC<{
 
     return (
         <div className={cn("text-sm", props.className)}>
-            <ReactMarkdown
-                components={{
-                    code: ({ node, children, ...componentProps }) => (
-                        // @ts-expect-error
-                        <SyntaxHighlighter
-                            {...componentProps}
-                            style={atomDark}
-                            customStyle={customStyle}
-                            codeTagProps={{
-                                className: "**:font-mono",
-                                style: {
-                                    whiteSpace: "break-spaces",
-                                },
-                            }}
-                            language={language}>
-                            {String(children).replace(/\n$/, "")}
-                        </SyntaxHighlighter>
-                    ),
+            <SyntaxHighlighter
+                style={atomDark}
+                language={language}
+                customStyle={customStyle}
+                codeTagProps={{
+                    className: "**:font-mono",
+                    style: { whiteSpace: "break-spaces" },
                 }}>
-                {"".concat("```\n", props.children ?? "", "\n```")}
-            </ReactMarkdown>
+                {props.children?.replace(/\n$/, "") ?? ""}
+            </SyntaxHighlighter>
         </div>
     );
 };

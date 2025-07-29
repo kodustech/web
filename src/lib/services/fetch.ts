@@ -2,14 +2,16 @@ import { redirect } from "next/navigation";
 import { auth } from "src/core/config/auth";
 
 export class TypedFetchError extends Error {
-    statusCode!: number;
-    statusText!: string;
+    statusCode: number;
+    statusText: string;
+    url: string;
 
-    constructor(statusCode: number, statusText: string) {
-        super(`Erro na requisição: ${statusCode} ${statusText}`);
+    constructor(statusCode: number, statusText: string, url: string) {
+        super(`Request error: ${statusCode} ${statusText} in URL: ${url}`);
         this.name = "TypedFetchError";
         this.statusCode = statusCode;
         this.statusText = statusText;
+        this.url = url;
     }
 }
 
@@ -45,7 +47,9 @@ export const typedFetch = async <Data>(
         ),
     );
     const urlWithParams =
-        searchParams.size > 0 ? `${url}?${searchParams.toString()}` : url;
+        searchParams.size > 0
+            ? `${url}?${searchParams.toString()}`
+            : url.toString();
 
     const response = await fetch(urlWithParams, {
         ...paramsRest,
@@ -60,7 +64,11 @@ export const typedFetch = async <Data>(
 
     if (!response.ok) {
         if (response.status === 401) redirect("/sign-out");
-        throw new TypedFetchError(response.status, response.statusText);
+        throw new TypedFetchError(
+            response.status,
+            response.statusText,
+            urlWithParams,
+        );
     }
 
     try {

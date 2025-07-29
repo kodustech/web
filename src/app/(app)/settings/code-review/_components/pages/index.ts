@@ -1,3 +1,4 @@
+import { CustomMessages } from "./custom-messages";
 import { General } from "./general";
 import { KodyRules } from "./kody-rules";
 import { PRSummary } from "./pr-summary";
@@ -9,6 +10,7 @@ export default {
     "suggestion-control": SuggestionControl,
     "pr-summary": PRSummary,
     "kody-rules": KodyRules,
+    "custom-messages": CustomMessages,
 } satisfies Record<
     string,
     (
