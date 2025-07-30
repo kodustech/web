@@ -13,7 +13,7 @@ import {
 } from "@components/ui/dialog";
 import { Separator } from "@components/ui/separator";
 import { format } from "date-fns";
-import { ptBR } from "date-fns/locale";
+import { enUS } from "date-fns/locale";
 import type { UserLog } from "@services/userLogs/types";
 
 interface LogDetailsModalProps {
@@ -54,71 +54,49 @@ export const LogDetailsModal = ({ log, children }: LogDetailsModalProps) => {
                         </Badge>
                         Log Details
                     </DialogTitle>
-                    <DialogDescription>
-                        Detailed information about this activity log entry.
-                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-6">
                     <div>
-                        <h4 className="font-semibold mb-2">Basic Information</h4>
-                        <div className="space-y-2 text-sm">
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">User:</span>
+                        <h4 className="font-bold mb-4 mt-5">Basic Information</h4>
+                        <div className="space-y-2 text-sm flex flex-col gap-2">
+                            <div className="flex justify-between border-b-1 border-b-card-lv2 pb-2">
+                                <span className="text-muted-foreground font-semibold">User</span>
                                 <span className="font-medium">{log._userInfo.userEmail}</span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">Level:</span>
+                            <div className="flex justify-between border-b-1 border-b-card-lv2 pb-2 align-middle">
+                                <span className="text-muted-foreground font-semibold">Level</span>
                                 <Badge variant="helper" className="capitalize">
                                     {log._configLevel}
                                 </Badge>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">Created:</span>
-                                <span>{format(new Date(log._createdAt), "PPP 'at' p", { locale: ptBR })}</span>
+                            <div className="flex justify-between border-b-1 border-b-card-lv2 pb-2">
+                                <span className="text-muted-foreground font-semibold">Created</span>
+                                <span>{format(new Date(log._createdAt), "PPP 'at' p", { locale: enUS })}</span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-muted-foreground">Updated:</span>
-                                <span>{format(new Date(log._updatedAt), "PPP 'at' p", { locale: ptBR })}</span>
+                            <div className="flex justify-between border-b-1 border-b-card-lv2 pb-2">
+                                <span className="text-muted-foreground font-semibold">Updated</span>
+                                <span>{format(new Date(log._updatedAt), "PPP 'at' p", { locale: enUS })}</span>
                             </div>
                         </div>
                     </div>
 
-                    <Separator />
-
                     <div>
-                        <h4 className="font-semibold mb-2">Changes</h4>
+                        <h4 className="font-bold mb-3">Changes</h4>
                         <div className="space-y-4">
                             {log._changedData.map((change, index) => (
                                 <div key={index} className="border rounded-lg p-4 space-y-3">
                                     <div className="flex helper-center gap-2">
-                                        <Badge variant="secondary">
+                                        <Badge variant="helper">
                                             {change.actionDescription}
                                         </Badge>
                                     </div>
 
                                     <div>
-                                        <p className="text-sm text-muted-foreground mb-2">Description:</p>
+                                        <p className="text-sm text-muted-foreground font-semibold mb-2">Description</p>
                                         <p className="text-sm">{change.description}</p>
                                     </div>
 
-                                    {change.previousValue && (
-                                        <div>
-                                            <p className="text-sm text-muted-foreground mb-1">Previous Value:</p>
-                                            <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
-                                                {JSON.stringify(change.previousValue, null, 2)}
-                                            </pre>
-                                        </div>
-                                    )}
-
-                                    {change.currentValue && (
-                                        <div>
-                                            <p className="text-sm text-muted-foreground mb-1">Current Value:</p>
-                                            <pre className="text-xs bg-muted p-2 rounded overflow-x-auto">
-                                                {JSON.stringify(change.currentValue, null, 2)}
-                                            </pre>
-                                        </div>
-                                    )}
                                 </div>
                             ))}
                         </div>
