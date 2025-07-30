@@ -198,9 +198,7 @@ export const IssueDetailsRightSheet = ({
 
                 <SheetHeader>
                     <SheetTitle>
-                        <Markdown className="*:font-bold">
-                            {issue.title}
-                        </Markdown>
+                        <Markdown className="font-bold">{issue.title}</Markdown>
                     </SheetTitle>
 
                     <SheetDescription>Opened {issue.age}</SheetDescription>
@@ -269,7 +267,7 @@ export const IssueDetailsRightSheet = ({
                                 .map((p, i) => (
                                     <Markdown
                                         key={i}
-                                        className="text-text-secondary text-sm">
+                                        className="text-text-secondary">
                                         {/* splitted string cut a `. ` in the end of each part */}
                                         {p.endsWith("..") || !p.endsWith(".")
                                             ? `${p}.`
