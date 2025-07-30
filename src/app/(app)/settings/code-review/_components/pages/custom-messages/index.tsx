@@ -2,6 +2,10 @@ import { getOrganizationId } from "@services/organizations/fetch";
 import { getPullRequestMessages } from "@services/pull-request-messages/fetch";
 
 import type { AutomationCodeReviewConfigPageProps } from "../types";
+import {
+    DEFAULT_END_REVIEW_MESSAGE,
+    DEFAULT_START_REVIEW_MESSAGE,
+} from "./_components/options";
 import { CustomMessagesTabs } from "./_components/tabs";
 
 export const CustomMessages = async (
@@ -17,8 +21,14 @@ export const CustomMessages = async (
     pullRequestMessages ??= {
         uuid: undefined as any,
         repositoryId: props.repositoryId,
-        startReviewMessage: { content: "", status: "inactive" },
-        endReviewMessage: { content: "", status: "inactive" },
+        startReviewMessage: {
+            content: DEFAULT_START_REVIEW_MESSAGE,
+            status: "active",
+        },
+        endReviewMessage: {
+            content: DEFAULT_END_REVIEW_MESSAGE,
+            status: "active",
+        },
     };
 
     return (

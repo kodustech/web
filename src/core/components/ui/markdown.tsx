@@ -26,7 +26,15 @@ export const Markdown = (props: Props) => {
 
     return (
         <MarkdownToJSX
-            className={cn("text-sm", props.className)}
+            className={cn(
+                "text-sm",
+                "*:mb-4",
+                "*:first-child:mt-0",
+                "[&_li>span]:mt-4",
+                "[&_summary]:cursor-pointer",
+                "[&_blockquote]:mb-4 [&_details]:mb-4 [&_dl]:mb-4 [&_ol]:mb-4 [&_pre]:mb-4 [&_span]:mb-4 [&_table]:mb-4 [&_ul]:mb-4",
+                props.className,
+            )}
             options={{
                 ...props.options,
                 overrides: {
@@ -35,7 +43,7 @@ export const Markdown = (props: Props) => {
                         <code
                             {...props}
                             className={cn(
-                                "bg-card-lv2 text-text-primary rounded-lg px-1 py-0.5 leading-0 whitespace-break-spaces",
+                                "bg-card-lv1 text-text-primary rounded-lg px-1 py-0.5 leading-0 whitespace-break-spaces",
                                 props.className,
                             )}
                         />
@@ -43,7 +51,10 @@ export const Markdown = (props: Props) => {
                     p: (props) => (
                         <span
                             {...props}
-                            className={cn("leading-relaxed", props.className)}
+                            className={cn(
+                                "block leading-relaxed",
+                                props.className,
+                            )}
                         />
                     ),
                     a: (props) => (
@@ -61,7 +72,9 @@ export const Markdown = (props: Props) => {
                         <ul className="list-disc pl-4.5">{children}</ul>
                     ),
                     h1: ({ children }) => (
-                        <Heading variant="h1">{children}</Heading>
+                        <Heading variant="h1" className="border-b pb-2">
+                            {children}
+                        </Heading>
                     ),
                     h2: ({ children }) => (
                         <Heading variant="h2">{children}</Heading>
@@ -69,7 +82,7 @@ export const Markdown = (props: Props) => {
                     h3: ({ children }) => (
                         <Heading variant="h3">{children}</Heading>
                     ),
-                    hr: () => <Separator />,
+                    hr: () => <Separator className="my-4" />,
                     table: ({ children }) => <Table>{children}</Table>,
                     th: ({ children }) => <TableHead>{children}</TableHead>,
                     thead: ({ children }) => (

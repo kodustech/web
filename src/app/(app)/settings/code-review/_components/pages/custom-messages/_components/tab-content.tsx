@@ -10,7 +10,12 @@ import { Textarea } from "@components/ui/textarea";
 import { RuleType } from "markdown-to-jsx";
 
 import { OptionsDropdown } from "./dropdown";
-import { dropdownItems, VARIABLE_REGEX } from "./options";
+import {
+    DEFAULT_END_REVIEW_MESSAGE,
+    DEFAULT_START_REVIEW_MESSAGE,
+    dropdownItems,
+    VARIABLE_REGEX,
+} from "./options";
 
 export const TabContent = (props: {
     type: "startReviewMessage" | "endReviewMessage";
@@ -93,8 +98,24 @@ export const TabContent = (props: {
                 </div>
 
                 <div className="flex flex-3 shrink-0 flex-col gap-2">
-                    <div className="flex h-7 items-center">
+                    <div className="flex h-7 items-center justify-between">
                         <Label>Preview</Label>
+
+                        <Button
+                            size="xs"
+                            variant="cancel"
+                            className="text-tertiary-light min-h-auto self-end"
+                            onClick={() => {
+                                props.onChange({
+                                    status: props.value.status,
+                                    content:
+                                        props.type === "startReviewMessage"
+                                            ? DEFAULT_START_REVIEW_MESSAGE
+                                            : DEFAULT_END_REVIEW_MESSAGE,
+                                });
+                            }}>
+                            Reset to default message
+                        </Button>
                     </div>
 
                     <Card className="flex-1 rounded-l-none">
