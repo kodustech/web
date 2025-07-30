@@ -115,8 +115,6 @@ export const UserLogsPageClient = ({
             <DataTable
                 columns={columns}
                 data={filteredLogs}
-                state={{ globalFilter: query }}
-                onGlobalFilterChange={setQuery}
                 loading={loading}
             />
         </div>
