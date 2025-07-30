@@ -30,11 +30,6 @@ export const UserLogsPageClient = ({
         try {
             const params: any = {};
 
-            if (dateRange) {
-                params.startDate = dateRange.from;
-                params.endDate = dateRange.to;
-            }
-
             if (selectedAction && selectedAction !== "all") {
                 params.action = selectedAction;
             }
@@ -54,7 +49,7 @@ export const UserLogsPageClient = ({
         } finally {
             setLoading(false);
         }
-    }, [dateRange, selectedAction, selectedLevel, userEmailFilter]);
+    }, [selectedAction, selectedLevel, userEmailFilter]);
 
     const handleDateRangeChange = (range: { from: string; to: string }) => {
         setDateRange(range);
@@ -75,20 +70,36 @@ export const UserLogsPageClient = ({
     // Effect para buscar logs quando filtros mudam (exceto email que tem debounce)
     useEffect(() => {
         fetchLogs();
-    }, [fetchLogs]);
+    }, [selectedAction, selectedLevel, userEmailFilter]);
 
-    // Filtro client-side apenas para a busca por texto
     const filteredLogs = logsData.logs.filter(log => {
-        if (!query) return true;
+        // Filtro de texto
+        if (query) {
+            const searchText = query.toLowerCase();
+            const matchesText = (
+                log._userInfo.userEmail.toLowerCase().includes(searchText) ||
+                log._changedData.some(change =>
+                    change.description.toLowerCase().includes(searchText) ||
+                    change.actionDescription.toLowerCase().includes(searchText)
+                )
+            );
+            if (!matchesText) return false;
+        }
 
-        const searchText = query.toLowerCase();
-        return (
-            log._userInfo.userEmail.toLowerCase().includes(searchText) ||
-            log._changedData.some(change =>
-                change.description.toLowerCase().includes(searchText) ||
-                change.actionDescription.toLowerCase().includes(searchText)
-            )
-        );
+        // Filtro de data
+        if (dateRange) {
+            const logDate = new Date(log._createdAt);
+
+            // Criar datas UTC para comparação consistente
+            const fromDate = new Date(dateRange.from + 'T00:00:00.000Z');
+            const toDate = new Date(dateRange.to + 'T23:59:59.999Z');
+
+            if (logDate < fromDate || logDate > toDate) {
+                return false;
+            }
+        }
+
+        return true;
     });
 
     return (
