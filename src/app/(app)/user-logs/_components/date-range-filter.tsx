@@ -25,7 +25,15 @@ const dateToString = (date: Date) => formatDate(date, "yyyy-MM-dd");
 const stringToDate = (date: string) => new Date(parseISO(date));
 
 const today = new Date();
+
 const ranges = [
+    {
+        label: "Today",
+        range: {
+            from: dateToString(today),
+            to: dateToString(today),
+        },
+    },
     {
         label: "Last week",
         range: {
@@ -64,10 +72,10 @@ const ranges = [
 
 const defaultItem = ranges[0];
 
-export const DateRangeFilter = ({ 
-    onDateRangeChange, 
+export const DateRangeFilter = ({
+    onDateRangeChange,
     initialRange,
-    ...props 
+    ...props
 }: Props) => {
     const [selectedRange, setSelectedRange] = useState<DateRangeString | null>(() => {
         if (initialRange) {
@@ -153,8 +161,8 @@ export const DateRangeFilter = ({
                             to: d?.to
                                 ? dateToString(d?.to)
                                 : d?.from
-                                  ? dateToString(d.from)
-                                  : defaultItem.range.to,
+                                    ? dateToString(d.from)
+                                    : defaultItem.range.to,
                         };
 
                         handleRangeChange(range);
@@ -163,16 +171,16 @@ export const DateRangeFilter = ({
 
                 <Separator className="mb-3" />
 
-                <div className="grid grid-cols-2 gap-1 px-0 pb-4">
+                <div className="grid grid-cols-2 gap-1 px-3 pb-4">
                     {ranges.map((r) => (
                         <Button
                             key={r.label}
                             size="xs"
                             className="w-full"
                             variant={
-                                selectedRange && 
-                                isEqual(selectedRange.from!, r.range.from) &&
-                                isEqual(selectedRange.to!, r.range.to)
+                                selectedRange &&
+                                    isEqual(selectedRange.from!, r.range.from) &&
+                                    isEqual(selectedRange.to!, r.range.to)
                                     ? "primary-dark"
                                     : "helper"
                             }
