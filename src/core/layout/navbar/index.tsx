@@ -36,8 +36,12 @@ const NoSSRIssuesCount = dynamic(
 
 export const NavMenu = ({
     issuesPageFeatureFlag,
+    logsPagesFeatureFlag,
 }: {
     issuesPageFeatureFlag: Awaited<
+        ReturnType<typeof getFeatureFlagWithPayload>
+    >;
+    logsPagesFeatureFlag: Awaited<
         ReturnType<typeof getFeatureFlagWithPayload>
     >;
 }) => {
@@ -89,7 +93,7 @@ export const NavMenu = ({
         }
 
         return items;
-    }, [isOwner, isTeamLeader, issuesPageFeatureFlag?.value]);
+    }, [isOwner, isTeamLeader, issuesPageFeatureFlag?.value, logsPagesFeatureFlag?.value]);
 
     const isActive = (route: string) => pathname.startsWith(route);
 
@@ -137,7 +141,7 @@ export const NavMenu = ({
                 </div>
 
                 <Suspense>
-                    <UserNav />
+                    <UserNav logsPagesFeatureFlag={logsPagesFeatureFlag} />
                 </Suspense>
             </div>
         </div>
