@@ -105,13 +105,14 @@ export const TabContent = (props: {
                                         if (node.type !== RuleType.text)
                                             return next();
 
-                                        const regex = node.text
-                                            .matchAll(VARIABLE_REGEX)
-                                            .next()?.value;
+                                        const regex =
+                                            node.text.match(VARIABLE_REGEX);
 
                                         if (regex) {
-                                            const key =
-                                                regex[1] as keyof typeof dropdownItems;
+                                            const key = regex[0]?.replace(
+                                                "@",
+                                                "",
+                                            ) as keyof typeof dropdownItems;
 
                                             if (!dropdownItems[key])
                                                 return next();

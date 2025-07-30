@@ -49,7 +49,9 @@ export const typedFetch = async <Data>(
     const urlWithParams =
         searchParams.size > 0
             ? `${url}?${searchParams.toString()}`
-            : url.toString();
+            : url instanceof Request
+              ? url.url
+              : url.toString();
 
     const response = await fetch(urlWithParams, {
         ...paramsRest,
