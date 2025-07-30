@@ -36,10 +36,12 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         organizationLicense,
         usersWithAssignedLicense,
         issuesPageFeatureFlag,
+        logsPagesFeatureFlag,
     ] = await Promise.all([
         validateOrganizationLicense({ teamId }),
         getUsersWithLicense({ teamId }),
         getFeatureFlagWithPayload({ feature: "issues-page" }),
+        getFeatureFlagWithPayload({ feature: "logs-pages" }),
     ]);
 
     return (
@@ -54,7 +56,10 @@ export default async function Layout({ children }: React.PropsWithChildren) {
                 license={organizationLicense}
                 usersWithAssignedLicense={usersWithAssignedLicense}>
                 <SetupAndOnboardingLock />
-                <NavMenu issuesPageFeatureFlag={issuesPageFeatureFlag} />
+                <NavMenu 
+                    issuesPageFeatureFlag={issuesPageFeatureFlag} 
+                    logsPagesFeatureFlag={logsPagesFeatureFlag}
+                />
                 <FinishedTrialModal />
                 <SubscriptionStatusTopbar />
                 {children}
