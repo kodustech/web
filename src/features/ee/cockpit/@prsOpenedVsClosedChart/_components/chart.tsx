@@ -41,12 +41,19 @@ export const Chart = ({
         ),
     );
 
+    const isTiltedDate = data.length > 6;
+
     return (
         <div className="flex flex-1 flex-col gap-4">
             <VictoryChart
                 theme={VictoryTheme.clean}
                 domainPadding={{ x: 30 }}
-                padding={{ left: 45, right: 10, top: 10, bottom: 30 }}>
+                padding={{
+                    left: 45,
+                    right: 10,
+                    top: 10,
+                    bottom: isTiltedDate ? 45 : 30,
+                }}>
                 <VictoryAxis
                     style={{
                         axis: { stroke: "#444" },

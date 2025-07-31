@@ -23,11 +23,18 @@ export const Chart = ({
 }: {
     data: Awaited<ReturnType<typeof getLeadTimeForChange>>;
 }) => {
+    const isTiltedDate = data.length > 6;
+
     return (
         <VictoryChart
             domainPadding={{ x: 30 }}
             theme={VictoryTheme.clean}
-            padding={{ left: 45, right: 10, top: 15, bottom: 10 }}>
+            padding={{
+                left: 45,
+                right: 10,
+                top: 15,
+                bottom: isTiltedDate ? 30 : 10,
+            }}>
             <VictoryAxis
                 style={{
                     axis: { stroke: "#444" },

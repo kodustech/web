@@ -17,11 +17,18 @@ export const Chart = ({
 }: {
     data: Awaited<ReturnType<typeof getPRsByDeveloper>>;
 }) => {
+    const isTiltedDate = data.length > 6;
+
     return (
         <VictoryChart
             theme={VictoryTheme.clean}
             domainPadding={{ x: 30 }}
-            padding={{ left: 40, right: 10, top: 0, bottom: 10 }}>
+            padding={{
+                left: 40,
+                right: 10,
+                top: 0,
+                bottom: isTiltedDate ? 30 : 10,
+            }}>
             <VictoryAxis
                 style={{
                     axis: { stroke: "#444" },
