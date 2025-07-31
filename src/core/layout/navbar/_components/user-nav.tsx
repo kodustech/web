@@ -2,7 +2,7 @@
 
 import { Link } from "@components/ui/link";
 import { toast } from "@components/ui/toaster/use-toast";
-import { LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
+import { LogOutIcon, SettingsIcon, UserIcon, ActivityIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "src/core/components/ui/avatar";
 import { Button } from "src/core/components/ui/button";
 import {
@@ -19,11 +19,17 @@ import { useAllTeams } from "src/core/providers/all-teams-context";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { TEAM_STATUS } from "src/core/types";
+import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
-export function UserNav() {
+export function UserNav({ 
+    logsPagesFeatureFlag 
+}: {
+    logsPagesFeatureFlag: Awaited<ReturnType<typeof getFeatureFlagWithPayload>>;
+}) {
     const { email, isOwner } = useAuth();
     const { teams } = useAllTeams();
     const { teamId, setTeamId } = useSelectedTeamId();
+
 
     const handleChangeWorkspace = (teamId: string) => {
         setTeamId(teamId);
@@ -90,6 +96,15 @@ export function UserNav() {
                         <DropdownMenuItem>
                             <SettingsIcon />
                             Settings
+                        </DropdownMenuItem>
+                    </Link>
+                )}
+
+                {logsPagesFeatureFlag?.value && (
+                    <Link href="/user-logs">
+                        <DropdownMenuItem>
+                            <ActivityIcon />
+                            Activity Logs
                         </DropdownMenuItem>
                     </Link>
                 )}

@@ -59,7 +59,11 @@ export const mcpManagerFetch = async <Data>(
     });
 
     if (!response.ok) {
-        throw new TypedFetchError(response.status, response.statusText);
+        throw new TypedFetchError(
+            response.status,
+            response.statusText,
+            urlWithParams,
+        );
     }
 
     return response.json();

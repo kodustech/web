@@ -36,6 +36,7 @@ const routes = [
     { label: "Suggestion Control", href: "suggestion-control" },
     { label: "PR Summary", href: "pr-summary" },
     { label: "Kody Rules", href: "kody-rules" },
+    { label: "Custom Messages", href: "custom-messages" },
 ] satisfies Array<{ label: string; href: string }>;
 
 export const AutomationCodeReviewLayout = ({
