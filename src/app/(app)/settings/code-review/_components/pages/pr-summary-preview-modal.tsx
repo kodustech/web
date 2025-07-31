@@ -8,6 +8,11 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@components/ui/dialog";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@components/ui/popover";
 import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
 import { Spinner } from "@components/ui/spinner";
@@ -15,7 +20,7 @@ import { Spinner } from "@components/ui/spinner";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { axiosAuthorized } from "src/core/utils/axios";
-import { Eye } from "lucide-react";
+import { Eye, ChevronsUpDown } from "lucide-react";
 import { useSuspenseGetOnboardingPullRequests } from "@services/codeManagement/hooks";
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
 import type { Repository } from "@services/codeManagement/types";
@@ -57,6 +62,8 @@ export const PRSummaryPreviewModal = ({
     const [isLoading, setIsLoading] = useState(false);
     const [previewResult, setPreviewResult] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [prDropdownOpen, setPrDropdownOpen] = useState(false);
+    const [repoDropdownOpen, setRepoDropdownOpen] = useState(false);
 
         const { organizationId } = useOrganizationContext();
     const { teamId } = useSelectedTeamId();
@@ -142,17 +149,19 @@ export const PRSummaryPreviewModal = ({
         setPreviewResult(null);
         setError(null);
         setIsLoading(false);
+        setPrDropdownOpen(false);
+        setRepoDropdownOpen(false);
         onClose();
     };
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
+            <DialogContent className="max-w-4xl max-h-[95vh] overflow-hidden flex flex-col p-8">
                 <DialogHeader>
                     <DialogTitle>PR Summary Preview</DialogTitle>
                 </DialogHeader>
 
-                <div className="flex flex-col gap-4 flex-1 overflow-y-auto">
+                <div className="flex flex-col gap-4 flex-1 overflow-y-auto min-h-0">
                     {!previewResult && !isLoading && (
                         <div className="flex flex-col gap-4">
                             {/* Para configuração global, mostrar seletor de repositório primeiro */}
@@ -166,27 +175,56 @@ export const PRSummaryPreviewModal = ({
                                     </FormControl.Helper>
                                     <FormControl.Input>
                                         {configuredRepositories.length > 0 ? (
-                                            <div className="space-y-2">
-                                                {configuredRepositories.map((repo) => (
+                                            <Popover open={repoDropdownOpen} onOpenChange={setRepoDropdownOpen}>
+                                                <PopoverTrigger asChild>
                                                     <Button
-                                                        key={repo.id}
-                                                        size="md"
-                                                        variant={selectedRepository?.id === repo.id ? "helper" : "cancel"}
-                                                        className="w-full justify-start"
-                                                        onClick={() => {
-                                                            setSelectedRepository(repo);
-                                                            setSelectedPR(undefined); // Reset PR selection when repo changes
-                                                            setError(null);
-                                                        }}>
-                                                        <div className="flex flex-col items-start">
-                                                            <span className="font-medium">{repo.name}</span>
-                                                            <span className="text-text-secondary text-xs">
-                                                                Repository ID: {repo.id}
-                                                            </span>
+                                                        size="lg"
+                                                        variant="helper"
+                                                        disabled={isLoading}
+                                                        className="flex min-h-16 w-full justify-between">
+                                                        <div className="flex w-full items-center">
+                                                            {!selectedRepository ? (
+                                                                <span className="flex-1">
+                                                                    No repository selected
+                                                                </span>
+                                                            ) : (
+                                                                <div className="flex-1">
+                                                                    <span className="text-text-secondary line-clamp-1 wrap-anywhere">
+                                                                        {selectedRepository.name}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </div>
+                                                        <ChevronsUpDown className="-mr-2 shrink-0 opacity-50" />
                                                     </Button>
-                                                ))}
-                                            </div>
+                                                </PopoverTrigger>
+                                                <PopoverContent
+                                                    align="start"
+                                                    className="w-[var(--radix-popover-trigger-width)] p-0">
+                                                    <div className="max-h-80 overflow-y-auto">
+                                                        {configuredRepositories.map((repo) => (
+                                                            <Button
+                                                                key={repo.id}
+                                                                size="md"
+                                                                variant="cancel"
+                                                                className="w-full justify-start rounded-none border-b border-card-lv2 last:border-b-0"
+                                                                onClick={() => {
+                                                                    setSelectedRepository(repo);
+                                                                    setSelectedPR(undefined); // Reset PR selection when repo changes
+                                                                    setRepoDropdownOpen(false);
+                                                                    setError(null);
+                                                                }}>
+                                                                <div className="flex flex-col items-start">
+                                                                    <span className="font-medium">{repo.name}</span>
+                                                                    <span className="text-text-secondary text-xs">
+                                                                        Repository ID: {repo.id}
+                                                                    </span>
+                                                                </div>
+                                                            </Button>
+                                                        ))}
+                                                    </div>
+                                                </PopoverContent>
+                                            </Popover>
                                         ) : (
                                             <div className="p-4 text-center text-text-secondary border border-card-lv2 rounded-lg">
                                                 No repositories configured for code review
@@ -210,26 +248,56 @@ export const PRSummaryPreviewModal = ({
                                     </FormControl.Helper>
                                     <FormControl.Input>
                                         {repositoryPullRequests.length > 0 ? (
-                                            <div className="space-y-2 max-h-60 overflow-y-auto">
-                                                {repositoryPullRequests.map((pr, index) => (
+                                            <Popover open={prDropdownOpen} onOpenChange={setPrDropdownOpen}>
+                                                <PopoverTrigger asChild>
                                                     <Button
-                                                        key={`${pr.id}-${pr.pull_number}-${index}`}
-                                                        size="md"
-                                                        variant={selectedPR?.id === pr.id ? "helper" : "cancel"}
-                                                        className="w-full justify-start"
-                                                        onClick={() => {
-                                                            console.log('PR Selected:', pr);
-                                                            setSelectedPR(pr);
-                                                            setError(null);
-                                                        }}>
-                                                        <div className="flex flex-col items-start">
-                                                            <span className="font-medium">
-                                                                #{pr.pull_number} - {pr.title}
-                                                            </span>
+                                                        size="lg"
+                                                        variant="helper"
+                                                        disabled={isLoading}
+                                                        className="flex min-h-16 w-full justify-between">
+                                                        <div className="flex w-full items-center">
+                                                            {!selectedPR ? (
+                                                                <span className="flex-1">
+                                                                    No pull request selected
+                                                                </span>
+                                                            ) : (
+                                                                <div className="flex-1">
+                                                                    <span className="text-text-secondary line-clamp-1 wrap-anywhere">
+                                                                        <strong>#{selectedPR.pull_number}</strong>{" "}
+                                                                        {selectedPR.title}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </div>
+                                                        <ChevronsUpDown className="-mr-2 shrink-0 opacity-50" />
                                                     </Button>
-                                                ))}
-                                            </div>
+                                                </PopoverTrigger>
+                                                <PopoverContent
+                                                    align="start"
+                                                    className="w-[var(--radix-popover-trigger-width)] p-0">
+                                                    <div className="max-h-80 overflow-y-auto">
+                                                        {repositoryPullRequests.map((pr, index) => (
+                                                            <Button
+                                                                key={`${pr.id}-${pr.pull_number}-${index}`}
+                                                                size="md"
+                                                                variant="cancel"
+                                                                className="w-full justify-start rounded-none border-b border-card-lv2 last:border-b-0"
+                                                                onClick={() => {
+                                                                    console.log('PR Selected:', pr);
+                                                                    setSelectedPR(pr);
+                                                                    setPrDropdownOpen(false);
+                                                                    setError(null);
+                                                                }}>
+                                                                <div className="flex flex-col items-start">
+                                                                    <span className="font-medium">
+                                                                        #{pr.pull_number} - {pr.title}
+                                                                    </span>
+                                                                </div>
+                                                            </Button>
+                                                        ))}
+                                                    </div>
+                                                </PopoverContent>
+                                            </Popover>
                                         ) : (
                                             <div className="p-4 text-center text-text-secondary border border-card-lv2 rounded-lg">
                                                 {isGlobalConfig && !selectedRepository
