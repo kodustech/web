@@ -21,7 +21,7 @@ export default function ErrorPage({
         errorMessages.DEFAULT;
 
     return (
-        <div className="text-text-secondary col-span-full -mt-4 flex h-full w-full items-center justify-center text-center text-sm">
+        <div className="text-text-secondary col-span-full -mt-4 flex h-full min-h-60 w-full items-center justify-center text-center text-sm">
             <Component />
         </div>
     );

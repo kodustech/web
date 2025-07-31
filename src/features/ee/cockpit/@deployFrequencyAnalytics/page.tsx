@@ -103,6 +103,7 @@ export default async function DeployFrequencyAnalytics() {
                                             </span>
                                             <DashedLine />
                                             <InsightsBadge
+                                                className="pointer-events-none"
                                                 type={
                                                     key as React.ComponentProps<
                                                         typeof InsightsBadge

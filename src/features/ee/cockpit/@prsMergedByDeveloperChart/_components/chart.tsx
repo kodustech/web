@@ -21,7 +21,7 @@ export const Chart = ({
         <VictoryChart
             theme={VictoryTheme.clean}
             domainPadding={{ x: 30 }}
-            padding={{ left: 40, right: 20, top: 0, bottom: 40 }}>
+            padding={{ left: 40, right: 10, top: 0, bottom: 10 }}>
             <VictoryAxis
                 style={{
                     axis: { stroke: "#444" },
@@ -70,7 +70,7 @@ export const Chart = ({
                         <VictoryBar
                             key={item.weekStart}
                             labels={({ datum }) => [
-                                item.author,
+                                String(item.author),
                                 `${datum.y} ${pluralize(datum.y, {
                                     singular: "PR",
                                     plural: "PRs",

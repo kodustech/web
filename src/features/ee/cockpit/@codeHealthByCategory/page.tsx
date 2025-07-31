@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
-import { capitalize } from "src/core/utils/string";
+import { capitalize, pluralize } from "src/core/utils/string";
 import { getCodeHealthSuggestionsByCategory } from "src/features/ee/cockpit/_services/analytics/code-health/fetch";
 
 import { getSelectedDateRange } from "../_helpers/get-selected-date-range";
@@ -40,12 +40,15 @@ export default async function CodeHealthByCategory() {
                         </CardHeader>
 
                         <CardContent className="flex items-end gap-1">
-                            <div className="text-2xl leading-5 font-bold">
+                            <div className="text-3xl leading-5 font-bold">
                                 {d.count}
-                            </div>{" "}
-                            <small className="text-text-secondary">
-                                issues
-                            </small>
+                            </div>
+                            <span className="text-text-secondary ml-0.5 text-sm leading-[0.8]">
+                                {pluralize(d.count, {
+                                    plural: "issues",
+                                    singular: "issue",
+                                })}
+                            </span>
                         </CardContent>
                     </Card>
                 );

@@ -76,7 +76,7 @@ export const columns: ColumnDef<Type>[] = [
     },
     {
         accessorKey: "performance_and_optimization",
-        header: "Performance and Optimization",
+        header: "Performance/ Optimization",
         meta: { align: "center" },
         accessorFn: (row) =>
             row.categories.find(

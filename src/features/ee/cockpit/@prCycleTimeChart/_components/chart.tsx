@@ -27,7 +27,7 @@ export const Chart = ({
         <VictoryChart
             domainPadding={{ x: 30 }}
             theme={VictoryTheme.clean}
-            padding={{ left: 45, right: 10, top: 20, bottom: 40 }}>
+            padding={{ left: 45, right: 10, top: 15, bottom: 10 }}>
             <VictoryAxis
                 style={{
                     axis: { stroke: "#444" },

@@ -35,7 +35,7 @@ export default async function TeamActivityChart() {
 
     return (
         <>
-            <CardContent className="flex items-center justify-center">
+            <CardContent className="flex items-center justify-center px-0 pb-0">
                 <TableNoSSR
                     startDate={selectedDateRange.startDate}
                     endDate={selectedDateRange.endDate}

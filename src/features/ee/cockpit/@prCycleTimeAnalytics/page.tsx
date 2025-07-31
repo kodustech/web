@@ -121,6 +121,7 @@ export default async function LeadTimeForChangeAnalytics() {
                                             </span>
                                             <DashedLine />
                                             <InsightsBadge
+                                                className="pointer-events-none"
                                                 type={
                                                     key as React.ComponentProps<
                                                         typeof InsightsBadge

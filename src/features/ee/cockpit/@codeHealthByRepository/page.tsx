@@ -17,7 +17,7 @@ export default async function CodeHealthByRepository() {
 
     return (
         <>
-            <CardContent>
+            <CardContent className="px-0 pb-0 [&_th]:leading-tight">
                 <DataTable columns={columns} data={data} />
             </CardContent>
         </>
