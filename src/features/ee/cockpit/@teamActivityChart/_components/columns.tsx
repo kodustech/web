@@ -36,7 +36,9 @@ export const getColumns = ({
 
             return (
                 <div className="flex flex-col gap-2 py-2">
-                    <div className="text-sm font-medium">{row.original[0]}</div>
+                    <div className="text-sm font-medium wrap-anywhere">
+                        {row.original[0]}
+                    </div>
 
                     <div className="flex flex-col gap-1">
                         <div className="text-text-secondary flex gap-2 text-xs">

@@ -62,7 +62,7 @@ export const DataTable = ({
     });
 
     return (
-        <div className="relative overflow-x-auto">
+        <div className="relative max-h-[700px] overflow-x-auto">
             <table className="text-sm" style={{ width: table.getTotalSize() }}>
                 <TableHeader className="sticky top-0 z-10">
                     {table.getHeaderGroups().map((headerGroup) => (
