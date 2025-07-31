@@ -139,7 +139,7 @@ export const PRSummaryPreviewModal = ({
 
     return (
         <Dialog open={isOpen} onOpenChange={handleClose}>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col p-6">
+            <DialogContent className="max-w-4xl max-h-[90vh] overflow-visible flex flex-col p-6">
                 <DialogHeader className="flex-shrink-0">
                     <DialogTitle>PR Summary Preview</DialogTitle>
                 </DialogHeader>
@@ -149,14 +149,12 @@ export const PRSummaryPreviewModal = ({
                         <div className="flex flex-col gap-4">
                             <FormControl.Root>
                                 <FormControl.Label>
-                                    Select a Pull Request
-                                </FormControl.Label>
-                                <FormControl.Helper>
                                     {isGlobalConfig
                                         ? "Choose a PR from any repository to generate a preview summary"
                                         : "Choose a PR to generate a preview summary"
                                     }
-                                </FormControl.Helper>
+                                </FormControl.Label>
+
                                 <FormControl.Input>
                                     {repositoryPullRequests.length > 0 ? (
                                         <SelectPullRequest

@@ -165,13 +165,6 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
                 <Page.HeaderActions>
                     <Button
                         size="md"
-                        variant="helper"
-                        leftIcon={<Eye />}
-                        onClick={() => setIsPreviewModalOpen(true)}>
-                        View Preview
-                    </Button>
-                    <Button
-                        size="md"
                         variant="primary"
                         leftIcon={<Save />}
                         onClick={handleSubmit}
@@ -335,6 +328,17 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
                                     }
                                 />
                             </FormControl.Input>
+                            
+                            <div className="mt-3 flex justify-end">
+                                <Button
+                                    size="md"
+                                    variant="helper"
+                                    leftIcon={<Eye />}
+                                    disabled={!generatePRSummary}
+                                    onClick={() => setIsPreviewModalOpen(true)}>
+                                    View Preview
+                                </Button>
+                            </div>
                         </FormControl.Root>
                     )}
                 />
