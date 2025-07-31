@@ -27,9 +27,10 @@ import {
     KodyLearningStatus,
     ParametersConfigKey,
 } from "@services/parameters/types";
-import { Save } from "lucide-react";
+import { Save, Eye } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { useState } from "react";
 
 import { useAutomationCodeReviewConfig, usePlatformConfig } from "../context";
 import GeneratingConfig from "./generating-config";
@@ -38,6 +39,7 @@ import {
     CodeReviewSummaryOptions,
     type CodeReviewGlobalConfig,
 } from "./types";
+import { PRSummaryPreviewModal } from "./pr-summary-preview-modal";
 
 const examples = [
     "Focus on security changes and performance impacts",
@@ -69,6 +71,7 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
     const { teamId } = useSelectedTeamId();
     const config = useAutomationCodeReviewConfig(props.repositoryId);
     const platformConfig = usePlatformConfig();
+    const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
     const form = useForm<CodeReviewGlobalConfig & { id?: string }>({
         defaultValues: {
             ...config,
@@ -160,6 +163,13 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
                 <Page.Title>PR summary</Page.Title>
 
                 <Page.HeaderActions>
+                    <Button
+                        size="md"
+                        variant="helper"
+                        leftIcon={<Eye />}
+                        onClick={() => setIsPreviewModalOpen(true)}>
+                        View Preview
+                    </Button>
                     <Button
                         size="md"
                         variant="primary"
@@ -329,6 +339,15 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
                     )}
                 />
             </Page.Content>
+
+            <PRSummaryPreviewModal
+                isOpen={isPreviewModalOpen}
+                onClose={() => setIsPreviewModalOpen(false)}
+                repositoryId={props.repositoryId}
+                repositoryName={config?.name || props.repositoryId}
+                behaviourForExistingDescription={form.watch("summary.behaviourForExistingDescription") || CodeReviewSummaryOptions.REPLACE}
+                customInstructions={form.watch("summary.customInstructions") || ""}
+            />
         </Page.Root>
     );
 };
