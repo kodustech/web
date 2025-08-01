@@ -21,10 +21,10 @@ export const DEFAULT_START_REVIEW_MESSAGE = `# PR Summary (Comment created by [K
 
 @changedFiles
 
-@summaryChanges`;
+@changeSummary`;
 
 export const DEFAULT_END_REVIEW_MESSAGE = `# Kody Review Complete
-**Great news!** 🎉  
+**Great news!** 🎉
 No issues were found that match your current review configurations.
 
 Keep up the excellent work! 🚀
@@ -215,7 +215,7 @@ export const dropdownItems = {
             </SimpleCollapsible>
         ),
     },
-    summaryChanges: {
+    changeSummary: {
         label: "Changes summary",
         description: "Message summarizing the changes in the PR",
         example: (
