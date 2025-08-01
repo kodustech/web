@@ -18,6 +18,7 @@ import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { axiosAuthorized } from "src/core/utils/axios";
 import { Eye } from "lucide-react";
 import { useSuspenseGetOnboardingPullRequests } from "@services/codeManagement/hooks";
+import { PARAMETERS_PATHS } from "@services/parameters";
 
 interface PRSummaryPreviewModalProps {
     isOpen: boolean;
@@ -104,7 +105,7 @@ export const PRSummaryPreviewModal = ({
             });
 
             const response = await axiosAuthorized.post<PreviewResponse>(
-                "http://localhost:3001/parameters/preview-pr-summary",
+                PARAMETERS_PATHS.PREVIEW_PR_SUMMARY,
                 {
                     organizationId,
                     teamId,
