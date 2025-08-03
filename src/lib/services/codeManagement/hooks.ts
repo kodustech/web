@@ -28,7 +28,7 @@ export function useGetRepositories(teamId: string, organizationSelected?: any, f
     return useFetch<Repository[]>(
         CODE_MANAGEMENT_API_PATHS.GET_REPOSITORIES_ORG,
         {
-            params: { teamId, organizationSelected, ...filters },
+            params: { teamId, organizationSelected, ...(filters || {}) },
         },
     );
 }
