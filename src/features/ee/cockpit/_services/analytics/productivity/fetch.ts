@@ -19,6 +19,7 @@ export const getDeployFrequencyAnalytics = ({
         };
     }>(`/productivity/highlights/deploy-frequency`, {
         params: { endDate, startDate },
+        next: { tags: ["cockpit-repository-dependent"] },
     });
 };
 
@@ -27,7 +28,9 @@ export const getKodySuggestionsAnalytics = () => {
         suggestionsSent: number;
         suggestionsImplemented: number;
         implementationRate: number;
-    }>("/code-health/highlights/suggestions-implementation-rate");
+    }>("/code-health/highlights/suggestions-implementation-rate", {
+        next: { tags: ["cockpit-repository-dependent"] },
+    });
 };
 
 export const getLeadTimeForChangeAnalytics = ({
@@ -49,6 +52,7 @@ export const getLeadTimeForChangeAnalytics = ({
         };
     }>(`/productivity/highlights/lead-time-for-change`, {
         params: { endDate, startDate },
+        next: { tags: ["cockpit-repository-dependent"] },
     });
 };
 
@@ -64,7 +68,12 @@ export const getLeadTimeForChange = ({
         }>
     >(`/productivity/charts/lead-time-for-change`, {
         params: { endDate, startDate },
-        next: { tags: ["cockpit-date-range-dependent", "cockpit-repository-dependent"] },
+        next: {
+            tags: [
+                "cockpit-date-range-dependent",
+                "cockpit-repository-dependent",
+            ],
+        },
     });
 };
 
@@ -87,6 +96,7 @@ export const getPRSizeAnalytics = ({
         };
     }>(`/productivity/highlights/pr-size`, {
         params: { endDate, startDate },
+        next: { tags: ["cockpit-repository-dependent"] },
     });
 };
 
@@ -99,7 +109,12 @@ export const getPRsByDeveloper = ({ endDate, startDate }: AnalyticsParams) => {
         }>
     >(`/productivity/charts/pull-requests-by-developer`, {
         params: { endDate, startDate },
-        next: { tags: ["cockpit-date-range-dependent", "cockpit-repository-dependent"] },
+        next: {
+            tags: [
+                "cockpit-date-range-dependent",
+                "cockpit-repository-dependent",
+            ],
+        },
     });
 };
 
@@ -116,7 +131,12 @@ export const getPRsOpenedVsClosed = ({
         }>
     >(`/productivity/charts/pull-requests-opened-vs-closed`, {
         params: { endDate, startDate },
-        next: { tags: ["cockpit-date-range-dependent", "cockpit-repository-dependent"] },
+        next: {
+            tags: [
+                "cockpit-date-range-dependent",
+                "cockpit-repository-dependent",
+            ],
+        },
     });
 };
 
@@ -139,7 +159,12 @@ export const getLeadTimeBreakdown = ({
         }>
     >(`/productivity/charts/lead-time-breakdown`, {
         params: { endDate, startDate },
-        next: { tags: ["cockpit-date-range-dependent", "cockpit-repository-dependent"] },
+        next: {
+            tags: [
+                "cockpit-date-range-dependent",
+                "cockpit-repository-dependent",
+            ],
+        },
     });
 };
 
@@ -156,6 +181,11 @@ export const getDeveloperActivity = ({
         }>
     >(`/productivity/charts/developer-activity`, {
         params: { endDate, startDate },
-        next: { tags: ["cockpit-date-range-dependent", "cockpit-repository-dependent"] },
+        next: {
+            tags: [
+                "cockpit-date-range-dependent",
+                "cockpit-repository-dependent",
+            ],
+        },
     });
 };

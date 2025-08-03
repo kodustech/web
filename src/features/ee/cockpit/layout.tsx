@@ -9,8 +9,9 @@ import { greeting } from "src/core/utils/helpers";
 
 import { validateOrganizationLicense } from "../subscription/_services/billing/fetch";
 import { DateRangePicker } from "./_components/date-range-picker";
-import { RepositoryPicker } from "./_components/repository-picker";
+import { ExpandableCardsLayout } from "./_components/expandable-cards-layout";
 import { CockpitNoDataBanner } from "./_components/no-data-banner";
+import { RepositoryPicker } from "./_components/repository-picker";
 import { tabs, type TabValue } from "./_constants";
 import { getAnalyticsStatus } from "./_services/analytics/fetch";
 import { AnalyticsNotAvailable } from "./not-available";
@@ -28,7 +29,7 @@ export default async function Layout({
     prSizeAnalytics,
     prsOpenedVsClosedChart,
     teamActivityChart,
-    kodySuggestions,
+    kodySuggestionsAnalytics,
     children,
 }: React.PropsWithChildren & {
     children: React.ReactNode;
@@ -44,7 +45,7 @@ export default async function Layout({
     codeHealthByCategory: React.ReactNode;
     codeHealthByRepository: React.ReactNode;
     flowMetrics: React.ReactNode;
-    kodySuggestions: React.ReactNode;
+    kodySuggestionsAnalytics: React.ReactNode;
 }) {
     if (!process.env.WEB_ANALYTICS_SECRET) {
         return <AnalyticsNotAvailable />;
@@ -70,7 +71,7 @@ export default async function Layout({
     const dateRangeCookieValue = cookieStore.get(
         "cockpit-selected-date-range" satisfies CookieName,
     )?.value;
-    
+
     const repositoryCookieValue = cookieStore.get(
         "cockpit-selected-repository" satisfies CookieName,
     )?.value;
@@ -100,10 +101,10 @@ export default async function Layout({
             </Page.Header>
 
             <Page.Content className="max-w-(--breakpoint-xl)">
-                <div className="grid grid-cols-3 grid-rows-2 gap-2">
+                <div className="grid grid-cols-3 grid-rows-2 gap-2 *:h-56">
                     <div>{deployFrequencyAnalytics}</div>
                     <div>{prCycleTimeAnalytics}</div>
-                    <div>{kodySuggestions}</div>
+                    <div>{kodySuggestionsAnalytics}</div>
                     <div>{bugRatioAnalytics}</div>
                     <div>{prSizeAnalytics}</div>
                 </div>
@@ -142,20 +143,25 @@ export default async function Layout({
                             {flowMetrics}
                         </TabsContent>
 
-                        <TabsContent value={"productivity" satisfies TabValue}>
-                            <div className="grid grid-cols-2 gap-2">
-                                {leadTimeBreakdownChart}
-                                {prCycleTimeChart}
-                                {prsOpenedVsClosedChart}
-                                {prsMergedByDeveloperChart}
+                        <TabsContent
+                            forceMount
+                            value={"productivity" satisfies TabValue}>
+                            <div className="relative grid grid-cols-2 gap-2 *:h-[500px]">
+                                <ExpandableCardsLayout>
+                                    {leadTimeBreakdownChart}
+                                    {prCycleTimeChart}
+                                    {prsOpenedVsClosedChart}
+                                    {prsMergedByDeveloperChart}
+                                </ExpandableCardsLayout>
 
-                                <div className="col-span-2">
+                                <div className="col-span-2 h-auto!">
                                     {teamActivityChart}
                                 </div>
                             </div>
                         </TabsContent>
 
                         <TabsContent
+                            forceMount
                             value={"code-health" satisfies TabValue}
                             className="flex flex-col gap-6">
                             {codeHealthByCategory}

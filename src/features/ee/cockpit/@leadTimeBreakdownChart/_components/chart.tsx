@@ -1,13 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { Button } from "@components/ui/button";
+import useResizeObserver from "@hooks/use-resize-observer";
+import { ExpandableContext } from "src/core/providers/expandable";
 import { cn } from "src/core/utils/components";
 import type { getLeadTimeBreakdown } from "src/features/ee/cockpit/_services/analytics/productivity/fetch";
 import {
     VictoryAxis,
     VictoryBar,
     VictoryChart,
+    VictoryContainer,
     VictoryStack,
     VictoryTheme,
     VictoryTooltip,
@@ -41,6 +44,10 @@ export const Chart = ({
 }: {
     data: Awaited<ReturnType<typeof getLeadTimeBreakdown>>;
 }) => {
+    const [graphRef, boundingRect] = useResizeObserver();
+    const { isExpanded } = use(ExpandableContext);
+    const isTiltedDate = data.length > 6 && !isExpanded;
+
     const [visibleBars, setVisibleBars] = useState(
         legendItems.reduce(
             (acc, item) => {
@@ -51,112 +58,131 @@ export const Chart = ({
         ),
     );
 
-    const isTiltedDate = data.length > 6;
-
     return (
-        <div className="flex flex-1 flex-col gap-4">
-            <VictoryChart
-                theme={VictoryTheme.clean}
-                domainPadding={{ x: 30 }}
-                padding={{
-                    left: 45,
-                    right: 10,
-                    top: 10,
-                    bottom: isTiltedDate ? 45 : 30,
-                }}>
-                <VictoryAxis
-                    style={{
-                        axis: { stroke: "#444" },
-                        tickLabels: {
-                            fontSize: 10,
-                            padding: 2,
-                            fill: "var(--color-text-primary)",
-                            fontFamily: "var(--font-sans)",
-                            angle: ({ ticks }) => (ticks.length > 6 ? -25 : 0),
-                            textAnchor: ({ ticks }) =>
-                                ticks?.length > 6 ? "end" : "middle",
-                        },
+        <div className="flex h-full w-full flex-col gap-4">
+            <div ref={graphRef} className="w-full flex-1">
+                <VictoryChart
+                    theme={VictoryTheme.clean}
+                    width={boundingRect.width}
+                    height={boundingRect.height}
+                    domainPadding={{ x: 30 }}
+                    padding={{
+                        left: 45,
+                        right: 10,
+                        top: 10,
+                        bottom: isTiltedDate ? 45 : 30,
                     }}
-                />
-
-                <VictoryAxis
-                    dependentAxis
-                    tickFormat={(tick) => `${tick} h`}
-                    style={{
-                        axis: { stroke: "#444" },
-                        tickLabels: {
-                            fontSize: 10,
-                            fill: "var(--color-text-primary)",
-                            fontFamily: "var(--font-sans)",
-                        },
-                    }}
-                />
-
-                <VictoryStack
-                    labelComponent={
-                        <VictoryTooltip
-                            style={{
-                                fontSize: 11,
+                    containerComponent={
+                        <VictoryContainer
+                            responsive={false}
+                            height={boundingRect.height}
+                        />
+                    }>
+                    <VictoryAxis
+                        style={{
+                            axis: { stroke: "#444" },
+                            tickLabels: {
+                                fontSize: 10,
+                                padding: 2,
+                                fill: "var(--color-text-primary)",
                                 fontFamily: "var(--font-sans)",
-                                fontWeight: 700,
-                            }}
-                        />
-                    }
-                    style={{
-                        data: {
-                            width: 20,
-                            fill: ({ datum }) => datum.fill,
-                        },
-                    }}>
-                    {visibleBars["Coding Time"] && (
-                        <VictoryBar
-                            labels={({ datum }) => {
-                                const { hours, minutes } =
-                                    separateHoursAndMinutes(datum.y);
+                                angle: isTiltedDate && !isExpanded ? -25 : 0,
+                                textAnchor:
+                                    isTiltedDate && !isExpanded
+                                        ? "end"
+                                        : "middle",
+                            },
+                        }}
+                    />
 
-                                return ["Coding time", `${hours}h ${minutes}m`];
-                            }}
-                            data={data?.map((item) => ({
-                                x: item.weekStart,
-                                y: item.codingTimeHours,
-                                fill: color1,
-                            }))}
-                        />
-                    )}
+                    <VictoryAxis
+                        dependentAxis
+                        tickFormat={(tick) => `${tick} h`}
+                        style={{
+                            axis: { stroke: "#444" },
+                            tickLabels: {
+                                fontSize: 10,
+                                fill: "var(--color-text-primary)",
+                                fontFamily: "var(--font-sans)",
+                            },
+                        }}
+                    />
 
-                    {visibleBars["Pickup Time"] && (
-                        <VictoryBar
-                            labels={({ datum }) => {
-                                const { hours, minutes } =
-                                    separateHoursAndMinutes(datum.y);
+                    <VictoryStack
+                        labelComponent={
+                            <VictoryTooltip
+                                style={{
+                                    fontSize: 11,
+                                    fontFamily: "var(--font-sans)",
+                                    fontWeight: 700,
+                                }}
+                            />
+                        }
+                        style={{
+                            data: {
+                                width: 20,
+                                fill: ({ datum }) => datum.fill,
+                            },
+                        }}>
+                        {visibleBars["Coding Time"] && (
+                            <VictoryBar
+                                labels={({ datum }) => {
+                                    const { hours, minutes } =
+                                        separateHoursAndMinutes(datum.y);
 
-                                return ["Pickup time", `${hours}h ${minutes}m`];
-                            }}
-                            data={data?.map((item) => ({
-                                x: item.weekStart,
-                                y: item.pickupTimeHours,
-                                fill: color2,
-                            }))}
-                        />
-                    )}
+                                    return [
+                                        "Coding time",
+                                        `${hours}h ${minutes}m`,
+                                    ];
+                                }}
+                                data={data?.map((item) => ({
+                                    x: item.weekStart,
+                                    y: item.codingTimeHours,
+                                    fill: color1,
+                                }))}
+                            />
+                        )}
 
-                    {visibleBars["Review Time"] && (
-                        <VictoryBar
-                            labels={({ datum }) => {
-                                const { hours, minutes } =
-                                    separateHoursAndMinutes(datum.y);
+                        {visibleBars["Pickup Time"] && (
+                            <VictoryBar
+                                labels={({ datum }) => {
+                                    const { hours, minutes } =
+                                        separateHoursAndMinutes(datum.y);
 
-                                return ["Review time", `${hours}h ${minutes}m`];
-                            }}
-                            data={data?.map((item) => ({
-                                x: item.weekStart,
-                                y: item.reviewTimeHours,
-                                fill: color3,
-                            }))}
-                        />
-                    )}
-                </VictoryStack>
-            </VictoryChart>
+                                    return [
+                                        "Pickup time",
+                                        `${hours}h ${minutes}m`,
+                                    ];
+                                }}
+                                data={data?.map((item) => ({
+                                    x: item.weekStart,
+                                    y: item.pickupTimeHours,
+                                    fill: color2,
+                                }))}
+                            />
+                        )}
+
+                        {visibleBars["Review Time"] && (
+                            <VictoryBar
+                                labels={({ datum }) => {
+                                    const { hours, minutes } =
+                                        separateHoursAndMinutes(datum.y);
+
+                                    return [
+                                        "Review time",
+                                        `${hours}h ${minutes}m`,
+                                    ];
+                                }}
+                                data={data?.map((item) => ({
+                                    x: item.weekStart,
+                                    y: item.reviewTimeHours,
+                                    fill: color3,
+                                }))}
+                            />
+                        )}
+                    </VictoryStack>
+                </VictoryChart>
+            </div>
 
             <div className="flex items-center gap-5">
                 {legendItems.map((item) => (

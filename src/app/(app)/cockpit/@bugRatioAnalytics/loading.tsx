@@ -1,21 +1,13 @@
-import {
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@components/ui/card";
+import { CardContent, CardFooter } from "@components/ui/card";
 import { Skeleton } from "@components/ui/skeleton";
+import { BugRatioAnalyticsHeader } from "src/features/ee/cockpit/@bugRatioAnalytics/_components/header";
 
 export default function Loading() {
     return (
         <>
-            <CardHeader>
-                <div className="flex justify-between">
-                    <CardTitle className="text-sm">Bug Ratio</CardTitle>
-
-                    <Skeleton className="h-4 w-16" />
-                </div>
-            </CardHeader>
+            <BugRatioAnalyticsHeader>
+                <Skeleton className="h-4 w-16" />
+            </BugRatioAnalyticsHeader>
 
             <CardContent className="flex items-center justify-center text-3xl font-bold">
                 <Skeleton className="h-10 w-1/2" />

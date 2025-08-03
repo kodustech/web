@@ -1,13 +1,9 @@
 "use client";
 
-import { CockpitNoDataPlaceholder } from "src/features/ee/cockpit/_components/no-data-placeholder";
-
-const errorMessages = {
-    NO_DATA: () => <CockpitNoDataPlaceholder />,
-    DEFAULT: () => (
-        <span className="w-40">It looks like we couldn't fetch the data.</span>
-    ),
-} as const satisfies Record<string, () => React.JSX.Element>;
+import { startTransition } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@components/ui/button";
+import { Card, CardHeader } from "@components/ui/card";
 
 export default function ErrorPage({
     error,
@@ -16,13 +12,27 @@ export default function ErrorPage({
     error: Error & { digest?: string };
     reset: () => void;
 }) {
-    const Component =
-        errorMessages[error.message as keyof typeof errorMessages] ??
-        errorMessages.DEFAULT;
+    const router = useRouter();
 
     return (
-        <div className="text-text-secondary col-span-full -mt-4 flex h-full min-h-60 w-full items-center justify-center text-center text-sm">
-            <Component />
-        </div>
+        <Card className="col-span-3">
+            <CardHeader className="flex h-full items-center justify-center text-center">
+                <span className="text-text-secondary w-40 text-sm">
+                    It looks like we couldn't fetch the data.
+                </span>
+
+                <Button
+                    size="xs"
+                    variant="primary-dark"
+                    onClick={() => {
+                        startTransition(() => {
+                            reset();
+                            router.refresh();
+                        });
+                    }}>
+                    Try again
+                </Button>
+            </CardHeader>
+        </Card>
     );
 }

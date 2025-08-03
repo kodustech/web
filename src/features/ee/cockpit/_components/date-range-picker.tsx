@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { Button } from "@components/ui/button";
 import { Calendar } from "@components/ui/calendar";
 import {
@@ -9,6 +9,7 @@ import {
     PopoverTrigger,
 } from "@components/ui/popover";
 import { Separator } from "@components/ui/separator";
+import { Spinner } from "@components/ui/spinner";
 import { formatDate, isEqual, parseISO, subMonths, subWeeks } from "date-fns";
 import { enUS } from "date-fns/locale";
 import { CalendarIcon } from "lucide-react";
@@ -66,6 +67,9 @@ const ranges = [
 const defaultItem = ranges[0];
 
 export const DateRangePicker = ({ cookieValue, ...props }: Props) => {
+    const [loading, startTransition] = useTransition();
+    const [open, setOpen] = useState(false);
+
     const [selectedRange, setSelectedRange] = useState<DateRangeString>(() => {
         const cookie = cookieValue;
 
@@ -101,99 +105,128 @@ export const DateRangePicker = ({ cookieValue, ...props }: Props) => {
     });
 
     return (
-        <Popover>
-            <PopoverTrigger asChild>
-                <Button
-                    size="md"
-                    variant="helper"
-                    leftIcon={<CalendarIcon />}
-                    className="-mt-4 w-68 justify-start">
-                    {label ? (
-                        label
-                    ) : (
-                        <span className="flex items-center gap-1 font-semibold">
-                            {selectedRange?.from ? (
-                                selectedRange.to ? (
-                                    <>
-                                        {from}
-                                        <span className="text-text-secondary">
-                                            -
-                                        </span>
-                                        {to}
-                                    </>
-                                ) : (
-                                    from
-                                )
-                            ) : (
-                                <span className="text-text-secondary">
-                                    Select a range
-                                </span>
-                            )}
+        <>
+            {loading && (
+                <div className="fixed inset-0 z-5 flex flex-col items-center justify-center gap-4 bg-black/70 backdrop-blur-sm">
+                    <Spinner className="size-16" />
+
+                    <span className="text-sm font-semibold">
+                        Changing date range from
+                        <span className="text-primary-light mx-1 font-semibold">
+                            {from}
                         </span>
-                    )}
-                </Button>
-            </PopoverTrigger>
-
-            <PopoverContent
-                align="end"
-                className="flex w-68 flex-col items-center px-0 py-0">
-                <Calendar
-                    {...props}
-                    mode="range"
-                    locale={enUS}
-                    disabled={{ after: today }}
-                    selected={{
-                        from: selectedRange?.from
-                            ? stringToDate(selectedRange.from)
-                            : undefined,
-                        to: selectedRange?.to
-                            ? stringToDate(selectedRange.to)
-                            : undefined,
-                    }}
-                    max={31 * 3} // 3 months max range (considering 31 days per month)
-                    onSelect={(d) => {
-                        const range = {
-                            from: d?.from
-                                ? dateToString(d?.from)
-                                : defaultItem.range.from,
-                            to: d?.to
-                                ? dateToString(d?.to)
-                                : d?.from
-                                  ? dateToString(d.from)
-                                  : defaultItem.range.to,
-                        };
-
-                        setSelectedRange(range);
-                        setCockpitDateRangeCookie(range);
-                    }}
-                />
-
-                <Separator className="mb-3" />
-
-                <div className="grid grid-cols-2 gap-1 px-0 pb-4">
-                    {ranges.map((r) => (
-                        <Button
-                            key={r.label}
-                            size="xs"
-                            className="w-full"
-                            variant={
-                                isEqual(selectedRange?.from!, r.range.from) &&
-                                isEqual(selectedRange?.to!, r.range.to)
-                                    ? "primary-dark"
-                                    : "helper"
-                            }
-                            onClick={() => {
-                                setSelectedRange({
-                                    from: r.range.from,
-                                    to: r.range.to,
-                                });
-                                setCockpitDateRangeCookie(r.range);
-                            }}>
-                            {r.label}
-                        </Button>
-                    ))}
+                        to
+                        <span className="text-primary-light ml-1 font-semibold">
+                            {to}
+                        </span>
+                    </span>
                 </div>
-            </PopoverContent>
-        </Popover>
+            )}
+
+            <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                    <Button
+                        size="md"
+                        variant="helper"
+                        leftIcon={<CalendarIcon />}
+                        className="-mt-4 w-68 justify-start">
+                        {label ? (
+                            label
+                        ) : (
+                            <span className="flex items-center gap-1 font-semibold">
+                                {selectedRange?.from ? (
+                                    selectedRange.to ? (
+                                        <>
+                                            {from}
+                                            <span className="text-text-secondary">
+                                                -
+                                            </span>
+                                            {to}
+                                        </>
+                                    ) : (
+                                        from
+                                    )
+                                ) : (
+                                    <span className="text-text-secondary">
+                                        Select a range
+                                    </span>
+                                )}
+                            </span>
+                        )}
+                    </Button>
+                </PopoverTrigger>
+
+                <PopoverContent
+                    align="end"
+                    className="flex w-68 flex-col items-center px-0 py-0">
+                    <Calendar
+                        {...props}
+                        mode="range"
+                        locale={enUS}
+                        disabled={{ after: today }}
+                        selected={{
+                            from: selectedRange?.from
+                                ? stringToDate(selectedRange.from)
+                                : undefined,
+                            to: selectedRange?.to
+                                ? stringToDate(selectedRange.to)
+                                : undefined,
+                        }}
+                        max={31 * 3} // 3 months max range (considering 31 days per month)
+                        onSelect={(d) => {
+                            const range = {
+                                from: d?.from
+                                    ? dateToString(d?.from)
+                                    : defaultItem.range.from,
+                                to: d?.to
+                                    ? dateToString(d?.to)
+                                    : d?.from
+                                      ? dateToString(d.from)
+                                      : defaultItem.range.to,
+                            };
+
+                            setOpen(false);
+                            setSelectedRange(range);
+
+                            startTransition(() => {
+                                setCockpitDateRangeCookie(range);
+                            });
+                        }}
+                    />
+
+                    <Separator className="mb-3" />
+
+                    <div className="grid grid-cols-2 gap-1 px-0 pb-4">
+                        {ranges.map((r) => (
+                            <Button
+                                key={r.label}
+                                size="xs"
+                                className="w-full"
+                                variant={
+                                    isEqual(
+                                        selectedRange?.from!,
+                                        r.range.from,
+                                    ) && isEqual(selectedRange?.to!, r.range.to)
+                                        ? "primary-dark"
+                                        : "helper"
+                                }
+                                onClick={() => {
+                                    setOpen(false);
+                                    setSelectedRange({
+                                        from: r.range.from,
+                                        to: r.range.to,
+                                    });
+
+                                    startTransition(() => {
+                                        setCockpitDateRangeCookie(r.range);
+                                    });
+                                }}>
+                                {r.label}
+                            </Button>
+                        ))}
+                    </div>
+                </PopoverContent>
+            </Popover>
+        </>
     );
 };

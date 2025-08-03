@@ -3,10 +3,8 @@ import { Skeleton } from "@components/ui/skeleton";
 
 export default function Loading() {
     return (
-        <>
-            <CardContent className="flex items-center justify-center text-3xl font-bold">
-                <Skeleton className="h-60" />
-            </CardContent>
-        </>
+        <CardContent className="px-0 pb-0">
+            <Skeleton className="h-60 rounded-none" />
+        </CardContent>
     );
 }

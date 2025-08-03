@@ -55,5 +55,6 @@ export const getCodeHealthBugRatioAnalytics = ({
         };
     }>(`/code-health/highlights/bug-ratio`, {
         params: { endDate, startDate },
+        next: { tags: ["cockpit-repository-dependent"] },
     });
 };

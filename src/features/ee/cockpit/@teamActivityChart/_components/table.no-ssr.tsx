@@ -2,9 +2,11 @@
 
 import dynamic from "next/dynamic";
 
+import Loading from "./loading";
+
 const DataTable = dynamic(
     () => import("./data-table").then((c) => c.DataTable),
-    { ssr: false },
+    { ssr: false, loading: Loading },
 );
 
 export const TableNoSSR = ({

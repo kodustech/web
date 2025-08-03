@@ -1,14 +1,10 @@
 "use client";
 
-import { CardContent, CardHeader, CardTitle } from "@components/ui/card";
-import { CockpitNoDataPlaceholder } from "src/features/ee/cockpit/_components/no-data-placeholder";
-
-const errorMessages = {
-    NO_DATA: () => <CockpitNoDataPlaceholder mini />,
-    DEFAULT: () => (
-        <span className="w-40">It looks like we couldn't fetch the data.</span>
-    ),
-} as const satisfies Record<string, () => React.JSX.Element>;
+import { startTransition } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@components/ui/button";
+import { CardContent } from "@components/ui/card";
+import { PRSizeAnalyticsHeader } from "src/features/ee/cockpit/@prSizeAnalytics/_components/header";
 
 export default function ErrorPage({
     error,
@@ -17,21 +13,28 @@ export default function ErrorPage({
     error: Error & { digest?: string };
     reset: () => void;
 }) {
-    const Component =
-        errorMessages[error.message as keyof typeof errorMessages] ??
-        errorMessages.DEFAULT;
+    const router = useRouter();
 
     return (
         <>
-            <CardHeader>
-                <CardTitle className="text-sm">
-                    PR Size
-                    <small className="text-text-secondary ml-1">(p75)</small>
-                </CardTitle>
-            </CardHeader>
+            <PRSizeAnalyticsHeader />
 
-            <CardContent className="text-text-secondary -mt-4 flex h-full w-full items-center justify-center text-center text-sm">
-                <Component />
+            <CardContent className="text-text-secondary -mt-4 flex h-full w-full flex-col items-center justify-center gap-2 text-center text-sm">
+                <span className="w-40">
+                    It looks like we couldn't fetch the data.
+                </span>
+
+                <Button
+                    size="xs"
+                    variant="primary-dark"
+                    onClick={() => {
+                        startTransition(() => {
+                            reset();
+                            router.refresh();
+                        });
+                    }}>
+                    Try again
+                </Button>
             </CardContent>
         </>
     );

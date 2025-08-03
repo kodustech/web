@@ -1,9 +1,4 @@
-import {
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@components/ui/card";
+import { CardContent, CardFooter } from "@components/ui/card";
 import { DashedLine } from "@components/ui/dashed-line";
 import { Separator } from "@components/ui/separator";
 import {
@@ -17,6 +12,8 @@ import { getPercentageDiff } from "src/features/ee/cockpit/_services/analytics/u
 
 import { InsightsBadge } from "../_components/insights-badge";
 import { PercentageDiff } from "../_components/percentage-diff";
+import { PRCycleTimeAnalyticsHeader } from "./_components/header";
+import NoData from "./_components/no-data";
 
 const comparisonParameters = {
     "elite": {
@@ -62,7 +59,7 @@ export default async function LeadTimeForChangeAnalytics() {
         data.currentPeriod.leadTimeP75Hours === 0 &&
         data.currentPeriod.leadTimeP75Minutes === 0
     ) {
-        throw new Error("NO_DATA");
+        return <NoData />;
     }
 
     const [badge] = Object.entries(comparisonParameters).find(
@@ -78,64 +75,55 @@ export default async function LeadTimeForChangeAnalytics() {
 
     return (
         <>
-            <CardHeader>
-                <div className="flex justify-between gap-4">
-                    <CardTitle className="text-sm">
-                        PR Cycle Time
-                        <small className="text-text-secondary ml-1">
-                            (p75)
-                        </small>
-                    </CardTitle>
+            <PRCycleTimeAnalyticsHeader>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <InsightsBadge
+                            type={
+                                badge as React.ComponentProps<
+                                    typeof InsightsBadge
+                                >["type"]
+                            }
+                        />
+                    </TooltipTrigger>
 
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <InsightsBadge
-                                type={
-                                    badge as React.ComponentProps<
-                                        typeof InsightsBadge
-                                    >["type"]
-                                }
-                            />
-                        </TooltipTrigger>
+                    <TooltipContent
+                        align="end"
+                        className="w-96 p-5 text-sm shadow-2xl">
+                        <span className="mb-4 flex font-bold">
+                            PR Cycle Time Parameters
+                        </span>
 
-                        <TooltipContent
-                            align="end"
-                            className="w-96 p-5 text-sm shadow-2xl">
-                            <span className="mb-4 flex font-bold">
-                                PR Cycle Time Parameters
-                            </span>
-
-                            <div className="children:flex children:justify-between flex flex-col gap-2">
-                                <div className="text-text-secondary">
-                                    <span>Hours</span>
-                                    <span>Level</span>
-                                </div>
-
-                                <Separator />
-
-                                {Object.entries(comparisonParameters).map(
-                                    ([key, { label }]) => (
-                                        <div key={key}>
-                                            <span className="shrink-0">
-                                                {label}
-                                            </span>
-                                            <DashedLine />
-                                            <InsightsBadge
-                                                className="pointer-events-none"
-                                                type={
-                                                    key as React.ComponentProps<
-                                                        typeof InsightsBadge
-                                                    >["type"]
-                                                }
-                                            />
-                                        </div>
-                                    ),
-                                )}
+                        <div className="children:flex children:justify-between flex flex-col gap-2">
+                            <div className="text-text-secondary">
+                                <span>Hours</span>
+                                <span>Level</span>
                             </div>
-                        </TooltipContent>
-                    </Tooltip>
-                </div>
-            </CardHeader>
+
+                            <Separator />
+
+                            {Object.entries(comparisonParameters).map(
+                                ([key, { label }]) => (
+                                    <div key={key}>
+                                        <span className="shrink-0">
+                                            {label}
+                                        </span>
+                                        <DashedLine />
+                                        <InsightsBadge
+                                            className="pointer-events-none"
+                                            type={
+                                                key as React.ComponentProps<
+                                                    typeof InsightsBadge
+                                                >["type"]
+                                            }
+                                        />
+                                    </div>
+                                ),
+                            )}
+                        </div>
+                    </TooltipContent>
+                </Tooltip>
+            </PRCycleTimeAnalyticsHeader>
 
             <CardContent className="flex items-center justify-center">
                 <div className="text-3xl font-bold">

@@ -53,7 +53,9 @@ export const analyticsFetch = async <Data>(
         });
     } catch (error) {
         if (error instanceof Error) {
-            console.error(`Analytics request failed: ${error.message}`);
+            console.error(
+                `Analytics request failed: ${error.message} in ${finalUrl}`,
+            );
             return null as Data;
         }
         throw error;

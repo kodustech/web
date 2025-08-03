@@ -59,6 +59,8 @@
 
     &[data-active]:not([data-disabled]),
     &[data-state='open'],
+    &[data-state='delayed-open'],
+    &[data-state='instant-open'],
     &[data-state="checked"],
     &[data-selected="true"] {
         @slot
