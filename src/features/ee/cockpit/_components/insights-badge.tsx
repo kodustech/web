@@ -3,7 +3,7 @@ import { Badge } from "@components/ui/badge";
 import { cn } from "src/core/utils/components";
 
 type InsightsBadgeType = "elite" | "high" | "fair" | "need-focus";
-type InsightsBadgeProps = { type: InsightsBadgeType };
+type InsightsBadgeProps = { type: InsightsBadgeType; className?: string };
 
 const classNames: Record<InsightsBadgeType, string> = {
     "fair": "text-[hsl(42,95%,61%)]",
@@ -84,8 +84,12 @@ export const InsightsBadge = forwardRef<any, InsightsBadgeProps>(
             <Badge
                 ref={ref}
                 variant="secondary"
-                className={cn("h-fit gap-1.5", classNames[props.type])}
-                leftIcon={icons[props.type]}>
+                leftIcon={icons[props.type]}
+                className={cn(
+                    "h-fit gap-1.5",
+                    props.className,
+                    classNames[props.type],
+                )}>
                 {names[props.type]}
             </Badge>
         );

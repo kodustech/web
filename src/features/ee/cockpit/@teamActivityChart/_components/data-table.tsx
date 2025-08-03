@@ -1,6 +1,5 @@
 "use client";
 
-import { ScrollArea, ScrollBar } from "@components/ui/scroll-area";
 import {
     TableBody,
     TableCell,
@@ -63,9 +62,11 @@ export const DataTable = ({
     });
 
     return (
-        <ScrollArea type="always" className="relative h-[600px]">
-            <table className="text-sm" style={{ width: table.getTotalSize() }}>
-                <TableHeader className="sticky top-0 z-10">
+        <div className="relative max-h-[700px] w-full overflow-x-auto">
+            <table
+                className="min-w-full text-sm"
+                style={{ width: table.getTotalSize() }}>
+                <TableHeader className="sticky top-0 z-2">
                     {table.getHeaderGroups().map((headerGroup) => (
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map((header) => {
@@ -141,8 +142,6 @@ export const DataTable = ({
                     )}
                 </TableBody>
             </table>
-
-            <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+        </div>
     );
 };

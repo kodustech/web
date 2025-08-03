@@ -1,26 +1,13 @@
-import {
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@components/ui/card";
+import { CardContent, CardFooter } from "@components/ui/card";
 import { Skeleton } from "@components/ui/skeleton";
+import { PRSizeAnalyticsHeader } from "src/features/ee/cockpit/@prSizeAnalytics/_components/header";
 
 export default function Loading() {
     return (
         <>
-            <CardHeader>
-                <div className="flex justify-between">
-                    <CardTitle className="text-sm">
-                        PR Size
-                        <small className="text-text-secondary ml-1">
-                            (p75)
-                        </small>
-                    </CardTitle>
-
-                    <Skeleton className="h-4 w-16" />
-                </div>
-            </CardHeader>
+            <PRSizeAnalyticsHeader>
+                <Skeleton className="h-4 w-16" />
+            </PRSizeAnalyticsHeader>
 
             <CardContent className="flex items-center justify-center text-3xl font-bold">
                 <Skeleton className="h-10 w-1/2" />

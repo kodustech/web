@@ -11,6 +11,7 @@ export type Repository = {
     http_url: string;
     id: string;
     name: string;
+    full_name: string;
     language: string;
     organizationName: string;
     visibility: string;

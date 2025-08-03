@@ -10,6 +10,7 @@ import type { LiteralUnion } from "../types";
 
 export type CookieName = LiteralUnion<
     | "cockpit-selected-date-range"
+    | "cockpit-selected-repository"
     | "global-selected-team-id"
     | "started-setup-from-new-setup-page"
     | "selectedTeam"

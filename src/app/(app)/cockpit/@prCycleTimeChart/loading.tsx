@@ -1,12 +1,3 @@
-import { CardContent } from "@components/ui/card";
-import { Skeleton } from "@components/ui/skeleton";
+import Loading from "src/features/ee/cockpit/@prCycleTimeChart/_components/loading";
 
-export default function Loading() {
-    return (
-        <>
-            <CardContent>
-                <Skeleton className="h-full" />
-            </CardContent>
-        </>
-    );
-}
+export default Loading;

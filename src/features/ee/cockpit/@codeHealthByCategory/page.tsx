@@ -1,7 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@components/ui/card";
-import { capitalize } from "src/core/utils/string";
+import { capitalize, pluralize } from "src/core/utils/string";
 import { getCodeHealthSuggestionsByCategory } from "src/features/ee/cockpit/_services/analytics/code-health/fetch";
 
+import { CockpitNoDataPlaceholder } from "../_components/no-data-placeholder";
 import { getSelectedDateRange } from "../_helpers/get-selected-date-range";
 
 export default async function CodeHealthByCategory() {
@@ -12,20 +13,13 @@ export default async function CodeHealthByCategory() {
         endDate: selectedDateRange.endDate,
     });
 
-    if (!data?.length) throw new Error("NO_DATA");
+    if (data?.length === 0) {
+        return <CockpitNoDataPlaceholder mini className="col-span-3 mt-0" />;
+    }
 
     return (
         <>
-            <Card className="col-span-2 bg-transparent">
-                <CardHeader className="text-text-secondary text-sm">
-                    The card(s) displays the number of Suggestions Provided by
-                    Kody for each active Analysis Types. The data is filtered
-                    based on the number of suggestions sent to the team within
-                    the chosen time period.
-                </CardHeader>
-            </Card>
-
-            {data?.map((d) => {
+            {data.map((d) => {
                 const categoryName = d.category
                     .split("_")
                     .map(capitalize)
@@ -40,12 +34,15 @@ export default async function CodeHealthByCategory() {
                         </CardHeader>
 
                         <CardContent className="flex items-end gap-1">
-                            <div className="text-2xl leading-5 font-bold">
+                            <div className="text-3xl leading-5 font-bold">
                                 {d.count}
-                            </div>{" "}
-                            <small className="text-text-secondary">
-                                issues
-                            </small>
+                            </div>
+                            <span className="text-text-secondary ml-0.5 text-sm leading-[0.8]">
+                                {pluralize(d.count, {
+                                    plural: "issues",
+                                    singular: "issue",
+                                })}
+                            </span>
                         </CardContent>
                     </Card>
                 );

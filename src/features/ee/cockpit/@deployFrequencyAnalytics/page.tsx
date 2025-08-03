@@ -1,9 +1,4 @@
-import {
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@components/ui/card";
+import { CardContent, CardFooter } from "@components/ui/card";
 import { DashedLine } from "@components/ui/dashed-line";
 import { Separator } from "@components/ui/separator";
 import {
@@ -16,7 +11,9 @@ import { getDeployFrequencyAnalytics } from "src/features/ee/cockpit/_services/a
 import { getPercentageDiff } from "src/features/ee/cockpit/_services/analytics/utils";
 
 import { InsightsBadge } from "../_components/insights-badge";
+import { CockpitNoDataPlaceholder } from "../_components/no-data-placeholder";
 import { PercentageDiff } from "../_components/percentage-diff";
+import { DeployFrequencyAnalyticsHeader } from "./_components/header";
 
 const comparisonParameters = {
     "elite": {
@@ -56,7 +53,15 @@ export default async function DeployFrequencyAnalytics() {
         data.currentPeriod.averagePerWeek === 0 &&
         data.previousPeriod.averagePerWeek === 0
     ) {
-        throw new Error("NO_DATA");
+        return (
+            <>
+                <DeployFrequencyAnalyticsHeader />
+
+                <CardContent className="flex items-center justify-center">
+                    <CockpitNoDataPlaceholder mini />
+                </CardContent>
+            </>
+        );
     }
 
     const [badge] = Object.entries(comparisonParameters).find(
@@ -65,58 +70,55 @@ export default async function DeployFrequencyAnalytics() {
 
     return (
         <>
-            <CardHeader>
-                <div className="flex justify-between gap-4">
-                    <CardTitle className="text-sm">Deploy Frequency</CardTitle>
+            <DeployFrequencyAnalyticsHeader>
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                        <InsightsBadge
+                            type={
+                                badge as React.ComponentProps<
+                                    typeof InsightsBadge
+                                >["type"]
+                            }
+                        />
+                    </TooltipTrigger>
 
-                    <Tooltip>
-                        <TooltipTrigger asChild>
-                            <InsightsBadge
-                                type={
-                                    badge as React.ComponentProps<
-                                        typeof InsightsBadge
-                                    >["type"]
-                                }
-                            />
-                        </TooltipTrigger>
+                    <TooltipContent
+                        className="w-96 p-5 text-sm shadow-2xl"
+                        align="end">
+                        <span className="mb-4 flex font-bold">
+                            Deploy Frequency Parameters
+                        </span>
 
-                        <TooltipContent
-                            className="w-96 p-5 text-sm shadow-2xl"
-                            align="end">
-                            <span className="mb-4 flex font-bold">
-                                Deploy Frequency Parameters
-                            </span>
-
-                            <div className="children:flex children:justify-between flex flex-col gap-2">
-                                <div className="text-text-secondary">
-                                    <span>Deploys/week</span>
-                                    <span>Level</span>
-                                </div>
-
-                                <Separator />
-
-                                {Object.entries(comparisonParameters).map(
-                                    ([key, { label }]) => (
-                                        <div key={key}>
-                                            <span className="shrink-0">
-                                                {label}
-                                            </span>
-                                            <DashedLine />
-                                            <InsightsBadge
-                                                type={
-                                                    key as React.ComponentProps<
-                                                        typeof InsightsBadge
-                                                    >["type"]
-                                                }
-                                            />
-                                        </div>
-                                    ),
-                                )}
+                        <div className="children:flex children:justify-between flex flex-col gap-2">
+                            <div className="text-text-secondary">
+                                <span>Deploys/week</span>
+                                <span>Level</span>
                             </div>
-                        </TooltipContent>
-                    </Tooltip>
-                </div>
-            </CardHeader>
+
+                            <Separator />
+
+                            {Object.entries(comparisonParameters).map(
+                                ([key, { label }]) => (
+                                    <div key={key}>
+                                        <span className="shrink-0">
+                                            {label}
+                                        </span>
+                                        <DashedLine />
+                                        <InsightsBadge
+                                            className="pointer-events-none"
+                                            type={
+                                                key as React.ComponentProps<
+                                                    typeof InsightsBadge
+                                                >["type"]
+                                            }
+                                        />
+                                    </div>
+                                ),
+                            )}
+                        </div>
+                    </TooltipContent>
+                </Tooltip>
+            </DeployFrequencyAnalyticsHeader>
 
             <CardContent className="flex items-center justify-center text-3xl font-bold">
                 {data?.currentPeriod?.averagePerWeek}

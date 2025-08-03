@@ -28,6 +28,9 @@ export default function App() {
         ClientSideCookieHelpers("global-selected-team-id").delete();
         ClientSideCookieHelpers("started-setup-from-new-setup-page").delete();
         ClientSideCookieHelpers("selectedTeam").delete();
+        ClientSideCookieHelpers("cockpit-selected-date-range").delete();
+        ClientSideCookieHelpers("cockpit-selected-repository").delete();
+
         deleteFiltersInLocalStorage();
 
         removeQueries();

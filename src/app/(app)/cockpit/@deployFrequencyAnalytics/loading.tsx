@@ -1,21 +1,13 @@
-import {
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@components/ui/card";
+import { CardContent, CardFooter } from "@components/ui/card";
 import { Skeleton } from "@components/ui/skeleton";
+import { DeployFrequencyAnalyticsHeader } from "src/features/ee/cockpit/@deployFrequencyAnalytics/_components/header";
 
 export default function Loading() {
     return (
         <>
-            <CardHeader>
-                <div className="flex justify-between">
-                    <CardTitle className="text-sm">Deploy Frequency</CardTitle>
-
-                    <Skeleton className="h-4 w-16" />
-                </div>
-            </CardHeader>
+            <DeployFrequencyAnalyticsHeader>
+                <Skeleton className="h-4 w-16" />
+            </DeployFrequencyAnalyticsHeader>
 
             <CardContent className="flex items-center justify-center text-3xl font-bold">
                 <Skeleton className="h-10 w-1/2" />
