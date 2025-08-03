@@ -46,7 +46,7 @@ export const Chart = ({
 }) => {
     const [graphRef, boundingRect] = useResizeObserver();
     const { isExpanded } = use(ExpandableContext);
-    const isTiltedDate = data.length > 6 && !isExpanded;
+    const isTiltedDate = data?.length > 6 && !isExpanded;
 
     const [visibleBars, setVisibleBars] = useState(
         legendItems.reduce(

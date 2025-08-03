@@ -23,7 +23,7 @@ export const Chart = ({
 }) => {
     const [graphRef, boundingRect] = useResizeObserver();
     const { isExpanded } = use(ExpandableContext);
-    const isTiltedDate = data.length > 6 && !isExpanded;
+    const isTiltedDate = data?.length > 6 && !isExpanded;
 
     return (
         <div ref={graphRef} className="h-full w-full">
