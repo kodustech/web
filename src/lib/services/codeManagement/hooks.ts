@@ -37,20 +37,6 @@ export function useGetRepositories(
     );
 }
 
-export function useGetOnboardingPullRequests(teamId: string) {
-    return useFetch<
-        {
-            id: string;
-            pull_number: number;
-            repository: string;
-            title: string;
-            url: string;
-        }[]
-    >(CODE_MANAGEMENT_API_PATHS.GET_ONBOARDING_PULL_REQUESTS, {
-        params: { teamId },
-    });
-}
-
 export function useSuspenseGetOnboardingPullRequests(teamId: string) {
     return useSuspenseFetch<
         {
