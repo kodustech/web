@@ -21,14 +21,12 @@ export const PRSummaryPreviewResult = (props: {
                     <span className="text-primary-light">
                         #{props.selectedPR.pull_number}
                     </span>
-                    {props.selectedPR && (
-                        <span className="text-text-secondary ml-1">
-                            from{" "}
-                            <span className="text-primary-light">
-                                {props.selectedPR.repository}
-                            </span>
+                    <span className="text-text-secondary ml-1">
+                        from{" "}
+                        <span className="text-primary-light">
+                            {props.selectedPR.repository}
                         </span>
-                    )}
+                    </span>
                 </Heading>
 
                 <Button

@@ -42,7 +42,7 @@ export const PRSummaryPreviewSelectRepositories = ({
                 pr.repository === repositoryName ||
                 pr.repository === repositoryId,
         );
-    }, [allPullRequests]);
+    }, [allPullRequests, isGlobalConfig, repositoryId, repositoryName]);
 
     return (
         <SelectPullRequest
