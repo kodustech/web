@@ -71,20 +71,6 @@ export const PRSummaryPreviewModal = ({
         setPreviewResult(null);
 
         try {
-            console.log("Sending request with data:", {
-                organizationId,
-                teamId,
-                repository: {
-                    id: isGlobalConfig ? selectedPR.repository : repositoryId,
-                    name: isGlobalConfig
-                        ? selectedPR.repository
-                        : repositoryName,
-                },
-                prNumber: selectedPR.pull_number.toString(),
-                behaviourForExistingDescription,
-                customInstructions,
-            });
-
             const response = await axiosAuthorized.post<PreviewResponse>(
                 PARAMETERS_PATHS.PREVIEW_PR_SUMMARY,
                 {
@@ -105,7 +91,6 @@ export const PRSummaryPreviewModal = ({
                 },
             );
 
-            console.log("API Response:", response);
             setPreviewResult(response.data || "No summary generated");
         } catch (err) {
             console.error("Error generating preview:", err);
@@ -187,13 +172,9 @@ export const PRSummaryPreviewModal = ({
                                             variant="primary"
                                             leftIcon={<Eye />}
                                             disabled={!selectedPR}
-                                            onClick={() => {
-                                                console.log(
-                                                    "Generate Preview clicked, selectedPR:",
-                                                    selectedPR,
-                                                );
-                                                handleGeneratePreview();
-                                            }}>
+                                            onClick={() =>
+                                                handleGeneratePreview()
+                                            }>
                                             Generate Preview
                                         </Button>
                                     </DialogFooter>
