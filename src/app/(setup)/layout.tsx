@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { MagicModalPortal } from "@components/ui/magic-modal";
 import {
     getOrganizationId,
     getOrganizationName,
@@ -27,6 +28,7 @@ export default async function Layout(props: React.PropsWithChildren) {
                 <AllTeamsProvider teams={teams}>
                     <SelectedTeamProvider>
                         {props.children}
+                        <MagicModalPortal />
                     </SelectedTeamProvider>
                 </AllTeamsProvider>
             </OrganizationProvider>

@@ -15,6 +15,7 @@ import { Checkbox } from "@components/ui/checkbox";
 import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
 import { Link } from "@components/ui/link";
+import { magicModal } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
 import { Switch } from "@components/ui/switch";
 import { Textarea } from "@components/ui/textarea";
@@ -27,19 +28,18 @@ import {
     KodyLearningStatus,
     ParametersConfigKey,
 } from "@services/parameters/types";
-import { Save, Eye } from "lucide-react";
+import { Eye, Save } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { useState } from "react";
 
 import { useAutomationCodeReviewConfig, usePlatformConfig } from "../context";
+import { PRSummaryPreviewModal } from "../pr-summary-preview-modal/modal";
 import GeneratingConfig from "./generating-config";
 import {
     AutomationCodeReviewConfigPageProps,
     CodeReviewSummaryOptions,
     type CodeReviewGlobalConfig,
 } from "./types";
-import { PRSummaryPreviewModal } from "./pr-summary-preview-modal";
 
 const examples = [
     "Focus on security changes and performance impacts",
@@ -71,21 +71,23 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
     const { teamId } = useSelectedTeamId();
     const config = useAutomationCodeReviewConfig(props.repositoryId);
     const platformConfig = usePlatformConfig();
-    const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
     const form = useForm<CodeReviewGlobalConfig & { id?: string }>({
-        defaultValues: {
-            ...config,
-            summary: config?.summary ?? {
-                generatePRSummary: false,
-                customInstructions: "",
-                behaviourForExistingDescription:
-                    CodeReviewSummaryOptions.REPLACE,
-            },
-        },
         mode: "all",
         reValidateMode: "onChange",
         criteriaMode: "firstError",
+        defaultValues: {
+            ...config,
+            summary: {
+                ...(config?.summary ?? {}),
+                generatePRSummary: config?.summary?.generatePRSummary ?? false,
+                customInstructions: config?.summary?.customInstructions ?? "",
+                behaviourForExistingDescription:
+                    config?.summary?.behaviourForExistingDescription ??
+                    CodeReviewSummaryOptions.REPLACE,
+            },
+        },
     });
+
     const generatePRSummary = form.watch("summary.generatePRSummary");
 
     const { invalidateQueries, generateQueryKey } =
@@ -328,30 +330,41 @@ export const PRSummary = (props: AutomationCodeReviewConfigPageProps) => {
                                     }
                                 />
                             </FormControl.Input>
-                            
-                            <div className="mt-3 flex justify-end">
-                                <Button
-                                    size="md"
-                                    variant="helper"
-                                    leftIcon={<Eye />}
-                                    disabled={!generatePRSummary}
-                                    onClick={() => setIsPreviewModalOpen(true)}>
-                                    View Preview
-                                </Button>
-                            </div>
                         </FormControl.Root>
                     )}
                 />
-            </Page.Content>
 
-            <PRSummaryPreviewModal
-                isOpen={isPreviewModalOpen}
-                onClose={() => setIsPreviewModalOpen(false)}
-                repositoryId={props.repositoryId}
-                repositoryName={config?.name || props.repositoryId}
-                behaviourForExistingDescription={form.watch("summary.behaviourForExistingDescription") || CodeReviewSummaryOptions.REPLACE}
-                customInstructions={form.watch("summary.customInstructions") || ""}
-            />
+                <div className="-mt-3 flex justify-end">
+                    <Button
+                        size="md"
+                        variant="helper"
+                        leftIcon={<Eye />}
+                        disabled={!generatePRSummary}
+                        onClick={() => {
+                            const behaviourForExistingDescription =
+                                form.getValues(
+                                    "summary.behaviourForExistingDescription",
+                                );
+
+                            const customInstructions = form.getValues(
+                                "summary.customInstructions",
+                            );
+
+                            magicModal.show(() => (
+                                <PRSummaryPreviewModal
+                                    repositoryId={props.repositoryId}
+                                    customInstructions={customInstructions!}
+                                    repositoryName={config?.name!}
+                                    behaviourForExistingDescription={
+                                        behaviourForExistingDescription!
+                                    }
+                                />
+                            ));
+                        }}>
+                        View Preview
+                    </Button>
+                </div>
+            </Page.Content>
         </Page.Root>
     );
 };

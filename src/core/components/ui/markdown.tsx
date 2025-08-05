@@ -27,27 +27,21 @@ export const Markdown = (props: Props) => {
     return (
         <MarkdownToJSX
             className={cn(
-                "text-sm",
-                "*:mb-4",
-                "*:first-child:mt-0",
-                "[&_li>span]:mt-4",
-                "[&_summary]:cursor-pointer",
+                "text-text-secondary text-sm",
+                "*:first-child:mt-0 *:mb-4 [&_li>span]:mt-4 [&_li>ul]:mt-2 [&_summary]:cursor-pointer",
                 "[&_blockquote]:mb-4 [&_details]:mb-4 [&_dl]:mb-4 [&_ol]:mb-4 [&_pre]:mb-4 [&_span]:mb-4 [&_table]:mb-4 [&_ul]:mb-4",
+                "[&_ul]:list-disc [&_ul]:space-y-2.5 [&_ul]:pl-4.5",
+
+                "[&_summary]:text-text-primary [&_strong]:text-text-primary [&_th]:text-text-primary",
+
+                "[&_code]:bg-background [&_code]:text-text-primary [&_code]:rounded-md [&_code]:px-1 [&_code]:py-0.5 [&_code]:font-sans [&_code]:leading-0 [&_code]:whitespace-break-spaces",
+
                 props.className,
             )}
             options={{
                 ...props.options,
                 overrides: {
                     iframe: () => null,
-                    code: (props) => (
-                        <code
-                            {...props}
-                            className={cn(
-                                "bg-card-lv1 text-text-primary rounded-lg px-1 py-0.5 leading-0 whitespace-break-spaces",
-                                props.className,
-                            )}
-                        />
-                    ),
                     p: (props) => (
                         <span
                             {...props}
@@ -67,9 +61,6 @@ export const Markdown = (props: Props) => {
                                 >["href"]
                             }
                         />
-                    ),
-                    ul: ({ children }) => (
-                        <ul className="list-disc pl-4.5">{children}</ul>
                     ),
                     h1: ({ children }) => (
                         <Heading variant="h1" className="border-b pb-2">

@@ -24,13 +24,31 @@ export function useGetOrganizations() {
     );
 }
 
-export function useGetRepositories(teamId: string, organizationSelected?: any, filters?: { isSelected?: boolean }) {
+export function useGetRepositories(
+    teamId: string,
+    organizationSelected?: any,
+    filters?: { isSelected?: boolean },
+) {
     return useFetch<Repository[]>(
         CODE_MANAGEMENT_API_PATHS.GET_REPOSITORIES_ORG,
         {
             params: { teamId, organizationSelected, ...(filters || {}) },
         },
     );
+}
+
+export function useGetOnboardingPullRequests(teamId: string) {
+    return useFetch<
+        {
+            id: string;
+            pull_number: number;
+            repository: string;
+            title: string;
+            url: string;
+        }[]
+    >(CODE_MANAGEMENT_API_PATHS.GET_ONBOARDING_PULL_REQUESTS, {
+        params: { teamId },
+    });
 }
 
 export function useSuspenseGetOnboardingPullRequests(teamId: string) {
