@@ -4,6 +4,12 @@ import { useMemo } from "react";
 import { useParams, usePathname } from "next/navigation";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleIndicator,
+    CollapsibleTrigger,
+} from "@components/ui/collapsible";
 import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
@@ -22,6 +28,7 @@ import {
     useSuspenseGetCodeReviewParameter,
     useSuspenseGetParameterPlatformConfigs,
 } from "@services/parameters/hooks";
+import type { LiteralUnion } from "src/core/types";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
 import {
@@ -55,7 +62,7 @@ export const AutomationCodeReviewLayout = ({
 
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
     const { params: [repositoryParam, pageNameParam] = [] } = useParams<{
-        params: [string, string];
+        params: [LiteralUnion<"global">, string];
     }>();
 
     const mainRoutes = useMemo(() => {
@@ -113,7 +120,7 @@ export const AutomationCodeReviewLayout = ({
                 <SidebarContent className="gap-4 px-6 py-6">
                     <SidebarGroup>
                         <SidebarGroupContent>
-                            <SidebarMenu className="flex flex-col gap-1">
+                            <SidebarMenu>
                                 {mainRoutes.map((route) => (
                                     <SidebarMenuItem key={route.href}>
                                         <Link
@@ -143,42 +150,60 @@ export const AutomationCodeReviewLayout = ({
 
                     <SidebarGroup>
                         <SidebarGroupContent>
-                            <SidebarMenu className="flex flex-col gap-6">
-                                <SidebarMenuItem>
-                                    <p className="px-2 pb-3 font-semibold">
-                                        Global
-                                    </p>
-                                    <SidebarMenuSub>
-                                        {routes.map(({ label, href }) => {
-                                            const active =
-                                                repositoryParam === "global" &&
-                                                pageNameParam === href;
+                            <SidebarMenu className="gap-6">
+                                <Collapsible
+                                    defaultOpen={
+                                        repositoryParam === "global" ||
+                                        !repositoryParam
+                                    }>
+                                    <CollapsibleTrigger asChild>
+                                        <Button
+                                            size="md"
+                                            variant="helper"
+                                            className="h-fit w-full justify-start py-2"
+                                            leftIcon={
+                                                <CollapsibleIndicator className="-ml-1 group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
+                                            }>
+                                            Global
+                                        </Button>
+                                    </CollapsibleTrigger>
 
-                                            return (
-                                                <SidebarMenuSubItem
-                                                    key={label}
-                                                    className="flex flex-col gap-1">
-                                                    <Link
-                                                        href={`/settings/code-review/global/${href}`}
-                                                        className="w-full">
-                                                        <Button
-                                                            decorative
-                                                            size="md"
-                                                            variant={
-                                                                active
-                                                                    ? "helper"
-                                                                    : "cancel"
-                                                            }
-                                                            active={active}
-                                                            className="w-full justify-start">
-                                                            {label}
-                                                        </Button>
-                                                    </Link>
-                                                </SidebarMenuSubItem>
-                                            );
-                                        })}
-                                    </SidebarMenuSub>
-                                </SidebarMenuItem>
+                                    <CollapsibleContent>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuSub>
+                                                {routes.map(
+                                                    ({ label, href }) => {
+                                                        const active =
+                                                            repositoryParam ===
+                                                                "global" &&
+                                                            pageNameParam ===
+                                                                href;
+
+                                                        return (
+                                                            <SidebarMenuSubItem
+                                                                key={label}>
+                                                                <Link
+                                                                    className="w-full"
+                                                                    href={`/settings/code-review/global/${href}`}>
+                                                                    <Button
+                                                                        decorative
+                                                                        size="sm"
+                                                                        variant="cancel"
+                                                                        active={
+                                                                            active
+                                                                        }
+                                                                        className="min-h-auto w-full justify-start px-0 py-2">
+                                                                        {label}
+                                                                    </Button>
+                                                                </Link>
+                                                            </SidebarMenuSubItem>
+                                                        );
+                                                    },
+                                                )}
+                                            </SidebarMenuSub>
+                                        </SidebarMenuItem>
+                                    </CollapsibleContent>
+                                </Collapsible>
 
                                 <PerRepository
                                     routes={routes}

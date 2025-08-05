@@ -46,9 +46,15 @@ export const PerRepository = ({
 }) => {
     return (
         <SidebarMenuItem>
-            <div className="px-2 pb-2 font-semibold">
-                <div className="flex items-center justify-between">
-                    <strong>Per repository</strong>
+            <div className="pl-2">
+                <div className="flex justify-between">
+                    <div className="mb-4 flex flex-col gap-0.5">
+                        <strong>Per repository</strong>
+                        <span className="text-text-secondary text-xs">
+                            Set custom configurations for each repository
+                            (override global defaults).
+                        </span>
+                    </div>
 
                     <Button
                         size="icon-sm"
@@ -61,10 +67,6 @@ export const PerRepository = ({
                         <Plus />
                     </Button>
                 </div>
-                <span className="text-text-secondary mt-2 mb-2 block max-w-52">
-                    Set custom configurations for each repository (override
-                    global defaults).
-                </span>
             </div>
 
             <div className="flex flex-col gap-1">
@@ -86,13 +88,11 @@ export const PerRepository = ({
                                     <CollapsibleTrigger asChild>
                                         <Button
                                             size="md"
-                                            variant={
-                                                active ? "helper" : "cancel"
-                                            }
+                                            variant="helper"
                                             className="h-fit w-full justify-start py-2"
                                             active={active}
                                             leftIcon={
-                                                <CollapsibleIndicator className="group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
+                                                <CollapsibleIndicator className="-ml-1 group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
                                             }>
                                             {repository.name}
                                         </Button>
@@ -139,23 +139,17 @@ export const PerRepository = ({
                                                 pageNameParam === href;
 
                                             return (
-                                                <SidebarMenuSubItem
-                                                    className="flex flex-col gap-1"
-                                                    key={label}>
+                                                <SidebarMenuSubItem key={label}>
                                                     <Link
-                                                        href={`/settings/code-review/${repository.id}/${href}`}
-                                                        className="w-full">
+                                                        className="w-full"
+                                                        href={`/settings/code-review/${repository.id}/${href}`}>
                                                         <Button
                                                             key={label}
                                                             decorative
-                                                            size="md"
-                                                            variant={
-                                                                active
-                                                                    ? "helper"
-                                                                    : "cancel"
-                                                            }
+                                                            size="sm"
+                                                            variant="cancel"
                                                             active={active}
-                                                            className="w-full justify-start">
+                                                            className="min-h-auto w-full justify-start px-0 py-2">
                                                             {label}
                                                         </Button>
                                                     </Link>
