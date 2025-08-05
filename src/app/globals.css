@@ -259,7 +259,7 @@
     --color-card-lv2: #202032;
     --color-card-lv3: #30304b;
 
-    --color-text-primary: #f3f3f7;
+    --color-text-primary: #ffffff;
     --color-text-placeholder: #f3f3f7;
     --color-text-secondary: #cdcddf;
     --color-text-tertiary: #f3f3f780;
@@ -385,8 +385,7 @@
         @apply font-sans outline-none;
     }
 
-    p,
-    span {
+    p {
         @apply font-normal;
     }
 

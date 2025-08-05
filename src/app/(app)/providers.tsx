@@ -1,6 +1,7 @@
 "use client";
 
 import { PropsWithChildren } from "react";
+import { MagicModalPortal } from "@components/ui/magic-modal";
 import type { Team } from "@services/teams/types";
 import { JWTPayload } from "jose";
 import { AllTeamsProvider } from "src/core/providers/all-teams-context";
@@ -27,7 +28,10 @@ export function Providers({
         <AuthProvider jwtPayload={jwtPayload}>
             <OrganizationProvider organization={organization}>
                 <AllTeamsProvider teams={teams}>
-                    <SelectedTeamProvider>{children}</SelectedTeamProvider>
+                    <SelectedTeamProvider>
+                        {children}
+                        <MagicModalPortal />
+                    </SelectedTeamProvider>
                 </AllTeamsProvider>
             </OrganizationProvider>
         </AuthProvider>

@@ -34,7 +34,7 @@ export const PageRoot = ({
         <div
             {...props}
             className={cn(
-                "relative flex w-full flex-1 flex-col gap-6 py-10",
+                "relative flex w-full flex-1 flex-col gap-6 pt-10 pb-16",
                 (!hasSidebar || scrollable === undefined) && "overflow-auto",
                 props.className,
             )}>

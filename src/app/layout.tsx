@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { DM_Sans, Overpass_Mono } from "next/font/google";
 import Script from "next/script";
 import { OptinMonsterRouteChangeListener } from "@components/system/optinmonster-route-change-listener";
-import { MagicModalPortal } from "@components/ui/magic-modal";
 import { Toaster } from "@components/ui/toaster/toaster";
 import { TooltipProvider } from "@components/ui/tooltip";
 import { GoogleTagManager } from "@next/third-parties/google";
@@ -58,7 +57,6 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
                         <QueryProvider>
                             <NuqsAdapter>
                                 {children}
-                                <MagicModalPortal />
                                 <Toaster />
                             </NuqsAdapter>
                         </QueryProvider>

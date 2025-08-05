@@ -24,7 +24,11 @@ export function useGetOrganizations() {
     );
 }
 
-export function useGetRepositories(teamId: string, organizationSelected?: any, filters?: { isSelected?: boolean }) {
+export function useGetRepositories(
+    teamId: string,
+    organizationSelected?: any,
+    filters?: { isSelected?: boolean },
+) {
     return useFetch<Repository[]>(
         CODE_MANAGEMENT_API_PATHS.GET_REPOSITORIES_ORG,
         {
