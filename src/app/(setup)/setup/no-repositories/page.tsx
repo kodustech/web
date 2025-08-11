@@ -22,7 +22,7 @@ import { ArrowLeftIcon } from "lucide-react";
 import {
     CodeReviewSummaryOptions,
     type CodeReviewGlobalConfig,
-} from "src/app/(app)/settings/code-review/_components/pages/types";
+} from "src/app/(app)/settings/code-review/_types";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { captureSegmentEvent } from "src/core/utils/segment";
@@ -65,7 +65,7 @@ export default function App() {
                 organizationName: repo.organizationName,
                 language: repo?.language,
                 workspaceId: repo?.workspaceId,
-                project: repo?.project
+                project: repo?.project,
             };
         });
 

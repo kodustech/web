@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { useParams, usePathname } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import {
@@ -11,7 +11,6 @@ import {
     CollapsibleTrigger,
 } from "@components/ui/collapsible";
 import { Link } from "@components/ui/link";
-import { magicModal } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
 import {
     Sidebar,
@@ -23,20 +22,19 @@ import {
     SidebarMenuSub,
     SidebarMenuSubItem,
 } from "@components/ui/sidebar";
-import type { TeamAutomation } from "@services/automations/types";
 import {
     useSuspenseGetCodeReviewParameter,
     useSuspenseGetParameterPlatformConfigs,
 } from "@services/parameters/hooks";
-import type { LiteralUnion } from "src/core/types";
+import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
+import { useCodeReviewRouteParams } from "../_hooks";
 import {
     AutomationCodeReviewConfigProvider,
     PlatformConfigProvider,
 } from "./context";
-import { AddRepoModal } from "./pages/kody-rules/_components/addRepoModal";
-import { PerRepository } from "./per-repository";
+import { PerRepository } from "./per-repository/repository";
 
 const routes = [
     { label: "General", href: "general" },
@@ -48,22 +46,17 @@ const routes = [
 
 export const AutomationCodeReviewLayout = ({
     children,
-    automation,
-    teamId,
     pluginsPageFeatureFlag,
 }: React.PropsWithChildren & {
-    automation: TeamAutomation | undefined;
-    teamId: string;
     pluginsPageFeatureFlag: Awaited<
         ReturnType<typeof getFeatureFlagWithPayload>
     >;
 }) => {
     const pathname = usePathname();
-
+    const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
-    const { params: [repositoryParam, pageNameParam] = [] } = useParams<{
-        params: [LiteralUnion<"global">, string];
-    }>();
+    const platformConfig = useSuspenseGetParameterPlatformConfigs(teamId);
+    const { repositoryId, pageName, directoryId } = useCodeReviewRouteParams();
 
     const mainRoutes = useMemo(() => {
         const routes: Array<{
@@ -98,21 +91,25 @@ export const AutomationCodeReviewLayout = ({
         return routes;
     }, [pluginsPageFeatureFlag?.value]);
 
-    const platformConfig = useSuspenseGetParameterPlatformConfigs(teamId);
+    if (repositoryId) {
+        if (repositoryId !== "global") {
+            const repository = configValue?.repositories.find(
+                (r) => r.id === repositoryId,
+            );
 
-    if (!automation) return null;
-    if (!configValue) return null;
-    if (!platformConfig) return null;
+            if (!repository)
+                redirect(`/settings/code-review/global/${pageName}`);
 
-    const addNewRepo = async () => {
-        magicModal.show(() => (
-            <AddRepoModal
-                codeReviewGlobalConfig={configValue?.global}
-                repositories={configValue?.repositories}
-                teamId={teamId}
-            />
-        ));
-    };
+            if (!repository?.isSelected) {
+                const directory = repository?.directories?.find(
+                    (d) => d.id === directoryId,
+                );
+
+                if (!directory)
+                    redirect(`/settings/code-review/global/${pageName}`);
+            }
+        }
+    }
 
     return (
         <div className="flex flex-1 flex-row overflow-hidden">
@@ -153,8 +150,8 @@ export const AutomationCodeReviewLayout = ({
                             <SidebarMenu className="gap-6">
                                 <Collapsible
                                     defaultOpen={
-                                        repositoryParam === "global" ||
-                                        !repositoryParam
+                                        repositoryId === "global" ||
+                                        !repositoryId
                                     }>
                                     <CollapsibleTrigger asChild>
                                         <Button
@@ -174,10 +171,9 @@ export const AutomationCodeReviewLayout = ({
                                                 {routes.map(
                                                     ({ label, href }) => {
                                                         const active =
-                                                            repositoryParam ===
+                                                            repositoryId ===
                                                                 "global" &&
-                                                            pageNameParam ===
-                                                                href;
+                                                            pageName === href;
 
                                                         return (
                                                             <SidebarMenuSubItem
@@ -207,12 +203,8 @@ export const AutomationCodeReviewLayout = ({
 
                                 <PerRepository
                                     routes={routes}
-                                    addNewRepo={addNewRepo}
                                     configValue={configValue}
-                                    pageNameParam={pageNameParam}
-                                    repositoryParam={repositoryParam}
                                     platformConfig={platformConfig}
-                                    teamId={teamId}
                                 />
                             </SidebarMenu>
                         </SidebarGroupContent>
@@ -222,8 +214,8 @@ export const AutomationCodeReviewLayout = ({
 
             <Page.WithSidebar>
                 <AutomationCodeReviewConfigProvider
-                    config={configValue}
-                    key={teamId}>
+                    key={teamId}
+                    config={configValue}>
                     <PlatformConfigProvider config={platformConfig.configValue}>
                         {children}
                     </PlatformConfigProvider>

@@ -17,6 +17,7 @@ import { Separator } from "@components/ui/separator";
 import { Spinner } from "@components/ui/spinner";
 import { toast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
+import { KODY_RULES_PATHS } from "@services/kodyRules";
 import { addKodyRuleToRepositories } from "@services/kodyRules/fetch";
 import {
     KodyRulesOrigin,
@@ -26,15 +27,12 @@ import {
 } from "@services/kodyRules/types";
 import { setRuleLike } from "@services/ruleLike/fetch";
 import type { RuleLike } from "@services/ruleLike/types";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { HeartIcon, Plus } from "lucide-react";
 import type { LiteralUnion } from "react-hook-form";
 import { useAuth } from "src/core/providers/auth.provider";
 import { cn } from "src/core/utils/components";
-import {
-    revalidateServerSidePath,
-    revalidateServerSideTag,
-} from "src/core/utils/revalidate-server-side";
+import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 
 import { SelectRepositoriesDropdown } from "./dropdown";
 import { ExampleSection } from "./examples";
@@ -59,6 +57,7 @@ export const KodyRuleLibraryItemModal = ({
         string[]
     >(repositoryId ? [repositoryId] : []);
 
+    const queryClient = useQueryClient();
     const [isLiked, setIsLiked] = useState(rule.isLiked);
     const [likeCount, setLikeCount] = useState(rule.likesCount ?? 0);
 
@@ -79,7 +78,11 @@ export const KodyRuleLibraryItemModal = ({
                 newRule,
             );
 
-            revalidateServerSideTag("kody-rules-list");
+            await queryClient.resetQueries({
+                predicate: (query) =>
+                    query.queryKey[0] ===
+                    KODY_RULES_PATHS.FIND_BY_ORGANIZATION_ID_AND_FILTER,
+            });
 
             toast({
                 variant: "success",

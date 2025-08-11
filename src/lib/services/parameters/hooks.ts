@@ -1,6 +1,6 @@
 import { UseMutationResult } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import type { AutomationCodeReviewConfigType } from "src/app/(app)/settings/code-review/_components/pages/types";
+import type { AutomationCodeReviewConfigType } from "src/app/(app)/settings/code-review/_types";
 import { usePost, useSuspenseFetch } from "src/core/utils/reactQuery";
 
 import { PARAMETERS_PATHS } from ".";
@@ -33,7 +33,7 @@ export const useSuspenseGetCodeReviewParameter = (teamId: string) => {
     return useSuspenseFetch<{
         uuid: string;
         configKey: ParametersConfigKey.CODE_REVIEW_CONFIG;
-        configValue: AutomationCodeReviewConfigType | undefined;
+        configValue: AutomationCodeReviewConfigType;
     }>(
         PARAMETERS_PATHS.GET_BY_KEY,
         {

@@ -12,6 +12,7 @@ import { AxiosError, AxiosRequestConfig } from "axios";
 
 import { useAuth } from "../providers/auth.provider";
 import { axiosApi, axiosAuthorized } from "./axios";
+import { applySearchParamsToUrl } from "./url";
 
 export const useSuspenseFetch = <T>(
     url: string | null,
@@ -33,22 +34,26 @@ export const useSuspenseFetch = <T>(
                 ? JSON.parse(serializedParams)
                 : {};
 
-            let urlWithParams = url;
-            if (Object.keys(JSONParams).length > 0) {
-                urlWithParams += `?${new URLSearchParams(JSONParams.params).toString()}`;
-            }
+            const urlWithParams = applySearchParamsToUrl(
+                url,
+                JSONParams?.params,
+            );
 
             const response = await fetch(urlWithParams, {
                 signal,
-                headers: {
-                    Authorization: `Bearer ${jwt}`,
-                },
+                headers: { Authorization: `Bearer ${jwt}` },
             });
 
-            const json = (await response.json()) as {
-                statusCode: 200 | 201;
-                data: T;
-            };
+            const text = await response.text();
+
+            let json: { statusCode: number; data: T | undefined };
+
+            try {
+                json = JSON.parse(text);
+            } catch {
+                if (config?.fallbackData) return config?.fallbackData;
+                json = { statusCode: 500, data: undefined };
+            }
 
             if (json.statusCode !== 200 && json.statusCode !== 201) {
                 if (config?.fallbackData) return config?.fallbackData;

@@ -1,7 +1,7 @@
 import { useSuspenseFetch } from "src/core/utils/reactQuery";
 
 import { KODY_RULES_PATHS } from ".";
-import type { LibraryRule } from "./types";
+import type { KodyRule, LibraryRule } from "./types";
 
 export const useSuspenseFindLibraryKodyRules = () => {
     const rules = useSuspenseFetch<Record<string, Array<LibraryRule>>>(
@@ -9,4 +9,14 @@ export const useSuspenseFindLibraryKodyRules = () => {
     );
 
     return Object.values(rules).flat();
+};
+
+export const useSuspenseKodyRulesByRepositoryId = (
+    repositoryId: string,
+    directoryId?: string,
+) => {
+    return useSuspenseFetch<Array<KodyRule>>(
+        KODY_RULES_PATHS.FIND_BY_ORGANIZATION_ID_AND_FILTER,
+        { params: { repositoryId, directoryId } },
+    );
 };

@@ -7,13 +7,11 @@ import type { KodyRule, KodyRulesStatus, LibraryRule } from "./types";
 export const createOrUpdateKodyRule = async (
     rule: KodyRule,
     repositoryId?: string,
+    directoryId?: string,
 ) => {
     const response = await axiosAuthorized.post<any>(
         KODY_RULES_PATHS.CREATE_OR_UPDATE,
-        {
-            ...rule,
-            repositoryId,
-        },
+        { ...rule, repositoryId, directoryId },
     );
 
     return response.data as KodyRule;
@@ -54,12 +52,13 @@ export const getLibraryKodyRules = async () => {
 
 export const getKodyRulesByRepositoryId = async (
     repositoryId: string,
+    directoryId?: string,
     tags?: string[],
 ) => {
     const rules = await typedFetch<Array<KodyRule>>(
         KODY_RULES_PATHS.FIND_BY_ORGANIZATION_ID_AND_FILTER,
         {
-            params: { repositoryId },
+            params: { repositoryId, directoryId },
             next: { tags },
         },
     );

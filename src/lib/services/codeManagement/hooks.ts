@@ -1,8 +1,13 @@
 import { Select } from "@services/setup/types";
 import { IntegrationsCommon } from "src/core/types";
+import { pathToApiUrl } from "src/core/utils/helpers";
 import { useFetch, useSuspenseFetch } from "src/core/utils/reactQuery";
 
-import { CODE_MANAGEMENT_API_PATHS, type Repository } from "./types";
+import {
+    CODE_MANAGEMENT_API_PATHS,
+    type GitFileOrFolder,
+    type Repository,
+} from "./types";
 
 export function useVerifyConnection(teamId: string) {
     return useFetch<any>(
@@ -34,6 +39,17 @@ export function useGetRepositories(
         {
             params: { teamId, organizationSelected, ...(filters || {}) },
         },
+    );
+}
+
+export function useSuspenseGetRepositoryTree(params: {
+    organizationId: string;
+    repositoryId: string;
+    treeType?: "directories" | "files";
+}) {
+    return useSuspenseFetch<{ repository: string; tree: GitFileOrFolder[] }>(
+        pathToApiUrl("/code-management/get-repository-tree"),
+        { params },
     );
 }
 

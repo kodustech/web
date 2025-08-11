@@ -9,7 +9,12 @@ const SectionRoot = (props: React.ComponentProps<"div">) => (
 );
 
 const SectionContent = (props: React.ComponentProps<"div">) => (
-    <div {...props} className={cn("flex flex-col gap-6", props.className)}>
+    <div
+        {...props}
+        className={cn(
+            "text-text-secondary flex flex-col gap-6",
+            props.className,
+        )}>
         {props.children}
     </div>
 );

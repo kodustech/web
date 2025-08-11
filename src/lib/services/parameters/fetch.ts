@@ -1,5 +1,6 @@
 import { typedFetch } from "@services/fetch";
-import type { CodeReviewGlobalConfig } from "src/app/(app)/settings/code-review/_components/pages/types";
+import type { CodeReviewGlobalConfig } from "src/app/(app)/settings/code-review/_types";
+import type { LiteralUnion } from "src/core/types";
 import { axiosAuthorized } from "src/core/utils/axios";
 import { codeReviewConfigRemovePropertiesNotInType } from "src/core/utils/helpers";
 
@@ -54,7 +55,8 @@ export const createOrUpdateParameter = async (
 export const createOrUpdateCodeReviewParameter = async (
     configValue: Partial<CodeReviewGlobalConfig>,
     teamId: string,
-    repositoryId: string | undefined,
+    repositoryId: LiteralUnion<"global"> | undefined,
+    directoryId?: string,
 ) => {
     try {
         const trimmedCodeReviewConfigValue =
@@ -67,7 +69,9 @@ export const createOrUpdateCodeReviewParameter = async (
             {
                 configValue: trimmedCodeReviewConfigValue,
                 organizationAndTeamData: { teamId },
-                repositoryId,
+                repositoryId:
+                    repositoryId === "global" ? undefined : repositoryId,
+                directoryId,
             },
         );
 
@@ -106,19 +110,16 @@ export const getGenerateKodusConfigFile = async (
     }
 };
 
-export const copyCodeReviewParameter = async (
-    teamId: string,
-    sourceRepositoryId: string,
-    targetRepositoryId: string,
-) => {
+export const copyCodeReviewParameter = async (params: {
+    teamId: string;
+    sourceRepositoryId: string;
+    targetRepositoryId: string;
+    targetDirectoryPath: string | undefined;
+}) => {
     try {
         const response = await axiosAuthorized.post<any>(
             PARAMETERS_PATHS.COPY_CODE_REVIEW_PARAMETER,
-            {
-                teamId,
-                sourceRepositoryId,
-                targetRepositoryId,
-            },
+            params,
         );
 
         return response.data;
@@ -143,14 +144,19 @@ export const generateCodeReviewParameter = async (
     }
 };
 
-export const deleteRepositoryCodeReviewParameter = async (
-    teamId: string,
-    repositoryId: string,
-) => {
+export const deleteRepositoryCodeReviewParameter = async ({
+    repositoryId,
+    teamId,
+    directoryId,
+}: {
+    teamId: string;
+    repositoryId: string;
+    directoryId?: string;
+}) => {
     try {
         const response = await axiosAuthorized.post<any>(
             PARAMETERS_PATHS.DELETE_REPOSITORY_CODE_REVIEW_PARAMETER,
-            { teamId, repositoryId },
+            { teamId, repositoryId, directoryId },
         );
 
         return response.data;

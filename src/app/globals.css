@@ -395,6 +395,6 @@
     }
 
     * {
-        @apply border-card-lv3;
+        @apply border-card-lv3 ring-card-lv3;
     }
 }

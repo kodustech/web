@@ -28,7 +28,7 @@ import {
     updateCodeReviewParameterRepositories,
 } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
-import { CodeReviewSummaryOptions } from "src/app/(app)/settings/code-review/_components/pages/types";
+import { CodeReviewSummaryOptions } from "src/app/(app)/settings/code-review/_types";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { IntegrationCategory } from "src/core/types";
