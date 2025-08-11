@@ -11,6 +11,11 @@ import {
 } from "@components/ui/collapsible";
 import { Link } from "@components/ui/link";
 import { SidebarMenuSub, SidebarMenuSubItem } from "@components/ui/sidebar";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@components/ui/tooltip";
 import { cn } from "src/core/utils/components";
 
 import { useCodeReviewRouteParams } from "../../_hooks";
@@ -36,22 +41,32 @@ export const PerDirectory = ({
     return (
         <Collapsible open={open} onOpenChange={setOpen}>
             <div className="flex items-center justify-between gap-2">
-                <CollapsibleTrigger asChild>
-                    <Button
-                        size="md"
-                        variant="helper"
-                        className="h-fit flex-1 justify-start py-2"
-                        leftIcon={
-                            <CollapsibleIndicator
-                                className={cn(
-                                    "-ml-1",
-                                    open ? "rotate-0!" : "-rotate-90!",
-                                )}
-                            />
-                        }>
+                <Tooltip disableHoverableContent>
+                    <CollapsibleTrigger asChild>
+                        <TooltipTrigger asChild>
+                            <Button
+                                size="md"
+                                variant="helper"
+                                className="h-fit flex-1 justify-start py-2"
+                                leftIcon={
+                                    <CollapsibleIndicator
+                                        className={cn(
+                                            "-ml-1",
+                                            open ? "rotate-0!" : "-rotate-90!",
+                                        )}
+                                    />
+                                }>
+                                <span className="line-clamp-1 truncate text-ellipsis [direction:rtl]">
+                                    {directory.path}
+                                </span>
+                            </Button>
+                        </TooltipTrigger>
+                    </CollapsibleTrigger>
+
+                    <TooltipContent side="right" className="text-sm">
                         {directory.path}
-                    </Button>
-                </CollapsibleTrigger>
+                    </TooltipContent>
+                </Tooltip>
 
                 <SidebarRepositoryOrDirectoryDropdown
                     repository={repository}
