@@ -78,8 +78,7 @@ export const AddRepoModal = ({
 
     const formState = form.formState;
 
-    const { invalidateQueries, generateQueryKey } =
-        useReactQueryInvalidateQueries();
+    const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
 
     const handleSubmit = form.handleSubmit(async (values) => {
         magicModal.lock();
@@ -94,8 +93,7 @@ export const AddRepoModal = ({
                     : values.targetDirectoryPath,
         });
 
-        await invalidateQueries({
-            type: "all",
+        await resetQueries({
             queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
                 params: {
                     key: ParametersConfigKey.CODE_REVIEW_CONFIG,

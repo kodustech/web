@@ -42,8 +42,7 @@ export default function SuggestionControl(
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const limitationType = form.watch("suggestionControl.limitationType");
 
-    const { invalidateQueries, generateQueryKey } =
-        useReactQueryInvalidateQueries();
+    const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
 
     const handleSubmit = form.handleSubmit(async (config) => {
         try {
@@ -84,8 +83,7 @@ export default function SuggestionControl(
                 directoryId,
             );
 
-            await invalidateQueries({
-                type: "all",
+            await resetQueries({
                 queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
                     params: {
                         key: ParametersConfigKey.CODE_REVIEW_CONFIG,

@@ -30,6 +30,8 @@ import { CheckIcon, HelpCircle, XIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { cn } from "src/core/utils/components";
 
+import type { CodeReviewDirectoryConfig } from "../_types";
+
 const severityLevelFilterOptions = {
     low: { label: "Low", value: 0 },
     medium: { label: "Medium", value: 1 },
@@ -65,12 +67,12 @@ const GOOD_EXAMPLE_PLACEHOLDER = `for (var i = 1; i <= 10; i += 2)  // Compliant
 
 export const KodyRuleAddOrUpdateItemModal = ({
     repositoryId,
-    directoryId,
+    directory,
     rule,
     onClose,
 }: {
     rule?: KodyRule;
-    directoryId?: string;
+    directory?: CodeReviewDirectoryConfig;
     repositoryId: string;
     onClose?: () => void;
 }) => {
@@ -104,57 +106,39 @@ export const KodyRuleAddOrUpdateItemModal = ({
     const watchScope = form.watch("scope");
 
     const handleSubmit = form.handleSubmit(async (config) => {
-        if (onClose) {
-            // Se for usado via callback (novo padrão), não usar magicModal
-            let examples = [];
-            if (config.badExample)
-                examples.push({ isCorrect: false, snippet: config.badExample });
-            if (config.goodExample)
-                examples.push({ isCorrect: true, snippet: config.goodExample });
-
-            await createOrUpdateKodyRule(
-                {
-                    path: config.scope === "file" ? config.path : "", // Se for pull-request, path fica vazio
-                    rule: config.rule,
-                    title: config.title,
-                    severity: config.severity,
-                    scope: config.scope,
-                    uuid: rule?.uuid,
-                    examples: examples,
-                    origin: config.origin ?? KodyRulesOrigin.USER,
-                    status: config.status ?? KodyRulesStatus.ACTIVE,
-                },
-                repositoryId,
-            );
-
-            onClose();
-        } else {
+        if (!onClose) {
             // Padrão antigo com magicModal
             magicModal.lock();
+        }
 
-            let examples = [];
-            if (config.badExample)
-                examples.push({ isCorrect: false, snippet: config.badExample });
-            if (config.goodExample)
-                examples.push({ isCorrect: true, snippet: config.goodExample });
+        // Se for usado via callback (novo padrão), não usar magicModal
+        let examples = [];
+        if (config.badExample)
+            examples.push({ isCorrect: false, snippet: config.badExample });
+        if (config.goodExample)
+            examples.push({ isCorrect: true, snippet: config.goodExample });
 
-            await createOrUpdateKodyRule(
-                {
-                    path: config.scope === "file" ? config.path : "", // Se for pull-request, path fica vazio
-                    rule: config.rule,
-                    title: config.title,
-                    severity: config.severity,
-                    scope: config.scope,
-                    uuid: rule?.uuid,
-                    examples: examples,
-                    origin: config.origin ?? KodyRulesOrigin.USER,
-                    status: config.status ?? KodyRulesStatus.ACTIVE,
-                },
-                repositoryId,
-                directoryId,
-            );
+        await createOrUpdateKodyRule(
+            {
+                path: config.scope === "file" ? config.path : "", // Se for pull-request, path fica vazio
+                rule: config.rule,
+                title: config.title,
+                severity: config.severity,
+                scope: config.scope,
+                uuid: rule?.uuid,
+                examples: examples,
+                origin: config.origin ?? KodyRulesOrigin.USER,
+                status: config.status ?? KodyRulesStatus.ACTIVE,
+            },
+            repositoryId,
+            directory?.id,
+        );
 
+        if (!onClose) {
+            // Padrão antigo com magicModal
             magicModal.hide(true);
+        } else {
+            onClose();
         }
     });
 
@@ -257,11 +241,21 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                         className="grid grid-cols-2 gap-3"
                                         value={field.value}
                                         onValueChange={(value) => {
-                                            if (!value) return;
                                             field.onChange(value);
-                                            // Se mudou para pull-request, limpa o path
+
+                                            if (value === "file") {
+                                                form.setValue(
+                                                    "path",
+                                                    directory?.path ?? "",
+                                                    { shouldValidate: true },
+                                                );
+
+                                                return;
+                                            }
+
                                             if (value === "pull-request") {
-                                                form.setValue("path", "");
+                                                form.resetField("path");
+                                                return;
                                             }
                                         }}>
                                         {scopeOptions.map((option) => (
@@ -302,7 +296,16 @@ export const KodyRuleAddOrUpdateItemModal = ({
                     <Controller
                         name="path"
                         control={form.control}
-                        render={({ field }) => (
+                        rules={{
+                            validate: (value) => {
+                                if (!directory) return;
+                                if (watchScope === "pull-request") return;
+
+                                if (!value.includes(directory.path))
+                                    return `"${directory.path}" needs to be included as path`;
+                            },
+                        }}
+                        render={({ field, fieldState }) => (
                             <div className="grid grid-cols-[1fr_2fr] gap-6">
                                 <FormControl.Root>
                                     <FormControl.Label
@@ -356,25 +359,31 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                 </FormControl.Root>
 
                                 <FormControl.Input>
-                                    <div>
+                                    <div className="flex flex-col">
                                         <Input
                                             id={field.name}
                                             value={field.value}
-                                            className="opacity-100!"
+                                            maxLength={600}
                                             placeholder="Example: **/*.js"
+                                            error={fieldState.error}
                                             disabled={
                                                 watchScope === "pull-request"
                                             }
                                             onChange={(e) =>
                                                 field.onChange(e.target.value)
                                             }
-                                            maxLength={600}
                                         />
+
+                                        <FormControl.Error>
+                                            {fieldState.error?.message}
+                                        </FormControl.Error>
 
                                         <FormControl.Helper>
                                             {watchScope === "pull-request"
                                                 ? "Path is not applicable for pull request scope"
-                                                : "If empty, rule will be applied to all files."}
+                                                : directory
+                                                  ? undefined
+                                                  : "If empty, rule will be applied to all files."}
                                         </FormControl.Helper>
                                     </div>
                                 </FormControl.Input>
@@ -383,11 +392,9 @@ export const KodyRuleAddOrUpdateItemModal = ({
                     />
 
                     <Controller
-                        control={form.control}
-                        rules={{
-                            required: "Instructions are required",
-                        }}
                         name="rule"
+                        control={form.control}
+                        rules={{ required: "Instructions are required" }}
                         render={({ field, fieldState }) => (
                             <div className="grid grid-cols-[1fr_2fr] gap-6">
                                 <FormControl.Root>
@@ -433,7 +440,6 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                     <div>
                                         <Textarea
                                             id={field.name}
-                                            error={fieldState.error}
                                             value={field.value}
                                             placeholder={
                                                 INSTRUCTIONS_PLACEHOLDER

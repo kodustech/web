@@ -48,7 +48,7 @@ export const columns: ColumnDef<Repository>[] = [
             const [isOpen, setIsOpen] = useState(false);
             const router = useRouter();
             const { teamId } = useSelectedTeamId();
-            const { generateQueryKey, invalidateQueries } =
+            const { generateQueryKey, resetQueries, invalidateQueries } =
                 useReactQueryInvalidateQueries();
 
             const saveSelectedRepositoriesAction = async () => {
@@ -80,7 +80,7 @@ export const columns: ColumnDef<Repository>[] = [
                 });
 
                 await Promise.all([
-                    invalidateQueries({
+                    resetQueries({
                         type: "all",
                         queryKey: generateQueryKey(
                             PARAMETERS_PATHS.GET_BY_KEY,

@@ -1,9 +1,10 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { applySearchParamsToUrl } from "src/core/utils/url";
+import { addSearchParamsToUrl } from "src/core/utils/url";
 import type { KodyRule } from "src/lib/services/kodyRules/types";
 
+import { useFullCodeReviewConfig } from "../../../_components/context";
 import { KodyRuleAddOrUpdateItemModal } from "../../../_components/modal";
 
 export function KodyRuleModalClient({
@@ -16,23 +17,27 @@ export function KodyRuleModalClient({
     directoryId?: string;
 }) {
     const router = useRouter();
+    const config = useFullCodeReviewConfig();
 
     const handleClose = () => {
-        const url = applySearchParamsToUrl(
-            `/settings/code-review/${repositoryId}/kody-rules`,
-            { directoryId },
+        router.push(
+            addSearchParamsToUrl(
+                `/settings/code-review/${repositoryId}/kody-rules`,
+                { directoryId },
+            ),
         );
-
-        router.push(url);
     };
 
-    // Renderizar o modal diretamente, como na library
+    const directory = config?.repositories
+        .find((r) => r.id === repositoryId)
+        ?.directories?.find((d) => d.id === directoryId);
+
     return (
         <KodyRuleAddOrUpdateItemModal
             rule={rule}
-            repositoryId={repositoryId}
-            directoryId={directoryId}
             onClose={handleClose}
+            directory={directory}
+            repositoryId={repositoryId}
         />
     );
 }

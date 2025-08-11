@@ -6,16 +6,16 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@components/ui/breadcrumb";
-import { applySearchParamsToUrl } from "src/core/utils/url";
+import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { useCodeReviewRouteParams } from "../_hooks";
-import { useAutomationCodeReviewConfig } from "./context";
+import { useCodeReviewConfig } from "./context";
 
 export const CodeReviewPagesBreadcrumb = (props: { pageName: string }) => {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
-    const config = useAutomationCodeReviewConfig();
+    const config = useCodeReviewConfig();
 
-    const url = applySearchParamsToUrl(
+    const url = addSearchParamsToUrl(
         `/settings/code-review/${repositoryId}/general`,
         { directoryId },
     );

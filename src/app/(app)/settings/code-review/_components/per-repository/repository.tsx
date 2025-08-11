@@ -14,6 +14,11 @@ import {
     SidebarMenuSub,
     SidebarMenuSubItem,
 } from "@components/ui/sidebar";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@components/ui/tooltip";
 import type { useSuspenseGetParameterPlatformConfigs } from "@services/parameters/hooks";
 import { KodyLearningStatus } from "@services/parameters/types";
 import { Plus } from "lucide-react";
@@ -70,11 +75,6 @@ export const PerRepository = ({
                 {configValue?.repositories
                     ?.filter((r) => r.isSelected || r.directories)
                     .map((r) => {
-                        const active = routes.some(
-                            ({ href }) =>
-                                repositoryId === r.id && pageName === href,
-                        );
-
                         const hasRepositoryConfig = r.isSelected;
 
                         return (
@@ -82,18 +82,29 @@ export const PerRepository = ({
                                 key={r.id}
                                 defaultOpen={repositoryId === r.id}>
                                 <div className="flex items-center justify-between gap-2">
-                                    <CollapsibleTrigger asChild>
-                                        <Button
-                                            size="md"
-                                            variant="helper"
-                                            className="h-fit flex-1 justify-start py-2"
-                                            active={active}
-                                            leftIcon={
-                                                <CollapsibleIndicator className="-ml-1 group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
-                                            }>
+                                    <Tooltip disableHoverableContent>
+                                        <CollapsibleTrigger asChild>
+                                            <TooltipTrigger asChild>
+                                                <Button
+                                                    size="md"
+                                                    variant="helper"
+                                                    className="h-fit flex-1 justify-start py-2"
+                                                    leftIcon={
+                                                        <CollapsibleIndicator className="-ml-1 group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
+                                                    }>
+                                                    <span className="line-clamp-1 truncate text-ellipsis [direction:rtl]">
+                                                        {r.name}
+                                                    </span>
+                                                </Button>
+                                            </TooltipTrigger>
+                                        </CollapsibleTrigger>
+
+                                        <TooltipContent
+                                            side="right"
+                                            className="text-sm">
                                             {r.name}
-                                        </Button>
-                                    </CollapsibleTrigger>
+                                        </TooltipContent>
+                                    </Tooltip>
 
                                     {hasRepositoryConfig && (
                                         <SidebarRepositoryOrDirectoryDropdown

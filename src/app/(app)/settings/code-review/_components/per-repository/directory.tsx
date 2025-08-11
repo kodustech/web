@@ -39,7 +39,10 @@ export const PerDirectory = ({
     const [open, setOpen] = useState(directoryId === directory.id);
 
     return (
-        <Collapsible open={open} onOpenChange={setOpen}>
+        <Collapsible
+            open={open}
+            onOpenChange={setOpen}
+            className="[li+div]:mt-2">
             <div className="flex items-center justify-between gap-2">
                 <Tooltip disableHoverableContent>
                     <CollapsibleTrigger asChild>

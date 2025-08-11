@@ -2,7 +2,7 @@ import { FormControl } from "@components/ui/form-control";
 import { NumberInput } from "@components/ui/number-input";
 import { Controller, useFormContext } from "react-hook-form";
 
-import { useAutomationCodeReviewConfig } from "../../../_components/context";
+import { useCodeReviewConfig } from "../../../_components/context";
 import { LimitationType, type CodeReviewFormType } from "../../../_types";
 
 const MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE = 20;
@@ -14,7 +14,7 @@ const validateNumberInput = (value: string) => {
 
 export const MaxSuggestions = () => {
     const form = useFormContext<CodeReviewFormType>();
-    const config = useAutomationCodeReviewConfig();
+    const config = useCodeReviewConfig();
     const limitationType = form.watch("suggestionControl.limitationType");
 
     const MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE =

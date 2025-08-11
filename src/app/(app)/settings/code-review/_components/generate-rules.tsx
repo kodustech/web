@@ -39,16 +39,14 @@ export const GenerateRulesButton = ({
 }) => {
     const platformConfig = usePlatformConfig();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
-    const { invalidateQueries, generateQueryKey } =
-        useReactQueryInvalidateQueries();
+    const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
 
     const [generateRules, isLoadingButton] = useAsyncAction(async () => {
         generateKodyRules(teamId);
 
         await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        await invalidateQueries({
-            type: "all",
+        await resetQueries({
             queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
                 params: {
                     teamId,
@@ -119,8 +117,7 @@ export const GenerateRulesButton = ({
                     directoryId,
                 );
 
-                await invalidateQueries({
-                    type: "all",
+                await resetQueries({
                     queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
                         params: {
                             key: ParametersConfigKey.CODE_REVIEW_CONFIG,

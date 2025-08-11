@@ -3,13 +3,14 @@ import { getLibraryKodyRules } from "@services/kodyRules/fetch";
 import { getTeamParameters } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { getAllRulesWithLikes } from "@services/ruleLike/fetch";
+import type { AutomationCodeReviewConfigType } from "src/app/(app)/settings/code-review/_types";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 
 import { KodyRuleLibraryItemModal } from "./_components/modal";
 
 export default async function Route(context: {
     params: Promise<{ id: string }>;
-    searchParams: Promise<{ repositoryId?: string }>;
+    searchParams: Promise<{ repositoryId?: string; directoryId?: string }>;
 }) {
     const params = await context.params;
     const searchParams = await context.searchParams;
@@ -30,7 +31,7 @@ export default async function Route(context: {
     const teamId = await getGlobalSelectedTeamId();
 
     const { configValue } = await getTeamParameters<{
-        configValue: { repositories: Array<{ id: string; name: string }> };
+        configValue: AutomationCodeReviewConfigType;
     }>({
         key: ParametersConfigKey.CODE_REVIEW_CONFIG,
         teamId,
@@ -41,6 +42,7 @@ export default async function Route(context: {
             key={rule.uuid}
             rule={rule}
             repositoryId={searchParams.repositoryId}
+            directoryId={searchParams.directoryId}
             repositories={configValue.repositories}
         />
     );

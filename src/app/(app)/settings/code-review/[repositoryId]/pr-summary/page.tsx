@@ -26,7 +26,7 @@ import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import {
-    useAutomationCodeReviewConfig,
+    useCodeReviewConfig,
     usePlatformConfig,
 } from "../../_components/context";
 import GeneratingConfig from "../../_components/generating-config";
@@ -66,15 +66,14 @@ const reviewOptions = [
 
 export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
     const { teamId } = useSelectedTeamId();
-    const config = useAutomationCodeReviewConfig();
+    const config = useCodeReviewConfig();
     const platformConfig = usePlatformConfig();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const form = useFormContext<CodeReviewFormType>();
 
     const generatePRSummary = form.watch("summary.generatePRSummary");
 
-    const { invalidateQueries, generateQueryKey } =
-        useReactQueryInvalidateQueries();
+    const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
 
     const handleSubmit = form.handleSubmit(async (config) => {
         try {
@@ -85,8 +84,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                 directoryId,
             );
 
-            await invalidateQueries({
-                type: "all",
+            await resetQueries({
                 queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
                     params: {
                         key: ParametersConfigKey.CODE_REVIEW_CONFIG,

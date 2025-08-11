@@ -1,4 +1,4 @@
-export const applySearchParamsToUrl = (
+export const addSearchParamsToUrl = (
     route: string,
     params: Record<string, string | number | boolean | undefined | null> = {},
 ) => {

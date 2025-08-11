@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { getKodyRulesByRepositoryId } from "@services/kodyRules/fetch";
-import { applySearchParamsToUrl } from "src/core/utils/url";
+import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { KodyRuleModalClient } from "./modal-client";
 
@@ -16,7 +16,10 @@ export default async function KodyRuleDetailPage({
         const { repositoryId, id } = await params;
         const { directoryId } = await searchParams;
 
-        const kodyRules = await getKodyRulesByRepositoryId(repositoryId);
+        const kodyRules = await getKodyRulesByRepositoryId(
+            repositoryId,
+            directoryId,
+        );
         const globalRules =
             repositoryId !== "global"
                 ? await getKodyRulesByRepositoryId("global")
@@ -25,7 +28,7 @@ export default async function KodyRuleDetailPage({
         const rule = [...kodyRules, ...globalRules].find((r) => r.uuid === id);
 
         if (!rule) {
-            const url = applySearchParamsToUrl(
+            const url = addSearchParamsToUrl(
                 `/settings/code-review/${repositoryId}/kody-rules`,
                 { directoryId },
             );

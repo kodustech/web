@@ -73,7 +73,6 @@ export default function General() {
             }
 
             await resetQueries({
-                type: "all",
                 queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
                     params: {
                         key: ParametersConfigKey.CODE_REVIEW_CONFIG,

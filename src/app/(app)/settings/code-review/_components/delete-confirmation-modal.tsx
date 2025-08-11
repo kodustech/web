@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@components/ui/button";
+import { Card, CardHeader } from "@components/ui/card";
 import {
     Dialog,
     DialogContent,
@@ -11,6 +12,8 @@ import {
     DialogTitle,
 } from "@components/ui/dialog";
 import { magicModal } from "@components/ui/magic-modal";
+import { Markdown } from "@components/ui/markdown";
+import { Separator } from "@components/ui/separator";
 import { toast } from "@components/ui/toaster/use-toast";
 import { useTimeout } from "@hooks/use-timeout";
 import { deleteKodyRule } from "@services/kodyRules/fetch";
@@ -81,18 +84,25 @@ export const DeleteKodyRuleConfirmationModal = ({
                         <strong className="text-danger">{rule.title}</strong>?
                     </p>
 
+                    <Separator />
+
                     {rule.path && (
-                        <p className="text-text-secondary text-xs">
+                        <p className="text-text-secondary text-sm">
                             <strong>Path:</strong> {rule.path}
                         </p>
                     )}
 
-                    <p className="text-text-secondary text-xs">
-                        <strong className="text-text-primary">
+                    <div className="flex flex-col gap-1">
+                        <strong className="text-text-primary text-sm">
                             Instructions:
-                        </strong>{" "}
-                        {rule.rule}
-                    </p>
+                        </strong>
+
+                        <Card>
+                            <CardHeader className="py-4">
+                                <Markdown>{rule.rule}</Markdown>
+                            </CardHeader>
+                        </Card>
+                    </div>
                 </div>
 
                 <DialogFooter>

@@ -12,7 +12,7 @@ import { HeartIcon } from "lucide-react";
 import { ProgrammingLanguage } from "src/core/enums/programming-language";
 import { useAuth } from "src/core/providers/auth.provider";
 import { cn } from "src/core/utils/components";
-import { applySearchParamsToUrl } from "src/core/utils/url";
+import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { Button } from "../button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "../hover-card";
@@ -23,10 +23,12 @@ import { Spinner } from "../spinner";
 export const KodyRuleLibraryItem = ({
     rule,
     repositoryId,
+    directoryId,
     showLikeButton,
 }: {
     rule: LibraryRule;
     repositoryId?: string;
+    directoryId?: string;
     showLikeButton?: boolean;
 }) => {
     const { userId } = useAuth();
@@ -82,8 +84,9 @@ export const KodyRuleLibraryItem = ({
             },
         });
 
-    const href = applySearchParamsToUrl(`/library/kody-rules/${rule.uuid}`, {
+    const href = addSearchParamsToUrl(`/library/kody-rules/${rule.uuid}`, {
         repositoryId,
+        directoryId,
     });
 
     return (

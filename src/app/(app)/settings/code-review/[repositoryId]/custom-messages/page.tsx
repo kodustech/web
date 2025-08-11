@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@components/ui/button";
 import { Page } from "@components/ui/page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
@@ -10,14 +10,15 @@ import { savePullRequestMessages } from "@services/pull-request-messages/fetch";
 import { useSuspensePullRequestMessages } from "@services/pull-request-messages/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { SaveIcon } from "lucide-react";
+import { pathToApiUrl } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import { useCodeReviewRouteParams } from "../../_hooks";
 import { TabContent } from "./_components/tab-content";
 
 export default function CustomMessages() {
-    const pullRequestMessages = useSuspensePullRequestMessages();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
+    const pullRequestMessages = useSuspensePullRequestMessages();
     const queryClient = useQueryClient();
 
     const [messages, setMessages] = useState<
@@ -29,6 +30,13 @@ export default function CustomMessages() {
         startReviewMessage: pullRequestMessages.startReviewMessage,
         endReviewMessage: pullRequestMessages.endReviewMessage,
     });
+
+    useEffect(() => {
+        setMessages({
+            startReviewMessage: pullRequestMessages.startReviewMessage,
+            endReviewMessage: pullRequestMessages.endReviewMessage,
+        });
+    }, [pullRequestMessages]);
 
     const wasStartReviewMessageChanged =
         messages.startReviewMessage.status !==
@@ -58,10 +66,10 @@ export default function CustomMessages() {
                 endReviewMessage: messages.endReviewMessage,
             });
 
-            await queryClient.resetQueries({
+            await queryClient.invalidateQueries({
                 predicate: (query) =>
                     (query.queryKey[0] as string)?.startsWith(
-                        "/pull-request-messages",
+                        pathToApiUrl("/pull-request-messages"),
                     ),
             });
 

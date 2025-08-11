@@ -5,10 +5,11 @@ import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level
 import { Button } from "@components/ui/button";
 import { Card, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
+import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
 import type { KodyRule } from "@services/kodyRules/types";
 import { EditIcon, TrashIcon } from "lucide-react";
-import { applySearchParamsToUrl } from "src/core/utils/url";
+import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { DeleteKodyRuleConfirmationModal } from "../../../_components/delete-confirmation-modal";
 import { useCodeReviewRouteParams } from "../../../_hooks";
@@ -64,19 +65,15 @@ export const KodyRuleItem = ({ rule, onAnyChange }: Props) => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                    <Button
-                        size="icon-md"
-                        variant="secondary"
-                        onClick={() => {
-                            const url = applySearchParamsToUrl(
-                                `/settings/code-review/${repositoryId}/kody-rules/${rule.uuid}`,
-                                { directoryId },
-                            );
-
-                            router.push(url);
-                        }}>
-                        <EditIcon className="size-4" />
-                    </Button>
+                    <Link
+                        href={addSearchParamsToUrl(
+                            `/settings/code-review/${repositoryId}/kody-rules/${rule.uuid}`,
+                            { directoryId },
+                        )}>
+                        <Button size="icon-md" decorative variant="secondary">
+                            <EditIcon className="size-4" />
+                        </Button>
+                    </Link>
 
                     <Button
                         size="icon-md"

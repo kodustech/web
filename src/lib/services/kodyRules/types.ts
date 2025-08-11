@@ -9,6 +9,7 @@ export type KodyRule = {
     scope?: "file" | "pull-request";
     severity: "low" | "medium" | "high" | "critical";
     repositoryId?: string;
+    directoryId?: string;
     origin: KodyRulesOrigin;
     examples: KodyRulesExample[];
 };

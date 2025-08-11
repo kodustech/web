@@ -6,7 +6,7 @@ import { PlatformConfigValue } from "@services/parameters/types";
 import { useCodeReviewRouteParams } from "../_hooks";
 import type {
     AutomationCodeReviewConfigType,
-    CodeReviewGlobalConfig,
+    CodeReviewRepositoryConfig,
 } from "../_types";
 
 const AutomationCodeReviewConfigContext =
@@ -14,26 +14,18 @@ const AutomationCodeReviewConfigContext =
         {} as AutomationCodeReviewConfigType,
     );
 
-export const useAutomationCodeReviewConfig = ():
-    | (CodeReviewGlobalConfig & {
-          id: string;
-          name: string;
-          isSelected?: boolean;
-          displayName: string;
-      })
+export const useCodeReviewConfig = ():
+    | (CodeReviewRepositoryConfig & { displayName: string })
     | undefined => {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
-    const context = useContext(AutomationCodeReviewConfigContext);
-    if (!context)
-        throw new Error(
-            "useAutomationCodeReviewConfig needs AutomationCodeReviewConfigContext to work",
-        );
+    const context = useFullCodeReviewConfig();
 
     if (repositoryId === "global")
         return {
             ...context.global,
             id: "global",
             name: "Global",
+            isSelected: true,
             displayName: "Global",
         };
 
@@ -50,6 +42,18 @@ export const useAutomationCodeReviewConfig = ():
         ...directory,
         displayName: `${repository?.name}${directory?.path}`,
     };
+};
+
+export const useFullCodeReviewConfig = (): AutomationCodeReviewConfigType => {
+    const context = useContext(AutomationCodeReviewConfigContext);
+
+    if (!context) {
+        throw new Error(
+            "useAutomationCodeReviewConfig needs AutomationCodeReviewConfigContext to work",
+        );
+    }
+
+    return context;
 };
 
 export const AutomationCodeReviewConfigProvider = (

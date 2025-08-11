@@ -7,7 +7,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { SeverityLevel } from "src/core/types";
 
-import { useAutomationCodeReviewConfig } from "../_components/context";
+import { useCodeReviewConfig } from "../_components/context";
 import {
     CodeReviewSummaryOptions,
     GroupingModeSuggestions,
@@ -17,7 +17,7 @@ import {
 } from "../_types";
 
 const getDefaultValues = (
-    config: ReturnType<typeof useAutomationCodeReviewConfig>,
+    config: ReturnType<typeof useCodeReviewConfig>,
     language: LanguageValue,
 ) => ({
     ...config,
@@ -86,7 +86,7 @@ const getDefaultValues = (
 
 export default function Layout(props: React.PropsWithChildren) {
     const { teamId } = useSelectedTeamId();
-    const config = useAutomationCodeReviewConfig();
+    const config = useCodeReviewConfig();
     const parameters = useSuspenseGetParameterByKey<LanguageValue>(
         ParametersConfigKey.LANGUAGE_CONFIG,
         teamId,

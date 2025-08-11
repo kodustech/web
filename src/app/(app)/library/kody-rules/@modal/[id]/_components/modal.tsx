@@ -29,10 +29,12 @@ import { setRuleLike } from "@services/ruleLike/fetch";
 import type { RuleLike } from "@services/ruleLike/types";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { HeartIcon, Plus } from "lucide-react";
-import type { LiteralUnion } from "react-hook-form";
+import type { CodeReviewRepositoryConfig } from "src/app/(app)/settings/code-review/_types";
 import { useAuth } from "src/core/providers/auth.provider";
+import type { LiteralUnion } from "src/core/types";
 import { cn } from "src/core/utils/components";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
+import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { SelectRepositoriesDropdown } from "./dropdown";
 import { ExampleSection } from "./examples";
@@ -40,26 +42,27 @@ import { ExampleSection } from "./examples";
 export const KodyRuleLibraryItemModal = ({
     rule,
     repositoryId,
+    directoryId,
     repositories,
 }: {
     rule: LibraryRule;
-    repositoryId: LiteralUnion<"global", string> | undefined;
-    repositories: Array<{
-        id: string;
-        name: string;
-        isSelected?: boolean;
-    }>;
+    repositoryId: LiteralUnion<"global"> | undefined;
+    directoryId: string | undefined;
+    repositories: Array<CodeReviewRepositoryConfig>;
 }) => {
     const router = useRouter();
     const { userId } = useAuth();
-
-    const [selectedRepositoriesIds, setSelectedRepositoriesIds] = useState<
-        string[]
-    >(repositoryId ? [repositoryId] : []);
-
     const queryClient = useQueryClient();
     const [isLiked, setIsLiked] = useState(rule.isLiked);
     const [likeCount, setLikeCount] = useState(rule.likesCount ?? 0);
+
+    const [selectedRepositoriesIds, setSelectedRepositoriesIds] = useState<
+        string[]
+    >(repositoryId && !directoryId ? [repositoryId] : []);
+
+    const [selectedDirectoriesIds, setSelectedDirectoriesIds] = useState<
+        Array<{ directoryId: string; repositoryId: string }>
+    >(repositoryId && directoryId ? [{ repositoryId, directoryId }] : []);
 
     const [addToRepositories, { loading: isAddingToRepositories }] =
         useAsyncAction(async () => {
@@ -73,10 +76,21 @@ export const KodyRuleLibraryItemModal = ({
                 status: KodyRulesStatus.ACTIVE,
             };
 
-            const addedKodyRules = await addKodyRuleToRepositories(
-                selectedRepositoriesIds,
-                newRule,
-            );
+            if (directoryId) {
+                const repository = repositories.find(
+                    (r) => r.id === repositoryId,
+                );
+                const directory = repository?.directories?.find(
+                    (d) => d.id === directoryId,
+                );
+                newRule.path = directory?.path ?? "";
+            }
+
+            const addedKodyRules = await addKodyRuleToRepositories({
+                rule: newRule,
+                repositoriesIds: selectedRepositoriesIds,
+                directoriesIds: selectedDirectoriesIds,
+            });
 
             await queryClient.resetQueries({
                 predicate: (query) =>
@@ -89,22 +103,38 @@ export const KodyRuleLibraryItemModal = ({
                 title: `Rule "${rule.title}" added to selected repositories`,
                 description: (
                     <ul className="list-disc pl-4">
-                        {addedKodyRules.map((r) => (
-                            <li key={r.uuid}>
-                                {r.repositoryId === "global"
-                                    ? "Global"
-                                    : repositories?.find(
-                                          (cr) => cr.id === r.repositoryId,
-                                      )?.name}
-                            </li>
-                        ))}
+                        {addedKodyRules.map((rule) => {
+                            const repository = repositories.find(
+                                (r) => r.id === rule.repositoryId,
+                            );
+
+                            const directory = repository?.directories?.find(
+                                (d) => d.id === rule.directoryId,
+                            );
+
+                            const directoryFullPath = directory?.path
+                                ? `${repository?.name}${directory.path}`
+                                : undefined;
+
+                            return (
+                                <li key={rule.uuid}>
+                                    {rule.repositoryId === "global"
+                                        ? "Global"
+                                        : (directoryFullPath ??
+                                          repository?.name)}
+                                </li>
+                            );
+                        })}
                     </ul>
                 ),
             });
 
             if (repositoryId) {
                 return router.push(
-                    `/settings/code-review/${repositoryId}/kody-rules`,
+                    addSearchParamsToUrl(
+                        `/settings/code-review/${repositoryId}/kody-rules`,
+                        { directoryId },
+                    ),
                 );
             }
 
@@ -248,18 +278,25 @@ export const KodyRuleLibraryItemModal = ({
                                     onClick={addToRepositories}
                                     loading={isAddingToRepositories}
                                     disabled={
-                                        selectedRepositoriesIds.length === 0
+                                        selectedRepositoriesIds.length === 0 &&
+                                        selectedDirectoriesIds.length === 0
                                     }>
                                     Add to my rules
                                 </Button>
 
                                 <SelectRepositoriesDropdown
-                                    selectedRepositories={repositories ?? []}
+                                    repositories={repositories}
                                     selectedRepositoriesIds={
                                         selectedRepositoriesIds
                                     }
+                                    selectedDirectoriesIds={
+                                        selectedDirectoriesIds
+                                    }
                                     setSelectedRepositoriesIds={
                                         setSelectedRepositoriesIds
+                                    }
+                                    setSelectedDirectoriesIds={
+                                        setSelectedDirectoriesIds
                                     }
                                 />
                             </>

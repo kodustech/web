@@ -6,7 +6,7 @@ import { Heading } from "@components/ui/heading";
 import { Link } from "@components/ui/link";
 import { Switch } from "@components/ui/switch";
 import { Controller, useFormContext } from "react-hook-form";
-import { applySearchParamsToUrl } from "src/core/utils/url";
+import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { useCodeReviewRouteParams } from "../../../_hooks";
 import type { CodeReviewFormType } from "../../../_types";
@@ -15,7 +15,7 @@ export const KodusConfigFileOverridesWebPreferences = () => {
     const form = useFormContext<CodeReviewFormType>();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
 
-    const kodyRulesUrl = applySearchParamsToUrl(
+    const kodyRulesUrl = addSearchParamsToUrl(
         `/settings/code-review/${repositoryId}/kody-rules`,
         { directoryId },
     );

@@ -22,7 +22,7 @@ import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 
 import { CodeReviewPagesBreadcrumb } from "../../../_components/breadcrumb";
 import {
-    useAutomationCodeReviewConfig,
+    useCodeReviewConfig,
     usePlatformConfig,
 } from "../../../_components/context";
 import { GenerateRulesButton } from "../../../_components/generate-rules";
@@ -44,7 +44,7 @@ export const KodyRulesPage = ({
 }) => {
     const platformConfig = usePlatformConfig();
     const { teamId } = useSelectedTeamId();
-    const config = useAutomationCodeReviewConfig();
+    const config = useCodeReviewConfig();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const [filterQuery, setFilterQuery] = useState("");
     const queryClient = useQueryClient();
@@ -73,10 +73,14 @@ export const KodyRulesPage = ({
     };
 
     const addNewEmptyRule = async () => {
+        const directory = config?.directories?.find(
+            (d) => d.id === directoryId,
+        );
+
         const response = await magicModal.show(() => (
             <KodyRuleAddOrUpdateItemModal
                 repositoryId={repositoryId}
-                directoryId={directoryId}
+                directory={directory}
             />
         ));
         if (!response) return;
@@ -184,7 +188,7 @@ export const KodyRulesPage = ({
 
             <Page.Content>
                 <div className="flex flex-col gap-4">
-                    {kodyRules?.length === 0 && !directoryId ? (
+                    {kodyRules?.length === 0 ? (
                         <div className="mt-4 flex min-h-[540px] flex-col gap-2">
                             <div className="flex flex-col gap-1">
                                 <Heading variant="h2">
@@ -258,7 +262,7 @@ export const KodyRulesPage = ({
 
 const NoItems = () => {
     const rules = useSuspenseFindLibraryKodyRules();
-    const { repositoryId } = useCodeReviewRouteParams();
+    const { repositoryId, directoryId } = useCodeReviewRouteParams();
 
     return rules
         .slice(0, 3)
@@ -267,6 +271,7 @@ const NoItems = () => {
                 rule={r}
                 key={r.uuid}
                 repositoryId={repositoryId}
+                directoryId={directoryId}
             />
         ));
 };

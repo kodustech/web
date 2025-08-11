@@ -20,6 +20,7 @@ import {
     updateCodeReviewParameterRepositories,
 } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
+import { TrashIcon } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { generateQueryKey } from "src/core/utils/reactQuery";
 
@@ -37,7 +38,7 @@ export const DeleteRepoConfigModal = ({
 }) => {
     const { teamId } = useSelectedTeamId();
     const [enabled, setEnabled] = useState(false);
-    const { invalidateQueries } = useReactQueryInvalidateQueries();
+    const { resetQueries } = useReactQueryInvalidateQueries();
 
     useTimeout(() => {
         setEnabled(true);
@@ -54,8 +55,7 @@ export const DeleteRepoConfigModal = ({
             });
             await updateCodeReviewParameterRepositories(teamId);
 
-            await invalidateQueries({
-                type: "all",
+            await resetQueries({
                 queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
                     params: {
                         key: ParametersConfigKey.CODE_REVIEW_CONFIG,
@@ -72,7 +72,7 @@ export const DeleteRepoConfigModal = ({
                 "Não foi possível deletar a configuração do repositório. Tente novamente.";
 
             toast({
-                title: "Erro ao deletar configuração",
+                title: "Error trying to delete configuration",
                 description: errorMessage,
                 variant: "danger",
             });
@@ -113,6 +113,7 @@ export const DeleteRepoConfigModal = ({
                         size="md"
                         variant="tertiary"
                         loading={!enabled || loading}
+                        leftIcon={<TrashIcon />}
                         onClick={handleSubmit}>
                         Delete configuration
                     </Button>

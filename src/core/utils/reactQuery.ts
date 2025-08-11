@@ -12,7 +12,7 @@ import { AxiosError, AxiosRequestConfig } from "axios";
 
 import { useAuth } from "../providers/auth.provider";
 import { axiosApi, axiosAuthorized } from "./axios";
-import { applySearchParamsToUrl } from "./url";
+import { addSearchParamsToUrl } from "./url";
 
 export const useSuspenseFetch = <T>(
     url: string | null,
@@ -34,10 +34,7 @@ export const useSuspenseFetch = <T>(
                 ? JSON.parse(serializedParams)
                 : {};
 
-            const urlWithParams = applySearchParamsToUrl(
-                url,
-                JSONParams?.params,
-            );
+            const urlWithParams = addSearchParamsToUrl(url, JSONParams?.params);
 
             const response = await fetch(urlWithParams, {
                 signal,

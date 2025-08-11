@@ -17,17 +17,17 @@ export const createOrUpdateKodyRule = async (
     return response.data as KodyRule;
 };
 
-export const addKodyRuleToRepositories = async (
-    repositoriesIds: (string | undefined)[],
-    rule: Omit<KodyRule, "repositoryId" | "uuid">,
-) => {
+export const addKodyRuleToRepositories = async (props: {
+    repositoriesIds: string[];
+    directoriesIds: Array<{ directoryId: string; repositoryId: string }>;
+    rule: KodyRule;
+}) => {
     const response = await axiosAuthorized.post<any>(
         KODY_RULES_PATHS.ADD_LIBRARY_KODY_RULES,
         {
-            ...rule,
-            repositoriesIds,
-        } satisfies Omit<KodyRule, "repositoryId" | "uuid"> & {
-            repositoriesIds: (string | undefined)[];
+            ...props.rule,
+            repositoriesIds: props.repositoriesIds,
+            directoriesInfo: props.directoriesIds,
         },
     );
 
