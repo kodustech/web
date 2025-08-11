@@ -24,6 +24,10 @@ export const useAutomationCodeReviewConfig = ():
     | undefined => {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const context = useContext(AutomationCodeReviewConfigContext);
+    if (!context)
+        throw new Error(
+            "useAutomationCodeReviewConfig needs AutomationCodeReviewConfigContext to work",
+        );
 
     if (repositoryId === "global")
         return {

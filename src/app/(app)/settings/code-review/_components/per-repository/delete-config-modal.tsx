@@ -44,16 +44,6 @@ export const DeleteRepoConfigModal = ({
     }, 5000);
 
     const [handleSubmit, { loading }] = useAsyncAction(async () => {
-        if (!teamId) {
-            toast({
-                title: "Erro",
-                description:
-                    "ID do time não encontrado. Tente recarregar a página.",
-                variant: "danger",
-            });
-            return;
-        }
-
         try {
             magicModal.lock();
 

@@ -35,11 +35,10 @@ import { PullRequestApprovalActive } from "./_components/pull-request-approval-a
 
 export default function General() {
     const platformConfig = usePlatformConfig();
-    const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const form = useFormContext<CodeReviewFormType>();
     const { teamId } = useSelectedTeamId();
-    const { removeQueries, generateQueryKey } =
-        useReactQueryInvalidateQueries();
+    const { repositoryId, directoryId } = useCodeReviewRouteParams();
+    const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
 
     const handleSubmit = form.handleSubmit(async (formData) => {
         const { language, ...config } = formData;
@@ -73,7 +72,7 @@ export default function General() {
                 );
             }
 
-            await removeQueries({
+            await resetQueries({
                 type: "all",
                 queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
                     params: {

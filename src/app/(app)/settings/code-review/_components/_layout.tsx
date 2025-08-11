@@ -91,23 +91,20 @@ export const AutomationCodeReviewLayout = ({
         return routes;
     }, [pluginsPageFeatureFlag?.value]);
 
-    if (repositoryId) {
-        if (repositoryId !== "global") {
-            const repository = configValue?.repositories.find(
-                (r) => r.id === repositoryId,
+    if (repositoryId && repositoryId !== "global") {
+        const repository = configValue?.repositories.find(
+            (r) => r.id === repositoryId,
+        );
+
+        if (!repository) redirect(`/settings/code-review/global/${pageName}`);
+
+        if (!repository?.isSelected) {
+            const directory = repository?.directories?.find(
+                (d) => d.id === directoryId,
             );
 
-            if (!repository)
+            if (!directory)
                 redirect(`/settings/code-review/global/${pageName}`);
-
-            if (!repository?.isSelected) {
-                const directory = repository?.directories?.find(
-                    (d) => d.id === directoryId,
-                );
-
-                if (!directory)
-                    redirect(`/settings/code-review/global/${pageName}`);
-            }
         }
     }
 
