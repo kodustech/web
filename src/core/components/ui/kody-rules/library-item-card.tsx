@@ -12,6 +12,7 @@ import { HeartIcon } from "lucide-react";
 import { ProgrammingLanguage } from "src/core/enums/programming-language";
 import { useAuth } from "src/core/providers/auth.provider";
 import { cn } from "src/core/utils/components";
+import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { Button } from "../button";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "../hover-card";
@@ -22,10 +23,12 @@ import { Spinner } from "../spinner";
 export const KodyRuleLibraryItem = ({
     rule,
     repositoryId,
+    directoryId,
     showLikeButton,
 }: {
     rule: LibraryRule;
     repositoryId?: string;
+    directoryId?: string;
     showLikeButton?: boolean;
 }) => {
     const { userId } = useAuth();
@@ -81,10 +84,10 @@ export const KodyRuleLibraryItem = ({
             },
         });
 
-    const libraryItemHref = `/library/kody-rules/${rule.uuid}`;
-    const href = repositoryId
-        ? `${libraryItemHref}?repositoryId=${repositoryId}`
-        : libraryItemHref;
+    const href = addSearchParamsToUrl(`/library/kody-rules/${rule.uuid}`, {
+        repositoryId,
+        directoryId,
+    });
 
     return (
         <Card
@@ -127,13 +130,15 @@ export const KodyRuleLibraryItem = ({
             <CardFooter className="bg-card-lv2 flex w-full cursor-auto items-end justify-between gap-4 rounded-b-xl px-5 py-4">
                 <div className="flex flex-wrap items-center gap-[3px]">
                     {rule.language && (
-                        <Badge className="h-2 px-2.5 font-normal">
+                        <Badge className="pointer-events-none h-2 px-2.5 font-normal">
                             {ProgrammingLanguage[rule.language]}
                         </Badge>
                     )}
 
                     {tagsToShow.map((tag) => (
-                        <Badge key={tag} className="h-2 px-2.5 font-normal">
+                        <Badge
+                            key={tag}
+                            className="pointer-events-none h-2 px-2.5 font-normal">
                             {tag}
                         </Badge>
                     ))}
@@ -153,7 +158,7 @@ export const KodyRuleLibraryItem = ({
                                 {tagsToHide.map((tag) => (
                                     <Badge
                                         key={tag}
-                                        className="h-2 px-2.5 font-normal">
+                                        className="pointer-events-none h-2 px-2.5 font-normal">
                                         {tag}
                                     </Badge>
                                 ))}

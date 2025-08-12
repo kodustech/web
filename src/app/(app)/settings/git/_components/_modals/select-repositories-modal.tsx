@@ -28,7 +28,7 @@ import {
     updateCodeReviewParameterRepositories,
 } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
-import { CodeReviewSummaryOptions } from "src/app/(app)/settings/code-review/_components/pages/types";
+import { CodeReviewSummaryOptions } from "src/app/(app)/settings/code-review/_types";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { IntegrationCategory } from "src/core/types";
@@ -42,7 +42,7 @@ export const SelectRepositoriesModal = (props: {
     const router = useRouter();
     const { teamId } = useSelectedTeamId();
     const { userId } = useAuth();
-    const { invalidateQueries, generateQueryKey } =
+    const { invalidateQueries, resetQueries, generateQueryKey } =
         useReactQueryInvalidateQueries();
 
     const [isLoadingRepositories, setIsLoadingRepositories] = useState(true);
@@ -107,8 +107,7 @@ export const SelectRepositoriesModal = (props: {
         });
 
         await Promise.all([
-            invalidateQueries({
-                type: "all",
+            resetQueries({
                 queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
                     params: {
                         key: ParametersConfigKey.CODE_REVIEW_CONFIG,

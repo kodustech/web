@@ -1,9 +1,9 @@
 import { decodeJwt, decodeProtectedHeader } from "jose";
-import { CodeReviewRepositoryConfig } from "src/app/(app)/settings/code-review/_components/pages/types";
+import { CodeReviewRepositoryConfig } from "src/app/(app)/settings/code-review/_types";
 import invariant from "tiny-invariant";
 
 import { API_ROUTES } from "../config/constants";
-import { JwtPayload, ParsedJwt } from "../types";
+import { JwtPayload, ParsedJwt, type LiteralUnion } from "../types";
 import { isSelfHosted } from "../utils/self-hosted";
 import { isServerSide } from "./server-side";
 
@@ -76,28 +76,22 @@ export function pathToDiscordApiUrl(path: API_ROUTES | string): string {
     return `${serviceUrl}${path}`;
 }
 
-function isProduction() {
-    return process.env.WEB_NODE_ENV === "production";
-}
-
 export function createUrl(
     hostName?: string,
     port?: string,
     path?: string,
-    options?: {
-        containerName?: string;
-    },
+    options?: { containerName?: string },
 ): string {
-    let protocol: string;
     let finalPort: string;
+    let protocol: string;
 
-    const defaultOptions = {
-        containerName,
-    };
+    const defaultOptions = { containerName };
     const config = { ...defaultOptions, ...options };
 
+    const isProduction = process.env.WEB_NODE_ENV === "production";
+
     if (
-        isProduction() ||
+        isProduction ||
         (isSelfHosted &&
             hostName !== "localhost" &&
             hostName !== config.containerName)
@@ -110,7 +104,15 @@ export function createUrl(
         // Also implicitly covers isDevelopment(), because if it's not production nor self-hosted with a domain,
         // and isDevelopment() is true, it will fall here.
         // If it's self-hosted and hostname === "localhost", it will also fall here.
-        protocol = "http";
+
+        if (hostName?.includes("http://")) {
+            protocol = "http";
+        } else if (hostName?.includes("https://")) {
+            protocol = "https";
+        } else {
+            protocol = "http";
+        }
+
         finalPort = port ? `:${port}` : "";
     }
 
@@ -203,9 +205,10 @@ export const codeReviewConfigRemovePropertiesNotInType = (
     config: Partial<CodeReviewRepositoryConfig>,
 ) => {
     const newConfig: Partial<CodeReviewRepositoryConfig> = {};
-    const expectedKeys: (keyof CodeReviewRepositoryConfig)[] = [
+    const expectedKeys: LiteralUnion<keyof CodeReviewRepositoryConfig>[] = [
         "id",
         "name",
+        "path",
         "automatedReviewActive",
         "reviewCadence",
         "baseBranches",
@@ -221,9 +224,10 @@ export const codeReviewConfigRemovePropertiesNotInType = (
     ];
 
     expectedKeys.forEach((key) => {
-        if (config.hasOwnProperty(key)) {
-            newConfig[key] = config[key] as any;
-        }
+        if (!config.hasOwnProperty(key)) return;
+        newConfig[key as keyof typeof newConfig] = config[
+            key as keyof typeof newConfig
+        ] as any;
     });
 
     return newConfig;

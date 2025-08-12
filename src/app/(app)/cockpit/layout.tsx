@@ -1,6 +1,7 @@
+import type { Metadata } from "next";
 import Layout from "src/features/ee/cockpit/layout";
 
-export const metadata = {
+export const metadata: Metadata = {
     title: "Cockpit",
     openGraph: { title: "Cockpit" },
 };

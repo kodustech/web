@@ -37,13 +37,7 @@ const CollapsibleTrigger = React.forwardRef<
     React.ComponentRef<typeof CollapsiblePrimitive.Trigger>,
     React.ComponentPropsWithoutRef<typeof CollapsiblePrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
-    <CollapsiblePrimitive.Trigger
-        ref={ref}
-        className={cn(
-            "flex flex-1 items-center justify-between py-4 text-sm font-medium transition [&[data-state=open]>svg]:rotate-180",
-            className,
-        )}
-        {...props}>
+    <CollapsiblePrimitive.Trigger ref={ref} {...props}>
         {children}
     </CollapsiblePrimitive.Trigger>
 ));

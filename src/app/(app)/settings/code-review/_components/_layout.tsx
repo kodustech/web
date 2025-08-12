@@ -1,11 +1,16 @@
 "use client";
 
 import { useMemo } from "react";
-import { useParams, usePathname } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleIndicator,
+    CollapsibleTrigger,
+} from "@components/ui/collapsible";
 import { Link } from "@components/ui/link";
-import { magicModal } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
 import {
     Sidebar,
@@ -17,19 +22,19 @@ import {
     SidebarMenuSub,
     SidebarMenuSubItem,
 } from "@components/ui/sidebar";
-import type { TeamAutomation } from "@services/automations/types";
 import {
     useSuspenseGetCodeReviewParameter,
     useSuspenseGetParameterPlatformConfigs,
 } from "@services/parameters/hooks";
+import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
+import { useCodeReviewRouteParams } from "../_hooks";
 import {
     AutomationCodeReviewConfigProvider,
     PlatformConfigProvider,
 } from "./context";
-import { AddRepoModal } from "./pages/kody-rules/_components/addRepoModal";
-import { PerRepository } from "./per-repository";
+import { PerRepository } from "./per-repository/repository";
 
 const routes = [
     { label: "General", href: "general" },
@@ -41,22 +46,17 @@ const routes = [
 
 export const AutomationCodeReviewLayout = ({
     children,
-    automation,
-    teamId,
     pluginsPageFeatureFlag,
 }: React.PropsWithChildren & {
-    automation: TeamAutomation | undefined;
-    teamId: string;
     pluginsPageFeatureFlag: Awaited<
         ReturnType<typeof getFeatureFlagWithPayload>
     >;
 }) => {
     const pathname = usePathname();
-
+    const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
-    const { params: [repositoryParam, pageNameParam] = [] } = useParams<{
-        params: [string, string];
-    }>();
+    const platformConfig = useSuspenseGetParameterPlatformConfigs(teamId);
+    const { repositoryId, pageName, directoryId } = useCodeReviewRouteParams();
 
     const mainRoutes = useMemo(() => {
         const routes: Array<{
@@ -91,21 +91,22 @@ export const AutomationCodeReviewLayout = ({
         return routes;
     }, [pluginsPageFeatureFlag?.value]);
 
-    const platformConfig = useSuspenseGetParameterPlatformConfigs(teamId);
+    if (repositoryId && repositoryId !== "global") {
+        const repository = configValue?.repositories.find(
+            (r) => r.id === repositoryId,
+        );
 
-    if (!automation) return null;
-    if (!configValue) return null;
-    if (!platformConfig) return null;
+        if (!repository) redirect(`/settings/code-review/global/${pageName}`);
 
-    const addNewRepo = async () => {
-        magicModal.show(() => (
-            <AddRepoModal
-                codeReviewGlobalConfig={configValue?.global}
-                repositories={configValue?.repositories}
-                teamId={teamId}
-            />
-        ));
-    };
+        if (!repository?.isSelected) {
+            const directory = repository?.directories?.find(
+                (d) => d.id === directoryId,
+            );
+
+            if (!directory)
+                redirect(`/settings/code-review/global/${pageName}`);
+        }
+    }
 
     return (
         <div className="flex flex-1 flex-row overflow-hidden">
@@ -113,7 +114,7 @@ export const AutomationCodeReviewLayout = ({
                 <SidebarContent className="gap-4 px-6 py-6">
                     <SidebarGroup>
                         <SidebarGroupContent>
-                            <SidebarMenu className="flex flex-col gap-1">
+                            <SidebarMenu>
                                 {mainRoutes.map((route) => (
                                     <SidebarMenuItem key={route.href}>
                                         <Link
@@ -143,51 +144,64 @@ export const AutomationCodeReviewLayout = ({
 
                     <SidebarGroup>
                         <SidebarGroupContent>
-                            <SidebarMenu className="flex flex-col gap-6">
-                                <SidebarMenuItem>
-                                    <p className="px-2 pb-3 font-semibold">
-                                        Global
-                                    </p>
-                                    <SidebarMenuSub>
-                                        {routes.map(({ label, href }) => {
-                                            const active =
-                                                repositoryParam === "global" &&
-                                                pageNameParam === href;
+                            <SidebarMenu className="gap-6">
+                                <Collapsible
+                                    defaultOpen={
+                                        repositoryId === "global" ||
+                                        !repositoryId
+                                    }>
+                                    <CollapsibleTrigger asChild>
+                                        <Button
+                                            size="md"
+                                            variant="helper"
+                                            className="h-fit w-full justify-start py-2"
+                                            leftIcon={
+                                                <CollapsibleIndicator className="-ml-1 group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
+                                            }>
+                                            Global
+                                        </Button>
+                                    </CollapsibleTrigger>
 
-                                            return (
-                                                <SidebarMenuSubItem
-                                                    key={label}
-                                                    className="flex flex-col gap-1">
-                                                    <Link
-                                                        href={`/settings/code-review/global/${href}`}
-                                                        className="w-full">
-                                                        <Button
-                                                            decorative
-                                                            size="md"
-                                                            variant={
-                                                                active
-                                                                    ? "helper"
-                                                                    : "cancel"
-                                                            }
-                                                            active={active}
-                                                            className="w-full justify-start">
-                                                            {label}
-                                                        </Button>
-                                                    </Link>
-                                                </SidebarMenuSubItem>
-                                            );
-                                        })}
-                                    </SidebarMenuSub>
-                                </SidebarMenuItem>
+                                    <CollapsibleContent>
+                                        <SidebarMenuItem>
+                                            <SidebarMenuSub>
+                                                {routes.map(
+                                                    ({ label, href }) => {
+                                                        const active =
+                                                            repositoryId ===
+                                                                "global" &&
+                                                            pageName === href;
+
+                                                        return (
+                                                            <SidebarMenuSubItem
+                                                                key={label}>
+                                                                <Link
+                                                                    className="w-full"
+                                                                    href={`/settings/code-review/global/${href}`}>
+                                                                    <Button
+                                                                        decorative
+                                                                        size="sm"
+                                                                        variant="cancel"
+                                                                        active={
+                                                                            active
+                                                                        }
+                                                                        className="min-h-auto w-full justify-start px-0 py-2">
+                                                                        {label}
+                                                                    </Button>
+                                                                </Link>
+                                                            </SidebarMenuSubItem>
+                                                        );
+                                                    },
+                                                )}
+                                            </SidebarMenuSub>
+                                        </SidebarMenuItem>
+                                    </CollapsibleContent>
+                                </Collapsible>
 
                                 <PerRepository
                                     routes={routes}
-                                    addNewRepo={addNewRepo}
                                     configValue={configValue}
-                                    pageNameParam={pageNameParam}
-                                    repositoryParam={repositoryParam}
                                     platformConfig={platformConfig}
-                                    teamId={teamId}
                                 />
                             </SidebarMenu>
                         </SidebarGroupContent>
@@ -197,8 +211,8 @@ export const AutomationCodeReviewLayout = ({
 
             <Page.WithSidebar>
                 <AutomationCodeReviewConfigProvider
-                    config={configValue}
-                    key={teamId}>
+                    key={teamId}
+                    config={configValue}>
                     <PlatformConfigProvider config={platformConfig.configValue}>
                         {children}
                     </PlatformConfigProvider>

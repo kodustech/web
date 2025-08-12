@@ -12,35 +12,51 @@ const buttonVariants = cva(
         "rounded-xl font-semibold transition text-start shrink-0 text-sm w-fit",
         "bg-(--button-background) text-(--button-foreground) [&_svg]:size-(--icon-size) ring-card-lv3",
         "[&[aria-haspopup=dialog]]:ring-1",
-        "button-disabled:bg-text-placeholder/30 button-disabled:text-text-placeholder button-disabled:cursor-not-allowed",
         "button-focused:ring-3!",
         "button-hover:brightness-120 button-active:brightness-120",
         "button-loading:cursor-wait",
-
-        "group-disabled/link:bg-text-placeholder/30 group-disabled/link:text-text-placeholder group-disabled/link:cursor-not-allowed",
+        "button-disabled:cursor-not-allowed group-disabled/link:cursor-not-allowed",
         "group-disabled/link:[&:hover]:brightness-100!",
         "group-button-focused/link:ring-3!",
     ),
     {
         variants: {
             variant: {
-                "primary":
+                "primary": cn(
                     "[--button-background:var(--color-primary-light)] [--button-foreground:var(--color-primary-dark)]",
+                    "button-disabled:bg-text-placeholder/30 button-disabled:text-text-placeholder",
+                    "group-disabled/link:bg-text-placeholder/30 group-disabled/link:text-text-placeholder",
+                ),
 
-                "primary-dark":
+                "primary-dark": cn(
                     "[--button-background:var(--color-primary-dark)] [--button-foreground:var(--color-primary-light)]",
+                    "button-disabled:bg-text-placeholder/30 button-disabled:text-text-placeholder",
+                    "group-disabled/link:bg-text-placeholder/30 group-disabled/link:text-text-placeholder",
+                ),
 
-                "secondary":
+                "secondary": cn(
                     "[--button-background:var(--color-secondary-dark)] [--button-foreground:var(--color-primary-light)]",
+                    "button-disabled:bg-text-placeholder/30 button-disabled:text-text-placeholder",
+                    "group-disabled/link:bg-text-placeholder/30 group-disabled/link:text-text-placeholder",
+                ),
 
-                "helper":
+                "helper": cn(
                     "[--button-background:var(--color-card-lv2)] [--button-foreground:var(--color-text-secondary)]",
+                    "button-disabled:bg-text-placeholder/30 button-disabled:text-text-placeholder",
+                    "group-disabled/link:bg-text-placeholder/30 group-disabled/link:text-text-placeholder",
+                ),
 
-                "tertiary":
+                "tertiary": cn(
                     "[--button-background:var(--color-tertiary-dark)] [--button-foreground:var(--color-tertiary-light)]",
+                    "button-disabled:bg-text-placeholder/30 button-disabled:text-text-placeholder",
+                    "group-disabled/link:bg-text-placeholder/30 group-disabled/link:text-text-placeholder",
+                ),
 
-                "cancel":
+                "cancel": cn(
                     "[--button-foreground:var(--color-text-tertiary)] button-hover:[--button-foreground:var(--color-text-primary)] button-active:[--button-foreground:var(--color-text-primary)]",
+                    "button-disabled:text-placeholder/30",
+                    "group-disabled/link:text-placeholder/30",
+                ),
             },
             size: {
                 "xs": "min-h-7 [--icon-size:calc(var(--spacing)*4)] rounded-full text-xs px-3.5 py-1.5 gap-1.5",

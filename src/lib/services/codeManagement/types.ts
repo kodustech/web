@@ -22,6 +22,13 @@ export type Repository = {
     };
 };
 
+export type GitFileOrFolder = {
+    name: string;
+    path: string;
+    files?: GitFileOrFolder[];
+    subdirectories?: GitFileOrFolder[];
+};
+
 export const CODE_MANAGEMENT_API_PATHS = {
     GET_ONBOARDING_CODE_REVIEW_STATUS: pathToApiUrl(
         "/code-management/get-code-review-started",
