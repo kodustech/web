@@ -19,6 +19,7 @@ import {
     KodyLearningStatus,
     ParametersConfigKey,
 } from "@services/parameters/types";
+import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { SeverityLevel } from "src/core/types";
 
 import { useCodeReviewRouteParams } from "../_hooks";
@@ -28,16 +29,12 @@ import {
     LimitationType,
     type CodeReviewGlobalConfig,
 } from "../_types";
-import { usePlatformConfig } from "./context";
+import { useCodeReviewConfig, usePlatformConfig } from "./context";
 
-export const GenerateRulesButton = ({
-    teamId,
-    config,
-}: {
-    teamId: string;
-    config: CodeReviewGlobalConfig & { id?: string };
-}) => {
+export const GenerateRulesButton = () => {
     const platformConfig = usePlatformConfig();
+    const config = useCodeReviewConfig();
+    const { teamId } = useSelectedTeamId();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
 
