@@ -92,7 +92,7 @@ export const PerRepository = ({
                                                     leftIcon={
                                                         <CollapsibleIndicator className="-ml-1 group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
                                                     }>
-                                                    <span className="line-clamp-1 truncate text-ellipsis [direction:rtl]">
+                                                    <span className="line-clamp-1 truncate text-ellipsis">
                                                         {r.name}
                                                     </span>
                                                 </Button>

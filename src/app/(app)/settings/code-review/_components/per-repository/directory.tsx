@@ -59,7 +59,7 @@ export const PerDirectory = ({
                                         )}
                                     />
                                 }>
-                                <span className="line-clamp-1 truncate text-ellipsis [direction:rtl]">
+                                <span className="line-clamp-1 truncate text-ellipsis">
                                     {directory.path}
                                 </span>
                             </Button>
