@@ -112,7 +112,7 @@ export const AddRepoModal = ({
                     <DialogTitle>Copy repository settings</DialogTitle>
                 </DialogHeader>
 
-                <div className="flex flex-col gap-8">
+                <div className="-mx-6 flex flex-col gap-6 overflow-auto px-6 py-1">
                     <Controller
                         name="originRepositoryId"
                         rules={{ required: "Choose a repository" }}
@@ -232,54 +232,56 @@ export const AddRepoModal = ({
                             </FormControl.Root>
                         )}
                     />
-                </div>
 
-                {repositoryId && (
-                    <Controller
-                        name="targetDirectoryPath"
-                        control={form.control}
-                        render={({ field }) => (
-                            <FormControl.Root>
-                                <FormControl.Label htmlFor={field.name}>
-                                    Select the target directory
-                                </FormControl.Label>
+                    {repositoryId && (
+                        <Controller
+                            name="targetDirectoryPath"
+                            control={form.control}
+                            render={({ field }) => (
+                                <FormControl.Root>
+                                    <FormControl.Label htmlFor={field.name}>
+                                        Select the target directory
+                                    </FormControl.Label>
 
-                                <FormControl.Input>
-                                    <Card className="max-h-96 ring-1">
-                                        <Suspense
-                                            fallback={
-                                                <CardHeader className="flex-row items-center gap-5 py-4 text-sm">
-                                                    <Spinner className="size-6" />
-                                                    <span className="text-text-secondary">
-                                                        Loading directories
-                                                    </span>
+                                    <FormControl.Input>
+                                        <Card className="max-h-96 ring-1">
+                                            <Suspense
+                                                fallback={
+                                                    <CardHeader className="flex-row items-center gap-5 py-4 text-sm">
+                                                        <Spinner className="size-6" />
+                                                        <span className="text-text-secondary">
+                                                            Loading directories
+                                                        </span>
+                                                    </CardHeader>
+                                                }>
+                                                <CardHeader className="h-full overflow-y-auto py-4">
+                                                    <GitDirectorySelector
+                                                        value={field.value}
+                                                        repositoryId={
+                                                            repositoryId
+                                                        }
+                                                        onValueChange={
+                                                            field.onChange
+                                                        }
+                                                    />
                                                 </CardHeader>
-                                            }>
-                                            <CardHeader className="h-full overflow-y-auto py-4">
-                                                <GitDirectorySelector
-                                                    value={field.value}
-                                                    repositoryId={repositoryId}
-                                                    onValueChange={
-                                                        field.onChange
-                                                    }
-                                                />
-                                            </CardHeader>
-                                        </Suspense>
-                                    </Card>
-                                </FormControl.Input>
+                                            </Suspense>
+                                        </Card>
+                                    </FormControl.Input>
 
-                                {field.value && (
-                                    <FormControl.Helper>
-                                        Selected directory is
-                                        <span className="text-primary-light ml-1">
-                                            {field.value}
-                                        </span>
-                                    </FormControl.Helper>
-                                )}
-                            </FormControl.Root>
-                        )}
-                    />
-                )}
+                                    {field.value && (
+                                        <FormControl.Helper>
+                                            Selected directory is
+                                            <span className="text-primary-light ml-1">
+                                                {field.value}
+                                            </span>
+                                        </FormControl.Helper>
+                                    )}
+                                </FormControl.Root>
+                            )}
+                        />
+                    )}
+                </div>
 
                 <DialogFooter>
                     <Button
