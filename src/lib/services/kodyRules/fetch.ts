@@ -77,16 +77,16 @@ export const changeStatusKodyRules = async (
     return response.data as KodyRule[];
 };
 
-export const generateKodyRules = async (
+export const generateKodyRules = (
     teamId: string,
     months: number = 3,
     weeks?: number,
     days?: number,
 ) => {
-    const response = await axiosAuthorized.post<any>(
-        KODY_RULES_PATHS.GENERATE_KODY_RULES,
-        { teamId, months, weeks, days },
-    );
-
-    return response.data as KodyRule[];
+    axiosAuthorized.post<any>(KODY_RULES_PATHS.GENERATE_KODY_RULES, {
+        teamId,
+        months,
+        weeks,
+        days,
+    });
 };

@@ -21,6 +21,7 @@ import {
 } from "@services/parameters/types";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { SeverityLevel } from "src/core/types";
+import { waitFor } from "src/core/utils/helpers";
 
 import { useCodeReviewRouteParams } from "../_hooks";
 import {
@@ -41,7 +42,7 @@ export const GenerateRulesButton = () => {
     const [generateRules, isLoadingButton] = useAsyncAction(async () => {
         generateKodyRules(teamId);
 
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await waitFor(2000);
 
         await resetQueries({
             queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
