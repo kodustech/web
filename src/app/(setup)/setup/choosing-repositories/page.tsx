@@ -56,21 +56,10 @@ export default function App() {
         saveSelectedRepositoriesAction,
         { loading: loadingSaveRepositories },
     ] = useAsyncAction(async () => {
-        const reposToSave = selectedRepositories.map((repo) => {
-            return {
-                id: repo.id,
-                name: repo.name,
-                visibility: repo.visibility,
-                http_url: repo.http_url,
-                avatar_url: repo.avatar_url,
-                selected: true,
-                default_branch: repo?.default_branch,
-                organizationName: repo?.organizationName,
-                language: repo?.language,
-                workspaceId: repo?.workspaceId,
-                project: repo?.project,
-            };
-        });
+        const reposToSave = selectedRepositories.map((repo) => ({
+            ...repo,
+            selected: true,
+        }));
 
         await createOrUpdateRepositories(reposToSave, teamId);
 
