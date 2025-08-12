@@ -244,7 +244,7 @@ export const AddRepoModal = ({
                                     </FormControl.Label>
 
                                     <FormControl.Input>
-                                        <Card className="max-h-96 ring-1">
+                                        <Card className="ring-1">
                                             <Suspense
                                                 fallback={
                                                     <CardHeader className="flex-row items-center gap-5 py-4 text-sm">
