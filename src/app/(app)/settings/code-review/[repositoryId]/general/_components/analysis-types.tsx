@@ -129,9 +129,6 @@ export const AnalysisTypes = () => {
                                     <Button
                                         size="lg"
                                         variant="helper"
-                                        onClick={() =>
-                                            field.onChange(!field.value)
-                                        }
                                         className="w-full items-start py-5">
                                         <div className="flex w-full flex-row justify-between gap-6">
                                             <div className="flex flex-col gap-2">
