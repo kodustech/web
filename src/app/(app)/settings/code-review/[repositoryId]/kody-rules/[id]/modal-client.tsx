@@ -1,6 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { KODY_RULES_PATHS } from "@services/kodyRules";
+import { useQueryClient } from "@tanstack/react-query";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 import type { KodyRule } from "src/lib/services/kodyRules/types";
 
@@ -18,8 +20,15 @@ export function KodyRuleModalClient({
 }) {
     const router = useRouter();
     const config = useFullCodeReviewConfig();
+    const queryClient = useQueryClient();
 
-    const handleClose = () => {
+    const handleClose = async () => {
+        await queryClient.resetQueries({
+            predicate: (query) =>
+                query.queryKey[0] ===
+                KODY_RULES_PATHS.FIND_BY_ORGANIZATION_ID_AND_FILTER,
+        });
+
         router.push(
             addSearchParamsToUrl(
                 `/settings/code-review/${repositoryId}/kody-rules`,

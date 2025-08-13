@@ -1,3 +1,4 @@
+import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
 import {
@@ -26,7 +27,7 @@ import {
     KodyRulesStatus,
     type KodyRule,
 } from "@services/kodyRules/types";
-import { CheckIcon, HelpCircle, XIcon } from "lucide-react";
+import { CheckIcon, HelpCircle, PlusIcon, SaveIcon, XIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { cn } from "src/core/utils/components";
 
@@ -65,6 +66,18 @@ const GOOD_EXAMPLE_PLACEHOLDER = `for (var i = 1; i <= 10; i += 2)  // Compliant
   //...
 }`;
 
+const getDirectoryPathForReplace = (directory: CodeReviewDirectoryConfig) =>
+    `${directory.path.slice(1)}/`;
+const getKodyRulePathWithoutDirectoryPath = ({
+    directory,
+    rule,
+}: {
+    rule: KodyRule;
+    directory: CodeReviewDirectoryConfig;
+}) => rule.path.replace(getDirectoryPathForReplace(directory), "");
+
+const DEFAULT_PATH_FOR_DIRECTORIES = "*";
+
 export const KodyRuleAddOrUpdateItemModal = ({
     repositoryId,
     directory,
@@ -86,7 +99,13 @@ export const KodyRuleAddOrUpdateItemModal = ({
         reValidateMode: "onChange",
         criteriaMode: "firstError",
         defaultValues: {
-            path: rule?.path ?? "",
+            path: rule
+                ? !directory
+                    ? rule.path
+                    : getKodyRulePathWithoutDirectoryPath({ directory, rule })
+                : directory
+                  ? DEFAULT_PATH_FOR_DIRECTORIES
+                  : "",
             rule: rule?.rule ?? "",
             title: rule?.title ?? "",
             severity: rule?.severity ?? "high",
@@ -106,21 +125,26 @@ export const KodyRuleAddOrUpdateItemModal = ({
     const watchScope = form.watch("scope");
 
     const handleSubmit = form.handleSubmit(async (config) => {
-        if (!onClose) {
-            // Padrão antigo com magicModal
-            magicModal.lock();
-        }
+        if (!onClose) magicModal.lock();
 
-        // Se for usado via callback (novo padrão), não usar magicModal
         let examples = [];
         if (config.badExample)
             examples.push({ isCorrect: false, snippet: config.badExample });
         if (config.goodExample)
             examples.push({ isCorrect: true, snippet: config.goodExample });
 
+        let newPath = "";
+        if (config.scope === "file") {
+            if (directory) {
+                newPath = `${getDirectoryPathForReplace(directory)}${config.path}`;
+            } else {
+                newPath = config.path;
+            }
+        }
+
         await createOrUpdateKodyRule(
             {
-                path: config.scope === "file" ? config.path : "", // Se for pull-request, path fica vazio
+                path: newPath,
                 rule: config.rule,
                 title: config.title,
                 severity: config.severity,
@@ -135,7 +159,6 @@ export const KodyRuleAddOrUpdateItemModal = ({
         );
 
         if (!onClose) {
-            // Padrão antigo com magicModal
             magicModal.hide(true);
         } else {
             onClose();
@@ -146,7 +169,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
         <Dialog
             open
             onOpenChange={() => (onClose ? onClose() : magicModal.hide())}>
-            <DialogContent className="max-w-(--breakpoint-md)">
+            <DialogContent className="max-w-(--breakpoint-lg)">
                 <DialogHeader>
                     <DialogTitle>
                         {rule ? "Edit rule" : "Add new rule"}
@@ -159,7 +182,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                         rules={{ required: "Rule name is required" }}
                         control={form.control}
                         render={({ field, fieldState }) => (
-                            <div className="grid grid-cols-[1fr_2fr] items-center gap-6">
+                            <div className="grid grid-cols-[1fr_3fr] items-center gap-6">
                                 <FormControl.Root>
                                     <FormControl.Label
                                         className="mb-0 flex flex-row gap-1"
@@ -174,12 +197,11 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             id={field.name}
                                             error={fieldState.error}
                                             placeholder="Avoid using 'console.log' statements in production code."
-                                            className="opacity-100!"
+                                            maxLength={300}
                                             value={field.value}
                                             onChange={(e) =>
                                                 field.onChange(e.target.value)
                                             }
-                                            maxLength={300}
                                         />
 
                                         <FormControl.Error>
@@ -195,7 +217,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                         name="scope"
                         control={form.control}
                         render={({ field }) => (
-                            <div className="grid grid-cols-[1fr_2fr] gap-6">
+                            <div className="grid grid-cols-[1fr_3fr] gap-6">
                                 <FormControl.Root>
                                     <FormControl.Label className="mb-0 flex flex-row gap-1">
                                         Scope
@@ -238,24 +260,40 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                 <FormControl.Input>
                                     <ToggleGroup.Root
                                         type="single"
-                                        className="grid grid-cols-2 gap-3"
+                                        className="flex w-md gap-3"
                                         value={field.value}
                                         onValueChange={(value) => {
-                                            field.onChange(value);
+                                            if (value) field.onChange(value);
 
                                             if (value === "file") {
-                                                form.setValue(
-                                                    "path",
-                                                    directory?.path ?? "",
-                                                    { shouldValidate: true },
-                                                );
+                                                let newPath = "";
 
-                                                return;
-                                            }
+                                                if (directory) {
+                                                    if (rule) {
+                                                        // Editing an existing rule: remove the directory prefix from the path
+                                                        newPath =
+                                                            getKodyRulePathWithoutDirectoryPath(
+                                                                {
+                                                                    directory,
+                                                                    rule,
+                                                                },
+                                                            );
+                                                    } else {
+                                                        // Adding a new rule: default to wildcard
+                                                        newPath =
+                                                            DEFAULT_PATH_FOR_DIRECTORIES;
+                                                    }
+                                                }
 
-                                            if (value === "pull-request") {
-                                                form.resetField("path");
-                                                return;
+                                                form.setValue("path", newPath, {
+                                                    shouldValidate: true,
+                                                });
+                                            } else if (
+                                                value === "pull-request"
+                                            ) {
+                                                form.resetField("path", {
+                                                    defaultValue: "",
+                                                });
                                             }
                                         }}>
                                         {scopeOptions.map((option) => (
@@ -266,7 +304,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                 <Button
                                                     size="md"
                                                     variant="helper"
-                                                    className="h-auto w-full items-start py-3">
+                                                    className="h-auto flex-1 items-start py-3">
                                                     <div className="flex w-full items-center justify-between gap-3">
                                                         <div className="flex flex-col gap-1">
                                                             <Heading
@@ -297,16 +335,12 @@ export const KodyRuleAddOrUpdateItemModal = ({
                         name="path"
                         control={form.control}
                         rules={{
-                            validate: (value) => {
-                                if (!directory) return;
-                                if (watchScope === "pull-request") return;
-
-                                if (!value.includes(directory.path))
-                                    return `"${directory.path}" needs to be included as path`;
-                            },
+                            required: directory
+                                ? "Path is required"
+                                : undefined,
                         }}
                         render={({ field, fieldState }) => (
-                            <div className="grid grid-cols-[1fr_2fr] gap-6">
+                            <div className="grid grid-cols-[1fr_3fr] gap-6">
                                 <FormControl.Root>
                                     <FormControl.Label
                                         className="mb-0 flex flex-row gap-1"
@@ -360,31 +394,53 @@ export const KodyRuleAddOrUpdateItemModal = ({
 
                                 <FormControl.Input>
                                     <div className="flex flex-col">
-                                        <Input
-                                            id={field.name}
-                                            value={field.value}
-                                            maxLength={600}
-                                            placeholder="Example: **/*.js"
-                                            error={fieldState.error}
-                                            disabled={
-                                                watchScope === "pull-request"
-                                            }
-                                            onChange={(e) =>
-                                                field.onChange(e.target.value)
-                                            }
-                                        />
+                                        <div className="flex items-center">
+                                            {directory && (
+                                                <Badge
+                                                    size="md"
+                                                    variant="helper"
+                                                    className="text-text-primary pointer-events-none h-full rounded-r-none ring-1">
+                                                    {directory?.path}/
+                                                </Badge>
+                                            )}
+
+                                            <Input
+                                                id={field.name}
+                                                value={field.value}
+                                                maxLength={600}
+                                                placeholder="Example: **/*.js"
+                                                error={fieldState.error}
+                                                className={cn(
+                                                    directory &&
+                                                        "rounded-l-none",
+                                                )}
+                                                disabled={
+                                                    watchScope ===
+                                                    "pull-request"
+                                                }
+                                                onChange={(e) =>
+                                                    field.onChange(
+                                                        e.target.value,
+                                                    )
+                                                }
+                                            />
+                                        </div>
 
                                         <FormControl.Error>
                                             {fieldState.error?.message}
                                         </FormControl.Error>
 
-                                        <FormControl.Helper>
-                                            {watchScope === "pull-request"
-                                                ? "Path is not applicable for pull request scope"
-                                                : directory
-                                                  ? undefined
-                                                  : "If empty, rule will be applied to all files."}
-                                        </FormControl.Helper>
+                                        {watchScope === "pull-request" ? (
+                                            <FormControl.Helper className="text-warning">
+                                                Path is not applicable for pull
+                                                request scope
+                                            </FormControl.Helper>
+                                        ) : directory ? null : (
+                                            <FormControl.Helper>
+                                                If empty, rule will be applied
+                                                to all files.
+                                            </FormControl.Helper>
+                                        )}
                                     </div>
                                 </FormControl.Input>
                             </div>
@@ -396,7 +452,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                         control={form.control}
                         rules={{ required: "Instructions are required" }}
                         render={({ field, fieldState }) => (
-                            <div className="grid grid-cols-[1fr_2fr] gap-6">
+                            <div className="grid grid-cols-[1fr_3fr] gap-6">
                                 <FormControl.Root>
                                     <FormControl.Label
                                         className="mb-0 flex flex-row gap-1"
@@ -471,7 +527,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                             const numberValue = severityLevel?.value;
 
                             return (
-                                <div className="grid grid-cols-[1fr_2fr] gap-6">
+                                <div className="grid grid-cols-[1fr_3fr] gap-6">
                                     <FormControl.Root>
                                         <FormControl.Label
                                             className="flex flex-row gap-1"
@@ -547,41 +603,43 @@ export const KodyRuleAddOrUpdateItemModal = ({
 
                                     <FormControl.Input>
                                         <div className="relative">
-                                            <SliderWithMarkers
-                                                id={field.name}
-                                                min={0}
-                                                max={3}
-                                                step={1}
-                                                labels={labels}
-                                                value={numberValue}
-                                                onValueChange={(value) =>
-                                                    field.onChange(
-                                                        Object.entries(
-                                                            severityLevelFilterOptions,
-                                                        ).find(
-                                                            ([, v]) =>
-                                                                v.value ===
-                                                                value,
-                                                        )?.[0],
-                                                    )
-                                                }
-                                                className={cn([
-                                                    {
-                                                        "[--slider-marker-background-active:#119DE4]":
-                                                            field.value ===
-                                                            "low",
-                                                        "[--slider-marker-background-active:#115EE4]":
-                                                            field.value ===
-                                                            "medium",
-                                                        "[--slider-marker-background-active:#6A57A4]":
-                                                            field.value ===
-                                                            "high",
-                                                        "[--slider-marker-background-active:#EF4B4B]":
-                                                            field.value ===
-                                                            "critical",
-                                                    },
-                                                ])}
-                                            />
+                                            <div className="w-96">
+                                                <SliderWithMarkers
+                                                    id={field.name}
+                                                    min={0}
+                                                    max={3}
+                                                    step={1}
+                                                    labels={labels}
+                                                    value={numberValue}
+                                                    onValueChange={(value) =>
+                                                        field.onChange(
+                                                            Object.entries(
+                                                                severityLevelFilterOptions,
+                                                            ).find(
+                                                                ([, v]) =>
+                                                                    v.value ===
+                                                                    value,
+                                                            )?.[0],
+                                                        )
+                                                    }
+                                                    className={cn([
+                                                        {
+                                                            "[--slider-marker-background-active:#119DE4]":
+                                                                field.value ===
+                                                                "low",
+                                                            "[--slider-marker-background-active:#115EE4]":
+                                                                field.value ===
+                                                                "medium",
+                                                            "[--slider-marker-background-active:#6A57A4]":
+                                                                field.value ===
+                                                                "high",
+                                                            "[--slider-marker-background-active:#EF4B4B]":
+                                                                field.value ===
+                                                                "critical",
+                                                        },
+                                                    ])}
+                                                />
+                                            </div>
 
                                             <FormControl.Error>
                                                 {fieldState.error?.message}
@@ -602,7 +660,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                             control={form.control}
                             name="badExample"
                             render={({ field, fieldState }) => (
-                                <div className="grid grid-cols-[1fr_2fr] gap-6">
+                                <div className="grid grid-cols-[1fr_3fr] gap-6">
                                     <FormControl.Root>
                                         <FormControl.Label
                                             className="mb-0 flex flex-row gap-1"
@@ -653,7 +711,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                             control={form.control}
                             name="goodExample"
                             render={({ field, fieldState }) => (
-                                <div className="grid grid-cols-[1fr_2fr] gap-6">
+                                <div className="grid grid-cols-[1fr_3fr] gap-6">
                                     <FormControl.Root>
                                         <FormControl.Label
                                             className="mb-0 flex flex-row gap-1"
@@ -715,9 +773,9 @@ export const KodyRuleAddOrUpdateItemModal = ({
                     <Button
                         size="md"
                         variant="primary"
-                        formTarget="add-or-update-rule-form"
                         loading={formState.isSubmitting}
                         onClick={handleSubmit}
+                        leftIcon={rule ? <SaveIcon /> : <PlusIcon />}
                         disabled={!formState.isValid || !formState.isDirty}>
                         {rule ? "Update rule" : "Create rule"}
                     </Button>

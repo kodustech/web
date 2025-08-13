@@ -101,7 +101,7 @@ const SliderWithMarkers = forwardRef<
                         return (
                             <div
                                 key={i}
-                                className="absolute text-xs"
+                                className="absolute cursor-default text-xs"
                                 style={{
                                     left: `${leftPositionPercentage}%`,
                                     translate: `-${leftPositionPercentage}%`,
