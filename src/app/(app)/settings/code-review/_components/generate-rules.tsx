@@ -149,7 +149,6 @@ export const GenerateRulesButton = () => {
                         <Card className="flex w-full flex-row items-center gap-4 p-3">
                             Auto-Generate
                             <Switch
-                                decorative
                                 disabled={isLoadingToggle.loading!}
                                 onClick={handleKodyRulesGeneratorToggle}
                                 checked={newConfig.kodyRulesGeneratorEnabled}
