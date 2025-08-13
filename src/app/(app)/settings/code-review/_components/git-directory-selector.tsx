@@ -24,6 +24,7 @@ export const GitDirectorySelector = ({
     const directoryTree = useSuspenseGetRepositoryTree({
         repositoryId,
         organizationId,
+        teamId,
         treeType: "directories",
     });
 
