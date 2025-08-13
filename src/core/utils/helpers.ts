@@ -105,10 +105,14 @@ export function createUrl(
         // and isDevelopment() is true, it will fall here.
         // If it's self-hosted and hostname === "localhost", it will also fall here.
 
-        if (hostName?.includes("http://")) {
+        const HTTP = "http://";
+        const HTTPS = "https://";
+        if (hostName?.includes(HTTP)) {
             protocol = "http";
-        } else if (hostName?.includes("https://")) {
+            hostName = hostName.replace(HTTP, "");
+        } else if (hostName?.includes(HTTPS)) {
             protocol = "https";
+            hostName = hostName.replace(HTTPS, "");
         } else {
             protocol = "http";
         }

@@ -1,132 +1,23 @@
 "use client";
 
-import { useState } from "react";
 import { redirect, useRouter } from "next/navigation";
 import { Avatar, AvatarImage } from "@components/ui/avatar";
 import { Button } from "@components/ui/button";
 import { Heading } from "@components/ui/heading";
 import { SvgKodus } from "@components/ui/icons/SvgKodus";
 import { Page } from "@components/ui/page";
-import { useAsyncAction } from "@hooks/use-async-action";
-import { createOrUpdateRepositories } from "@services/codeManagement/fetch";
-import type { Repository } from "@services/codeManagement/types";
-import {
-    createOrUpdateCodeReviewParameter,
-    getParameterByKey,
-    updateCodeReviewParameterRepositories,
-} from "@services/parameters/fetch";
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
-import { ParametersConfigKey } from "@services/parameters/types";
-import { useSuspenseGetConnections } from "@services/setup/hooks";
 import { ArrowLeftIcon } from "lucide-react";
-import {
-    CodeReviewSummaryOptions,
-    type CodeReviewGlobalConfig,
-} from "src/app/(app)/settings/code-review/_types";
-import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { captureSegmentEvent } from "src/core/utils/segment";
 
 import { StepIndicators } from "../_components/step-indicators";
 
 export default function App() {
     const router = useRouter();
-    const { userId } = useAuth();
     const { teamId } = useSelectedTeamId();
-
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
     if (configValue?.repositories?.length)
         redirect("/setup/choosing-a-pull-request");
-
-    const [open, setOpen] = useState(false);
-    const [selectedRepositories, setSelectedRepositories] = useState<
-        Repository[]
-    >([]);
-
-    const connections = useSuspenseGetConnections(teamId);
-
-    const codeManagementConnections = connections.filter(
-        (c) => c.category === "CODE_MANAGEMENT" && c.hasConnection,
-    );
-
-    const [
-        saveSelectedRepositoriesAction,
-        { loading: loadingSaveRepositories },
-    ] = useAsyncAction(async () => {
-        const reposToSave = selectedRepositories.map((repo) => {
-            return {
-                id: repo.id,
-                name: repo.name,
-                visibility: repo.visibility,
-                http_url: repo.http_url,
-                avatar_url: repo.avatar_url,
-                selected: true,
-                default_branch: repo?.default_branch,
-                organizationName: repo.organizationName,
-                language: repo?.language,
-                workspaceId: repo?.workspaceId,
-                project: repo?.project,
-            };
-        });
-
-        await createOrUpdateRepositories(reposToSave, teamId);
-
-        const codeReview: {
-            configKey: string;
-            configValue: any;
-        } = await getParameterByKey(
-            ParametersConfigKey.CODE_REVIEW_CONFIG,
-            teamId,
-        );
-
-        if (!codeReview.configValue) {
-            const defaultConfigs: Partial<CodeReviewGlobalConfig> = {
-                automatedReviewActive: true,
-                reviewOptions: {
-                    code_style: true,
-                    documentation_and_comments: true,
-                    error_handling: true,
-                    maintainability: true,
-                    performance_and_optimization: true,
-                    potential_issues: true,
-                    refactoring: true,
-                    security: true,
-                    kody_rules: true,
-                    breaking_changes: true,
-                },
-                summary: {
-                    generatePRSummary: true,
-                    customInstructions: "",
-                    behaviourForExistingDescription:
-                        CodeReviewSummaryOptions.CONCATENATE,
-                },
-                pullRequestApprovalActive: false,
-                isRequestChangesActive: false,
-                kodyRulesGeneratorEnabled: true,
-            };
-
-            await createOrUpdateCodeReviewParameter(
-                defaultConfigs,
-                teamId,
-                undefined,
-            );
-        }
-
-        await updateCodeReviewParameterRepositories(teamId);
-
-        await captureSegmentEvent({
-            userId: userId!,
-            event: "setup_select_repositories",
-            properties: {
-                platform: codeManagementConnections
-                    .at(0)
-                    ?.platformName.toLowerCase(),
-                quantityOfRepositories: selectedRepositories.length,
-            },
-        });
-
-        router.replace("/setup/choosing-a-pull-request");
-    });
 
     return (
         <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">

@@ -1,5 +1,6 @@
 import { useAsyncAction } from "@hooks/use-async-action";
 import { finishOnboarding } from "@services/codeManagement/fetch";
+import { waitFor } from "src/core/utils/helpers";
 import { captureSegmentEvent } from "src/core/utils/segment";
 import { isSelfHosted } from "src/core/utils/self-hosted";
 
@@ -50,7 +51,7 @@ export const useFinishOnboardingReviewingPR = ({
 
         onSuccess();
 
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await waitFor(5000);
 
         // using this because next.js router is causing an error, probably related to https://github.com/vercel/next.js/issues/63121
         window.location.href = "/settings/code-review";

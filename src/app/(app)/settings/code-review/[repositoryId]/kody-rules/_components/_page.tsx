@@ -18,11 +18,10 @@ import { type KodyRule } from "@services/kodyRules/types";
 import { KodyLearningStatus } from "@services/parameters/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { BellRing, Plus } from "lucide-react";
-import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 
 import { CodeReviewPagesBreadcrumb } from "../../../_components/breadcrumb";
 import {
-    useCodeReviewConfig,
+    useFullCodeReviewConfig,
     usePlatformConfig,
 } from "../../../_components/context";
 import { GenerateRulesButton } from "../../../_components/generate-rules";
@@ -43,8 +42,7 @@ export const KodyRulesPage = ({
     pendingRules: KodyRule[];
 }) => {
     const platformConfig = usePlatformConfig();
-    const { teamId } = useSelectedTeamId();
-    const config = useCodeReviewConfig();
+    const config = useFullCodeReviewConfig();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const [filterQuery, setFilterQuery] = useState("");
     const queryClient = useQueryClient();
@@ -73,9 +71,9 @@ export const KodyRulesPage = ({
     };
 
     const addNewEmptyRule = async () => {
-        const directory = config?.directories?.find(
-            (d) => d.id === directoryId,
-        );
+        const directory = config.repositories
+            .find((r) => r.id === repositoryId)
+            ?.directories?.find((d) => d.id === directoryId);
 
         const response = await magicModal.show(() => (
             <KodyRuleAddOrUpdateItemModal
@@ -121,10 +119,7 @@ export const KodyRulesPage = ({
                     <div className="flex items-center justify-end">
                         <Page.HeaderActions>
                             {repositoryId !== "global" && config && (
-                                <GenerateRulesButton
-                                    config={config}
-                                    teamId={teamId}
-                                />
+                                <GenerateRulesButton />
                             )}
                             <Link href="/library/kody-rules">
                                 <Button

@@ -1,5 +1,6 @@
 import { useAsyncAction } from "@hooks/use-async-action";
 import { finishOnboarding } from "@services/codeManagement/fetch";
+import { waitFor } from "src/core/utils/helpers";
 import { captureSegmentEvent } from "src/core/utils/segment";
 import { isSelfHosted } from "src/core/utils/self-hosted";
 
@@ -30,7 +31,7 @@ export const useFinishOnboardingWithoutSelectingPR = ({
             await startTeamTrial({ teamId, organizationId });
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 5000));
+        await waitFor(5000);
 
         window.location.href = "/settings/code-review";
     });

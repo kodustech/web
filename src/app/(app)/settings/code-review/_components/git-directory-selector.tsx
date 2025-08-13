@@ -36,9 +36,12 @@ export const GitDirectorySelector = ({
                         key={t.name}
                         name={t.name}
                         value={path}
-                        disabled={repository?.directories?.some((d) => {
-                            return path.startsWith(d.path);
-                        })}>
+                        disabled={repository?.directories?.some(
+                            (d) =>
+                                // disable already selected directories and all levels of subdirectories from it
+                                path.startsWith(`${d.path}/`) ||
+                                path === d.path,
+                        )}>
                         {ComponentTree(t.subdirectories)}
                     </Tree.Folder>
                 );

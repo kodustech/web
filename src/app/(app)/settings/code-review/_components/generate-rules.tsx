@@ -19,7 +19,9 @@ import {
     KodyLearningStatus,
     ParametersConfigKey,
 } from "@services/parameters/types";
+import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { SeverityLevel } from "src/core/types";
+import { waitFor } from "src/core/utils/helpers";
 
 import { useCodeReviewRouteParams } from "../_hooks";
 import {
@@ -28,23 +30,19 @@ import {
     LimitationType,
     type CodeReviewGlobalConfig,
 } from "../_types";
-import { usePlatformConfig } from "./context";
+import { useCodeReviewConfig, usePlatformConfig } from "./context";
 
-export const GenerateRulesButton = ({
-    teamId,
-    config,
-}: {
-    teamId: string;
-    config: CodeReviewGlobalConfig & { id?: string };
-}) => {
+export const GenerateRulesButton = () => {
     const platformConfig = usePlatformConfig();
+    const config = useCodeReviewConfig();
+    const { teamId } = useSelectedTeamId();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
 
     const [generateRules, isLoadingButton] = useAsyncAction(async () => {
         generateKodyRules(teamId);
 
-        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await waitFor(2000);
 
         await resetQueries({
             queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
@@ -151,7 +149,6 @@ export const GenerateRulesButton = ({
                         <Card className="flex w-full flex-row items-center gap-4 p-3">
                             Auto-Generate
                             <Switch
-                                decorative
                                 disabled={isLoadingToggle.loading!}
                                 onClick={handleKodyRulesGeneratorToggle}
                                 checked={newConfig.kodyRulesGeneratorEnabled}

@@ -102,17 +102,17 @@ export type CodeReviewGlobalConfig = {
     kodyRulesGeneratorEnabled?: boolean;
 };
 
-export type CodeReviewDirectoryConfig = Omit<
-    CodeReviewRepositoryConfig,
-    "directories"
-> & {
-    path: string;
-};
-
-export type CodeReviewRepositoryConfig = CodeReviewGlobalConfig & {
+type CodeReviewRepositoryConfigBase = CodeReviewGlobalConfig & {
     id: string;
     name: string;
     isSelected: boolean;
+};
+
+export type CodeReviewDirectoryConfig = CodeReviewRepositoryConfigBase & {
+    path: string;
+};
+
+export type CodeReviewRepositoryConfig = CodeReviewRepositoryConfigBase & {
     directories?: CodeReviewDirectoryConfig[];
 };
 
