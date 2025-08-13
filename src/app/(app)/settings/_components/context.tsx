@@ -7,7 +7,7 @@ import { useCodeReviewRouteParams } from "../_hooks";
 import type {
     AutomationCodeReviewConfigType,
     CodeReviewRepositoryConfig,
-} from "../_types";
+} from "../code-review/_types";
 
 const AutomationCodeReviewConfigContext =
     createContext<AutomationCodeReviewConfigType>(

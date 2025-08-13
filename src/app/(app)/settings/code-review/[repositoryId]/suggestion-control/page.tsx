@@ -17,15 +17,15 @@ import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { SeverityLevel } from "src/core/types";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
-import { usePlatformConfig } from "../../_components/context";
 import GeneratingConfig from "../../_components/generating-config";
-import { useCodeReviewRouteParams } from "../../_hooks";
 import {
     GroupingModeSuggestions,
     LimitationType,
     type AutomationCodeReviewConfigPageProps,
     type CodeReviewFormType,
 } from "../../_types";
+import { usePlatformConfig } from "../../../_components/context";
+import { useCodeReviewRouteParams } from "../../../_hooks";
 import { ApplyFiltersToKodyRules } from "./_components/apply-filters-to-kody-rules";
 import { LimitationTypeField } from "./_components/limitation-type";
 import { MaxSuggestions } from "./_components/max-suggestions";

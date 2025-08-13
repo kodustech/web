@@ -20,16 +20,16 @@ import { useQueryClient } from "@tanstack/react-query";
 import { BellRing, Plus } from "lucide-react";
 
 import { CodeReviewPagesBreadcrumb } from "../../../_components/breadcrumb";
-import {
-    useFullCodeReviewConfig,
-    usePlatformConfig,
-} from "../../../_components/context";
 import { GenerateRulesButton } from "../../../_components/generate-rules";
 import GeneratingConfig from "../../../_components/generating-config";
 import { KodyRuleAddOrUpdateItemModal } from "../../../_components/modal";
 import { PendingKodyRulesModal } from "../../../_components/pending-rules-modal";
 import { KodyRulesRepoFollowsGlobalRulesModal } from "../../../_components/repo-global-rules-modal";
-import { useCodeReviewRouteParams } from "../../../_hooks";
+import {
+    useFullCodeReviewConfig,
+    usePlatformConfig,
+} from "../../../../_components/context";
+import { useCodeReviewRouteParams } from "../../../../_hooks";
 import { KodyRuleItem } from "./item";
 
 export const KodyRulesPage = ({

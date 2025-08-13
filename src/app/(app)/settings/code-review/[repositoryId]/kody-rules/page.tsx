@@ -3,7 +3,7 @@
 import { useSuspenseKodyRulesByRepositoryId } from "@services/kodyRules/hooks";
 import { KodyRule, KodyRulesStatus } from "@services/kodyRules/types";
 
-import { useCodeReviewRouteParams } from "../../_hooks";
+import { useCodeReviewRouteParams } from "../../../_hooks";
 import { KodyRulesPage } from "./_components/_page";
 
 export default function KodyRules() {

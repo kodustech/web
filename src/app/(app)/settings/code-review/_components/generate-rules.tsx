@@ -23,14 +23,17 @@ import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { SeverityLevel } from "src/core/types";
 import { waitFor } from "src/core/utils/helpers";
 
-import { useCodeReviewRouteParams } from "../_hooks";
 import {
     CodeReviewSummaryOptions,
     GroupingModeSuggestions,
     LimitationType,
     type CodeReviewGlobalConfig,
 } from "../_types";
-import { useCodeReviewConfig, usePlatformConfig } from "./context";
+import {
+    useCodeReviewConfig,
+    usePlatformConfig,
+} from "../../_components/context";
+import { useCodeReviewRouteParams } from "../../_hooks";
 
 export const GenerateRulesButton = () => {
     const platformConfig = usePlatformConfig();

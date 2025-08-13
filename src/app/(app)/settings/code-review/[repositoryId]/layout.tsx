@@ -7,7 +7,6 @@ import { FormProvider, useForm } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { SeverityLevel } from "src/core/types";
 
-import { useCodeReviewConfig } from "../_components/context";
 import {
     CodeReviewSummaryOptions,
     GroupingModeSuggestions,
@@ -15,6 +14,7 @@ import {
     ReviewCadenceType,
     type CodeReviewFormType,
 } from "../_types";
+import { useCodeReviewConfig } from "../../_components/context";
 
 const getDefaultValues = (
     config: ReturnType<typeof useCodeReviewConfig>,

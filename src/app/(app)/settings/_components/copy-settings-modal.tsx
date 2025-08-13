@@ -28,7 +28,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import z from "zod";
 
-import { GitDirectorySelector } from "./git-directory-selector";
+import { GitDirectorySelector } from "../code-review/_components/git-directory-selector";
 
 type Repository = {
     id: string;
@@ -69,12 +69,7 @@ export const AddRepoModal = ({
         },
     });
 
-    const originRepositoryId = form.watch("originRepositoryId");
     const repositoryId = form.watch("targetRepositoryId");
-
-    const availableTargetRepositories = repositories.filter(
-        (repo) => repo.id !== originRepositoryId,
-    );
 
     const formState = form.formState;
 
@@ -128,15 +123,6 @@ export const AddRepoModal = ({
                                         value={field.value}
                                         onValueChange={(value) => {
                                             field.onChange(value);
-
-                                            if (value !== "global") {
-                                                form.setValue(
-                                                    "targetRepositoryId",
-                                                    repositories.filter(
-                                                        (r) => r.id !== value,
-                                                    )[0]?.id,
-                                                );
-                                            }
                                         }}>
                                         <SelectTrigger
                                             id={field.name}
@@ -162,7 +148,7 @@ export const AddRepoModal = ({
                         )}
                     />
 
-                    <div className="text-text-tertiary -mt-3 -mb-4 flex justify-center">
+                    <div className="text-secondary-light -mb-2 flex justify-center">
                         <ArrowDownIcon />
                         <ArrowDownIcon />
                         <ArrowDownIcon />
@@ -182,10 +168,18 @@ export const AddRepoModal = ({
                                         value={field.value}
                                         onValueChange={(value) => {
                                             field.onChange(value);
-                                            form.setValue(
-                                                "targetDirectoryPath",
-                                                "/",
-                                            );
+
+                                            const repository =
+                                                repositories.find(
+                                                    (r) => r.id === value,
+                                                );
+
+                                            if (!repository?.isSelected) {
+                                                form.setValue(
+                                                    "targetDirectoryPath",
+                                                    "/",
+                                                );
+                                            }
                                         }}>
                                         <SelectTrigger
                                             id={field.name}
@@ -195,14 +189,13 @@ export const AddRepoModal = ({
                                         </SelectTrigger>
 
                                         <SelectContent className="max-h-56 w-[var(--radix-popper-anchor-width)] overflow-y-auto">
-                                            {availableTargetRepositories.length ===
-                                            0 ? (
+                                            {repositories.length === 0 ? (
                                                 <div className="text-text-secondary px-5 py-4 text-sm">
                                                     No repositories to select
                                                 </div>
                                             ) : (
                                                 <>
-                                                    {availableTargetRepositories.map(
+                                                    {repositories.map(
                                                         (
                                                             availableRepository,
                                                         ) => (

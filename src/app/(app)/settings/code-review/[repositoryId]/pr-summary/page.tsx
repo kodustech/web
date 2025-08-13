@@ -25,18 +25,18 @@ import { Controller, useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
-import {
-    useCodeReviewConfig,
-    usePlatformConfig,
-} from "../../_components/context";
 import GeneratingConfig from "../../_components/generating-config";
 import { PRSummaryPreviewModal } from "../../_components/pr-summary-preview-modal/modal";
-import { useCodeReviewRouteParams } from "../../_hooks";
 import {
     CodeReviewSummaryOptions,
     type AutomationCodeReviewConfigPageProps,
     type CodeReviewFormType,
 } from "../../_types";
+import {
+    useCodeReviewConfig,
+    usePlatformConfig,
+} from "../../../_components/context";
+import { useCodeReviewRouteParams } from "../../../_hooks";
 
 const examples = [
     "Focus on security changes and performance impacts",

@@ -8,8 +8,8 @@ import {
 } from "@components/ui/breadcrumb";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 
-import { useCodeReviewRouteParams } from "../_hooks";
-import { useCodeReviewConfig } from "./context";
+import { useCodeReviewConfig } from "../../_components/context";
+import { useCodeReviewRouteParams } from "../../_hooks";
 
 export const CodeReviewPagesBreadcrumb = (props: { pageName: string }) => {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();

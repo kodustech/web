@@ -2,8 +2,8 @@ import { FormControl } from "@components/ui/form-control";
 import { NumberInput } from "@components/ui/number-input";
 import { Controller, useFormContext } from "react-hook-form";
 
-import { useCodeReviewConfig } from "../../../_components/context";
 import { LimitationType, type CodeReviewFormType } from "../../../_types";
+import { useCodeReviewConfig } from "../../../../_components/context";
 
 const MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE = 20;
 

@@ -19,7 +19,7 @@ import {
 import { cn } from "src/core/utils/components";
 
 import { useCodeReviewRouteParams } from "../../_hooks";
-import type { CodeReviewRepositoryConfig } from "../../_types";
+import type { CodeReviewRepositoryConfig } from "../../code-review/_types";
 import { SidebarRepositoryOrDirectoryDropdown } from "./options-dropdown";
 
 export const PerDirectory = ({
