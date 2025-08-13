@@ -10,7 +10,7 @@ import {
 import { magicModal } from "@components/ui/magic-modal";
 import { EllipsisIcon, TrashIcon } from "lucide-react";
 
-import type { CodeReviewRepositoryConfig } from "../../_types";
+import type { CodeReviewRepositoryConfig } from "../../code-review/_types";
 import { DeleteRepoConfigModal } from "./delete-config-modal";
 
 export const SidebarRepositoryOrDirectoryDropdown = (props: {

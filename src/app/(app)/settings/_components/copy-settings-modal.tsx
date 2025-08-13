@@ -28,7 +28,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import z from "zod";
 
-import { GitDirectorySelector } from "./git-directory-selector";
+import { GitDirectorySelector } from "../code-review/_components/git-directory-selector";
 
 type Repository = {
     id: string;

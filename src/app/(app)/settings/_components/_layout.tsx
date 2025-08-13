@@ -44,7 +44,7 @@ const routes = [
     { label: "Custom Messages", href: "custom-messages" },
 ] satisfies Array<{ label: string; href: string }>;
 
-export const AutomationCodeReviewLayout = ({
+export const SettingsLayout = ({
     children,
     pluginsPageFeatureFlag,
 }: React.PropsWithChildren & {

@@ -13,7 +13,7 @@ import { SaveIcon } from "lucide-react";
 import { pathToApiUrl } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
-import { useCodeReviewRouteParams } from "../../_hooks";
+import { useCodeReviewRouteParams } from "../../../_hooks";
 import { TabContent } from "./_components/tab-content";
 
 export default function CustomMessages() {

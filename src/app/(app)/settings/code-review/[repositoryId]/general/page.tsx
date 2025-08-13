@@ -19,10 +19,10 @@ import { FormProvider, useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
-import { usePlatformConfig } from "../../_components/context";
 import GeneratingConfig from "../../_components/generating-config";
-import { useCodeReviewRouteParams } from "../../_hooks";
 import { type CodeReviewFormType } from "../../_types";
+import { usePlatformConfig } from "../../../_components/context";
+import { useCodeReviewRouteParams } from "../../../_hooks";
 import { AnalysisTypes } from "./_components/analysis-types";
 import { AutomatedReviewActive } from "./_components/automated-review-active";
 import { BaseBranches } from "./_components/base-branches";

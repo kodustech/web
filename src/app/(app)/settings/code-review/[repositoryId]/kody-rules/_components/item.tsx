@@ -12,7 +12,7 @@ import { EditIcon, TrashIcon } from "lucide-react";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { DeleteKodyRuleConfirmationModal } from "../../../_components/delete-confirmation-modal";
-import { useCodeReviewRouteParams } from "../../../_hooks";
+import { useCodeReviewRouteParams } from "../../../../_hooks";
 
 type Props = {
     rule: KodyRule;

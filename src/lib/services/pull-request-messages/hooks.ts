@@ -1,4 +1,4 @@
-import { useCodeReviewRouteParams } from "src/app/(app)/settings/code-review/_hooks";
+import { useCodeReviewRouteParams } from "src/app/(app)/settings/_hooks";
 import {
     DEFAULT_END_REVIEW_MESSAGE,
     DEFAULT_START_REVIEW_MESSAGE,

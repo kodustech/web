@@ -6,8 +6,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 import type { KodyRule } from "src/lib/services/kodyRules/types";
 
-import { useFullCodeReviewConfig } from "../../../_components/context";
 import { KodyRuleAddOrUpdateItemModal } from "../../../_components/modal";
+import { useFullCodeReviewConfig } from "../../../../_components/context";
 
 export function KodyRuleModalClient({
     rule,

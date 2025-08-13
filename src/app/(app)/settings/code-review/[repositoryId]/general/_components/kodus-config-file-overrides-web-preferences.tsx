@@ -8,8 +8,8 @@ import { Switch } from "@components/ui/switch";
 import { Controller, useFormContext } from "react-hook-form";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 
-import { useCodeReviewRouteParams } from "../../../_hooks";
 import type { CodeReviewFormType } from "../../../_types";
+import { useCodeReviewRouteParams } from "../../../../_hooks";
 
 export const KodusConfigFileOverridesWebPreferences = () => {
     const form = useFormContext<CodeReviewFormType>();

@@ -24,7 +24,7 @@ import { KodyLearningStatus } from "@services/parameters/types";
 import { Plus } from "lucide-react";
 
 import { useCodeReviewRouteParams } from "../../_hooks";
-import type { AutomationCodeReviewConfigType } from "../../_types";
+import type { AutomationCodeReviewConfigType } from "../../code-review/_types";
 import { AddRepoModal } from "../copy-settings-modal";
 import { PerDirectory } from "./directory";
 import { SidebarRepositoryOrDirectoryDropdown } from "./options-dropdown";

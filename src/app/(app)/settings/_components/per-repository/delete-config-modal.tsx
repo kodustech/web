@@ -24,7 +24,7 @@ import { TrashIcon } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { generateQueryKey } from "src/core/utils/reactQuery";
 
-import type { CodeReviewRepositoryConfig } from "../../_types";
+import type { CodeReviewRepositoryConfig } from "../../code-review/_types";
 
 export const DeleteRepoConfigModal = ({
     repository,
