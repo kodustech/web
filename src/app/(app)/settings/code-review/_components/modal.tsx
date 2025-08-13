@@ -106,10 +106,13 @@ export const KodyRuleAddOrUpdateItemModal = ({
                     : rule
                       ? !directory
                           ? rule.path
-                          : getKodyRulePathWithoutDirectoryPath({
-                                directory,
-                                rule,
-                            })
+                          : (() => {
+                                const pathWithoutDirectory = getKodyRulePathWithoutDirectoryPath({
+                                    directory,
+                                    rule,
+                                });
+                                return pathWithoutDirectory || DEFAULT_PATH_FOR_DIRECTORIES;
+                            })()
                       : directory
                         ? DEFAULT_PATH_FOR_DIRECTORIES
                         : "",
