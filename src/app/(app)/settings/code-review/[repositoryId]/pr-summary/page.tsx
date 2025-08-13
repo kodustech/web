@@ -192,7 +192,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                         </Button>
                     )}
                 />
- <Controller
+                <Controller
                     name="summary.behaviourForNewCommits"
                     control={form.control}
                     render={({ field }) => (
@@ -214,9 +214,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                     disabled={!generatePRSummary}
                                     onValueChange={(value) => {
                                         if (!value) return;
-                                        field.onChange(
-                                            value as CodeReviewSummaryOptions,
-                                        );
+                                        field.onChange(value);
                                     }}>
                                     {behaviorForCommitsAfterPROpenedOptions.map(
                                         (option) => (
@@ -228,7 +226,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                                 <Button
                                                     size="lg"
                                                     variant="helper"
-                                                    className="w-full items-start py-4 blo">
+                                                    className="w-full items-start py-4">
                                                     <div className="flex items-start justify-between gap-6 w-full">
                                                         <div className="flex flex-col gap-2">
                                                             <Heading
