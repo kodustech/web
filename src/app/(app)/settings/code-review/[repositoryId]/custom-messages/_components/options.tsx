@@ -23,11 +23,11 @@ export const DEFAULT_START_REVIEW_MESSAGE = `# PR Summary (Comment created by [K
 
 @changeSummary`;
 
-export const DEFAULT_END_REVIEW_MESSAGE = `# Kody Review Complete
-**Great news!** 🎉
-No issues were found that match your current review configurations.
+export const DEFAULT_END_REVIEW_MESSAGE = `## Code Review Completed! 🔥
 
-Keep up the excellent work! 🚀
+The code review was successfully completed based on your current configurations.
+
+
 
 <details>
 <summary>Kody Guide: Usage and Configuration</summary>
@@ -46,10 +46,12 @@ Keep up the excellent work! 🚀
 
 @reviewOptions
 
+</details>
+
 **[Access your configuration settings here.](https://app.kodus.io/settings/code-review/global/general)**
 
 </details>
-</details>`;
+`;
 
 const miniTableCellClassName = "h-8 px-3 py-1";
 
