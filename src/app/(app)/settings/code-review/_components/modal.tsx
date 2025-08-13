@@ -89,6 +89,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
     repositoryId: string;
     onClose?: () => void;
 }) => {
+    const initialScope = rule?.scope ?? "file";
     const form = useForm<
         Omit<KodyRule, "examples"> & {
             badExample: string;
@@ -99,17 +100,23 @@ export const KodyRuleAddOrUpdateItemModal = ({
         reValidateMode: "onChange",
         criteriaMode: "firstError",
         defaultValues: {
-            path: rule
-                ? !directory
-                    ? rule.path
-                    : getKodyRulePathWithoutDirectoryPath({ directory, rule })
-                : directory
-                  ? DEFAULT_PATH_FOR_DIRECTORIES
-                  : "",
+            path:
+                initialScope === "pull-request"
+                    ? ""
+                    : rule
+                      ? !directory
+                          ? rule.path
+                          : getKodyRulePathWithoutDirectoryPath({
+                                directory,
+                                rule,
+                            })
+                      : directory
+                        ? DEFAULT_PATH_FOR_DIRECTORIES
+                        : "",
             rule: rule?.rule ?? "",
             title: rule?.title ?? "",
             severity: rule?.severity ?? "high",
-            scope: rule?.scope ?? "file",
+            scope: initialScope,
             badExample:
                 rule?.examples?.find(({ isCorrect }) => !isCorrect)?.snippet ??
                 "",
@@ -335,9 +342,10 @@ export const KodyRuleAddOrUpdateItemModal = ({
                         name="path"
                         control={form.control}
                         rules={{
-                            required: directory
-                                ? "Path is required"
-                                : undefined,
+                            required:
+                                directory && watchScope === "file"
+                                    ? "Path is required"
+                                    : undefined,
                         }}
                         render={({ field, fieldState }) => (
                             <div className="grid grid-cols-[1fr_3fr] gap-6">
@@ -395,7 +403,8 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                 <FormControl.Input>
                                     <div className="flex flex-col">
                                         <div className="flex items-center">
-                                            {directory && (
+                                            {directory &&
+                                                watchScope === "file" && (
                                                 <Badge
                                                     size="md"
                                                     variant="helper"
@@ -412,6 +421,8 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                 error={fieldState.error}
                                                 className={cn(
                                                     directory &&
+                                                        watchScope ===
+                                                            "file" &&
                                                         "rounded-l-none",
                                                 )}
                                                 disabled={
