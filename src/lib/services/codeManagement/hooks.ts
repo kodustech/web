@@ -45,6 +45,7 @@ export function useGetRepositories(
 export function useSuspenseGetRepositoryTree(params: {
     organizationId: string;
     repositoryId: string;
+    teamId?: string;
     treeType?: "directories" | "files";
 }) {
     return useSuspenseFetch<{ repository: string; tree: GitFileOrFolder[] }>(
