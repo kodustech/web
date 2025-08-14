@@ -55,15 +55,70 @@ export function useSuspenseGetRepositoryTree(params: {
 }
 
 export function useSuspenseGetOnboardingPullRequests(teamId: string) {
-    return useSuspenseFetch<
+    const rawData = useSuspenseFetch<
         {
             id: string;
             pull_number: number;
-            repository: string;
+            repository: {
+                id: string;
+                name: string;
+            };
             title: string;
             url: string;
         }[]
     >(CODE_MANAGEMENT_API_PATHS.GET_ONBOARDING_PULL_REQUESTS, {
         params: { teamId },
     });
+
+    // Transform to legacy format for compatibility
+    return rawData.map(pr => ({
+        id: pr.id,
+        pull_number: pr.pull_number,
+        repository: pr.repository.name, // Extract name from repository object
+        title: pr.title,
+        url: pr.url
+    }));
 }
+
+export function useSearchPullRequests(
+    teamId: string,
+    searchParams: {
+        number?: string;
+        title?: string;
+        repositoryId?: string;
+    } = {}
+) {
+    console.log("🌐 useSearchPullRequests - Debug:");
+    console.log("  📋 Search Params:", searchParams);
+    console.log("  👥 Team ID:", teamId);
+    console.log("  🌍 URL:", CODE_MANAGEMENT_API_PATHS.GET_ONBOARDING_PULL_REQUESTS);
+    
+    return useFetch<
+        {
+            id: string;
+            pull_number: number;
+            repository: {
+                id: string;
+                name: string;
+            };
+            title: string;
+            url: string;
+        }[]
+    >(
+        CODE_MANAGEMENT_API_PATHS.GET_ONBOARDING_PULL_REQUESTS,
+        {
+            params: {
+                teamId,
+                ...searchParams,
+            },
+        },
+        true, // Always enabled
+        {
+            refetchOnWindowFocus: false,
+            staleTime: 0, // No cache - always fresh data
+            gcTime: 0, // Don't cache results
+        }
+    );
+}
+
+export { useDebouncedPRSearch } from "./hooks/use-debounced-pr-search";
