@@ -1,13 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { SelectPullRequest } from "@components/system/select-pull-requests";
-import { useSuspenseGetOnboardingPullRequests } from "@services/codeManagement/hooks";
+import { useState } from "react";
+import { SelectPullRequestWithServerSearch } from "@components/system/select-pull-requests-server-search";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 
-type PullRequest = Awaited<
-    ReturnType<typeof useSuspenseGetOnboardingPullRequests>
->[number];
+type PullRequest = {
+    id: string;
+    pull_number: number;
+    repository: string;
+    title: string;
+    url: string;
+};
 
 export const PRSummaryPreviewSelectRepositories = ({
     value,
@@ -25,31 +28,16 @@ export const PRSummaryPreviewSelectRepositories = ({
     const { teamId } = useSelectedTeamId();
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
-    // Buscar todos os PRs do time
-    const allPullRequests = useSuspenseGetOnboardingPullRequests(teamId);
-
-    // Filtrar PRs baseado no contexto
-
-    const repositoryPullRequests = useMemo(() => {
-        if (isGlobalConfig) {
-            // Para configuração global, mostrar todos os PRs
-            return allPullRequests;
-        }
-
-        // Para configuração de repositório específico, filtrar por repositório
-        return allPullRequests.filter(
-            (pr) =>
-                pr.repository === repositoryName ||
-                pr.repository === repositoryId,
-        );
-    }, [allPullRequests, isGlobalConfig, repositoryId, repositoryName]);
+    // Determinar repositoryId para filtrar no server-side
+    const searchRepositoryId = isGlobalConfig ? undefined : repositoryId;
 
     return (
-        <SelectPullRequest
+        <SelectPullRequestWithServerSearch
             value={value}
             open={dropdownOpen}
             onOpenChange={setDropdownOpen}
-            pullRequests={repositoryPullRequests}
+            teamId={teamId}
+            repositoryId={searchRepositoryId}
             onChange={(pr) => {
                 setDropdownOpen(false);
                 onChange(pr);
