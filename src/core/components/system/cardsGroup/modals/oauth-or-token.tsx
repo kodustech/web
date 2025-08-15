@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
 import { Card, CardHeader } from "@components/ui/card";
-import { Collapsible, CollapsibleContent } from "@components/ui/collapsible";
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@components/ui/collapsible";
 import {
     Dialog,
     DialogContent,
@@ -42,7 +46,10 @@ export const OauthOrTokenModal = (props: Props) => {
             magicModal.lock();
 
             try {
-                await props.onSaveToken(token, selfhosted ? selfHostedUrl : undefined);
+                await props.onSaveToken(
+                    token,
+                    selfhosted ? selfHostedUrl : undefined,
+                );
                 magicModal.hide();
             } catch (error) {
                 magicModal.unlock();
@@ -115,26 +122,24 @@ export const OauthOrTokenModal = (props: Props) => {
                         {props.showSelfHosted && (
                             <Collapsible
                                 open={selfhosted}
-                                className="flex flex-col gap-1 mt-4">
-                                <Button
-                                    type="button"
-                                    variant="helper"
-                                    size="lg"
-                                    className="w-full items-center justify-between py-4"
-                                    onClick={(ev) => {
-                                        if (ev.currentTarget !== ev.target) return;
-                                        setSelfhosted(!selfhosted);
-                                    }}>
-                                    <FormControl.Label className="mb-0">
-                                        Self-hosted
-                                    </FormControl.Label>
+                                onOpenChange={(s) => setSelfhosted(s)}
+                                className="mt-4 flex flex-col gap-1">
+                                <CollapsibleTrigger asChild>
+                                    <Button
+                                        type="button"
+                                        variant="helper"
+                                        size="lg"
+                                        className="w-full items-center justify-between py-4">
+                                        <FormControl.Label className="mb-0">
+                                            Self-hosted
+                                        </FormControl.Label>
 
-                                    <Switch
-                                        decorative
-                                        checked={selfhosted}
-                                        onCheckedChange={() => {}}
-                                    />
-                                </Button>
+                                        <Switch
+                                            decorative
+                                            checked={selfhosted}
+                                        />
+                                    </Button>
+                                </CollapsibleTrigger>
 
                                 <CollapsibleContent>
                                     <Card color="lv1">
@@ -147,7 +152,11 @@ export const OauthOrTokenModal = (props: Props) => {
                                                 <FormControl.Input>
                                                     <Input
                                                         value={selfHostedUrl}
-                                                        onChange={(e) => setSelfHostedUrl(e.target.value)}
+                                                        onChange={(e) =>
+                                                            setSelfHostedUrl(
+                                                                e.target.value,
+                                                            )
+                                                        }
                                                         placeholder="Enter the URL of your authentication server"
                                                     />
                                                 </FormControl.Input>
@@ -164,7 +173,11 @@ export const OauthOrTokenModal = (props: Props) => {
                                 variant="primary"
                                 onClick={saveToken}
                                 loading={loadingSaveToken}
-                                disabled={!token || !!error.message || (selfhosted && !selfHostedUrl)}>
+                                disabled={
+                                    !token ||
+                                    !!error.message ||
+                                    (selfhosted && !selfHostedUrl)
+                                }>
                                 Save Token
                             </Button>
                         </DialogFooter>

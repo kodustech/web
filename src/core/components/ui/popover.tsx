@@ -14,7 +14,7 @@ const PopoverContent = React.forwardRef<
     React.ComponentRef<typeof PopoverPrimitive.Content>,
     React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content>
 >(({ className, align = "center", sideOffset = 4, ...props }, ref) => (
-    <ConditionalPortal portal={PopoverPrimitive.Portal}>
+    <PopoverPrimitive.PopoverPortal>
         <PopoverPrimitive.Content
             ref={ref}
             align={align}
@@ -31,30 +31,8 @@ const PopoverContent = React.forwardRef<
             )}
             {...props}
         />
-    </ConditionalPortal>
+    </PopoverPrimitive.PopoverPortal>
 ));
 PopoverContent.displayName = PopoverPrimitive.Content.displayName;
 
 export { Popover, PopoverAnchor, PopoverContent, PopoverTrigger };
-
-export interface ConditionalPortalProps {
-    portal: React.FC<{ children?: React.ReactNode }>;
-    children: React.ReactNode;
-}
-
-export const ConditionalPortal = ({
-    portal: Portal,
-    children,
-}: ConditionalPortalProps) => {
-    const [hasDialog, setHasDialog] = React.useState(false);
-
-    React.useEffect(() => {
-        setHasDialog(!!document.querySelector("[role=dialog]"));
-    }, []);
-
-    if (hasDialog) {
-        return children;
-    }
-
-    return <Portal>{children}</Portal>;
-};
