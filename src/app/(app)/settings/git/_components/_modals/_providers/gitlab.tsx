@@ -5,7 +5,11 @@ import { GitTokenDocs } from "@components/system/git-token-docs";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
 import { Card, CardHeader } from "@components/ui/card";
-import { Collapsible, CollapsibleContent } from "@components/ui/collapsible";
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@components/ui/collapsible";
 import {
     Dialog,
     DialogContent,
@@ -111,22 +115,21 @@ export const GitlabModal = (props: Props) => {
 
                         <Collapsible
                             open={selfhosted}
+                            onOpenChange={(s) => setSelfhosted(s)}
                             className="mt-4 flex flex-col gap-1">
-                            <Button
-                                type="button"
-                                variant="helper"
-                                size="lg"
-                                className="w-full items-center justify-between py-4"
-                                onClick={(ev) => {
-                                    if (ev.currentTarget !== ev.target) return;
-                                    setSelfhosted(!selfhosted);
-                                }}>
-                                <FormControl.Label className="pointer-events-none mb-0">
-                                    Self-hosted
-                                </FormControl.Label>
+                            <CollapsibleTrigger asChild>
+                                <Button
+                                    type="button"
+                                    variant="helper"
+                                    size="lg"
+                                    className="w-full items-center justify-between py-4">
+                                    <FormControl.Label className="mb-0">
+                                        Self-hosted
+                                    </FormControl.Label>
 
-                                <Switch decorative checked={selfhosted} />
-                            </Button>
+                                    <Switch decorative checked={selfhosted} />
+                                </Button>
+                            </CollapsibleTrigger>
 
                             <CollapsibleContent>
                                 <Card color="lv1">

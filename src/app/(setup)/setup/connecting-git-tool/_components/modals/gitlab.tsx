@@ -4,7 +4,11 @@ import { useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
 import { Card, CardHeader } from "@components/ui/card";
-import { Collapsible, CollapsibleContent } from "@components/ui/collapsible";
+import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleTrigger,
+} from "@components/ui/collapsible";
 import { FormControl } from "@components/ui/form-control";
 import { Input } from "@components/ui/input";
 import { magicModal } from "@components/ui/magic-modal";
@@ -129,28 +133,21 @@ export const GitlabTokenModal = (props: { teamId: string; userId: string }) => {
 
                         <Collapsible
                             open={selfhosted}
+                            onOpenChange={(s) => setSelfhosted(s)}
                             className="flex flex-col gap-1">
-                            <Button
-                                type="button"
-                                variant="helper"
-                                size="lg"
-                                className="w-full items-center justify-between py-4"
-                                onClick={(ev) => {
-                                    // Reason behind this line: https://github.com/radix-ui/primitives/issues/2549#issuecomment-1859233467
-                                    if (ev.currentTarget !== ev.target) return;
+                            <CollapsibleTrigger asChild>
+                                <Button
+                                    type="button"
+                                    variant="helper"
+                                    size="lg"
+                                    className="w-full items-center justify-between py-4">
+                                    <FormControl.Label className="mb-0">
+                                        Self-hosted
+                                    </FormControl.Label>
 
-                                    setSelfhosted(!selfhosted);
-                                }}>
-                                <FormControl.Label className="pointer-events-none mb-0">
-                                    Self-hosted
-                                </FormControl.Label>
-
-                                <Switch
-                                    decorative
-                                    checked={selfhosted}
-                                    onCheckedChange={() => {}}
-                                />
-                            </Button>
+                                    <Switch decorative checked={selfhosted} />
+                                </Button>
+                            </CollapsibleTrigger>
 
                             <CollapsibleContent>
                                 <Card color="lv1">

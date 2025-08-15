@@ -8,7 +8,7 @@ import { Spinner } from "./spinner";
 
 const buttonVariants = cva(
     cn(
-        "inline-flex overflow-hidden select-none relative items-center justify-center pointer-events-auto transition h-auto",
+        "inline-flex overflow-hidden select-none relative items-center justify-center transition h-auto",
         "rounded-xl font-semibold transition text-start shrink-0 text-sm w-fit",
         "bg-(--button-background) text-(--button-foreground) [&_svg]:size-(--icon-size) ring-card-lv3",
         "[&[aria-haspopup=dialog]]:ring-1",
