@@ -5,12 +5,15 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
 import { magicModal } from "@components/ui/magic-modal";
+import { toast } from "@components/ui/toaster/use-toast";
 import type { MembersSetup } from "@services/setup/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { EllipsisVertical } from "lucide-react";
+import { CopyIcon, EllipsisVertical, TrashIcon } from "lucide-react";
+import { ClipboardHelpers } from "src/core/utils/clipboard";
 
 import { DeleteModal } from "./delete-modal";
 
@@ -38,14 +41,38 @@ export const columns: ColumnDef<MembersSetup>[] = [
 
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                            className="text-danger"
+                            leftIcon={<CopyIcon />}
                             onClick={async () => {
-                                const response = await magicModal.show(() => (
-                                    <DeleteModal member={row.original} />
-                                ));
+                                await ClipboardHelpers.copyTextToClipboard(
+                                    `${window.location.origin}/invite/${row.original.userId}`,
+                                );
 
-                                if (!response) return;
+                                toast({
+                                    variant: "info",
+                                    title: "Copied to clipboard the invite link",
+                                    description: (
+                                        <span className="text-text-secondary">
+                                            for user with email{" "}
+                                            <span className="text-text-primary">
+                                                {row.original.email}
+                                            </span>
+                                        </span>
+                                    ),
+                                });
                             }}>
+                            Copy invite link
+                        </DropdownMenuItem>
+
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuItem
+                            className="text-danger"
+                            leftIcon={<TrashIcon />}
+                            onClick={() =>
+                                magicModal.show(() => (
+                                    <DeleteModal member={row.original} />
+                                ))
+                            }>
                             Delete
                         </DropdownMenuItem>
                     </DropdownMenuContent>
