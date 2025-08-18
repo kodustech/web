@@ -15,7 +15,7 @@ import { magicModal } from "@components/ui/magic-modal";
 import { toast } from "@components/ui/toaster/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateOrUpdateTeamMembers } from "@services/setup/hooks";
-import { Plus, X } from "lucide-react";
+import { Check, Plus, X } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -28,8 +28,25 @@ const emailSchema = z.object({
 
 type EmailFormValues = z.infer<typeof emailSchema>;
 
+interface InviteResult {
+    email: string;
+    status: string;
+    uuid?: string;
+    message: string;
+}
+
+interface InviteResponse {
+    data: {
+        success: boolean;
+        results: InviteResult[];
+    };
+    statusCode: number;
+    type: string;
+}
+
 export const InviteModal = ({
     teamId,
+    onSuccess,
 }: {
     teamId: string;
     onSuccess?: () => void;
@@ -78,12 +95,74 @@ export const InviteModal = ({
                 teamId,
             },
             {
-                onSuccess: () => {
-                    toast({
-                        variant: "success",
-                        description: "The emails were sent!",
-                    });
-                    setEmailList([]);
+                onSuccess: (response: InviteResponse) => {
+                    // Processa os resultados da API
+                    const successResults =
+                        response.data.results?.filter(
+                            (result: InviteResult) =>
+                                result.status === "invite_sent",
+                        ) || [];
+                    const errorResults =
+                        response.data.results?.filter(
+                            (result: InviteResult) =>
+                                result.status !== "invite_sent",
+                        ) || [];
+
+                    // Cria mensagens para os sucessos
+                    const successMessages = successResults.map(
+                        (result: InviteResult) =>
+                            `✓ ${result.email}: ${result.message}`,
+                    );
+
+                    // Cria mensagens para os erros
+                    const errorMessages = errorResults.map(
+                        (result: InviteResult) =>
+                            `✗ ${result.email}: ${result.message}`,
+                    );
+
+                    // Combina todas as mensagens
+                    const allMessages = [...successMessages, ...errorMessages];
+
+                    // Remove apenas os emails que foram processados
+                    const processedEmails =
+                        response.data.results?.map(
+                            (result: InviteResult) => result.email,
+                        ) || [];
+                    setEmailList((prev) =>
+                        prev.filter(
+                            (email) => !processedEmails.includes(email),
+                        ),
+                    );
+
+                    // Chama o callback para atualizar a tabela
+                    if (onSuccess) {
+                        onSuccess();
+                    }
+
+                    // Fecha o modal primeiro
+                    magicModal.hide();
+
+                    // Mostra o toast após um pequeno delay para garantir que apareça
+                    setTimeout(() => {
+                        if (allMessages.length > 0) {
+                            toast({
+                                variant:
+                                    successResults.length > 0
+                                        ? "success"
+                                        : "danger",
+                                title: "Invitation Results",
+                                description: (
+                                    <div className="space-y-1">
+                                        {allMessages.map((message, index) => (
+                                            <div key={index} className="text-sm">
+                                                {message}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ),
+                            });
+                        }
+                    }, 100);
                 },
                 onError: (error) => {
                     toast({
