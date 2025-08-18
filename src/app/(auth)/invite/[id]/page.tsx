@@ -32,8 +32,14 @@ export default async function InvitePage({
 
                         <p className="text-text-secondary text-center text-sm">
                             You've been invited to join{" "}
-                            <strong>{userData?.organization?.name}</strong> with
-                            email <strong>{userData?.email}</strong>.
+                            <strong className="text-primary-light">
+                                {userData?.organization?.name}
+                            </strong>{" "}
+                            with email{" "}
+                            <strong className="text-primary-light">
+                                {userData?.email}
+                            </strong>
+                            .
                         </p>
                     </div>
                 </Page.Header>

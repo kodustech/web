@@ -283,8 +283,9 @@ export const AcceptInviteForm = (props: {
 
             <Button
                 size="lg"
-                variant="primary"
                 type="submit"
+                variant="primary"
+                className="w-full"
                 disabled={!formIsValid}
                 rightIcon={<LogInIcon />}
                 loading={formIsLoading || formIsSubmitting || formIsValidating}>
