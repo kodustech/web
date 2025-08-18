@@ -12,7 +12,7 @@ import { magicModal } from "@components/ui/magic-modal";
 import { toast } from "@components/ui/toaster/use-toast";
 import type { MembersSetup } from "@services/setup/types";
 import { ColumnDef } from "@tanstack/react-table";
-import { EllipsisVertical } from "lucide-react";
+import { CopyIcon, EllipsisVertical, TrashIcon } from "lucide-react";
 import { ClipboardHelpers } from "src/core/utils/clipboard";
 
 import { DeleteModal } from "./delete-modal";
@@ -41,6 +41,7 @@ export const columns: ColumnDef<MembersSetup>[] = [
 
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem
+                            leftIcon={<CopyIcon />}
                             onClick={async () => {
                                 await ClipboardHelpers.copyTextToClipboard(
                                     `${window.location.origin}/invite/${row.original.userId}`,
@@ -66,13 +67,12 @@ export const columns: ColumnDef<MembersSetup>[] = [
 
                         <DropdownMenuItem
                             className="text-danger"
-                            onClick={async () => {
-                                const response = await magicModal.show(() => (
+                            leftIcon={<TrashIcon />}
+                            onClick={() =>
+                                magicModal.show(() => (
                                     <DeleteModal member={row.original} />
-                                ));
-
-                                if (!response) return;
-                            }}>
+                                ))
+                            }>
                             Delete
                         </DropdownMenuItem>
                     </DropdownMenuContent>

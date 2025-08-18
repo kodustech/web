@@ -23,24 +23,23 @@ export const SupportDropdown = () => {
                 <NextLink
                     target="_blank"
                     href={process.env.WEB_SUPPORT_DOCS_URL ?? ""}>
-                    <DropdownMenuItem>
-                        <FileTextIcon />
+                    <DropdownMenuItem leftIcon={<FileTextIcon />}>
                         View docs
                     </DropdownMenuItem>
                 </NextLink>
+
                 <NextLink
                     target="_blank"
                     href={process.env.WEB_SUPPORT_DISCORD_INVITE_URL ?? ""}>
-                    <DropdownMenuItem>
-                        <SvgDiscord />
+                    <DropdownMenuItem leftIcon={<SvgDiscord />}>
                         Our Discord
                     </DropdownMenuItem>
                 </NextLink>
+
                 <NextLink
                     target="_blank"
                     href={process.env.WEB_SUPPORT_TALK_TO_FOUNDER_URL ?? ""}>
-                    <DropdownMenuItem>
-                        <SvgFounder />
+                    <DropdownMenuItem leftIcon={<SvgFounder />}>
                         Talk to a Founder
                     </DropdownMenuItem>
                 </NextLink>
