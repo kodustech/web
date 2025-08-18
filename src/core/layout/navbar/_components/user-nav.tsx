@@ -2,7 +2,7 @@
 
 import { Link } from "@components/ui/link";
 import { toast } from "@components/ui/toaster/use-toast";
-import { LogOutIcon, SettingsIcon, UserIcon, ActivityIcon } from "lucide-react";
+import { ActivityIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "src/core/components/ui/avatar";
 import { Button } from "src/core/components/ui/button";
 import {
@@ -21,15 +21,14 @@ import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { TEAM_STATUS } from "src/core/types";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
-export function UserNav({ 
-    logsPagesFeatureFlag 
+export function UserNav({
+    logsPagesFeatureFlag,
 }: {
     logsPagesFeatureFlag: Awaited<ReturnType<typeof getFeatureFlagWithPayload>>;
 }) {
     const { email, isOwner } = useAuth();
     const { teams } = useAllTeams();
     const { teamId, setTeamId } = useSelectedTeamId();
-
 
     const handleChangeWorkspace = (teamId: string) => {
         setTeamId(teamId);
@@ -93,8 +92,7 @@ export function UserNav({
 
                 {isOwner && (
                     <Link href="/organization/general">
-                        <DropdownMenuItem>
-                            <SettingsIcon />
+                        <DropdownMenuItem leftIcon={<SettingsIcon />}>
                             Settings
                         </DropdownMenuItem>
                     </Link>
@@ -102,16 +100,14 @@ export function UserNav({
 
                 {logsPagesFeatureFlag?.value && (
                     <Link href="/user-logs">
-                        <DropdownMenuItem>
-                            <ActivityIcon />
+                        <DropdownMenuItem leftIcon={<ActivityIcon />}>
                             Activity Logs
                         </DropdownMenuItem>
                     </Link>
                 )}
 
                 <Link href="/sign-out" replace>
-                    <DropdownMenuItem>
-                        <LogOutIcon />
+                    <DropdownMenuItem leftIcon={<LogOutIcon />}>
                         Sign out
                     </DropdownMenuItem>
                 </Link>

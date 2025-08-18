@@ -31,6 +31,7 @@ export const SidebarRepositoryOrDirectoryDropdown = (props: {
             <DropdownMenuContent align="end" sideOffset={-6}>
                 <DropdownMenuItem
                     className="text-danger text-[13px] leading-none"
+                    leftIcon={<TrashIcon className="size-4!" />}
                     onClick={() => {
                         magicModal.show(() => (
                             <DeleteRepoConfigModal
@@ -39,7 +40,6 @@ export const SidebarRepositoryOrDirectoryDropdown = (props: {
                             />
                         ));
                     }}>
-                    <TrashIcon className="-ml-1 size-4!" />
                     Delete configuration
                 </DropdownMenuItem>
             </DropdownMenuContent>

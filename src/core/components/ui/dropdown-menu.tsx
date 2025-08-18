@@ -50,7 +50,8 @@ DropdownMenuContent.displayName = DropdownMenuPrimitive.Content.displayName;
 
 const DropdownMenuItem = React.forwardRef<
     React.ComponentRef<typeof DropdownMenuPrimitive.Item>,
-    React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item>
+    React.ComponentPropsWithoutRef<typeof DropdownMenuPrimitive.Item> &
+        Partial<React.ComponentProps<typeof Button>>
 >(({ className, children, disabled, ...props }, ref) => (
     <DropdownMenuPrimitive.Item
         ref={ref}
@@ -144,7 +145,7 @@ const DropdownMenuSeparator = React.forwardRef<
 >(({ className, ...props }, ref) => (
     <DropdownMenuPrimitive.Separator
         ref={ref}
-        className={cn("bg-card-lv3 mx-2 my-1 h-px", className)}
+        className={cn("bg-card-lv3 h-px", className)}
         {...props}
     />
 ));
