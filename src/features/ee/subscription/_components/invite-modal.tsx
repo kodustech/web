@@ -117,7 +117,7 @@ export const InviteModal = ({
                     // Cria mensagens para os erros
                     const errorMessages = errorResults.map(
                         (result: InviteResult) =>
-                            `✗ ${result.email}: ${result.message}`,
+                            `${result.email}: ${result.message}`,
                     );
 
                     // Combina todas as mensagens
@@ -144,20 +144,73 @@ export const InviteModal = ({
 
                     // Mostra o toast após um pequeno delay para garantir que apareça
                     setTimeout(() => {
+                        const successEmails = successResults.map(
+                            (r) => r.email,
+                        );
+                        const registeredEmails = errorResults
+                            .filter(
+                                (r) =>
+                                    r.status ===
+                                    "user_already_registered_in_other_organization",
+                            )
+                            .map((r) => r.email);
+
                         if (allMessages.length > 0) {
                             toast({
-                                variant:
-                                    successResults.length > 0
-                                        ? "success"
-                                        : "danger",
+                                variant: "info",
                                 title: "Invitation Results",
                                 description: (
-                                    <div className="space-y-1">
-                                        {allMessages.map((message, index) => (
-                                            <div key={index} className="text-sm">
-                                                {message}
+                                    <div className="space-y-2">
+                                        {successEmails.length > 0 && (
+                                            <div>
+                                                <div className="flex items-center gap-1">
+                                                    <Check className="h-4 w-4" />
+                                                    <span>
+                                                        <strong>
+                                                            Invite sent
+                                                            successfully
+                                                        </strong>
+                                                    </span>
+                                                </div>
+                                                <ul className="ml-5 list-disc">
+                                                    {successEmails.map(
+                                                        (email) => (
+                                                            <li
+                                                                key={email}
+                                                                className="text-sm">
+                                                                {email}
+                                                            </li>
+                                                        ),
+                                                    )}
+                                                </ul>
                                             </div>
-                                        ))}
+                                        )}
+
+                                        {registeredEmails.length > 0 && (
+                                            <div>
+                                                <div className="flex items-center gap-1">
+                                                    <X className="h-4 w-4" />
+                                                    <span>
+                                                        <strong>
+                                                            User(s) already
+                                                            registered in
+                                                            another organization
+                                                        </strong>
+                                                    </span>
+                                                </div>
+                                                <ul className="ml-5 list-disc">
+                                                    {registeredEmails.map(
+                                                        (email) => (
+                                                            <li
+                                                                key={email}
+                                                                className="text-sm">
+                                                                {email}
+                                                            </li>
+                                                        ),
+                                                    )}
+                                                </ul>
+                                            </div>
+                                        )}
                                     </div>
                                 ),
                             });
