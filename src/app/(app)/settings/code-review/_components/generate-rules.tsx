@@ -101,6 +101,7 @@ export const GenerateRulesButton = () => {
                 config?.suggestionControl?.severityLevelFilter ??
                 SeverityLevel.HIGH,
         },
+        runOnDraft: config?.runOnDraft ?? true,
     };
 
     // if more settings are added to this page consider switching to using a form

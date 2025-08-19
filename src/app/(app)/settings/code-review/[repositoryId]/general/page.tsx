@@ -32,6 +32,7 @@ import { IsRequestChangesActive } from "./_components/is-request-changes-active"
 import { KodusConfigFileOverridesWebPreferences } from "./_components/kodus-config-file-overrides-web-preferences";
 import { LanguageSelector } from "./_components/language-selector";
 import { PullRequestApprovalActive } from "./_components/pull-request-approval-active";
+import { RunOnDraft } from "./_components/run-on-draft";
 
 export default function General() {
     const platformConfig = usePlatformConfig();
@@ -186,6 +187,7 @@ export default function General() {
                 <KodusConfigFileOverridesWebPreferences />
                 <PullRequestApprovalActive />
                 <IsRequestChangesActive />
+                <RunOnDraft />
                 <AnalysisTypes />
                 <IgnorePaths />
                 <IgnoredTitleKeywords />

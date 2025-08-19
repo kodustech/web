@@ -100,6 +100,7 @@ export type CodeReviewGlobalConfig = {
     kodusConfigFileOverridesWebPreferences: boolean;
     isRequestChangesActive: boolean;
     kodyRulesGeneratorEnabled?: boolean;
+    runOnDraft: boolean;
 };
 
 type CodeReviewRepositoryConfigBase = CodeReviewGlobalConfig & {

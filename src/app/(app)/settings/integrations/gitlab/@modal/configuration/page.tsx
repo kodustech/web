@@ -111,6 +111,7 @@ export default function Gitlab() {
                 kodusConfigFileOverridesWebPreferences: true,
                 isRequestChangesActive: false,
                 kodyRulesGeneratorEnabled: true,
+                runOnDraft: true,
             };
             await createOrUpdateCodeReviewParameter(
                 defaultConfigs,

@@ -91,6 +91,7 @@ export const SelectRepositoriesModal = (props: {
                 kodusConfigFileOverridesWebPreferences: true,
                 isRequestChangesActive: false,
                 kodyRulesGeneratorEnabled: true,
+                runOnDraft: true,
             };
             await createOrUpdateCodeReviewParameter(
                 defaultConfigs,
