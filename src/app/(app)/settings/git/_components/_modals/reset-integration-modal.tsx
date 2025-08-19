@@ -14,8 +14,13 @@ import { toast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { useTimeout } from "@hooks/use-timeout";
-import { deleteIntegration, deleteIntegrationAndRepositories } from "@services/codeManagement/fetch";
+import {
+    deleteIntegration,
+    deleteIntegrationAndRepositories,
+} from "@services/codeManagement/fetch";
 import { INTEGRATION_CONFIG } from "@services/integrations/integrationConfig";
+import { PARAMETERS_PATHS } from "@services/parameters";
+import { ParametersConfigKey } from "@services/parameters/types";
 import { IntegrationCategory } from "src/core/types";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 
@@ -31,7 +36,7 @@ export const ResetIntegrationModal = ({
     platformName,
 }: DeleteMemberModalProps) => {
     const [enabled, setEnabled] = useState(false);
-    const { invalidateQueries, generateQueryKey } =
+    const { invalidateQueries, resetQueries, generateQueryKey } =
         useReactQueryInvalidateQueries();
 
     useTimeout(() => {
@@ -63,15 +68,6 @@ export const ResetIntegrationModal = ({
                         },
                     ),
                 }),
-
-                // Invalidate all queries related to integrations
-                invalidateQueries({
-                    type: "all",
-                    queryKey: ["integrations"],
-                }),
-
-                // Invalidate team queries
-                invalidateQueries({ type: "all", queryKey: ["teams"] }),
                 revalidateServerSidePath("/settings/git"),
             ]);
         } catch (error) {
@@ -85,7 +81,10 @@ export const ResetIntegrationModal = ({
         }
     });
 
-    const [handleDeleteIntegrationAndRepositories, { loading: loadingDeleteAll }] = useAsyncAction(async () => {
+    const [
+        handleDeleteIntegrationAndRepositories,
+        { loading: loadingDeleteAll },
+    ] = useAsyncAction(async () => {
         magicModal.lock();
 
         try {
@@ -110,15 +109,15 @@ export const ResetIntegrationModal = ({
                         },
                     ),
                 }),
-
-                // Invalidate all queries related to integrations
-                invalidateQueries({
+                resetQueries({
                     type: "all",
-                    queryKey: ["integrations"],
+                    queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
+                        params: {
+                            key: ParametersConfigKey.CODE_REVIEW_CONFIG,
+                            teamId,
+                        },
+                    }),
                 }),
-
-                // Invalidate team queries
-                invalidateQueries({ type: "all", queryKey: ["teams"] }),
                 revalidateServerSidePath("/settings/git"),
             ]);
         } catch (error) {

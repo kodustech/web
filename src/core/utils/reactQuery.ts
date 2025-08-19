@@ -16,7 +16,9 @@ import { addSearchParamsToUrl } from "./url";
 
 export const useSuspenseFetch = <T>(
     url: string | null,
-    params?: { params: Record<string, unknown> },
+    params?: {
+        params: Record<string, string | number | boolean | undefined | null>;
+    },
     config?: Omit<UseSuspenseQueryOptions<T, Error>, "queryKey"> & {
         fallbackData?: T;
     },
@@ -27,14 +29,8 @@ export const useSuspenseFetch = <T>(
     const context = useSuspenseQuery<T, Error>({
         ...config,
         queryKey,
-        queryFn: async ({ queryKey, signal }) => {
-            const [url, serializedParams] = queryKey as [string, string?];
-
-            const JSONParams = serializedParams
-                ? JSON.parse(serializedParams)
-                : {};
-
-            const urlWithParams = addSearchParamsToUrl(url, JSONParams?.params);
+        queryFn: async ({ signal }) => {
+            const urlWithParams = addSearchParamsToUrl(url!, params?.params);
 
             const response = await fetch(urlWithParams, {
                 signal,
@@ -82,19 +78,14 @@ export const useFetch = <T>(
 
     const context = useQuery<T, Error>({
         queryKey,
-        queryFn: ({ queryKey, signal }) => {
-            const [url, serializedParams] = queryKey as [string, string?];
-            const params = serializedParams
-                ? JSON.parse(serializedParams)
-                : undefined;
-
+        queryFn: ({ signal }) => {
             const axiosConfig: AxiosRequestConfig<any> = {
                 ...params,
                 signal,
             };
 
             return axiosAuthorized
-                .fetcher<T>(url, axiosConfig)
+                .fetcher<T>(url!, axiosConfig)
                 .then((res: { data: any }) => res.data);
         },
         enabled: !!url && enabledCondition,
@@ -209,7 +200,21 @@ export const useUpdate = <T, S>(
     return useGenericMutation<T, S>(mutationFunction, url, params, updater);
 };
 
-export function generateQueryKey(url: string, params?: any): string[] {
-    if (params) return [url, JSON.stringify(params)];
+export function generateQueryKey(
+    url: string,
+    params?: { params?: Record<string, unknown> },
+): [string, Record<string, unknown>?] {
+    if (params) return [url, sortKeysFor(params)];
     return [url];
 }
+
+const sortKeysFor = (obj: Record<string, unknown>): Record<string, unknown> =>
+    Object.keys(obj)
+        .sort()
+        .reduce(
+            (o, key) => {
+                o[key] = obj[key];
+                return o;
+            },
+            {} as Record<string, unknown>,
+        );
