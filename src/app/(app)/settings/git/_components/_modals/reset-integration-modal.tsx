@@ -100,21 +100,34 @@ export const ResetIntegrationModal = ({
                     operation.
                 </p>
 
-                <DialogFooter>
-                    <Button
-                        size="md"
-                        variant="cancel"
-                        onClick={() => magicModal.hide()}>
-                        Cancel
-                    </Button>
-
+                <DialogFooter className="flex flex-col gap-3">
                     <Button
                         size="md"
                         variant="tertiary"
                         loading={!enabled || loading}
-                        onClick={handleDelete}>
-                        Remove integration
+                        onClick={handleDelete}
+                        className="w-full">
+                        Reset integration and remove repositories config
                     </Button>
+
+                    <div className="flex gap-2">
+                        <Button
+                            size="md"
+                            variant="secondary"
+                            loading={!enabled || loading}
+                            onClick={handleDelete}
+                            className="flex-1">
+                            Just reset the integration
+                        </Button>
+
+                        <Button
+                            size="md"
+                            variant="cancel"
+                            onClick={() => magicModal.hide()}
+                            className="w-[30%]">
+                            Cancel
+                        </Button>
+                    </div>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
