@@ -134,7 +134,7 @@ export const columns: ColumnDef<Repository>[] = [
                                     />
                                 ));
                             }}>
-                            Remove integration
+                            Remove repository integration
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>
