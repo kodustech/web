@@ -7,7 +7,6 @@ import { TooltipProvider } from "@components/ui/tooltip";
 import { GoogleTagManager } from "@next/third-parties/google";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import QueryProvider from "src/core/providers/query.provider";
-import { ThemeProvider } from "src/core/providers/theme.provider";
 import { cn } from "src/core/utils/components";
 
 import "./globals.css";
@@ -49,19 +48,14 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
                     overpass_mono.className,
                     dm_sans.className,
                 )}>
-                <ThemeProvider
-                    attribute="class"
-                    defaultTheme="system"
-                    enableSystem>
-                    <TooltipProvider delayDuration={0} skipDelayDuration={0}>
-                        <QueryProvider>
-                            <NuqsAdapter>
-                                {children}
-                                <Toaster />
-                            </NuqsAdapter>
-                        </QueryProvider>
-                    </TooltipProvider>
-                </ThemeProvider>
+                <TooltipProvider delayDuration={0} skipDelayDuration={0}>
+                    <QueryProvider>
+                        <NuqsAdapter>
+                            {children}
+                            <Toaster />
+                        </NuqsAdapter>
+                    </QueryProvider>
+                </TooltipProvider>
 
                 <Script
                     async

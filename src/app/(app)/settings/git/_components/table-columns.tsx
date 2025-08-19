@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
 import { DataTableColumnHeader } from "@components/ui/data-table";
@@ -45,7 +44,6 @@ export const columns: ColumnDef<Repository>[] = [
         meta: { align: "right" },
 
         cell: ({ row, table }) => {
-            const [isOpen, setIsOpen] = useState(false);
             const router = useRouter();
             const { teamId } = useSelectedTeamId();
             const { generateQueryKey, resetQueries, invalidateQueries } =
@@ -113,7 +111,7 @@ export const columns: ColumnDef<Repository>[] = [
             };
 
             return (
-                <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+                <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="helper" size="icon-xs">
                             <Ellipsis />
@@ -125,8 +123,6 @@ export const columns: ColumnDef<Repository>[] = [
                             disabled={table.getRowModel().rows.length === 1}
                             className="text-danger"
                             onClick={async () => {
-                                setIsOpen(false);
-
                                 magicModal.show(() => (
                                     <DeleteModal
                                         repository={row.original}
