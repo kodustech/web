@@ -225,6 +225,7 @@ export const codeReviewConfigRemovePropertiesNotInType = (
         "summary",
         "isRequestChangesActive",
         "kodyRulesGeneratorEnabled",
+        "runOnDraft",
     ];
 
     expectedKeys.forEach((key) => {

@@ -95,6 +95,7 @@ export default function App() {
                 pullRequestApprovalActive: false,
                 isRequestChangesActive: false,
                 kodyRulesGeneratorEnabled: true,
+                runOnDraft: true,
             };
 
             await createOrUpdateCodeReviewParameter(
