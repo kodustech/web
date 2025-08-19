@@ -51,6 +51,7 @@ export const CODE_MANAGEMENT_API_PATHS = {
 
     FINISH_ONBOARDING: pathToApiUrl("/code-management/finish-onboarding"),
     DELETE_INTEGRATION: pathToApiUrl("/code-management/delete-integration"),
+    DELETE_INTEGRATION_AND_REPOSITORIES: pathToApiUrl("/code-management/delete-integration-and-repositories"),
 } as const;
 
 export const AZURE_REPOS_API_PATHS = {} as const;

@@ -132,3 +132,13 @@ export const deleteIntegration = async (
         { params: { organizationId, teamId } },
     );
 };
+
+export const deleteIntegrationAndRepositories = async (
+    organizationId: string,
+    teamId: string,
+) => {
+    return axiosAuthorized.deleted<any>(
+        CODE_MANAGEMENT_API_PATHS.DELETE_INTEGRATION_AND_REPOSITORIES,
+        { params: { organizationId, teamId } },
+    );
+};

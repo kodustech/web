@@ -118,7 +118,7 @@ export const columns: ColumnDef<Repository>[] = [
                         </Button>
                     </DropdownMenuTrigger>
 
-                    <DropdownMenuContent align="end" className="w-52">
+                    <DropdownMenuContent align="end">
                         <DropdownMenuItem
                             disabled={table.getRowModel().rows.length === 1}
                             className="text-danger"
@@ -130,7 +130,7 @@ export const columns: ColumnDef<Repository>[] = [
                                     />
                                 ));
                             }}>
-                            Remove integration
+                            Remove repository integration
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

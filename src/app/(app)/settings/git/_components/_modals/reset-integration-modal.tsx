@@ -14,8 +14,13 @@ import { toast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { useTimeout } from "@hooks/use-timeout";
-import { deleteIntegration } from "@services/codeManagement/fetch";
+import {
+    deleteIntegration,
+    deleteIntegrationAndRepositories,
+} from "@services/codeManagement/fetch";
 import { INTEGRATION_CONFIG } from "@services/integrations/integrationConfig";
+import { PARAMETERS_PATHS } from "@services/parameters";
+import { ParametersConfigKey } from "@services/parameters/types";
 import { IntegrationCategory } from "src/core/types";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 
@@ -31,7 +36,7 @@ export const ResetIntegrationModal = ({
     platformName,
 }: DeleteMemberModalProps) => {
     const [enabled, setEnabled] = useState(false);
-    const { invalidateQueries, generateQueryKey } =
+    const { invalidateQueries, resetQueries, generateQueryKey } =
         useReactQueryInvalidateQueries();
 
     useTimeout(() => {
@@ -63,21 +68,62 @@ export const ResetIntegrationModal = ({
                         },
                     ),
                 }),
-
-                // Invalidate all queries related to integrations
-                invalidateQueries({
-                    type: "all",
-                    queryKey: ["integrations"],
-                }),
-
-                // Invalidate team queries
-                invalidateQueries({ type: "all", queryKey: ["teams"] }),
                 revalidateServerSidePath("/settings/git"),
             ]);
         } catch (error) {
             toast({
                 variant: "warning",
                 title: "Error deleting integration",
+                description: "Please try again later",
+            });
+        } finally {
+            magicModal.hide();
+        }
+    });
+
+    const [
+        handleDeleteIntegrationAndRepositories,
+        { loading: loadingDeleteAll },
+    ] = useAsyncAction(async () => {
+        magicModal.lock();
+
+        try {
+            await deleteIntegrationAndRepositories(organizationId, teamId);
+
+            toast({
+                variant: "success",
+                title: "Integration and repositories deleted successfully",
+            });
+
+            await Promise.all([
+                invalidateQueries({
+                    type: "all",
+                    queryKey: generateQueryKey(
+                        INTEGRATION_CONFIG.GET_INTEGRATION_CONFIG_BY_CATEGORY,
+                        {
+                            params: {
+                                teamId: teamId,
+                                integrationCategory:
+                                    IntegrationCategory.CODE_MANAGEMENT,
+                            },
+                        },
+                    ),
+                }),
+                resetQueries({
+                    type: "all",
+                    queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
+                        params: {
+                            key: ParametersConfigKey.CODE_REVIEW_CONFIG,
+                            teamId,
+                        },
+                    }),
+                }),
+                revalidateServerSidePath("/settings/git"),
+            ]);
+        } catch (error) {
+            toast({
+                variant: "warning",
+                title: "Error deleting integration and repositories",
                 description: "Please try again later",
             });
         } finally {
@@ -100,21 +146,34 @@ export const ResetIntegrationModal = ({
                     operation.
                 </p>
 
-                <DialogFooter>
-                    <Button
-                        size="md"
-                        variant="cancel"
-                        onClick={() => magicModal.hide()}>
-                        Cancel
-                    </Button>
-
+                <DialogFooter className="flex flex-col gap-3">
                     <Button
                         size="md"
                         variant="tertiary"
-                        loading={!enabled || loading}
-                        onClick={handleDelete}>
-                        Remove integration
+                        loading={!enabled || loadingDeleteAll}
+                        onClick={handleDeleteIntegrationAndRepositories}
+                        className="w-full">
+                        Reset integration and remove repositories config
                     </Button>
+
+                    <div className="flex gap-2">
+                        <Button
+                            size="md"
+                            variant="secondary"
+                            loading={!enabled || loading}
+                            onClick={handleDelete}
+                            className="flex-1">
+                            Just reset the integration
+                        </Button>
+
+                        <Button
+                            size="md"
+                            variant="cancel"
+                            onClick={() => magicModal.hide()}
+                            className="w-[30%]">
+                            Cancel
+                        </Button>
+                    </div>
                 </DialogFooter>
             </DialogContent>
         </Dialog>
