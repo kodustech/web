@@ -14,7 +14,7 @@ import { toast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { useTimeout } from "@hooks/use-timeout";
-import { deleteIntegration } from "@services/codeManagement/fetch";
+import { deleteIntegration, deleteIntegrationAndRepositories } from "@services/codeManagement/fetch";
 import { INTEGRATION_CONFIG } from "@services/integrations/integrationConfig";
 import { IntegrationCategory } from "src/core/types";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
@@ -85,6 +85,53 @@ export const ResetIntegrationModal = ({
         }
     });
 
+    const [handleDeleteIntegrationAndRepositories, { loading: loadingDeleteAll }] = useAsyncAction(async () => {
+        magicModal.lock();
+
+        try {
+            await deleteIntegrationAndRepositories(organizationId, teamId);
+
+            toast({
+                variant: "success",
+                title: "Integration and repositories deleted successfully",
+            });
+
+            await Promise.all([
+                invalidateQueries({
+                    type: "all",
+                    queryKey: generateQueryKey(
+                        INTEGRATION_CONFIG.GET_INTEGRATION_CONFIG_BY_CATEGORY,
+                        {
+                            params: {
+                                teamId: teamId,
+                                integrationCategory:
+                                    IntegrationCategory.CODE_MANAGEMENT,
+                            },
+                        },
+                    ),
+                }),
+
+                // Invalidate all queries related to integrations
+                invalidateQueries({
+                    type: "all",
+                    queryKey: ["integrations"],
+                }),
+
+                // Invalidate team queries
+                invalidateQueries({ type: "all", queryKey: ["teams"] }),
+                revalidateServerSidePath("/settings/git"),
+            ]);
+        } catch (error) {
+            toast({
+                variant: "warning",
+                title: "Error deleting integration and repositories",
+                description: "Please try again later",
+            });
+        } finally {
+            magicModal.hide();
+        }
+    });
+
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
             <DialogContent className="w-md">
@@ -104,8 +151,8 @@ export const ResetIntegrationModal = ({
                     <Button
                         size="md"
                         variant="tertiary"
-                        loading={!enabled || loading}
-                        onClick={handleDelete}
+                        loading={!enabled || loadingDeleteAll}
+                        onClick={handleDeleteIntegrationAndRepositories}
                         className="w-full">
                         Reset integration and remove repositories config
                     </Button>
