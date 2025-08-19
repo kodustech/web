@@ -11,7 +11,8 @@
     ],
     "author": "Kodus Tech",
     "scripts": {
-        "start:dev": "next dev --turbopack",
+        "start:dev": "next dev --turbopack --port 3000",
+        "dev:first-run": "bash scripts/setup-dev-env.sh",
         "build": "next build",
         "start": "next start --turbopack",
         "start:qa": "NODE_ENV=production next start",
