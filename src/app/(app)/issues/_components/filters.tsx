@@ -62,7 +62,7 @@ export const IssuesFilters = () => {
                     </div>
 
                     <div className="flex">
-                        {_localStorageFilters?.items.length && (
+                        {_localStorageFilters && (
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <ButtonWithFeedback
