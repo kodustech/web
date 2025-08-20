@@ -153,7 +153,7 @@ export const FilterItemGroup = ({
                             ? false
                             : filters.items.some((f) => {
                                   if (isFilterValueGroup(f)) return false;
-                                  return f.value.trim().length === 0;
+                                  return f.value?.trim().length === 0;
                               })
                     }
                     onClick={() =>
@@ -183,7 +183,7 @@ export const FilterItemGroup = ({
                                 ? false
                                 : filters.items.some((f) => {
                                       if (isFilterValueGroup(f)) return false;
-                                      return f.value.trim().length === 0;
+                                      return f.value?.trim().length === 0;
                                   })
                         }
                         onClick={() =>
