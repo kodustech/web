@@ -39,10 +39,6 @@ export const PendingKodyRulesModal = ({
         magicModal.hide(true);
     };
 
-    // if (!pendingRules || pendingRules.length === 0) {
-    //     return <NoRules />;
-    // }
-
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
             <DialogContent className="max-h-[80vh] max-w-(--breakpoint-md)">
@@ -161,6 +157,7 @@ export const PendingKodyRulesModal = ({
                     <Button
                         size="md"
                         variant="primary"
+                        disabled={selectedRuleIds.length === 0}
                         onClick={() =>
                             changeStatusRules(KodyRulesStatus.ACTIVE)
                         }>
