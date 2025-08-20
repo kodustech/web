@@ -15,6 +15,7 @@ export const RunOnDraft = () => {
         <Controller
             name="runOnDraft"
             control={form.control}
+            defaultValue={true}
             render={({ field }) => (
                 <Button
                     size="sm"
