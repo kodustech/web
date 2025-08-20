@@ -35,6 +35,7 @@ type CodeReviewSummary = {
     generatePRSummary?: boolean;
     behaviourForExistingDescription?: CodeReviewSummaryOptions;
     customInstructions?: string;
+    behaviourForNewCommits?: BehaviourForNewCommits;
 };
 
 type CodeReviewPathInstruction = {
@@ -121,3 +122,9 @@ export type AutomationCodeReviewConfigType = {
     global: CodeReviewGlobalConfig;
     repositories: Array<CodeReviewRepositoryConfig>;
 };
+
+export enum BehaviourForNewCommits {
+  NONE = 'none',
+  REPLACE = 'replace',
+  CONCATENATE = 'concatenate',
+}
