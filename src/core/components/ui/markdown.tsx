@@ -28,7 +28,7 @@ export const Markdown = (props: Props) => {
         <MarkdownToJSX
             className={cn(
                 "text-text-secondary text-sm",
-                "*:first-child:mt-0 *:mb-4 [&_li>span]:mt-4 [&_li>ul]:mt-2 [&_summary]:cursor-pointer",
+                "*:first-child:mt-0 *:mb-4 *:last:mb-0 [&_li>span]:mt-4 [&_li>ul]:mt-2 [&_summary]:cursor-pointer",
                 "[&_blockquote]:mb-4 [&_details]:mb-4 [&_dl]:mb-4 [&_ol]:mb-4 [&_pre]:mb-4 [&_span]:mb-4 [&_table]:mb-4 [&_ul]:mb-4",
                 "[&_ul]:list-disc [&_ul]:space-y-2.5 [&_ul]:pl-4.5",
                 "[&_summary]:text-text-primary [&_strong]:text-text-primary [&_th]:text-text-primary",

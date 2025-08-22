@@ -20,3 +20,13 @@ export const useSuspenseKodyRulesByRepositoryId = (
         { params: { repositoryId, directoryId } },
     );
 };
+
+export const useSuspenseKodyRulesCheckSyncStatus = (params: {
+    teamId: string;
+    repositoryId: string;
+}) => {
+    return useSuspenseFetch<{
+        ideRulesSyncEnabledFirstTime: boolean;
+        kodyRulesGeneratorEnabledFirstTime: boolean;
+    }>(KODY_RULES_PATHS.CHECK_SYNC_STATUS, { params });
+};

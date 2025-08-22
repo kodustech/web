@@ -1,5 +1,5 @@
 import { typedFetch } from "@services/fetch";
-import type { CodeReviewGlobalConfig } from "src/app/(app)/settings/code-review/_types";
+import type { CodeReviewRepositoryConfig } from "src/app/(app)/settings/code-review/_types";
 import type { LiteralUnion } from "src/core/types";
 import { axiosAuthorized } from "src/core/utils/axios";
 import { codeReviewConfigRemovePropertiesNotInType } from "src/core/utils/helpers";
@@ -53,16 +53,14 @@ export const createOrUpdateParameter = async (
 };
 
 export const createOrUpdateCodeReviewParameter = async (
-    configValue: Partial<CodeReviewGlobalConfig>,
+    configValue: Partial<CodeReviewRepositoryConfig>,
     teamId: string,
     repositoryId: LiteralUnion<"global"> | undefined,
     directoryId?: string,
 ) => {
     try {
         const trimmedCodeReviewConfigValue =
-            codeReviewConfigRemovePropertiesNotInType(
-                configValue as Partial<CodeReviewGlobalConfig>,
-            );
+            codeReviewConfigRemovePropertiesNotInType(configValue);
 
         const response = await axiosAuthorized.post<any>(
             PARAMETERS_PATHS.CREATE_OR_UPDATE_CODE_REVIEW_PARAMETER,

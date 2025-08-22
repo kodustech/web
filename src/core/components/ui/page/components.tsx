@@ -99,7 +99,7 @@ export const PageDescription = (props: React.ComponentProps<"div">) => (
 );
 
 export const PageTitleContainer = (props: React.ComponentProps<"div">) => (
-    <div {...props} className={cn("flex flex-col", props.className)}>
+    <div {...props} className={cn("flex flex-col flex-1", props.className)}>
         {props.children}
     </div>
 );

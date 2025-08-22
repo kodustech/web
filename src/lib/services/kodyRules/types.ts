@@ -6,10 +6,11 @@ export type KodyRule = {
     title: string;
     rule: string;
     path: string;
-    scope?: "file" | "pull-request";
+    scope: "file" | "pull-request";
     severity: "low" | "medium" | "high" | "critical";
     repositoryId?: string;
     directoryId?: string;
+    sourcePath?: string;
     origin: KodyRulesOrigin;
     examples: KodyRulesExample[];
 };

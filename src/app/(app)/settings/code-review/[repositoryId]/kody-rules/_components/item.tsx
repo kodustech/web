@@ -1,12 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level-badge";
+import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
-import { Card, CardHeader } from "@components/ui/card";
+import { Card, CardContent, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
+import { Section } from "@components/ui/section";
+import { Separator } from "@components/ui/separator";
 import type { KodyRule } from "@services/kodyRules/types";
 import { EditIcon, TrashIcon } from "lucide-react";
 import { addSearchParamsToUrl } from "src/core/utils/url";
@@ -14,54 +16,35 @@ import { addSearchParamsToUrl } from "src/core/utils/url";
 import { DeleteKodyRuleConfirmationModal } from "../../../_components/delete-confirmation-modal";
 import { useCodeReviewRouteParams } from "../../../../_hooks";
 
-type Props = {
+export const KodyRuleItem = ({
+    rule,
+    onAnyChange,
+}: {
     rule: KodyRule;
     onAnyChange: () => void;
-};
-
-export const KodyRuleItem = ({ rule, onAnyChange }: Props) => {
-    const router = useRouter();
+}) => {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
-
-    const handleDeleteClick = () => {
-        magicModal.show(() => (
-            <DeleteKodyRuleConfirmationModal
-                rule={rule}
-                onSuccess={() => onAnyChange?.()}
-            />
-        ));
-    };
 
     return (
         <Card>
             <CardHeader className="flex-row items-start justify-between gap-10">
-                <div className="flex flex-col gap-2">
-                    <Heading variant="h3">{rule.title}</Heading>
+                <div className="-mb-2 flex flex-col gap-2">
+                    <div className="flex items-center gap-2">
+                        <IssueSeverityLevelBadge severity={rule.severity} />
 
-                    <div className="flex flex-col gap-1">
-                        <span className="text-text-secondary text-sm">
-                            <strong className="text-text-primary">Path:</strong>{" "}
-                            {rule.path || "all files (default)"}
-                        </span>
-
-                        <span className="text-text-secondary text-sm">
-                            <strong className="text-text-primary">
-                                Instructions:
-                            </strong>{" "}
-                            {rule.rule}
-                        </span>
-
-                        <span className="text-text-secondary text-sm">
-                            <strong className="text-text-primary">
-                                Scope:
-                            </strong>{" "}
-                            {rule?.scope === "pull-request"
-                                ? "Pull-request"
-                                : "File"}
-                        </span>
+                        {rule.sourcePath && (
+                            <Badge
+                                active
+                                size="xs"
+                                className="min-h-auto px-2.5 py-1">
+                                auto-sync
+                            </Badge>
+                        )}
                     </div>
 
-                    <IssueSeverityLevelBadge severity={rule.severity} />
+                    <Heading variant="h3" className="text-base">
+                        {rule.title}
+                    </Heading>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -70,20 +53,101 @@ export const KodyRuleItem = ({ rule, onAnyChange }: Props) => {
                             `/settings/code-review/${repositoryId}/kody-rules/${rule.uuid}`,
                             { directoryId },
                         )}>
-                        <Button size="icon-md" decorative variant="secondary">
-                            <EditIcon className="size-4" />
+                        <Button
+                            decorative
+                            size="icon-md"
+                            variant="secondary"
+                            className="size-9">
+                            <EditIcon />
                         </Button>
                     </Link>
 
                     <Button
                         size="icon-md"
                         variant="secondary"
-                        onClick={handleDeleteClick}
-                        className="[--button-foreground:var(--color-danger)]">
+                        className="size-9 [--button-foreground:var(--color-danger)]"
+                        onClick={() => {
+                            magicModal.show(() => (
+                                <DeleteKodyRuleConfirmationModal
+                                    rule={rule}
+                                    onSuccess={() => onAnyChange?.()}
+                                />
+                            ));
+                        }}>
                         <TrashIcon />
                     </Button>
                 </div>
             </CardHeader>
+
+            <CardContent className="flex flex-col gap-3">
+                <Card
+                    color="lv1"
+                    className="text-text-secondary -mx-6 -mb-6 flex-1 rounded-t-none text-sm">
+                    <CardHeader>
+                        <div className="flex flex-row">
+                            <Section.Root className="flex-1">
+                                <Section.Header>
+                                    <Section.Title>Path:</Section.Title>
+                                </Section.Header>
+
+                                <Section.Content>
+                                    {rule.path || "all files (default)"}
+                                </Section.Content>
+                            </Section.Root>
+
+                            {rule.sourcePath && (
+                                <>
+                                    <Separator
+                                        orientation="vertical"
+                                        className="bg-card-lv2 mx-4"
+                                    />
+
+                                    <Section.Root className="flex-1">
+                                        <Section.Header>
+                                            <Section.Title>
+                                                Source:
+                                            </Section.Title>
+                                        </Section.Header>
+
+                                        <Section.Content>
+                                            {rule.sourcePath}
+                                        </Section.Content>
+                                    </Section.Root>
+                                </>
+                            )}
+
+                            <Separator
+                                orientation="vertical"
+                                className="bg-card-lv2 mx-4"
+                            />
+
+                            <Section.Root className="flex-1 shrink">
+                                <Section.Header>
+                                    <Section.Title>Scope:</Section.Title>
+                                </Section.Header>
+
+                                <Section.Content>
+                                    {rule.scope === "pull-request"
+                                        ? "Pull-request"
+                                        : "File"}
+                                </Section.Content>
+                            </Section.Root>
+                        </div>
+
+                        <Separator className="bg-card-lv2 my-3" />
+
+                        <Section.Root>
+                            <Section.Header>
+                                <Section.Title>Instructions:</Section.Title>
+                            </Section.Header>
+
+                            <Section.Content className="line-clamp-3">
+                                {rule.rule}
+                            </Section.Content>
+                        </Section.Root>
+                    </CardHeader>
+                </Card>
+            </CardContent>
         </Card>
     );
 };

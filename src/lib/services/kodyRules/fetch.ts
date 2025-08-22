@@ -83,10 +83,17 @@ export const generateKodyRules = (
     weeks?: number,
     days?: number,
 ) => {
-    axiosAuthorized.post<any>(KODY_RULES_PATHS.GENERATE_KODY_RULES, {
+    axiosAuthorized.post(KODY_RULES_PATHS.GENERATE_KODY_RULES, {
         teamId,
         months,
         weeks,
         days,
     });
+};
+
+export const syncIDERules = (params: {
+    teamId: string;
+    repositoryId: string;
+}) => {
+    axiosAuthorized.post(KODY_RULES_PATHS.SYNC_IDE_RULES, params);
 };

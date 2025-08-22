@@ -71,20 +71,14 @@ export const SelectRepositoriesDropdown = ({
                 </Heading>
 
                 {repositories
-                    .filter(
-                        (repository: {
-                            id: string;
-                            name: string;
-                            isSelected?: boolean;
-                        }) =>
-                            repository?.isSelected ||
-                            repository.id === "global",
-                    )
+                    .filter((r) => r.isSelected || r.id === "global")
                     .map((r) => (
                         <div key={r.id}>
                             <Collapsible
                                 className="flex-1"
-                                disabled={r.id === "global"}>
+                                disabled={
+                                    r.id === "global" || !r.directories?.length
+                                }>
                                 <div className="flex items-center gap-3">
                                     <div className="size-6">
                                         {r.isSelected && (
@@ -126,7 +120,8 @@ export const SelectRepositoriesDropdown = ({
                                                     "pointer-events-none",
                                             )}
                                             rightIcon={
-                                                r.id !== "global" && (
+                                                r.id !== "global" &&
+                                                r.directories?.length && (
                                                     <CollapsibleIndicator />
                                                 )
                                             }>
