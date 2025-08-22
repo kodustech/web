@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
+import { Section } from "@components/ui/section";
 import { Separator } from "@components/ui/separator";
 import type { KodyRule } from "@services/kodyRules/types";
 import { EditIcon, TrashIcon } from "lucide-react";
@@ -26,7 +27,7 @@ export const KodyRuleItem = ({
 
     return (
         <Card>
-            <CardHeader className="flex-row items-start justify-between gap-20">
+            <CardHeader className="flex-row items-start justify-between gap-10">
                 <div className="-mb-2 flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                         <IssueSeverityLevelBadge severity={rule.severity} />
@@ -35,8 +36,7 @@ export const KodyRuleItem = ({
                             <Badge
                                 active
                                 size="xs"
-                                variant="helper"
-                                className="text-text-secondary min-h-auto px-3 uppercase">
+                                className="min-h-auto px-2.5 py-1">
                                 auto-sync
                             </Badge>
                         )}
@@ -53,7 +53,11 @@ export const KodyRuleItem = ({
                             `/settings/code-review/${repositoryId}/kody-rules/${rule.uuid}`,
                             { directoryId },
                         )}>
-                        <Button decorative size="icon-md" variant="secondary">
+                        <Button
+                            decorative
+                            size="icon-md"
+                            variant="secondary"
+                            className="size-9">
                             <EditIcon />
                         </Button>
                     </Link>
@@ -61,7 +65,7 @@ export const KodyRuleItem = ({
                     <Button
                         size="icon-md"
                         variant="secondary"
-                        className="[--button-foreground:var(--color-danger)]"
+                        className="size-9 [--button-foreground:var(--color-danger)]"
                         onClick={() => {
                             magicModal.show(() => (
                                 <DeleteKodyRuleConfirmationModal
@@ -78,15 +82,18 @@ export const KodyRuleItem = ({
             <CardContent className="flex flex-col gap-3">
                 <Card
                     color="lv1"
-                    className="text-text-secondary -mx-6 -mb-6 rounded-t-none text-sm">
+                    className="text-text-secondary -mx-6 -mb-6 flex-1 rounded-t-none text-sm">
                     <CardHeader>
                         <div className="flex flex-row">
-                            <span className="flex-2">
-                                <strong className="text-text-primary">
-                                    Path:
-                                </strong>{" "}
-                                {rule.path || "all files (default)"}
-                            </span>
+                            <Section.Root className="flex-1">
+                                <Section.Header>
+                                    <Section.Title>Path:</Section.Title>
+                                </Section.Header>
+
+                                <Section.Content>
+                                    {rule.path || "all files (default)"}
+                                </Section.Content>
+                            </Section.Root>
 
                             {rule.sourcePath && (
                                 <>
@@ -94,12 +101,18 @@ export const KodyRuleItem = ({
                                         orientation="vertical"
                                         className="bg-card-lv2 mx-4"
                                     />
-                                    <span className="flex-2">
-                                        <strong className="text-text-primary">
-                                            Source:
-                                        </strong>{" "}
-                                        {rule.sourcePath ?? "./item.tsx"}
-                                    </span>
+
+                                    <Section.Root className="flex-1">
+                                        <Section.Header>
+                                            <Section.Title>
+                                                Source:
+                                            </Section.Title>
+                                        </Section.Header>
+
+                                        <Section.Content>
+                                            {rule.sourcePath}
+                                        </Section.Content>
+                                    </Section.Root>
                                 </>
                             )}
 
@@ -108,24 +121,30 @@ export const KodyRuleItem = ({
                                 className="bg-card-lv2 mx-4"
                             />
 
-                            <span className="flex-1">
-                                <strong className="text-text-primary">
-                                    Scope:
-                                </strong>{" "}
-                                {rule.scope === "pull-request"
-                                    ? "Pull-request"
-                                    : "File"}
-                            </span>
+                            <Section.Root className="flex-1 shrink">
+                                <Section.Header>
+                                    <Section.Title>Scope:</Section.Title>
+                                </Section.Header>
+
+                                <Section.Content>
+                                    {rule.scope === "pull-request"
+                                        ? "Pull-request"
+                                        : "File"}
+                                </Section.Content>
+                            </Section.Root>
                         </div>
 
                         <Separator className="bg-card-lv2 my-3" />
 
-                        <span className="text-text-secondary text-sm">
-                            <strong className="text-text-primary">
-                                Instructions:
-                            </strong>{" "}
-                            {rule.rule}
-                        </span>
+                        <Section.Root>
+                            <Section.Header>
+                                <Section.Title>Instructions:</Section.Title>
+                            </Section.Header>
+
+                            <Section.Content className="line-clamp-3">
+                                {rule.rule}
+                            </Section.Content>
+                        </Section.Root>
                     </CardHeader>
                 </Card>
             </CardContent>

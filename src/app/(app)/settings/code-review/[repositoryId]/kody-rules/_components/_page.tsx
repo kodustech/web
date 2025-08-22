@@ -252,13 +252,15 @@ export const KodyRulesPage = ({
                                         No rules found with your search query.
                                     </div>
                                 ) : (
-                                    filteredRules.map((rule) => (
-                                        <KodyRuleItem
-                                            key={rule.uuid}
-                                            rule={rule}
-                                            onAnyChange={refreshRulesList}
-                                        />
-                                    ))
+                                    <div className="grid grid-cols-2 gap-2">
+                                        {filteredRules.map((rule) => (
+                                            <KodyRuleItem
+                                                key={rule.uuid}
+                                                rule={rule}
+                                                onAnyChange={refreshRulesList}
+                                            />
+                                        ))}
+                                    </div>
                                 )}
                             </div>
                         </>
