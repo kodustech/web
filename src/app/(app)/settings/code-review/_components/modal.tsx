@@ -408,13 +408,13 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                         <div className="flex items-center">
                                             {directory &&
                                                 watchScope === "file" && (
-                                                <Badge
-                                                    size="md"
-                                                    variant="helper"
-                                                    className="text-text-primary pointer-events-none h-full rounded-r-none ring-1">
-                                                    {directory?.path}/
-                                                </Badge>
-                                            )}
+                                                    <Badge
+                                                        size="md"
+                                                        variant="helper"
+                                                        className="text-text-primary pointer-events-none h-full rounded-r-none ring-1">
+                                                        {directory?.path}/
+                                                    </Badge>
+                                                )}
 
                                             <Input
                                                 id={field.name}
@@ -774,7 +774,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                     </div>
                 </div>
 
-                <DialogFooter>
+                <DialogFooter className="mt-0">
                     <Button
                         variant="cancel"
                         size="md"
