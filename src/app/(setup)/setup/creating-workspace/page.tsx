@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
+import { Collapsible, CollapsibleContent } from "@components/ui/collapsible";
 import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
 import { SvgKodus } from "@components/ui/icons/SvgKodus";
@@ -9,40 +10,94 @@ import { Input } from "@components/ui/input";
 import { Link } from "@components/ui/link";
 import { Page } from "@components/ui/page";
 import { PhoneInput } from "@components/ui/phone-input";
+import { Switch } from "@components/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { createOrUpdateOrganizationParameter } from "@services/organizationParameters/fetch";
 import { useUpdateOrganizationInfos } from "@services/organizations/hooks";
+import { OrganizationParametersConfigKey } from "@services/parameters/types";
 import { ArrowRight } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { isValidPhoneNumber } from "react-phone-number-input";
+import { useAuth } from "src/core/providers/auth.provider";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 import { z } from "zod";
 
 import { StepIndicators } from "../_components/step-indicators";
 import { useGoToStep } from "../_hooks/use-goto-step";
 
-const formSchema = z.object({
-    organizationName: z
-        .string()
-        .min(1, { message: "What's your organization's name?" }),
-    phone: z
-        .string()
-        .refine(isValidPhoneNumber, { message: "Invalid phone number" })
-        .or(z.literal(""))
-        .optional(),
-});
+const createFormSchema = (userDomain: string) =>
+    z
+        .object({
+            organizationName: z
+                .string()
+                .min(1, { message: "What's your organization's name?" }),
+            phone: z
+                .string()
+                .refine(isValidPhoneNumber, { message: "Invalid phone number" })
+                .or(z.literal(""))
+                .optional(),
+            autoJoin: z.boolean().optional(),
+            autoJoinDomains: z
+                .array(
+                    z.string().refine(
+                        (value) => {
+                            if (!value) return true;
+                            return /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
+                        },
+                        {
+                            message: "Invalid domain format",
+                        },
+                    ),
+                )
+                .superRefine((domains, ctx) => {
+                    const invalidDomain = domains.some(
+                        (domain) => domain !== userDomain,
+                    );
+
+                    if (invalidDomain) {
+                        ctx.addIssue({
+                            code: z.ZodIssueCode.custom,
+                            message: "You can only add your own domain.",
+                        });
+                    }
+                })
+                .optional(),
+        })
+        .refine(
+            (data) => {
+                if (data.autoJoin) {
+                    return (
+                        data.autoJoinDomains &&
+                        data.autoJoinDomains.filter((d) => d).length > 0
+                    );
+                }
+                return true;
+            },
+            {
+                message:
+                    "At least one domain is required when auto-join is enabled.",
+                path: ["autoJoinDomains"],
+            },
+        );
 export default function App() {
     useGoToStep();
 
     const router = useRouter();
-    const { organizationName } = useOrganizationContext();
+    const { organizationId, organizationName } = useOrganizationContext();
     const { mutateAsync } = useUpdateOrganizationInfos();
+    const { email } = useAuth();
 
+    const domain = email?.split("@")[1] || "";
+
+    const formSchema = createFormSchema(domain);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         mode: "all",
         defaultValues: {
             phone: "",
             organizationName,
+            autoJoin: true,
+            autoJoinDomains: [domain],
         },
     });
 
@@ -52,10 +107,25 @@ export default function App() {
             phone: data.phone,
         });
 
+        const uniqueDomains = data.autoJoin
+            ? [...new Set(data.autoJoinDomains?.filter((d) => d) ?? [])]
+            : [];
+
+        await createOrUpdateOrganizationParameter(
+            OrganizationParametersConfigKey.AUTO_JOIN_CONFIG,
+            {
+                enabled: data.autoJoin,
+                domains: uniqueDomains,
+            },
+            organizationId,
+        );
+
         router.push("/setup/connecting-git-tool");
     });
 
     const { isSubmitting, isValid } = form.formState;
+
+    const autoJoinEnabled = form.watch("autoJoin");
 
     return (
         <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
@@ -131,7 +201,6 @@ export default function App() {
                                     </FormControl.Root>
                                 )}
                             />
-
                             <Controller
                                 name="phone"
                                 control={form.control}
@@ -171,6 +240,101 @@ export default function App() {
                                     </FormControl.Root>
                                 )}
                             />
+                            <Collapsible
+                                open={autoJoinEnabled}
+                                className="border-border space-y-4 rounded-lg border p-4">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex flex-col pr-4">
+                                        <FormControl.Label htmlFor="autoJoinSwitch">
+                                            Enable Auto Join
+                                        </FormControl.Label>
+                                        <FormControl.Helper className="mt-1">
+                                            Allow anyone with an approved email
+                                            domain to join.
+                                        </FormControl.Helper>
+                                    </div>
+
+                                    <Controller
+                                        name="autoJoin"
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <Switch
+                                                id="autoJoinSwitch"
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                            />
+                                        )}
+                                    />
+                                </div>
+
+                                <CollapsibleContent>
+                                    <Controller
+                                        name="autoJoinDomains"
+                                        control={form.control}
+                                        render={({
+                                            field,
+                                            fieldState,
+                                            formState,
+                                        }) => (
+                                            <FormControl.Root>
+                                                <FormControl.Label
+                                                    htmlFor={field.name}>
+                                                    Approved Domains
+                                                </FormControl.Label>
+                                                <FormControl.Input>
+                                                    <Input
+                                                        {...field}
+                                                        id={field.name}
+                                                        value={
+                                                            field.value?.join(
+                                                                ",",
+                                                            ) ?? ""
+                                                        }
+                                                        onChange={(e) => {
+                                                            const inputValue =
+                                                                e.target.value;
+
+                                                            if (
+                                                                inputValue ===
+                                                                ""
+                                                            ) {
+                                                                field.onChange(
+                                                                    [],
+                                                                );
+                                                                return;
+                                                            }
+
+                                                            const domains =
+                                                                e.target.value
+                                                                    .split(
+                                                                        /,\s*/,
+                                                                    )
+                                                                    .map((d) =>
+                                                                        d.trim(),
+                                                                    );
+                                                            field.onChange(
+                                                                domains,
+                                                            );
+                                                        }}
+                                                        placeholder="e.g., yourcompany.com"
+                                                        error={fieldState.error}
+                                                        disabled={
+                                                            formState.isSubmitting
+                                                        }
+                                                    />
+                                                </FormControl.Input>
+                                                <FormControl.Helper className="mt-1">
+                                                    Separate multiple domains
+                                                    with a comma.
+                                                </FormControl.Helper>{" "}
+                                                <FormControl.Error>
+                                                    {fieldState.error?.message}
+                                                </FormControl.Error>
+                                            </FormControl.Root>
+                                        )}
+                                    />
+                                </CollapsibleContent>
+                            </Collapsible>
 
                             <Button
                                 size="lg"

@@ -56,8 +56,8 @@ export default async function Layout({ children }: React.PropsWithChildren) {
                 license={organizationLicense}
                 usersWithAssignedLicense={usersWithAssignedLicense}>
                 <SetupAndOnboardingLock />
-                <NavMenu 
-                    issuesPageFeatureFlag={issuesPageFeatureFlag} 
+                <NavMenu
+                    issuesPageFeatureFlag={issuesPageFeatureFlag}
                     logsPagesFeatureFlag={logsPagesFeatureFlag}
                 />
                 <FinishedTrialModal />
