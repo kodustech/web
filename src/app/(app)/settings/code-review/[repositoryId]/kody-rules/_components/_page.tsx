@@ -235,14 +235,18 @@ export const KodyRulesPage = ({
                         </div>
                     ) : (
                         <>
-                            <Input
-                                placeholder="Search for titles, paths or instructions"
-                                value={filterQuery}
-                                leftIcon={<SearchIcon />}
-                                onChange={(e) => setFilterQuery(e.target.value)}
-                            />
+                            <div className="mb-2">
+                                <Input
+                                    value={filterQuery}
+                                    leftIcon={<SearchIcon />}
+                                    onChange={(e) =>
+                                        setFilterQuery(e.target.value)
+                                    }
+                                    placeholder="Search for titles, paths or instructions"
+                                />
+                            </div>
 
-                            <div className="flex flex-col gap-2">
+                            <div className="flex flex-col gap-3">
                                 {filteredRules.length === 0 ? (
                                     <div className="text-text-secondary flex flex-col items-center gap-2 py-20 text-sm">
                                         No rules found with your search query.
