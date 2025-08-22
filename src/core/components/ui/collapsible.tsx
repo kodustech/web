@@ -25,7 +25,7 @@ const CollapsibleIndicator = React.forwardRef<
         ref={ref}
         {...props}
         className={cn(
-            "text-text-secondary size-4! shrink-0 transition duration-200",
+            "size-4! shrink-0 text-[var(--button-foreground,var(--color-text-secondary,white))] transition duration-200",
             "group-data-[state=closed]/collapsible:rotate-0 group-data-[state=open]/collapsible:rotate-180",
             className,
         )}
