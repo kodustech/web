@@ -14,4 +14,5 @@ export enum API_ROUTES {
     segmentTrack = "/segment/track",
     loginOAuth = "/auth/oauth",
     checkForEmailExistence = "/user/email",
+    getOrganizationsByDomain = "/organization/domain",
 }

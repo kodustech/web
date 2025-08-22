@@ -7,6 +7,7 @@ export enum ParametersConfigKey {
 
 export enum OrganizationParametersConfigKey {
     TIMEZONE_CONFIG = "timezone_config",
+    AUTO_JOIN_CONFIG = "auto_join_config",
 }
 
 export enum BoardPriorityType {
@@ -68,3 +69,8 @@ export enum Timezone {
     NEW_YORK = "America/New_York",
     SAO_PAULO = "America/Sao_Paulo",
 }
+
+export type OrganizationParametersAutoJoinConfig = {
+    enabled: boolean;
+    domains: string[];
+};

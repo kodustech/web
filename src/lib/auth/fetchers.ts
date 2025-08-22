@@ -23,6 +23,7 @@ export const registerUser = (payload: {
     name: string;
     email: string;
     password: string;
+    organizationId?: string;
 }): Promise<{
     data: {
         statusCode: number;
@@ -99,10 +100,32 @@ export const loginOAuth = (
     });
 };
 
-export const sendForgotPasswordMail =async (email:string)=>{
-    return axiosApi.post(pathToApiUrl(API_ROUTES.forgotPassword),{email})
-}
+export const sendForgotPasswordMail = async (email: string) => {
+    return axiosApi.post(pathToApiUrl(API_ROUTES.forgotPassword), { email });
+};
 
-export const resetPassword =async (newPassword:string,token:string)=>{
-    return axiosApi.post(pathToApiUrl(API_ROUTES.resetPassword),{newPassword,token})
-}
+export const resetPassword = async (newPassword: string, token: string) => {
+    return axiosApi.post(pathToApiUrl(API_ROUTES.resetPassword), {
+        newPassword,
+        token,
+    });
+};
+
+export const getOrganizationsByDomain = async (domain: string) => {
+    try {
+        const data = await typedFetch<
+            { uuid: string; name: string; owner?: string }[]
+        >(pathToApiUrl(API_ROUTES.getOrganizationsByDomain), {
+            params: { domain },
+            signedIn: false,
+        });
+        return data;
+    } catch (error) {
+        if (error instanceof Error) {
+            throw new Error(
+                `Failed to fetch organizations by domain: ${error.message}`,
+            );
+        }
+        throw error;
+    }
+};
