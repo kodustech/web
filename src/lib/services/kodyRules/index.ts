@@ -19,4 +19,6 @@ export const KODY_RULES_PATHS = {
         "/kody-rules/change-status-kody-rules",
     ),
     GENERATE_KODY_RULES: pathToApiUrl("/kody-rules/generate-kody-rules"),
+    SYNC_IDE_RULES: pathToApiUrl("/kody-rules/sync-ide-rules"),
+    CHECK_SYNC_STATUS: pathToApiUrl("/kody-rules/check-sync-status"),
 } as const;

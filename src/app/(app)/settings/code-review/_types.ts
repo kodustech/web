@@ -116,6 +116,7 @@ export type CodeReviewDirectoryConfig = CodeReviewRepositoryConfigBase & {
 
 export type CodeReviewRepositoryConfig = CodeReviewRepositoryConfigBase & {
     directories?: CodeReviewDirectoryConfig[];
+    ideRulesSyncEnabled?: boolean;
 };
 
 export type AutomationCodeReviewConfigType = {
@@ -124,7 +125,7 @@ export type AutomationCodeReviewConfigType = {
 };
 
 export enum BehaviourForNewCommits {
-  NONE = 'none',
-  REPLACE = 'replace',
-  CONCATENATE = 'concatenate',
+    NONE = "none",
+    REPLACE = "replace",
+    CONCATENATE = "concatenate",
 }

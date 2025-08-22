@@ -1,5 +1,8 @@
 import { typedFetch } from "@services/fetch";
-import type { CodeReviewGlobalConfig } from "src/app/(app)/settings/code-review/_types";
+import type {
+    CodeReviewGlobalConfig,
+    CodeReviewRepositoryConfig,
+} from "src/app/(app)/settings/code-review/_types";
 import type { LiteralUnion } from "src/core/types";
 import { axiosAuthorized } from "src/core/utils/axios";
 import { codeReviewConfigRemovePropertiesNotInType } from "src/core/utils/helpers";
@@ -53,7 +56,7 @@ export const createOrUpdateParameter = async (
 };
 
 export const createOrUpdateCodeReviewParameter = async (
-    configValue: Partial<CodeReviewGlobalConfig>,
+    configValue: Partial<CodeReviewGlobalConfig | CodeReviewRepositoryConfig>,
     teamId: string,
     repositoryId: LiteralUnion<"global"> | undefined,
     directoryId?: string,
