@@ -11,16 +11,17 @@ import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
 import { Separator } from "@components/ui/separator";
+import { Skeleton } from "@components/ui/skeleton";
 import { Spinner } from "@components/ui/spinner";
 import { KODY_RULES_PATHS } from "@services/kodyRules";
 import { useSuspenseFindLibraryKodyRules } from "@services/kodyRules/hooks";
 import { type KodyRule } from "@services/kodyRules/types";
 import { KodyLearningStatus } from "@services/parameters/types";
 import { useQueryClient } from "@tanstack/react-query";
-import { BellRing, Plus } from "lucide-react";
+import { BellRing, Plus, SearchIcon } from "lucide-react";
 
 import { CodeReviewPagesBreadcrumb } from "../../../_components/breadcrumb";
-import { GenerateRulesButton } from "../../../_components/generate-rules";
+import { GenerateRulesOptions } from "../../../_components/generate-rules-options";
 import GeneratingConfig from "../../../_components/generating-config";
 import { KodyRuleAddOrUpdateItemModal } from "../../../_components/modal";
 import { PendingKodyRulesModal } from "../../../_components/pending-rules-modal";
@@ -112,76 +113,82 @@ export const KodyRulesPage = ({
                 <CodeReviewPagesBreadcrumb pageName="Kody Rules" />
             </Page.Header>
 
-            <Page.Header className="flex flex-col gap-4">
-                <div className="flex w-full flex-row items-center justify-between">
+            <Page.Header>
+                <Page.TitleContainer>
                     <Page.Title>Kody Rules</Page.Title>
 
-                    <div className="flex items-center justify-end">
-                        <Page.HeaderActions>
-                            {repositoryId !== "global" && config && (
-                                <GenerateRulesButton />
-                            )}
-                            <Link href="/library/kody-rules">
-                                <Button
-                                    size="md"
-                                    decorative
-                                    variant="secondary"
-                                    leftIcon={<SvgKodyRulesDiscovery />}>
-                                    Discovery
-                                </Button>
-                            </Link>
+                    <Page.Description>
+                        {repositoryId === "global" ? (
+                            "Set up automated rules and guidelines for your code reviews."
+                        ) : (
+                            <>
+                                This repository follows{" "}
+                                <Link
+                                    href=""
+                                    onClick={(ev) => {
+                                        ev.preventDefault();
+                                        repoFollowsGlobalRulesModal();
+                                    }}>
+                                    Global Kody Rules
+                                </Link>{" "}
+                                by default. You can still customize automated
+                                rules and guidelines specific to this
+                                repository's code reviews.
+                            </>
+                        )}
+                    </Page.Description>
+                </Page.TitleContainer>
 
+                <div className="flex flex-col gap-2">
+                    <Page.HeaderActions>
+                        <Link href="/library/kody-rules">
                             <Button
                                 size="md"
-                                type="button"
-                                variant="primary"
-                                leftIcon={<Plus />}
-                                onClick={addNewEmptyRule}>
-                                New rule
+                                decorative
+                                variant="secondary"
+                                leftIcon={<SvgKodyRulesDiscovery />}>
+                                Discovery
                             </Button>
-                        </Page.HeaderActions>
-                    </div>
-                </div>
+                        </Link>
 
-                <Separator />
-
-                <div className="flex w-full flex-row gap-3">
-                    {repositoryId === "global" ? (
-                        <p className="text-text-secondary w-full text-sm">
-                            Set up automated rules and guidelines for your code
-                            reviews.
-                        </p>
-                    ) : (
-                        <p className="text-text-secondary w-full text-sm">
-                            This repository follows{" "}
-                            <Link
-                                href=""
-                                onClick={(ev) => {
-                                    ev.preventDefault();
-                                    repoFollowsGlobalRulesModal();
-                                }}>
-                                Global Kody Rules
-                            </Link>{" "}
-                            by default. You can still customize automated rules
-                            and guidelines specific to this repository's code
-                            reviews.
-                        </p>
-                    )}
-
-                    {pendingRules.length > 0 && (
                         <Button
                             size="md"
-                            variant="secondary"
-                            className="border-e-primary-light rounded-e-none border-e-8"
-                            leftIcon={<BellRing />}
-                            onClick={showPendingRules}>
-                            Check out new rules!
+                            type="button"
+                            variant="primary"
+                            leftIcon={<Plus />}
+                            onClick={addNewEmptyRule}>
+                            New rule
                         </Button>
-                    )}
+                    </Page.HeaderActions>
+
+                    <div className="flex justify-end">
+                        {pendingRules.length > 0 && (
+                            <Button
+                                size="md"
+                                variant="helper"
+                                className="border-e-primary-light rounded-e-none border-e-4"
+                                leftIcon={<BellRing />}
+                                onClick={showPendingRules}>
+                                Check out new rules!
+                            </Button>
+                        )}
+                    </div>
                 </div>
             </Page.Header>
 
             <Page.Content>
+                {repositoryId !== "global" && !directoryId && (
+                    <>
+                        <Suspense fallback={<Skeleton className="h-15" />}>
+                            <GenerateRulesOptions />
+                        </Suspense>
+
+                        <div className="w-md self-center">
+                            <Separator />
+                        </div>
+                    </>
+                )}
+
                 <div className="flex flex-col gap-4">
                     {kodyRules?.length === 0 ? (
                         <div className="mt-4 flex min-h-[540px] flex-col gap-2">
@@ -227,27 +234,30 @@ export const KodyRulesPage = ({
                             </div>
                         </div>
                     ) : (
-                        <div className="flex flex-col gap-4">
+                        <>
                             <Input
                                 placeholder="Search for titles, paths or instructions"
                                 value={filterQuery}
+                                leftIcon={<SearchIcon />}
                                 onChange={(e) => setFilterQuery(e.target.value)}
                             />
 
-                            {filteredRules.length === 0 ? (
-                                <div className="text-text-secondary flex flex-col items-center gap-2 py-20 text-sm">
-                                    No rules found with your search query.
-                                </div>
-                            ) : (
-                                filteredRules.map((rule) => (
-                                    <KodyRuleItem
-                                        key={rule.uuid}
-                                        rule={rule}
-                                        onAnyChange={refreshRulesList}
-                                    />
-                                ))
-                            )}
-                        </div>
+                            <div className="flex flex-col gap-2">
+                                {filteredRules.length === 0 ? (
+                                    <div className="text-text-secondary flex flex-col items-center gap-2 py-20 text-sm">
+                                        No rules found with your search query.
+                                    </div>
+                                ) : (
+                                    filteredRules.map((rule) => (
+                                        <KodyRuleItem
+                                            key={rule.uuid}
+                                            rule={rule}
+                                            onAnyChange={refreshRulesList}
+                                        />
+                                    ))
+                                )}
+                            </div>
+                        </>
                     )}
                 </div>
             </Page.Content>
