@@ -107,11 +107,15 @@ export const KodyRuleAddOrUpdateItemModal = ({
                       ? !directory
                           ? rule.path
                           : (() => {
-                                const pathWithoutDirectory = getKodyRulePathWithoutDirectoryPath({
-                                    directory,
-                                    rule,
-                                });
-                                return pathWithoutDirectory || DEFAULT_PATH_FOR_DIRECTORIES;
+                                const pathWithoutDirectory =
+                                    getKodyRulePathWithoutDirectoryPath({
+                                        directory,
+                                        rule,
+                                    });
+                                return (
+                                    pathWithoutDirectory ||
+                                    DEFAULT_PATH_FOR_DIRECTORIES
+                                );
                             })()
                       : directory
                         ? DEFAULT_PATH_FOR_DIRECTORIES
@@ -424,8 +428,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                 error={fieldState.error}
                                                 className={cn(
                                                     directory &&
-                                                        watchScope ===
-                                                            "file" &&
+                                                        watchScope === "file" &&
                                                         "rounded-l-none",
                                                 )}
                                                 disabled={
@@ -460,6 +463,25 @@ export const KodyRuleAddOrUpdateItemModal = ({
                             </div>
                         )}
                     />
+
+                    {rule?.sourcePath && (
+                        <div className="grid grid-cols-[1fr_3fr] gap-6">
+                            <FormControl.Root>
+                                <FormControl.Label className="mb-0 flex flex-row gap-1">
+                                    Source
+                                </FormControl.Label>
+
+                                <FormControl.Helper>
+                                    Readonly. This Kody Rule was created based
+                                    on this file.
+                                </FormControl.Helper>
+                            </FormControl.Root>
+
+                            <FormControl.Input>
+                                <Input value={rule?.sourcePath} disabled />
+                            </FormControl.Input>
+                        </div>
+                    )}
 
                     <Controller
                         name="rule"
