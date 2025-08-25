@@ -1,7 +1,7 @@
 import { typedFetch } from "@services/fetch";
 import { API_ROUTES } from "src/core/config/constants";
 import type { TODO } from "src/core/types";
-import { axiosApi } from "src/core/utils/axios";
+import { axiosApi, axiosAuthorized } from "src/core/utils/axios";
 import { pathToApiUrl } from "src/core/utils/helpers";
 
 import { AuthProviders } from "./types";
@@ -113,13 +113,12 @@ export const resetPassword = async (newPassword: string, token: string) => {
 
 export const getOrganizationsByDomain = async (domain: string) => {
     try {
-        const data = await typedFetch<
+        const data = await axiosAuthorized.fetcher<
             { uuid: string; name: string; owner?: string }[]
         >(pathToApiUrl(API_ROUTES.getOrganizationsByDomain), {
             params: { domain },
-            signedIn: false,
         });
-        return data;
+        return data.data;
     } catch (error) {
         if (error instanceof Error) {
             throw new Error(
