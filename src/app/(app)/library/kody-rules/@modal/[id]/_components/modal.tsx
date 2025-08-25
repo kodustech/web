@@ -66,7 +66,7 @@ export const KodyRuleLibraryItemModal = ({
 
     const [addToRepositories, { loading: isAddingToRepositories }] =
         useAsyncAction(async () => {
-            const newRule = {
+            const newRule: KodyRule = {
                 title: rule.title,
                 rule: rule.rule,
                 severity: rule.severity.toLowerCase() as KodyRule["severity"],
@@ -74,6 +74,7 @@ export const KodyRuleLibraryItemModal = ({
                 examples: rule.examples,
                 origin: KodyRulesOrigin.LIBRARY,
                 status: KodyRulesStatus.ACTIVE,
+                scope: "file",
             };
 
             if (directoryId) {
@@ -83,7 +84,7 @@ export const KodyRuleLibraryItemModal = ({
                 const directory = repository?.directories?.find(
                     (d) => d.id === directoryId,
                 );
-                newRule.path = directory?.path ?? "";
+                newRule.path = `${directory?.path.slice(1)}/*`;
             }
 
             const addedKodyRules = await addKodyRuleToRepositories({

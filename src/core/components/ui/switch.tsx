@@ -52,9 +52,10 @@ const Switch = React.forwardRef<
         <Button variant="primary" size="sm">
             <SwitchPrimitives.Thumb
                 className={cn(
-                    "bg-card-lv2 pointer-events-none relative rounded-full shadow-lg transition duration-300",
+                    "bg-card-lv2 pointer-events-none relative rounded-full transition duration-300",
                     "group-switch-disabled:bg-text-placeholder/40",
                     "group-switch-loading:bg-transparent",
+                    !loading && "shadow-lg",
                 )}>
                 {loading && (
                     <div className="absolute inset-0 flex items-center justify-center">

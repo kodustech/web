@@ -5,7 +5,7 @@ import { cn } from "src/core/utils/components";
 const cardVariants = cva("flex flex-col overflow-hidden rounded-xl shadow-sm", {
     variants: {
         color: {
-            none: "bg-transparent",
+            none: "bg-transparent shadow-none",
             lv1: "bg-card-lv1",
             lv2: "bg-card-lv2",
             lv3: "bg-card-lv3",
