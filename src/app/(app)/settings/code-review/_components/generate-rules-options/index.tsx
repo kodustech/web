@@ -9,6 +9,7 @@ import {
     CollapsibleIndicator,
     CollapsibleTrigger,
 } from "@components/ui/collapsible";
+import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
 import { Section } from "@components/ui/section";
 import { Switch } from "@components/ui/switch";
@@ -281,6 +282,17 @@ export const GenerateRulesOptions = () => {
                             </CardHeader>
                         </Card>
                     </Button>
+
+                    <span className="text-text-secondary -mt-1 mb-2 ml-2 text-xs">
+                        <span>
+                            For a detailed list of rule files that can be
+                            scanned,{" "}
+                        </span>
+                        <Link href={process.env.WEB_RULE_FILES_DOCS ?? ""}>
+                            check the docs
+                        </Link>
+                        .
+                    </span>
 
                     <Button
                         size="lg"
