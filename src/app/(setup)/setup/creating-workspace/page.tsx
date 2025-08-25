@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
 import { Collapsible, CollapsibleContent } from "@components/ui/collapsible";
@@ -19,6 +20,7 @@ import { ArrowRight } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { isValidPhoneNumber } from "react-phone-number-input";
 import { useAuth } from "src/core/providers/auth.provider";
+import { publicDomainsSet } from "src/core/utils/email";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 import { z } from "zod";
 
@@ -49,36 +51,50 @@ const createFormSchema = (userDomain: string) =>
                         },
                     ),
                 )
-                .superRefine((domains, ctx) => {
-                    const invalidDomain = domains.some(
-                        (domain) => domain !== userDomain,
-                    );
-
-                    if (invalidDomain) {
-                        ctx.addIssue({
-                            code: z.ZodIssueCode.custom,
-                            message: "You can only add your own domain.",
-                        });
-                    }
-                })
                 .optional(),
         })
-        .refine(
-            (data) => {
-                if (data.autoJoin) {
-                    return (
-                        data.autoJoinDomains &&
-                        data.autoJoinDomains.filter((d) => d).length > 0
-                    );
+        .superRefine((data, ctx) => {
+            if (data.autoJoin) {
+                const domains = data.autoJoinDomains ?? [];
+                const validDomains = domains.filter((d) => d);
+
+                if (validDomains.length === 0) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message:
+                            "At least one domain is required when auto-join is enabled.",
+                        path: ["autoJoinDomains"],
+                    });
+                    return;
                 }
-                return true;
-            },
-            {
-                message:
-                    "At least one domain is required when auto-join is enabled.",
-                path: ["autoJoinDomains"],
-            },
-        );
+
+                const lowerCaseDomains = domains.map((d) => d.toLowerCase());
+                const isPublicDomain = lowerCaseDomains.some((d) =>
+                    publicDomainsSet.has(d),
+                );
+
+                if (isPublicDomain) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message:
+                            "Public email domains like gmail.com are not allowed.",
+                        path: ["autoJoinDomains"],
+                    });
+                }
+
+                const hasMismatchedDomain = validDomains.some(
+                    (domain) => domain !== userDomain,
+                );
+                if (hasMismatchedDomain) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: "You can only add your own domain.",
+                        path: ["autoJoinDomains"],
+                    });
+                }
+            }
+        });
+
 export default function App() {
     useGoToStep();
 
@@ -100,6 +116,13 @@ export default function App() {
             autoJoinDomains: [domain],
         },
     });
+
+    const { trigger } = form;
+
+    // Trigger validation on mount to validate default values
+    useEffect(() => {
+        trigger();
+    }, [trigger]);
 
     const onSubmit = form.handleSubmit(async (data) => {
         await mutateAsync({

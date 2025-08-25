@@ -15,11 +15,12 @@ export default async function OrganizationSettingsPage() {
     const organizationId = await getOrganizationId();
     const jwtPayload = await getJwtPayload();
     const email = jwtPayload?.email ?? "";
+    const userDomain = email.split("@")[1];
 
     let timezoneConfigValue: Timezone = Timezone.NEW_YORK;
     let autoJoinConfigValue: OrganizationParametersAutoJoinConfig = {
         enabled: false,
-        domains: [],
+        domains: [userDomain],
     };
 
     try {
