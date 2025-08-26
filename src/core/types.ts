@@ -1,4 +1,4 @@
-import { Role, TeamRole } from "./utils/permissions";
+import type { TeamRole, UserRole } from "@enums";
 
 export type LiteralUnion<LiteralType extends string> =
     | LiteralType
@@ -35,7 +35,7 @@ export enum TEAM_STATUS {
 
 export interface JwtPayload {
     email: string;
-    role: Role;
+    role: UserRole;
     teamRole: TeamRole;
     sub: string;
     organizationId: string;

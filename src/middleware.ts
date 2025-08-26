@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { TeamRole, UserRole } from "@enums";
 
 import { auth } from "./core/config/auth";
 import { CURRENT_PATH_HEADER } from "./core/utils/headers";
 import { parseJwt } from "./core/utils/helpers";
-import { handleAuthenticated, Role, TeamRole } from "./core/utils/permissions";
+import { handleAuthenticated } from "./core/utils/permissions";
 
 // Rotas públicas que não precisam de autenticação
 const publicPaths = [
@@ -83,9 +84,9 @@ export default async function middleware(req: NextRequest) {
     }
 
     // Dados do usuário autenticado
-    const userRole = (parsedToken.payload.role as Role) || Role.USER;
+    const userRole = (parsedToken.payload.role as UserRole) || UserRole.USER;
     const userTeamRole =
-        (parsedToken.payload.teamRole as TeamRole) || TeamRole.MEMBER;
+        (parsedToken.payload.teamRole as TeamRole) || TeamRole.TEAM_MEMBER;
 
     return handleAuthenticated(
         req,

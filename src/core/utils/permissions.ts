@@ -1,20 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-
-// permissions.ts
-export enum Role {
-    OWNER = "owner",
-    USER = "user",
-}
-
-export enum TeamRole {
-    TEAM_LEADER = "team_leader",
-    MEMBER = "team_member",
-}
+import { TeamRole, UserRole } from "@enums";
 
 const permissions = {
     routes: {
-        [Role.OWNER]: ["*"],
-        [TeamRole.MEMBER]: [
+        [UserRole.OWNER]: ["*"],
+        [TeamRole.TEAM_MEMBER]: [
             "/cockpit",
             "/chat",
             "/chat/:id",
@@ -62,19 +52,19 @@ const permissions = {
         ],
     },
     components: {
-        [Role.OWNER]: ["AdminPanel", "SettingsPanel"],
-        [TeamRole.MEMBER]: ["TeamMemberCookpit"],
+        [UserRole.OWNER]: ["AdminPanel", "SettingsPanel"],
+        [TeamRole.TEAM_MEMBER]: ["TeamMemberCookpit"],
         [TeamRole.TEAM_LEADER]: ["TeamLeaderCookpit", "TeamMemberCookpit"],
     },
 };
 
 const canAccessRoute = (
-    role: Role,
+    role: UserRole,
     teamRole: TeamRole,
     pathname: string,
 ): boolean => {
     // Se for owner, tem acesso a tudo
-    if (role === Role.OWNER) {
+    if (role === UserRole.OWNER) {
         return true;
     }
 
@@ -114,7 +104,7 @@ const canAccessRoute = (
 export function handleAuthenticated(
     req: NextRequest,
     pathname: string,
-    userRole: Role,
+    userRole: UserRole,
     userTeamRole: TeamRole,
     authPaths: string[],
     headers: Headers,

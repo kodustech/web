@@ -8,7 +8,7 @@ export type IntegrationsCommonForSetInfos = {
     boardSelected?: IntegrationsCommon;
 };
 
-export enum STATUS {
+export enum UserStatus {
     ACTIVE = "active",
     INACTIVE = "inactive",
     PENDING = "pending",
@@ -22,7 +22,7 @@ export type MembersSetup = {
     avatar?: string;
     communicationId?: string;
     name: string;
-    teamRole?: TeamRole.TEAM_LEADER | TeamRole.TEAM_MEMBER;
+    teamRole?: TeamRole;
     communication: { name: string; id: string };
     email: string;
     error: boolean;

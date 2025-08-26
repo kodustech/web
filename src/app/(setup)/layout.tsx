@@ -5,6 +5,7 @@ import {
     getOrganizationName,
 } from "@services/organizations/fetch";
 import { getTeams } from "@services/teams/fetch";
+import { getUserInfo } from "@services/users/fetch";
 import { AllTeamsProvider } from "src/core/providers/all-teams-context";
 import { AuthProvider } from "src/core/providers/auth.provider";
 import { SelectedTeamProvider } from "src/core/providers/selected-team-context";
@@ -15,14 +16,16 @@ export default async function Layout(props: React.PropsWithChildren) {
     const jwtPayload = await getJwtPayload();
     if (!jwtPayload) return redirect("/sign-in");
 
-    const [teams, organizationId, organizationName] = await Promise.all([
-        getTeams(),
-        getOrganizationId(),
-        getOrganizationName(),
-    ]);
+    const [userInfo, teams, organizationId, organizationName] =
+        await Promise.all([
+            getUserInfo(),
+            getTeams(),
+            getOrganizationId(),
+            getOrganizationName(),
+        ]);
 
     return (
-        <AuthProvider jwtPayload={jwtPayload}>
+        <AuthProvider user={userInfo} jwtPayload={jwtPayload}>
             <OrganizationProvider
                 organization={{ id: organizationId, name: organizationName }}>
                 <AllTeamsProvider teams={teams}>

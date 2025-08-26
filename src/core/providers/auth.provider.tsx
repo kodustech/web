@@ -1,42 +1,50 @@
 "use client";
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
+import { TeamRole, UserRole } from "@enums";
+import { type User } from "@services/users/types";
 import type { TODO } from "src/core/types";
 
-import { Role, TeamRole } from "../utils/permissions";
-
 interface AuthContextProps {
-    userRole: Role;
+    userRole: UserRole;
     userTeamRole: TeamRole;
     isOwner: boolean;
     isTeamLeader: boolean;
-    isTeamMember: boolean;
-    email?: string;
-    userId?: string;
+    email: string;
+    userId: string;
     jwt: string;
+    setUserInfo: (userInfo: User) => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 type AuthProviderProps = React.PropsWithChildren & {
     jwtPayload: TODO;
+    user: User;
 };
 
-export const AuthProvider = ({ children, jwtPayload }: AuthProviderProps) => {
-    const userRole = jwtPayload.role || Role.USER;
-    const userTeamRole = jwtPayload.teamRole || TeamRole.MEMBER;
+export const AuthProvider = ({
+    children,
+    user,
+    jwtPayload,
+}: AuthProviderProps) => {
+    const [userInfo, setUserInfo] = useState(user);
+    useEffect(() => setUserInfo(user), [user]);
+
+    const userRole = userInfo.role || UserRole.USER;
+    const userTeamRole = jwtPayload.teamRole || TeamRole.TEAM_MEMBER;
 
     return (
         <AuthContext.Provider
             value={{
                 userRole,
                 userTeamRole,
-                isOwner: userRole === Role.OWNER,
+                isOwner: userRole === UserRole.OWNER,
                 isTeamLeader: userTeamRole === TeamRole.TEAM_LEADER,
-                isTeamMember: userTeamRole === TeamRole.MEMBER,
-                email: jwtPayload.email,
-                userId: jwtPayload.sub,
+                email: user.email,
+                userId: user.uuid,
                 jwt: jwtPayload.jwt,
+                setUserInfo,
             }}>
             {children}
         </AuthContext.Provider>

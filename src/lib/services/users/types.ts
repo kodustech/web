@@ -1,14 +1,19 @@
-import { STATUS } from "@services/setup/types";
+import type { TeamRole, UserRole } from "@enums";
+import { UserStatus } from "@services/setup/types";
+import type { Organization } from "@services/teams/types";
 
-export enum UserRole {
-    OWNER = "owner",
-    USER = "user",
-}
-
-export interface IUser {
+export interface User {
     uuid: string;
-    password: string;
     email: string;
-    status: STATUS;
-    role: UserRole[];
+    role: UserRole;
+    status: UserStatus;
+    organization: Organization;
+    teamMember: Array<{
+        uuid: string;
+        status: boolean;
+        name: string;
+        avatar?: string;
+        teamRole: TeamRole;
+        createdAt: Date;
+    }>;
 }

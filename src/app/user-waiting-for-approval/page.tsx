@@ -6,9 +6,10 @@ import { Card } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { SvgKodus } from "@components/ui/icons/SvgKodus";
 import { Page } from "@components/ui/page";
+import { UserStatus } from "@services/setup/types";
+import { getUserInfo } from "@services/users/fetch";
 import { LogOutIcon } from "lucide-react";
 import { auth } from "src/core/config/auth";
-import { parseJwt } from "src/core/utils/helpers";
 
 export const metadata: Metadata = {
     title: "Waiting for approval",
@@ -17,9 +18,11 @@ export const metadata: Metadata = {
 export default async function WaitingForApprovalPage() {
     const token = await auth();
     if (!token) redirect("/");
-    const parsedToken = parseJwt(token?.user.accessToken);
-    if (!token) redirect("/");
-    const email = parsedToken?.payload.email;
+
+    const userInfo = await getUserInfo({ redirect: false });
+    if (userInfo.status !== UserStatus.PENDING) redirect("/");
+
+    const email = userInfo.email;
 
     return (
         <Page.Root className="flex h-full w-full flex-col items-center justify-center overflow-auto">

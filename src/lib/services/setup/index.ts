@@ -1,7 +1,6 @@
 import { pathToApiUrl } from "src/core/utils/helpers";
 
 export const SETUP_PATHS = {
-    USER_INFOS: pathToApiUrl("/user/infos"),
     GITHUB_ORGANIZATION_NAME: pathToApiUrl("/github/organization-name"),
     GITHUB_INTEGRATION: pathToApiUrl("/github/integration"),
     TEAM_MEMBERS: pathToApiUrl("/team-members/"),

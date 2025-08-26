@@ -31,6 +31,11 @@ export enum TeamRole {
     TEAM_MEMBER = "team_member",
 }
 
+export enum UserRole {
+    OWNER = "owner",
+    USER = "user",
+}
+
 export enum AutomationsTagsEnum {
     ENSURE_BEST_PRACTICE = "Ensure Best Practice",
     IMPROVE_PRODUCTIVITY = "Improve Productivity",

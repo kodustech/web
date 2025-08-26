@@ -5,6 +5,7 @@ import {
     getOrganizationName,
 } from "@services/organizations/fetch";
 import { getTeams } from "@services/teams/fetch";
+import { getUserInfo } from "@services/users/fetch";
 import { NavMenu } from "src/core/layout/navbar";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
@@ -23,14 +24,14 @@ export default async function Layout({ children }: React.PropsWithChildren) {
     const jwtPayload = await getJwtPayload();
     if (!jwtPayload) return redirect("/sign-in");
 
-    const [teams, teamId, organizationId, organizationName] = await Promise.all(
-        [
+    const [userInfo, teams, teamId, organizationId, organizationName] =
+        await Promise.all([
+            getUserInfo(),
             getTeams(),
             getGlobalSelectedTeamId(),
             getOrganizationId(),
             getOrganizationName(),
-        ],
-    );
+        ]);
 
     const [
         organizationLicense,
@@ -48,6 +49,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         <Providers
             jwtPayload={jwtPayload}
             teams={teams}
+            user={userInfo}
             organization={{
                 id: organizationId,
                 name: organizationName,
