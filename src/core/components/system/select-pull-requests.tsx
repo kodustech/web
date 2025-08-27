@@ -52,7 +52,7 @@ export const SelectPullRequest = (props: {
     );
 
     return (
-        <Popover open={open} onOpenChange={onOpenChange}>
+        <Popover open={open} onOpenChange={onOpenChange} modal>
             <PopoverTrigger asChild>
                 <Button
                     id={id}
