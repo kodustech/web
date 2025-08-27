@@ -96,7 +96,7 @@ export default function App() {
         defaultValues: {
             phone: "",
             organizationName,
-            autoJoin: true,
+            autoJoin: false,
             autoJoinDomains: [domain],
         },
     });
@@ -240,101 +240,7 @@ export default function App() {
                                     </FormControl.Root>
                                 )}
                             />
-                            <Collapsible
-                                open={autoJoinEnabled}
-                                className="border-border space-y-4 rounded-lg border p-4">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex flex-col pr-4">
-                                        <FormControl.Label htmlFor="autoJoinSwitch">
-                                            Enable Auto Join
-                                        </FormControl.Label>
-                                        <FormControl.Helper className="mt-1">
-                                            Allow anyone with an approved email
-                                            domain to join.
-                                        </FormControl.Helper>
-                                    </div>
-
-                                    <Controller
-                                        name="autoJoin"
-                                        control={form.control}
-                                        render={({ field }) => (
-                                            <Switch
-                                                id="autoJoinSwitch"
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                            />
-                                        )}
-                                    />
-                                </div>
-
-                                <CollapsibleContent>
-                                    <Controller
-                                        name="autoJoinDomains"
-                                        control={form.control}
-                                        render={({
-                                            field,
-                                            fieldState,
-                                            formState,
-                                        }) => (
-                                            <FormControl.Root>
-                                                <FormControl.Label
-                                                    htmlFor={field.name}>
-                                                    Approved Domains
-                                                </FormControl.Label>
-                                                <FormControl.Input>
-                                                    <Input
-                                                        {...field}
-                                                        id={field.name}
-                                                        value={
-                                                            field.value?.join(
-                                                                ",",
-                                                            ) ?? ""
-                                                        }
-                                                        onChange={(e) => {
-                                                            const inputValue =
-                                                                e.target.value;
-
-                                                            if (
-                                                                inputValue ===
-                                                                ""
-                                                            ) {
-                                                                field.onChange(
-                                                                    [],
-                                                                );
-                                                                return;
-                                                            }
-
-                                                            const domains =
-                                                                e.target.value
-                                                                    .split(
-                                                                        /,\s*/,
-                                                                    )
-                                                                    .map((d) =>
-                                                                        d.trim(),
-                                                                    );
-                                                            field.onChange(
-                                                                domains,
-                                                            );
-                                                        }}
-                                                        placeholder="e.g., yourcompany.com"
-                                                        error={fieldState.error}
-                                                        disabled={
-                                                            formState.isSubmitting
-                                                        }
-                                                    />
-                                                </FormControl.Input>
-                                                <FormControl.Helper className="mt-1">
-                                                    Separate multiple domains
-                                                    with a comma.
-                                                </FormControl.Helper>{" "}
-                                                <FormControl.Error>
-                                                    {fieldState.error?.message}
-                                                </FormControl.Error>
-                                            </FormControl.Root>
-                                        )}
-                                    />
-                                </CollapsibleContent>
-                            </Collapsible>
+                          
 
                             <Button
                                 size="lg"

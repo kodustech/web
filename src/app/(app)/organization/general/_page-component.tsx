@@ -177,7 +177,7 @@ export const GeneralOrganizationSettingsPage = (props: {
                     </FormControl.Input>
                 </FormControl.Root>
 
-                <FormControl.Root className="flex flex-col gap-2">
+                {/* <FormControl.Root className="flex flex-col gap-2">
                     <FormControl.Label>Auto Join</FormControl.Label>
                     <FormControl.Helper>
                         Allow users with matching email domains to automatically
@@ -217,7 +217,7 @@ export const GeneralOrganizationSettingsPage = (props: {
                     <FormControl.Helper>
                         Enter domains separated by commas.
                     </FormControl.Helper>
-                </FormControl.Root>
+                </FormControl.Root> */}
             </Page.Content>
         </Page.Root>
     );
