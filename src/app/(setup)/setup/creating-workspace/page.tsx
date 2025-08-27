@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
+import { Card, CardHeader } from "@components/ui/card";
 import { Collapsible, CollapsibleContent } from "@components/ui/collapsible";
 import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
@@ -13,6 +13,7 @@ import { Page } from "@components/ui/page";
 import { PhoneInput } from "@components/ui/phone-input";
 import { Switch } from "@components/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffectOnce } from "@hooks/use-effect-once";
 import { createOrUpdateOrganizationParameter } from "@services/organizationParameters/fetch";
 import { useUpdateOrganizationInfos } from "@services/organizations/hooks";
 import { OrganizationParametersConfigKey } from "@services/parameters/types";
@@ -120,9 +121,9 @@ export default function App() {
     const { trigger } = form;
 
     // Trigger validation on mount to validate default values
-    useEffect(() => {
+    useEffectOnce(() => {
         trigger();
-    }, [trigger]);
+    });
 
     const onSubmit = form.handleSubmit(async (data) => {
         await mutateAsync({
@@ -170,7 +171,7 @@ export default function App() {
 
             <div className="flex flex-14 flex-col justify-center gap-20 p-10">
                 <div className="flex flex-col items-center gap-10">
-                    <div className="flex max-w-96 flex-col gap-10">
+                    <div className="flex max-w-96 flex-col gap-6">
                         <StepIndicators.Root>
                             <StepIndicators.Item status="active" />
                             <StepIndicators.Item />
@@ -188,188 +189,205 @@ export default function App() {
                             </p>
                         </div>
 
-                        <form
-                            onSubmit={onSubmit}
-                            className="flex w-full flex-col gap-8">
-                            <Controller
-                                name="organizationName"
-                                control={form.control}
-                                render={({ field, fieldState, formState }) => (
-                                    <FormControl.Root>
-                                        <FormControl.Label htmlFor={field.name}>
-                                            Organization Name
-                                        </FormControl.Label>
+                        <Controller
+                            name="organizationName"
+                            control={form.control}
+                            render={({ field, fieldState, formState }) => (
+                                <FormControl.Root>
+                                    <FormControl.Label htmlFor={field.name}>
+                                        Organization Name
+                                    </FormControl.Label>
 
-                                        <FormControl.Input>
-                                            <Input
-                                                {...field}
-                                                id={field.name}
-                                                type="text"
-                                                maxLength={100}
-                                                placeholder="Enter the organization you work for"
-                                                error={fieldState.error}
-                                                autoCapitalize="none"
-                                                autoCorrect="off"
-                                                disabled={
-                                                    formState.isSubmitting ||
-                                                    formState.isLoading ||
-                                                    field.disabled
-                                                }
-                                            />
-                                        </FormControl.Input>
+                                    <FormControl.Input>
+                                        <Input
+                                            {...field}
+                                            id={field.name}
+                                            type="text"
+                                            maxLength={100}
+                                            placeholder="Enter the organization you work for"
+                                            error={fieldState.error}
+                                            autoCapitalize="none"
+                                            autoCorrect="off"
+                                            disabled={
+                                                formState.isSubmitting ||
+                                                formState.isLoading ||
+                                                field.disabled
+                                            }
+                                        />
+                                    </FormControl.Input>
 
-                                        <FormControl.Error>
-                                            {fieldState.error?.message}
-                                        </FormControl.Error>
-                                    </FormControl.Root>
-                                )}
-                            />
-                            <Controller
-                                name="phone"
-                                control={form.control}
-                                render={({ field, fieldState, formState }) => (
-                                    <FormControl.Root>
-                                        <FormControl.Label htmlFor={field.name}>
-                                            Phone{" "}
-                                            <small className="text-text-secondary">
-                                                (optional)
-                                            </small>
-                                        </FormControl.Label>
+                                    <FormControl.Error>
+                                        {fieldState.error?.message}
+                                    </FormControl.Error>
+                                </FormControl.Root>
+                            )}
+                        />
+                        <Controller
+                            name="phone"
+                            control={form.control}
+                            render={({ field, fieldState, formState }) => (
+                                <FormControl.Root>
+                                    <FormControl.Label htmlFor={field.name}>
+                                        Phone{" "}
+                                        <small className="text-text-secondary">
+                                            (optional)
+                                        </small>
+                                    </FormControl.Label>
 
-                                        <FormControl.Input>
-                                            <PhoneInput
-                                                {...field}
-                                                id={field.name}
-                                                placeholder="Add a phone number for faster support"
-                                                error={fieldState.error}
-                                                autoCapitalize="none"
-                                                autoCorrect="off"
-                                                disabled={
-                                                    formState.isSubmitting ||
-                                                    formState.isLoading ||
-                                                    field.disabled
-                                                }
-                                            />
-                                        </FormControl.Input>
+                                    <FormControl.Input>
+                                        <PhoneInput
+                                            {...field}
+                                            id={field.name}
+                                            placeholder="Add a phone number for faster support"
+                                            error={fieldState.error}
+                                            autoCapitalize="none"
+                                            autoCorrect="off"
+                                            disabled={
+                                                formState.isSubmitting ||
+                                                formState.isLoading ||
+                                                field.disabled
+                                            }
+                                        />
+                                    </FormControl.Input>
 
-                                        <FormControl.Error>
-                                            {fieldState.error?.message}
-                                        </FormControl.Error>
+                                    <FormControl.Error>
+                                        {fieldState.error?.message}
+                                    </FormControl.Error>
 
-                                        <FormControl.Helper>
-                                            Use country code or select a country
-                                            before typing
-                                        </FormControl.Helper>
-                                    </FormControl.Root>
-                                )}
-                            />
-                            <Collapsible
-                                open={autoJoinEnabled}
-                                className="border-border space-y-4 rounded-lg border p-4">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex flex-col pr-4">
-                                        <FormControl.Label htmlFor="autoJoinSwitch">
-                                            Enable Auto Join
-                                        </FormControl.Label>
-                                        <FormControl.Helper className="mt-1">
-                                            Allow anyone with an approved email
-                                            domain to join.
-                                        </FormControl.Helper>
-                                    </div>
+                                    <FormControl.Helper>
+                                        Use country code or select a country
+                                        before typing
+                                    </FormControl.Helper>
+                                </FormControl.Root>
+                            )}
+                        />
 
-                                    <Controller
-                                        name="autoJoin"
-                                        control={form.control}
-                                        render={({ field }) => (
-                                            <Switch
-                                                id="autoJoinSwitch"
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                            />
-                                        )}
-                                    />
-                                </div>
+                        <Card color="lv1" className="overflow-visible">
+                            <Collapsible open={autoJoinEnabled}>
+                                <Controller
+                                    name="autoJoin"
+                                    control={form.control}
+                                    render={({ field }) => (
+                                        <Button
+                                            size="md"
+                                            variant="helper"
+                                            className="p-0"
+                                            onClick={() =>
+                                                field.onChange(!field.value)
+                                            }>
+                                            <CardHeader className="flex flex-row gap-10">
+                                                <div className="flex flex-col">
+                                                    <FormControl.Label className="mb-0">
+                                                        Enable Auto Join
+                                                    </FormControl.Label>
 
-                                <CollapsibleContent>
-                                    <Controller
-                                        name="autoJoinDomains"
-                                        control={form.control}
-                                        render={({
-                                            field,
-                                            fieldState,
-                                            formState,
-                                        }) => (
-                                            <FormControl.Root>
-                                                <FormControl.Label
-                                                    htmlFor={field.name}>
-                                                    Approved Domains
-                                                </FormControl.Label>
-                                                <FormControl.Input>
-                                                    <Input
-                                                        {...field}
-                                                        id={field.name}
-                                                        value={
-                                                            field.value?.join(
-                                                                ",",
-                                                            ) ?? ""
-                                                        }
-                                                        onChange={(e) => {
-                                                            const inputValue =
-                                                                e.target.value;
+                                                    <FormControl.Helper className="mt-0">
+                                                        Allow anyone with an
+                                                        approved email domain to
+                                                        join.
+                                                    </FormControl.Helper>
+                                                </div>
 
-                                                            if (
-                                                                inputValue ===
-                                                                ""
-                                                            ) {
-                                                                field.onChange(
-                                                                    [],
-                                                                );
-                                                                return;
+                                                <Switch
+                                                    decorative
+                                                    checked={field.value}
+                                                />
+                                            </CardHeader>
+                                        </Button>
+                                    )}
+                                />
+
+                                <CollapsibleContent className="pb-0">
+                                    <CardHeader className="pt-4">
+                                        <Controller
+                                            name="autoJoinDomains"
+                                            control={form.control}
+                                            render={({
+                                                field,
+                                                fieldState,
+                                                formState,
+                                            }) => (
+                                                <FormControl.Root>
+                                                    <FormControl.Label
+                                                        htmlFor={field.name}>
+                                                        Approved Domains
+                                                    </FormControl.Label>
+                                                    <FormControl.Input>
+                                                        <Input
+                                                            {...field}
+                                                            id={field.name}
+                                                            value={
+                                                                field.value?.join(
+                                                                    ",",
+                                                                ) ?? ""
                                                             }
+                                                            onChange={(e) => {
+                                                                const inputValue =
+                                                                    e.target
+                                                                        .value;
 
-                                                            const domains =
-                                                                e.target.value
-                                                                    .split(
-                                                                        /,\s*/,
-                                                                    )
-                                                                    .map((d) =>
-                                                                        d.trim(),
+                                                                if (
+                                                                    inputValue ===
+                                                                    ""
+                                                                ) {
+                                                                    field.onChange(
+                                                                        [],
                                                                     );
-                                                            field.onChange(
-                                                                domains,
-                                                            );
-                                                        }}
-                                                        placeholder="e.g., yourcompany.com"
-                                                        error={fieldState.error}
-                                                        disabled={
-                                                            formState.isSubmitting
+                                                                    return;
+                                                                }
+
+                                                                const domains =
+                                                                    e.target.value
+                                                                        .split(
+                                                                            /,\s*/,
+                                                                        )
+                                                                        .map(
+                                                                            (
+                                                                                d,
+                                                                            ) =>
+                                                                                d.trim(),
+                                                                        );
+                                                                field.onChange(
+                                                                    domains,
+                                                                );
+                                                            }}
+                                                            placeholder="e.g., yourcompany.com"
+                                                            error={
+                                                                fieldState.error
+                                                            }
+                                                            disabled={
+                                                                formState.isSubmitting
+                                                            }
+                                                        />
+                                                    </FormControl.Input>
+                                                    <FormControl.Helper className="mt-1">
+                                                        Separate multiple
+                                                        domains with a comma.
+                                                    </FormControl.Helper>{" "}
+                                                    <FormControl.Error>
+                                                        {
+                                                            fieldState.error
+                                                                ?.message
                                                         }
-                                                    />
-                                                </FormControl.Input>
-                                                <FormControl.Helper className="mt-1">
-                                                    Separate multiple domains
-                                                    with a comma.
-                                                </FormControl.Helper>{" "}
-                                                <FormControl.Error>
-                                                    {fieldState.error?.message}
-                                                </FormControl.Error>
-                                            </FormControl.Root>
-                                        )}
-                                    />
+                                                    </FormControl.Error>
+                                                </FormControl.Root>
+                                            )}
+                                        />
+                                    </CardHeader>
                                 </CollapsibleContent>
                             </Collapsible>
+                        </Card>
 
-                            <Button
-                                size="lg"
-                                variant="primary"
-                                type="submit"
-                                className="w-full"
-                                rightIcon={<ArrowRight />}
-                                disabled={!isValid}
-                                loading={isSubmitting}>
-                                Next
-                            </Button>
-                        </form>
+                        <Button
+                            size="lg"
+                            variant="primary"
+                            className="w-full"
+                            rightIcon={<ArrowRight />}
+                            disabled={!isValid}
+                            onClick={onSubmit}
+                            loading={isSubmitting}>
+                            Next
+                        </Button>
 
                         <Link
                             href="/setup/connecting-git-tool"
