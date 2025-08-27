@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
+import { Card, CardHeader } from "@components/ui/card";
 import { FormControl } from "@components/ui/form-control";
 import { Input } from "@components/ui/input";
+import { Label } from "@components/ui/label";
 import { Page } from "@components/ui/page";
 import {
     Select,
@@ -95,12 +96,12 @@ export const GeneralOrganizationSettingsPage = (props: {
     const userDomain = props.email.split("@")[1];
 
     const form = useForm<SettingsFormData>({
+        mode: "onChange",
         resolver: zodResolver(createSettingsSchema(userDomain)),
         defaultValues: {
             timezone: props.timezone,
             autoJoinConfig: props.autoJoinConfig,
         },
-        mode: "onChange",
     });
 
     const {
@@ -208,83 +209,102 @@ export const GeneralOrganizationSettingsPage = (props: {
                         )}
                     />
 
-                    <FormControl.Root className="flex flex-col gap-2">
-                        <FormControl.Label>Auto Join</FormControl.Label>
-                        <FormControl.Helper>
-                            Allow users with matching email domains to
-                            automatically join.
-                        </FormControl.Helper>
+                    <Card color="lv1" className="w-md">
+                        <CardHeader>
+                            <FormControl.Root className="flex flex-col">
+                                <FormControl.Label className="mb-0 text-base font-bold">
+                                    Auto Join
+                                </FormControl.Label>
+                                <FormControl.Helper className="mt-0 mb-5">
+                                    Allow users with matching email domains to
+                                    automatically join.
+                                </FormControl.Helper>
 
-                        <Controller
-                            name="autoJoinConfig.enabled"
-                            control={control}
-                            render={({ field }) => (
-                                <div className="flex items-center gap-2 pt-2">
-                                    <Switch
-                                        id="auto-join-enabled"
-                                        checked={field.value}
-                                        onCheckedChange={field.onChange}
-                                    />
-                                    <label
-                                        htmlFor="auto-join-enabled"
-                                        className="text-sm font-medium">
-                                        Enable Auto Join
-                                    </label>
-                                </div>
-                            )}
-                        />
-
-                        <Controller
-                            name="autoJoinConfig.domains"
-                            control={control}
-                            render={({ field }) => {
-                                const autoJoinEnabled = form.watch(
-                                    "autoJoinConfig.enabled",
-                                );
-                                return (
-                                    <>
-                                        <FormControl.Input>
-                                            <Input
-                                                id="auto-join-domains"
-                                                placeholder="e.g., yourcompany.com"
-                                                value={
-                                                    field.value?.join(",") ?? ""
-                                                }
-                                                onChange={(e) => {
-                                                    const inputValue =
-                                                        e.target.value;
-
-                                                    if (inputValue === "") {
-                                                        field.onChange([]);
-                                                        return;
-                                                    }
-
-                                                    const domains =
-                                                        e.target.value
-                                                            .split(/,\s*/)
-                                                            .map((d) =>
-                                                                d.trim(),
-                                                            );
-                                                    field.onChange(domains);
-                                                }}
-                                                disabled={!autoJoinEnabled}
-                                                className="mt-2 w-72"
+                                <Controller
+                                    name="autoJoinConfig.enabled"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <div className="flex items-center gap-2">
+                                            <Switch
+                                                id={field.name}
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
                                             />
-                                        </FormControl.Input>
-                                        <FormControl.Error>
-                                            {
-                                                errors.autoJoinConfig?.domains
-                                                    ?.message
-                                            }
-                                        </FormControl.Error>
-                                        <FormControl.Helper>
-                                            Enter domains separated by commas.
-                                        </FormControl.Helper>
-                                    </>
-                                );
-                            }}
-                        />
-                    </FormControl.Root>
+                                            <Label
+                                                htmlFor={field.name}
+                                                className="text-sm font-medium">
+                                                Enable Auto Join
+                                            </Label>
+                                        </div>
+                                    )}
+                                />
+
+                                <Controller
+                                    name="autoJoinConfig.domains"
+                                    control={control}
+                                    render={({ field }) => {
+                                        const autoJoinEnabled = form.watch(
+                                            "autoJoinConfig.enabled",
+                                        );
+                                        return (
+                                            <>
+                                                <FormControl.Input>
+                                                    <Input
+                                                        placeholder="e.g., yourcompany.com"
+                                                        value={
+                                                            field.value?.join(
+                                                                ",",
+                                                            ) ?? ""
+                                                        }
+                                                        onChange={(e) => {
+                                                            const inputValue =
+                                                                e.target.value;
+
+                                                            if (
+                                                                inputValue ===
+                                                                ""
+                                                            ) {
+                                                                field.onChange(
+                                                                    [],
+                                                                );
+                                                                return;
+                                                            }
+
+                                                            const domains =
+                                                                e.target.value
+                                                                    .split(
+                                                                        /,\s*/,
+                                                                    )
+                                                                    .map((d) =>
+                                                                        d.trim(),
+                                                                    );
+                                                            field.onChange(
+                                                                domains,
+                                                            );
+                                                        }}
+                                                        disabled={
+                                                            !autoJoinEnabled
+                                                        }
+                                                        className="mt-3"
+                                                    />
+                                                </FormControl.Input>
+                                                <FormControl.Error>
+                                                    {
+                                                        errors.autoJoinConfig
+                                                            ?.domains?.message
+                                                    }
+                                                </FormControl.Error>
+                                                <FormControl.Helper>
+                                                    Enter domains separated by
+                                                    commas.
+                                                </FormControl.Helper>
+                                            </>
+                                        );
+                                    }}
+                                />
+                            </FormControl.Root>
+                        </CardHeader>
+                    </Card>
                 </Page.Content>
             </form>
         </Page.Root>
