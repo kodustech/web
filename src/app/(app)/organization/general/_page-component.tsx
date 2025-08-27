@@ -224,11 +224,16 @@ export const GeneralOrganizationSettingsPage = (props: {
                                     name="autoJoinConfig.enabled"
                                     control={control}
                                     render={({ field }) => (
-                                        <div className="flex items-center gap-2">
+                                        <div className="flex items-center gap-3">
                                             <Switch
                                                 id={field.name}
                                                 checked={field.value}
-                                                onCheckedChange={field.onChange}
+                                                onCheckedChange={(v) => {
+                                                    field.onChange(v);
+                                                    form.trigger(
+                                                        "autoJoinConfig.domains",
+                                                    );
+                                                }}
                                             />
                                             <Label
                                                 htmlFor={field.name}
@@ -242,7 +247,7 @@ export const GeneralOrganizationSettingsPage = (props: {
                                 <Controller
                                     name="autoJoinConfig.domains"
                                     control={control}
-                                    render={({ field }) => {
+                                    render={({ field, fieldState }) => {
                                         const autoJoinEnabled = form.watch(
                                             "autoJoinConfig.enabled",
                                         );
@@ -251,6 +256,7 @@ export const GeneralOrganizationSettingsPage = (props: {
                                                 <FormControl.Input>
                                                     <Input
                                                         placeholder="e.g., yourcompany.com"
+                                                        error={fieldState.error}
                                                         value={
                                                             field.value?.join(
                                                                 ",",
