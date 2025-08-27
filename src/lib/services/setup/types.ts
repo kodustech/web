@@ -12,6 +12,7 @@ export enum UserStatus {
     ACTIVE = "active",
     INACTIVE = "inactive",
     PENDING = "pending",
+    AWAITING_APPROVAL = "awaiting_approval",
     REMOVED = "removed",
 }
 
@@ -20,15 +21,13 @@ export type MembersSetup = {
     isCreate?: boolean;
     active: boolean;
     avatar?: string;
-    communicationId?: string;
     name: string;
     teamRole?: TeamRole;
-    communication: { name: string; id: string };
     email: string;
     error: boolean;
     isCurrentUser?: boolean;
-    userStatus?: string;
-    userId?: string;
+    userStatus?: UserStatus;
+    userId: string;
 };
 
 export type TeamMembersResponse = {

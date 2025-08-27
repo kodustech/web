@@ -15,7 +15,7 @@ import { magicModal } from "@components/ui/magic-modal";
 import { toast } from "@components/ui/toaster/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateOrUpdateTeamMembers } from "@services/setup/hooks";
-import { Check, Plus, X } from "lucide-react";
+import { Check, MailIcon, Plus, X } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 import { z } from "zod";
@@ -327,8 +327,9 @@ export const InviteModal = ({ teamId }: { teamId: string }) => {
                     <div className="mt-6 flex justify-end">
                         <Button
                             size="md"
-                            variant="primary"
                             type="button"
+                            variant="primary"
+                            leftIcon={<MailIcon />}
                             onClick={handleSendEmails}
                             loading={createOrUpdateMutation.isPending}
                             disabled={

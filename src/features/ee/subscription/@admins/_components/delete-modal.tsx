@@ -15,6 +15,7 @@ import { toast } from "@components/ui/toaster/use-toast";
 import { useTimeout } from "@hooks/use-timeout";
 import type { MembersSetup } from "@services/setup/types";
 import { useDeleteTeamMember } from "@services/teamMembers/hooks";
+import { TrashIcon } from "lucide-react";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 
 type DeleteMemberModalProps = {
@@ -73,7 +74,7 @@ export const DeleteModal = ({ member }: DeleteMemberModalProps) => {
 
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
-            <DialogContent>
+            <DialogContent className="max-w-md">
                 <DialogHeader>
                     <DialogTitle>Remove this member from the team?</DialogTitle>
 
@@ -99,6 +100,7 @@ export const DeleteModal = ({ member }: DeleteMemberModalProps) => {
                     <Button
                         size="md"
                         variant="tertiary"
+                        leftIcon={<TrashIcon />}
                         loading={!enabled || isPending}
                         onClick={handleDelete}>
                         Remove

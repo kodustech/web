@@ -20,7 +20,7 @@ export default async function WaitingForApprovalPage() {
     if (!token) redirect("/");
 
     const userInfo = await getUserInfo({ redirect: false });
-    if (userInfo.status !== UserStatus.PENDING) redirect("/");
+    if (userInfo.status !== UserStatus.AWAITING_APPROVAL) redirect("/");
 
     const email = userInfo.email;
 

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { typedFetch } from "@services/fetch";
 import { UserStatus } from "@services/setup/types";
 import { axiosAuthorized } from "src/core/utils/axios";
+import { pathToApiUrl } from "src/core/utils/helpers";
 
 import { USERS_PATHS } from ".";
 import { User } from "./types";
@@ -18,12 +19,17 @@ export const joinOrganization = async (
     return response;
 };
 
+export const approveUser = async (userId: string) =>
+    axiosAuthorized.patch(`${pathToApiUrl(`/user/${userId}`)}`, {
+        status: UserStatus.ACTIVE,
+    });
+
 export const getUserInfo = async (props?: { redirect?: boolean }) => {
     const redirectToPage = props?.redirect ?? true;
 
     const userInfo = await typedFetch<User>(USERS_PATHS.USER_INFO);
 
-    if (redirectToPage && userInfo.status === UserStatus.PENDING)
+    if (redirectToPage && userInfo.status === UserStatus.AWAITING_APPROVAL)
         redirect("/user-waiting-for-approval");
 
     return userInfo;
