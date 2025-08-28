@@ -105,6 +105,7 @@ export default function App() {
     const { email } = useAuth();
 
     const domain = email?.split("@")[1] || "";
+    const isUserDomainPublic = publicDomainsSet.has(domain.toLowerCase());
 
     const formSchema = createFormSchema(domain);
     const form = useForm<z.infer<typeof formSchema>>({
@@ -113,8 +114,8 @@ export default function App() {
         defaultValues: {
             phone: "",
             organizationName,
-            autoJoin: true,
-            autoJoinDomains: [domain],
+            autoJoin: !isUserDomainPublic,
+            autoJoinDomains: isUserDomainPublic ? [] : [domain],
         },
     });
 
