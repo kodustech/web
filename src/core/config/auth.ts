@@ -3,7 +3,6 @@ import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
 import GitlabProvider from "next-auth/providers/gitlab";
-import GoogleProvider from "next-auth/providers/google";
 import {
     loginEmailPassword,
     loginOAuth,
@@ -87,7 +86,9 @@ const authOptions: NextAuthConfig = {
             // Deixar o middleware controlar os redirecionamentos
             return url;
         },
-        async jwt({ token, user }) {
+        async jwt({ token, user, trigger, session }) {
+            if (trigger === "update") return session as JWT;
+
             if (user) {
                 return {
                     ...token,
@@ -99,7 +100,7 @@ const authOptions: NextAuthConfig = {
             if (token?.exp && isJwtExpired(token.exp * 1000)) {
                 try {
                     const res = await refreshAccessToken({
-                        refreshToken: token.refreshToken!,
+                        refreshToken: token.refreshToken,
                     });
 
                     if (res?.data?.data) {
@@ -180,4 +181,5 @@ const authOptions: NextAuthConfig = {
     trustHost: true,
 };
 
-export const { auth, handlers, signIn, signOut } = NextAuth(authOptions);
+export const { auth, handlers, unstable_update, signIn, signOut } =
+    NextAuth(authOptions);

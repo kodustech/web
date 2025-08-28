@@ -1,4 +1,5 @@
 import { typedFetch } from "@services/fetch";
+import type { AxiosResponse } from "axios";
 import { API_ROUTES } from "src/core/config/constants";
 import type { TODO } from "src/core/types";
 import { axiosApi, axiosAuthorized } from "src/core/utils/axios";
@@ -62,8 +63,20 @@ export const logout = (payload: TODO): Promise<TODO> => {
     return axiosApi.post(pathToApiUrl(API_ROUTES.logout), payload);
 };
 
-export const refreshAccessToken = (payload: TODO): Promise<TODO> => {
-    return axiosApi.post(pathToApiUrl(API_ROUTES.refreshToken), payload);
+export const refreshAccessToken = (payload: {
+    refreshToken: string | undefined;
+}): Promise<
+    AxiosResponse<{
+        data: {
+            accessToken: string;
+            refreshToken: string;
+        };
+    }>
+> => {
+    return axiosApi.post<{
+        accessToken: string;
+        refreshToken: string;
+    }>(pathToApiUrl(API_ROUTES.refreshToken), payload);
 };
 
 export const getInviteData = async (userId: string) => {

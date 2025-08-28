@@ -1,4 +1,5 @@
 import type { TeamRole, UserRole } from "@enums";
+import type { UserStatus } from "@services/setup/types";
 
 export type LiteralUnion<LiteralType extends string> =
     | LiteralType
@@ -38,6 +39,7 @@ export interface JwtPayload {
     role: UserRole;
     teamRole: TeamRole;
     sub: string;
+    status: UserStatus;
     organizationId: string;
     iss: string;
     aud: string;

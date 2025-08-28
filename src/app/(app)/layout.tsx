@@ -1,11 +1,9 @@
-import { redirect } from "next/navigation";
 import { SetupAndOnboardingLock } from "@components/system/setup-lock";
 import {
     getOrganizationId,
     getOrganizationName,
 } from "@services/organizations/fetch";
 import { getTeams } from "@services/teams/fetch";
-import { getUserInfo } from "@services/users/fetch";
 import { NavMenu } from "src/core/layout/navbar";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
@@ -16,22 +14,20 @@ import {
     getUsersWithLicense,
     validateOrganizationLicense,
 } from "src/features/ee/subscription/_services/billing/fetch";
-import { getJwtPayload } from "src/lib/auth/utils";
 
 import { Providers } from "./providers";
+import { auth } from "src/core/config/auth";
 
 export default async function Layout({ children }: React.PropsWithChildren) {
-    const jwtPayload = await getJwtPayload();
-    if (!jwtPayload) return redirect("/sign-in");
-
-    const [userInfo, teams, teamId, organizationId, organizationName] =
-        await Promise.all([
-            getUserInfo(),
+    const [teams, teamId, organizationId, organizationName, session] = await Promise.all(
+        [
             getTeams(),
             getGlobalSelectedTeamId(),
             getOrganizationId(),
             getOrganizationName(),
-        ]);
+            auth()
+        ],
+    );
 
     const [
         organizationLicense,
@@ -47,9 +43,8 @@ export default async function Layout({ children }: React.PropsWithChildren) {
 
     return (
         <Providers
-            jwtPayload={jwtPayload}
+            session={session}
             teams={teams}
-            user={userInfo}
             organization={{
                 id: organizationId,
                 name: organizationName,
