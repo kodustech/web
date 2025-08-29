@@ -7,7 +7,7 @@ export const useRefreshToken = () => {
     const action = async () => {
         const refreshToken = data?.user.refreshToken;
         const newTokens = await refreshAccessToken({ refreshToken });
-        await update(newTokens.data.data);
+        return update(newTokens.data.data);
     };
 
     return action;

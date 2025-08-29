@@ -3,7 +3,7 @@
 import { createContext, use } from "react";
 import { redirect } from "next/navigation";
 import { TeamRole, UserRole } from "@enums";
-import type { UserStatus } from "@services/setup/types";
+import { UserStatus } from "@services/setup/types";
 import { useSession } from "next-auth/react";
 
 import { parseJwt } from "../utils/helpers";
@@ -28,6 +28,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     const token = data?.user?.accessToken;
     const jwtPayload = parseJwt(token)?.payload;
     if (!jwtPayload) redirect("/sign-out");
+
+    if (jwtPayload.status === UserStatus.AWAITING_APPROVAL) {
+        redirect("/user-waiting-for-approval");
+    }
 
     const userRole = jwtPayload.role || UserRole.USER;
     const userTeamRole = jwtPayload.teamRole || TeamRole.TEAM_MEMBER;

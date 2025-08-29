@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { typedFetch } from "@services/fetch";
 import { UserStatus } from "@services/setup/types";
 import { axiosAuthorized } from "src/core/utils/axios";
@@ -24,13 +23,4 @@ export const approveUser = async (userId: string) =>
         status: UserStatus.ACTIVE,
     });
 
-export const getUserInfo = async (props?: { redirect?: boolean }) => {
-    const redirectToPage = props?.redirect ?? true;
-
-    const userInfo = await typedFetch<User>(USERS_PATHS.USER_INFO);
-
-    if (redirectToPage && userInfo.status === UserStatus.AWAITING_APPROVAL)
-        redirect("/user-waiting-for-approval");
-
-    return userInfo;
-};
+export const getUserInfo = () => typedFetch<User>(USERS_PATHS.USER_INFO);
