@@ -61,6 +61,7 @@ jobs:
                   echo WEB_TOKEN_DOCS_BITBUCKET=https://docs.kodus.io/how_to_use/en/code_review/general_config/bitbucket_pat >> .env
                   echo WEB_TOKEN_DOCS_AZUREREPOS=https://docs.kodus.io/how_to_use/en/code_review/general_config/azure_devops_pat >> .env
                   echo WEB_HOSTNAME_MCP_MANAGER= >> .env
+                  echo WEB_RULE_FILES_DOCS="https://docs.kodus.io" >> .env
 
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@v3.10.0

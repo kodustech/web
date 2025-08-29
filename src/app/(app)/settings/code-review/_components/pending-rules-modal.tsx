@@ -52,40 +52,33 @@ export const PendingKodyRulesModal = ({
                 </DialogHeader>
 
                 <div className="flex w-full flex-col gap-2">
-                    {pendingRules?.map((rule) => (
-                        <Card key={rule.uuid}>
+                    {pendingRules?.map((r) => (
+                        <Card key={r.uuid}>
                             <Collapsible className="w-full">
                                 <CardHeader className="flex flex-row items-center gap-3 px-5 py-4">
                                     <Checkbox
-                                        id={rule.uuid}
-                                        className="flex-shrink-0 self-center"
+                                        id={r.uuid}
                                         checked={selectedRuleIds.includes(
-                                            rule.uuid!,
+                                            r.uuid!,
                                         )}
                                         onClick={() => {
-                                            selectedRuleIds.includes(rule.uuid!)
-                                                ? setSelectedRuleIds(
-                                                      selectedRuleIds.filter(
-                                                          (id) =>
-                                                              id !== rule.uuid,
-                                                      ),
-                                                  )
-                                                : setSelectedRuleIds([
-                                                      ...selectedRuleIds,
-                                                      rule.uuid!,
-                                                  ]);
+                                            setSelectedRuleIds((selected) =>
+                                                selected.includes(r.uuid!)
+                                                    ? selected.filter(
+                                                          (id) => id !== r.uuid,
+                                                      )
+                                                    : [...selected, r.uuid!],
+                                            );
                                         }}
                                     />
 
-                                    <Label
-                                        htmlFor={rule.uuid}
-                                        className="flex-1">
-                                        {rule.title}
+                                    <Label htmlFor={r.uuid} className="flex-1">
+                                        {r.title}
                                     </Label>
 
                                     <div className="flex items-center gap-3">
                                         <IssueSeverityLevelBadge
-                                            severity={rule.severity}
+                                            severity={r.severity}
                                         />
 
                                         <CollapsibleTrigger asChild>
@@ -101,7 +94,7 @@ export const PendingKodyRulesModal = ({
 
                                 <CollapsibleContent asChild className="pb-0">
                                     <CardContent className="bg-card-lv1 flex flex-col gap-5 pt-4">
-                                        <Markdown>{rule.rule}</Markdown>
+                                        <Markdown>{r.rule}</Markdown>
                                     </CardContent>
                                 </CollapsibleContent>
                             </Collapsible>

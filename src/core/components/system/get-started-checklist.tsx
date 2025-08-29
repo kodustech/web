@@ -106,7 +106,7 @@ export const GetStartedChecklist = () => {
     const value = Object.values(tasksCompletion).filter((t) => t).length;
 
     return (
-        <div className="absolute right-8 bottom-8 h-12">
+        <div className="absolute right-8 bottom-4 h-12">
             <Popover open={isOpen} onOpenChange={_setIsOpen}>
                 <PopoverTrigger asChild>
                     <Button

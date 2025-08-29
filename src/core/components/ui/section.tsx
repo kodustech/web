@@ -3,7 +3,7 @@ import { cn } from "src/core/utils/components";
 import { Heading } from "./heading";
 
 const SectionRoot = (props: React.ComponentProps<"div">) => (
-    <div {...props} className={cn("flex flex-col gap-2", props.className)}>
+    <div {...props} className={cn("flex flex-col gap-1", props.className)}>
         {props.children}
     </div>
 );
@@ -46,7 +46,9 @@ const SectionTitle = (props: React.ComponentProps<"div">) => (
 );
 
 const SectionDescription = (props: React.ComponentProps<"div">) => (
-    <span className="text-text-secondary text-sm">{props.children}</span>
+    <span className="text-text-secondary text-sm leading-tight font-normal">
+        {props.children}
+    </span>
 );
 
 export const Section = {
