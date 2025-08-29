@@ -22,6 +22,8 @@ KEYS=(
     "/prod/kodus-web/WEB_GITHUB_INSTALL_URL"
     "/prod/kodus-web/WEB_JIRA_SCOPES"
     "/prod/kodus-web/WEB_TERMS_AND_CONDITIONS"
+
+    "/prod/kodus-web/WEB_RULE_FILES_DOCS"
 )
 
 # Lista de todas as chaves que você precisa
