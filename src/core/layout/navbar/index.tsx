@@ -13,6 +13,7 @@ import {
 } from "@components/ui/navigation-menu";
 import { Spinner } from "@components/ui/spinner";
 import { GaugeIcon, InfoIcon, SlidersHorizontalIcon } from "lucide-react";
+import { ErrorBoundary } from "react-error-boundary";
 import { UserNav } from "src/core/layout/navbar/_components/user-nav";
 import { useAuth } from "src/core/providers/auth.provider";
 import { cn } from "src/core/utils/components";
@@ -34,6 +35,11 @@ const NoSSRIssuesCount = dynamic(
     },
 );
 
+const NoSSRGithubStars = dynamic(
+    () => import("./_components/github-stars").then((f) => f.GithubStars),
+    { ssr: false },
+);
+
 export const NavMenu = ({
     issuesPageFeatureFlag,
     logsPagesFeatureFlag,
@@ -41,9 +47,7 @@ export const NavMenu = ({
     issuesPageFeatureFlag: Awaited<
         ReturnType<typeof getFeatureFlagWithPayload>
     >;
-    logsPagesFeatureFlag: Awaited<
-        ReturnType<typeof getFeatureFlagWithPayload>
-    >;
+    logsPagesFeatureFlag: Awaited<ReturnType<typeof getFeatureFlagWithPayload>>;
 }) => {
     const pathname = usePathname();
     const { isOwner, isTeamLeader } = useAuth();
@@ -93,7 +97,12 @@ export const NavMenu = ({
         }
 
         return items;
-    }, [isOwner, isTeamLeader, issuesPageFeatureFlag?.value, logsPagesFeatureFlag?.value]);
+    }, [
+        isOwner,
+        isTeamLeader,
+        issuesPageFeatureFlag?.value,
+        logsPagesFeatureFlag?.value,
+    ]);
 
     const isActive = (route: string) => pathname.startsWith(route);
 
@@ -134,9 +143,12 @@ export const NavMenu = ({
             </div>
 
             <div className="flex items-center gap-4">
+                <ErrorBoundary fallback={null}>
+                    <NoSSRGithubStars />
+                </ErrorBoundary>
+
                 <div className="flex items-center gap-2">
                     <SubscriptionBadge />
-
                     <SupportDropdown />
                 </div>
 
