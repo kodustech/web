@@ -34,7 +34,7 @@ export const useAuth = () => {
         },
     });
 
-    const refreshToken = data?.user.refreshToken;
+    const refreshToken = data?.user.refreshToken!;
 
     return {
         role: data?.user.role!,

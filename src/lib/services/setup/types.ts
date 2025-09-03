@@ -19,7 +19,7 @@ export type MembersSetup = {
     error: boolean;
     isCurrentUser?: boolean;
     userStatus?: UserStatus;
-    userId: string;
+    userId?: string;
 };
 
 export type TeamMembersResponse = {

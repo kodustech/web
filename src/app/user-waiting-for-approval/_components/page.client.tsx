@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
 import { Card } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
@@ -10,6 +10,7 @@ import { Page } from "@components/ui/page";
 import { UserStatus } from "@enums";
 import { useEffectOnce } from "@hooks/use-effect-once";
 import { useInterval } from "@hooks/use-interval";
+import { TypedFetchError } from "@services/fetch";
 import { LogOutIcon } from "lucide-react";
 import { useAuth } from "src/core/providers/auth.provider";
 
@@ -24,10 +25,16 @@ export const UserWaitingForApprovalPage = () => {
     });
 
     useInterval(() => {
-        // update tokens to get new data
-        refreshAccessTokens().then((newSession) => {
-            if (newSession?.user.status === UserStatus.ACTIVE) getOut();
-        });
+        refreshAccessTokens()
+            .then((newSession) => {
+                if (newSession?.user.status !== UserStatus.AWAITING_APPROVAL) {
+                    getOut();
+                }
+            })
+            .catch((error) => {
+                if (TypedFetchError.isError(error) && error.statusCode === 401)
+                    redirect("/sign-out");
+            });
     }, 60000);
 
     return (

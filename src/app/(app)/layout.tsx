@@ -1,9 +1,11 @@
+import { redirect } from "next/navigation";
 import { SetupAndOnboardingLock } from "@components/system/setup-lock";
 import {
     getOrganizationId,
     getOrganizationName,
 } from "@services/organizations/fetch";
 import { getTeams } from "@services/teams/fetch";
+import { auth } from "src/core/config/auth";
 import { NavMenu } from "src/core/layout/navbar";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
@@ -16,16 +18,17 @@ import {
 } from "src/features/ee/subscription/_services/billing/fetch";
 
 import { Providers } from "./providers";
-import { auth } from "src/core/config/auth";
 
 export default async function Layout({ children }: React.PropsWithChildren) {
-    const [teams, teamId, organizationId, organizationName, session] = await Promise.all(
+    const session = await auth();
+    if (!session) redirect("/sign-out");
+
+    const [teams, teamId, organizationId, organizationName] = await Promise.all(
         [
             getTeams(),
             getGlobalSelectedTeamId(),
             getOrganizationId(),
             getOrganizationName(),
-            auth()
         ],
     );
 

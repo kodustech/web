@@ -65,9 +65,7 @@ export const logout = (payload: TODO): Promise<TODO> => {
     return axiosApi.post(pathToApiUrl(API_ROUTES.logout), payload);
 };
 
-export const refreshAccessToken = async (payload: {
-    refreshToken: string | undefined;
-}) => {
+export const refreshAccessToken = async (payload: { refreshToken: string }) => {
     const response = await typedFetch<{
         data: {
             accessToken: string;

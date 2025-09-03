@@ -15,7 +15,7 @@ import { isJwtExpired, parseJwt } from "../utils/helpers";
 
 const getDataFromPayload = (accessToken: string) => {
     const payload = parseJwt(accessToken)?.payload;
-    if (!payload) return;
+    if (!payload) return {};
 
     return {
         userId: payload.sub,
