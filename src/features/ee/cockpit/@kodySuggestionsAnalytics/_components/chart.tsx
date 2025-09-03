@@ -1,5 +1,6 @@
 "use client";
 
+import type { AwaitedReturnType } from "src/core/types";
 import { VictoryLabel, VictoryPie } from "victory";
 
 import type { getKodySuggestionsAnalytics } from "../../_services/analytics/productivity/fetch";
@@ -9,7 +10,7 @@ const [colorSent, colorImplemented] = ["#6D6DF8", "#19C26F"] as const;
 export const Chart = ({
     data,
 }: {
-    data: Awaited<ReturnType<typeof getKodySuggestionsAnalytics>>;
+    data: AwaitedReturnType<typeof getKodySuggestionsAnalytics>;
 }) => {
     return (
         <div className="flex gap-4">

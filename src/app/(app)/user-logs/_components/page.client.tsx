@@ -5,6 +5,7 @@ import { DataTable } from "@components/ui/data-table";
 import { Input } from "@components/ui/input";
 import { getUserLogs } from "@services/userLogs/fetch";
 import { SearchIcon } from "lucide-react";
+import type { AwaitedReturnType } from "src/core/types";
 
 import { columns } from "./columns";
 import { DateRangeFilter } from "./date-range-filter";
@@ -12,7 +13,7 @@ import { DateRangeFilter } from "./date-range-filter";
 export const UserLogsPageClient = () => {
     const [query, setQuery] = useState("");
     const [logsData, setLogsData] =
-        useState<Awaited<ReturnType<typeof getUserLogs>>>();
+        useState<AwaitedReturnType<typeof getUserLogs>>();
     const [loading, setLoading] = useState(false);
     const [dateRange, setDateRange] = useState<{
         from: string;

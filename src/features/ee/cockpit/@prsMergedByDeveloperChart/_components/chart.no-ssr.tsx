@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { AwaitedReturnType } from "src/core/types";
 
 import type { getPRsByDeveloper } from "../../_services/analytics/productivity/fetch";
 import Loading from "./loading";
@@ -13,7 +14,7 @@ const Chart = dynamic(() => import("./chart").then((c) => c.Chart), {
 export const ChartNoSSR = ({
     data,
 }: {
-    data: Awaited<ReturnType<typeof getPRsByDeveloper>>;
+    data: AwaitedReturnType<typeof getPRsByDeveloper>;
 }) => {
     return <Chart data={data} />;
 };

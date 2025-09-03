@@ -19,13 +19,13 @@ import {
 import { useAllTeams } from "src/core/providers/all-teams-context";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { TEAM_STATUS } from "src/core/types";
+import { TEAM_STATUS, type AwaitedReturnType } from "src/core/types";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
 export function UserNav({
     logsPagesFeatureFlag,
 }: {
-    logsPagesFeatureFlag: Awaited<ReturnType<typeof getFeatureFlagWithPayload>>;
+    logsPagesFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
 }) {
     const { email, role } = useAuth();
     const { teams } = useAllTeams();

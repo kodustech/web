@@ -17,6 +17,7 @@ import { GaugeIcon, InfoIcon, SlidersHorizontalIcon } from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
 import { UserNav } from "src/core/layout/navbar/_components/user-nav";
 import { useAuth } from "src/core/providers/auth.provider";
+import type { AwaitedReturnType } from "src/core/types";
 import { cn } from "src/core/utils/components";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 import { SubscriptionBadge } from "src/features/ee/subscription/_components/subscription-badge";
@@ -48,7 +49,7 @@ export const NavMenu = ({
     issuesPageFeatureFlag: Awaited<
         ReturnType<typeof getFeatureFlagWithPayload>
     >;
-    logsPagesFeatureFlag: Awaited<ReturnType<typeof getFeatureFlagWithPayload>>;
+    logsPagesFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
 }) => {
     const pathname = usePathname();
     const { role, teamRole } = useAuth();

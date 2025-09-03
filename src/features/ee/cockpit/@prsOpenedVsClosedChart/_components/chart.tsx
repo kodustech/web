@@ -4,6 +4,7 @@ import { use, useState } from "react";
 import { Button } from "@components/ui/button";
 import useResizeObserver from "@hooks/use-resize-observer";
 import { ExpandableContext } from "src/core/providers/expandable";
+import type { AwaitedReturnType } from "src/core/types";
 import { cn } from "src/core/utils/components";
 import type { getPRsOpenedVsClosed } from "src/features/ee/cockpit/_services/analytics/productivity/fetch";
 import {
@@ -32,7 +33,7 @@ const legendItems = [
 export const Chart = ({
     data,
 }: {
-    data: Awaited<ReturnType<typeof getPRsOpenedVsClosed>>;
+    data: AwaitedReturnType<typeof getPRsOpenedVsClosed>;
 }) => {
     const [graphRef, boundingRect] = useResizeObserver();
     const { isExpanded } = use(ExpandableContext);

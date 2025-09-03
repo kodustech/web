@@ -1,6 +1,7 @@
 import { PostHog } from "posthog-node";
 
 import { auth } from "../config/auth";
+import type { AwaitedReturnType } from "../types";
 
 const PosthogServerSide = async <P>(promise: (instance: PostHog) => P) => {
     const apiKey = process.env.WEB_POSTHOG_KEY;
@@ -35,8 +36,8 @@ export const getFeatureFlagWithPayload = async ({
     feature: string;
 }): Promise<
     | {
-          value: Awaited<ReturnType<PostHog["getFeatureFlag"]>>;
-          payload: Awaited<ReturnType<PostHog["getFeatureFlagPayload"]>>;
+          value: AwaitedReturnType<PostHog["getFeatureFlag"]>;
+          payload: AwaitedReturnType<PostHog["getFeatureFlagPayload"]>;
       }
     | undefined
 > => {

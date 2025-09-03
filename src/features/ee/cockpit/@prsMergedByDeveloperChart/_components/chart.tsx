@@ -4,6 +4,7 @@ import { use } from "react";
 import useResizeObserver from "@hooks/use-resize-observer";
 import colorSeed from "seed-color";
 import { ExpandableContext } from "src/core/providers/expandable";
+import type { AwaitedReturnType } from "src/core/types";
 import { pluralize } from "src/core/utils/string";
 import type { getPRsByDeveloper } from "src/features/ee/cockpit/_services/analytics/productivity/fetch";
 import {
@@ -19,7 +20,7 @@ import {
 export const Chart = ({
     data,
 }: {
-    data: Awaited<ReturnType<typeof getPRsByDeveloper>>;
+    data: AwaitedReturnType<typeof getPRsByDeveloper>;
 }) => {
     const [graphRef, boundingRect] = useResizeObserver();
     const { isExpanded } = use(ExpandableContext);

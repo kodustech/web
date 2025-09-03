@@ -6,6 +6,7 @@ import { magicModal } from "@components/ui/magic-modal";
 import type { getConnections } from "@services/setup/fetch";
 import { RefreshCcwIcon } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import type { AwaitedReturnType } from "src/core/types";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 import { CODE_MANAGEMENT_PLATFORMS } from "../_constants";
@@ -14,7 +15,7 @@ import { ResetIntegrationModal } from "./_modals/reset-integration-modal";
 export const GitConnectedProvider = ({
     connection,
 }: {
-    connection: Awaited<ReturnType<typeof getConnections>>[number];
+    connection: AwaitedReturnType<typeof getConnections>[number];
 }) => {
     const { teamId } = useSelectedTeamId();
     const { organizationId } = useOrganizationContext();

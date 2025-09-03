@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext } from "react";
+import type { AwaitedReturnType } from "src/core/types";
 import { isSelfHosted } from "src/core/utils/self-hosted";
 
 import type {
@@ -9,10 +10,10 @@ import type {
 } from "../_services/billing/fetch";
 
 type License = {
-    license: Awaited<ReturnType<typeof validateOrganizationLicense>>;
+    license: AwaitedReturnType<typeof validateOrganizationLicense>;
 };
 type UsersWithAssignedLicense = {
-    usersWithAssignedLicense: Awaited<ReturnType<typeof getUsersWithLicense>>;
+    usersWithAssignedLicense: AwaitedReturnType<typeof getUsersWithLicense>;
 };
 
 const SubscriptionContext = createContext<License & UsersWithAssignedLicense>({
@@ -33,10 +34,12 @@ export const SubscriptionProvider = ({
     license,
     usersWithAssignedLicense,
 }: React.PropsWithChildren & {
-    license: Awaited<ReturnType<typeof validateOrganizationLicense>>;
-    usersWithAssignedLicense: Awaited<ReturnType<typeof getUsersWithLicense>>;
+    license: AwaitedReturnType<typeof validateOrganizationLicense>;
+    usersWithAssignedLicense: AwaitedReturnType<typeof getUsersWithLicense>;
 }) => {
-    if (isSelfHosted) { return children };
+    if (isSelfHosted) {
+        return children;
+    }
 
     return (
         <SubscriptionContext.Provider

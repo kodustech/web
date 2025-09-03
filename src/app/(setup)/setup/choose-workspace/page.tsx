@@ -20,6 +20,7 @@ import { Spinner } from "@components/ui/spinner";
 import { joinOrganization } from "@services/users/fetch";
 import { ArrowRight } from "lucide-react";
 import { useAuth } from "src/core/providers/auth.provider";
+import type { AwaitedReturnType } from "src/core/types";
 import { getOrganizationsByDomain } from "src/lib/auth/fetchers";
 
 import { StepIndicators } from "../_components/step-indicators";
@@ -34,7 +35,7 @@ export default function ChooseWorkspacePage() {
 
     const [isLoading, setIsLoading] = useState(true);
     const [matchedOrganizations, setMatchedOrganizations] = useState<
-        Array<Awaited<ReturnType<typeof getOrganizationsByDomain>>[0]>
+        Array<AwaitedReturnType<typeof getOrganizationsByDomain>[0]>
     >([]);
     const [selectedOrganization, setSelectedOrganization] = useState<
         string | undefined
