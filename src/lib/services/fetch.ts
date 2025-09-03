@@ -1,10 +1,20 @@
 import { redirect } from "next/navigation";
 import { auth } from "src/core/config/auth";
+import { isServerSide } from "src/core/utils/server-side";
+import { getJWTToken } from "src/core/utils/session";
+import { addSearchParamsToUrl } from "src/core/utils/url";
 
 export class TypedFetchError extends Error {
     statusCode: number;
     statusText: string;
     url: string;
+
+    static isError<T extends TypedFetchError>(
+        this: new (...a: any[]) => T,
+        error: unknown,
+    ): error is T {
+        return error instanceof this;
+    }
 
     constructor(statusCode: number, statusText: string, url: string) {
         super(`Request error: ${statusCode} ${statusText} in URL: ${url}`);
@@ -15,58 +25,57 @@ export class TypedFetchError extends Error {
     }
 }
 
-export const typedFetch = async <Data>(
-    url: Parameters<typeof globalThis.fetch>[0],
-    config?: Parameters<typeof globalThis.fetch>[1] & {
-        params?: Record<string, string | number | boolean | null | undefined>;
-        signedIn?: false;
-    },
+export const authorizedFetch = async <Data>(
+    url: Parameters<typeof typedFetch>[0],
+    config?: Parameters<typeof typedFetch>[1],
 ): Promise<Data> => {
-    let accessToken = "";
-
-    if (config?.signedIn !== false) {
-        const session = await auth();
-
-        if (!session?.user?.accessToken) {
-            throw new Error(
-                "Usuário não autenticado ou token de acesso ausente.",
-            );
-        }
-
-        accessToken = session?.user?.accessToken;
+    let accessToken;
+    if (isServerSide) {
+        const jwtPayload = await auth();
+        accessToken = jwtPayload?.user.accessToken;
+    } else {
+        accessToken = await getJWTToken();
     }
 
-    const { params = {}, ...paramsRest } = config ?? {};
-    const searchParams = new URLSearchParams(
-        Object.entries(params).reduce(
-            (acc, [k, v]) => {
-                if (v === null || v === undefined) return acc;
-                acc[k] = v.toString();
-                return acc;
+    try {
+        const response = await typedFetch<{ data: Data }>(url, {
+            ...config,
+            headers: {
+                ...config?.headers,
+                Authorization: `Bearer ${accessToken}`,
             },
-            {} as Record<string, string>,
-        ),
-    );
-    const urlWithParams =
-        searchParams.size > 0
-            ? `${url}?${searchParams.toString()}`
-            : url instanceof Request
-              ? url.url
-              : url.toString();
+        });
+
+        return response.data;
+    } catch (error1) {
+        if (TypedFetchError.isError(error1)) {
+            if (error1.statusCode === 401) redirect("/sign-out");
+        }
+
+        return null as Data;
+    }
+};
+
+export const typedFetch = async <Data>(
+    url: string,
+    config?: Parameters<typeof globalThis.fetch>[1] & {
+        params?: Record<string, string | number | boolean | null | undefined>;
+    },
+): Promise<Data> => {
+    const { params = {}, ...configRest } = config ?? {};
+
+    const urlWithParams = addSearchParamsToUrl(url.toString(), params);
 
     const response = await fetch(urlWithParams, {
-        ...paramsRest,
+        ...configRest,
         headers: {
             "Accept": "application/json",
-            // Removendo "Access-Control-Allow-Origin"
             "Content-Type": "application/json",
-            ...config?.headers,
-            "Authorization": `Bearer ${accessToken}`,
+            ...configRest.headers,
         },
     });
 
     if (!response.ok) {
-        if (response.status === 401) redirect("/sign-out");
         throw new TypedFetchError(
             response.status,
             response.statusText,
@@ -74,10 +83,5 @@ export const typedFetch = async <Data>(
         );
     }
 
-    try {
-        const json = await response?.json();
-        return json?.data as Data;
-    } catch (error) {
-        return null as Data;
-    }
+    return response.json() as Data;
 };

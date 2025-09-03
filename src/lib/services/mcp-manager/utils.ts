@@ -1,34 +1,20 @@
-import { TypedFetchError } from "@services/fetch";
+import { typedFetch } from "@services/fetch";
+import { auth } from "src/core/config/auth";
 import { createUrl } from "src/core/utils/helpers";
 import { isServerSide } from "src/core/utils/server-side";
 import { getJWTToken } from "src/core/utils/session";
-import { getJwtPayload } from "src/lib/auth/utils";
 
 export const mcpManagerFetch = async <Data>(
-    _url: Parameters<typeof globalThis.fetch>[0],
-    config?: Parameters<typeof globalThis.fetch>[1] & {
-        params?: Record<string, string | number | boolean>;
-    },
+    _url: Parameters<typeof typedFetch>[0],
+    config?: Parameters<typeof typedFetch>[1],
 ): Promise<Data> => {
-    const { params = {}, ...paramsRest } = config ?? {};
-
     let authorization: string | undefined;
-
-    const searchParams = new URLSearchParams(
-        Object.entries(params).reduce(
-            (acc, [k, v]) => {
-                acc[k] = v.toString();
-                return acc;
-            },
-            {} as Record<string, string>,
-        ),
-    );
 
     let hostName = process.env.WEB_HOSTNAME_MCP_MANAGER;
 
     if (isServerSide) {
-        const jwtPayload = await getJwtPayload();
-        authorization = jwtPayload?.jwt;
+        const jwtPayload = await auth();
+        authorization = jwtPayload?.user.accessToken;
     } else {
         authorization = await getJWTToken();
     }
@@ -45,26 +31,11 @@ export const mcpManagerFetch = async <Data>(
         containerName: hostName,
     });
 
-    const urlWithParams =
-        searchParams.size > 0 ? `${url}?${searchParams.toString()}` : url;
-
-    const response = await fetch(urlWithParams, {
-        ...paramsRest,
+    return typedFetch<Data>(url, {
+        ...config,
         headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${authorization}`,
             ...config?.headers,
+            Authorization: `Bearer ${authorization}`,
         },
     });
-
-    if (!response.ok) {
-        throw new TypedFetchError(
-            response.status,
-            response.statusText,
-            urlWithParams,
-        );
-    }
-
-    return response.json();
 };

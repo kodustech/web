@@ -1,14 +1,43 @@
-import * as NextAuth from "next-auth"
+import type { TeamRole, UserRole, UserStatus } from "@enums";
 
 declare module "next-auth" {
-  /**
-   * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
-   */
-  export interface Session extends NextAuth.Session {
-    user: {
-      accessToken: string
+    interface Session {
+        user: {
+            accessToken: string;
+            refreshToken: string;
+            role: UserRole;
+            teamRole: TeamRole;
+            status: UserStatus;
+            userId: string;
+            email: string;
+            organizationId: string;
+            reason?: "expired-token";
+
+            exp: number;
+            iat: number;
+        };
     }
-  }
+
+    interface User {
+        accessToken: string;
+        refreshToken: string;
+    }
 }
 
-export default {}
+declare module "next-auth/jwt" {
+    interface JWT {
+        accessToken: string;
+        refreshToken: string;
+        role: UserRole;
+        teamRole: TeamRole;
+        status: UserStatus;
+        email: string;
+        organizationId: string;
+        reason?: "expired-token";
+        sub: string;
+        exp: number;
+        iat: number;
+    }
+}
+
+export default {};

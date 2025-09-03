@@ -4,7 +4,6 @@ import { PropsWithChildren } from "react";
 import { MagicModalPortal } from "@components/ui/magic-modal";
 import type { Team } from "@services/teams/types";
 import type { Session } from "next-auth";
-import { SessionProvider } from "next-auth/react";
 import { AllTeamsProvider } from "src/core/providers/all-teams-context";
 import { AuthProvider } from "src/core/providers/auth.provider";
 import { SelectedTeamProvider } from "src/core/providers/selected-team-context";
@@ -26,17 +25,15 @@ export function Providers({
     organization,
 }: ProvidersProps) {
     return (
-        <SessionProvider session={session}>
-            <AuthProvider>
-                <OrganizationProvider organization={organization}>
-                    <AllTeamsProvider teams={teams}>
-                        <SelectedTeamProvider>
-                            {children}
-                            <MagicModalPortal />
-                        </SelectedTeamProvider>
-                    </AllTeamsProvider>
-                </OrganizationProvider>
-            </AuthProvider>
-        </SessionProvider>
+        <AuthProvider session={session}>
+            <OrganizationProvider organization={organization}>
+                <AllTeamsProvider teams={teams}>
+                    <SelectedTeamProvider>
+                        {children}
+                        <MagicModalPortal />
+                    </SelectedTeamProvider>
+                </AllTeamsProvider>
+            </OrganizationProvider>
+        </AuthProvider>
     );
 }

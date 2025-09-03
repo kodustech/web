@@ -4,7 +4,6 @@ import {
     getOrganizationName,
 } from "@services/organizations/fetch";
 import { getTeams } from "@services/teams/fetch";
-import { SessionProvider } from "next-auth/react";
 import { auth } from "src/core/config/auth";
 import { AllTeamsProvider } from "src/core/providers/all-teams-context";
 import { AuthProvider } from "src/core/providers/auth.provider";
@@ -21,21 +20,19 @@ export default async function Layout(props: React.PropsWithChildren) {
         ]);
 
     return (
-        <SessionProvider session={session}>
-            <AuthProvider>
-                <OrganizationProvider
-                    organization={{
-                        id: organizationId,
-                        name: organizationName,
-                    }}>
-                    <AllTeamsProvider teams={teams}>
-                        <SelectedTeamProvider>
-                            {props.children}
-                            <MagicModalPortal />
-                        </SelectedTeamProvider>
-                    </AllTeamsProvider>
-                </OrganizationProvider>
-            </AuthProvider>
-        </SessionProvider>
+        <AuthProvider session={session}>
+            <OrganizationProvider
+                organization={{
+                    id: organizationId,
+                    name: organizationName,
+                }}>
+                <AllTeamsProvider teams={teams}>
+                    <SelectedTeamProvider>
+                        {props.children}
+                        <MagicModalPortal />
+                    </SelectedTeamProvider>
+                </AllTeamsProvider>
+            </OrganizationProvider>
+        </AuthProvider>
     );
 }

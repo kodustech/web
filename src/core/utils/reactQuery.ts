@@ -11,7 +11,7 @@ import {
 import { AxiosError, AxiosRequestConfig } from "axios";
 
 import { useAuth } from "../providers/auth.provider";
-import { axiosApi, axiosAuthorized } from "./axios";
+import { axiosAuthorized } from "./axios";
 import { addSearchParamsToUrl } from "./url";
 
 export const useSuspenseFetch = <T>(
@@ -24,7 +24,7 @@ export const useSuspenseFetch = <T>(
     },
 ) => {
     const queryKey = generateQueryKey(url!, params);
-    const { jwt } = useAuth();
+    const { accessToken } = useAuth();
 
     const context = useSuspenseQuery<T, Error>({
         ...config,
@@ -34,7 +34,7 @@ export const useSuspenseFetch = <T>(
 
             const response = await fetch(urlWithParams, {
                 signal,
-                headers: { Authorization: `Bearer ${jwt}` },
+                headers: { Authorization: `Bearer ${accessToken}` },
             });
 
             const text = await response.text();
@@ -140,30 +140,6 @@ const useGenericMutation = <T, S>(
             queryClient.invalidateQueries({ queryKey });
         },
     });
-};
-
-export const useDelete = <T>(
-    url: string,
-    params?: AxiosRequestConfig<any>,
-    updater?: (oldData: T | undefined, id: string | number) => T,
-): UseMutationResult<
-    any,
-    AxiosError<unknown, any>,
-    string | number,
-    { previousData: T | undefined }
-> => {
-    const mutationFunction: MutationFunction<any, string | number> = (
-        id: string | number,
-    ) => {
-        return axiosApi.delete(`${url}/${id}`).then((res) => res.data);
-    };
-
-    return useGenericMutation<T, string | number>(
-        mutationFunction,
-        url,
-        params,
-        updater,
-    );
 };
 
 export const usePost = <T, S>(

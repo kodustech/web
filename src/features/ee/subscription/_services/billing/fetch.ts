@@ -1,4 +1,4 @@
-import { typedFetch } from "@services/fetch";
+import { authorizedFetch } from "@services/fetch";
 import { getOrganizationId } from "@services/organizations/fetch";
 import { pathToApiUrl } from "src/core/utils/helpers";
 import { isSelfHosted } from "src/core/utils/self-hosted";
@@ -7,7 +7,7 @@ import type { OrganizationLicense } from "./types";
 import { billingFetch } from "./utils";
 
 export const getPullRequestAuthors = async () => {
-    return typedFetch<
+    return authorizedFetch<
         Array<{ id: number; name: string; contributions: number }>
     >(pathToApiUrl("/pull-requests/get-pull-request-authors"));
 };
@@ -64,9 +64,7 @@ export const createManageBillingLink = async (params: { teamId: string }) => {
 };
 
 export const getUsersWithLicense = async (params: { teamId: string }) => {
-    if (isSelfHosted) {
-        return [];
-    }
+    if (isSelfHosted) return [];
 
     const organizationId = await getOrganizationId();
     return billingFetch<Array<{ git_id: string }>>(`/users-with-license`, {

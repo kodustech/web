@@ -1,64 +1,60 @@
 "use client";
 
-import { createContext, use } from "react";
-import { redirect } from "next/navigation";
-import { TeamRole, UserRole } from "@enums";
-import { UserStatus } from "@services/setup/types";
-import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { toast } from "@components/ui/toaster/use-toast";
+import type { Session } from "next-auth";
+import type { JWT } from "next-auth/jwt";
+import { SessionProvider, useSession } from "next-auth/react";
+import { refreshAccessToken } from "src/lib/auth/fetchers";
 
-import { parseJwt } from "../utils/helpers";
-
-interface AuthContextProps {
-    userRole: UserRole;
-    userTeamRole: TeamRole;
-    isOwner: boolean;
-    isTeamLeader: boolean;
-    status: UserStatus;
-    email: string;
-    userId: string;
-    jwt: string;
-}
-
-const AuthContext = createContext<AuthContextProps | undefined>(undefined);
-
-type AuthProviderProps = React.PropsWithChildren & {};
-
-export const AuthProvider = ({ children }: AuthProviderProps) => {
-    const { data } = useSession();
-    const token = data?.user?.accessToken;
-    const jwtPayload = parseJwt(token)?.payload;
-    if (!jwtPayload) redirect("/sign-out");
-
-    if (jwtPayload.status === UserStatus.AWAITING_APPROVAL) {
-        redirect("/user-waiting-for-approval");
-    }
-
-    const userRole = jwtPayload.role || UserRole.USER;
-    const userTeamRole = jwtPayload.teamRole || TeamRole.TEAM_MEMBER;
-
+export const AuthProvider = (props: {
+    children: React.PropsWithChildren["children"];
+    session: Session | null;
+}) => {
     return (
-        <AuthContext
-            value={{
-                userRole,
-                userTeamRole,
-                isOwner: userRole === UserRole.OWNER,
-                isTeamLeader: userTeamRole === TeamRole.TEAM_LEADER,
-                email: jwtPayload.email,
-                userId: jwtPayload.sub,
-                status: jwtPayload.status,
-                jwt: data?.user.accessToken!,
-            }}>
-            {children}
-        </AuthContext>
+        <SessionProvider
+            {...props}
+            refetchInterval={0}
+            refetchOnWindowFocus={false}
+        />
     );
 };
 
-export const useAuth = (): AuthContextProps => {
-    const context = use(AuthContext);
+export const useAuth = () => {
+    const router = useRouter();
 
-    if (context === undefined) {
-        throw new Error("useAuth must be used within an AuthProvider");
-    }
+    const { data, update } = useSession({
+        required: true,
+        onUnauthenticated: () => {
+            toast({
+                title: "You were disconnected",
+                variant: "info",
+            });
+            router.replace("/sign-out");
+        },
+    });
 
-    return context;
+    const refreshToken = data?.user.refreshToken;
+
+    return {
+        role: data?.user.role!,
+        teamRole: data?.user.teamRole!,
+        email: data?.user.email!,
+        userId: data?.user.userId!,
+        status: data?.user.status!,
+        accessToken: data?.user.accessToken!,
+        refreshToken,
+        organizationId: data?.user.organizationId,
+        refreshAccessTokens: async () => {
+            const newTokens = await refreshAccessToken({ refreshToken });
+
+            const updatedToken = await update(newTokens);
+
+            console.log(refreshToken?.slice(-4));
+            console.log(newTokens.refreshToken.slice(-4));
+            console.log(updatedToken?.user.refreshToken?.slice(-4));
+
+            return updatedToken;
+        },
+    } satisfies Partial<JWT>;
 };

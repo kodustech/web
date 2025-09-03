@@ -1,5 +1,6 @@
 import { PostHog } from "posthog-node";
-import { getJwtPayload } from "src/lib/auth/utils";
+
+import { auth } from "../config/auth";
 
 const PosthogServerSide = async <P>(promise: (instance: PostHog) => P) => {
     const apiKey = process.env.WEB_POSTHOG_KEY;
@@ -42,8 +43,8 @@ export const getFeatureFlagWithPayload = async ({
     // if no environment key is provided, there's no way to create Posthog client
     if (!process.env.WEB_POSTHOG_KEY) return undefined;
 
-    const jwtPayload = await getJwtPayload();
-    const userId = jwtPayload?.sub;
+    const jwtPayload = await auth();
+    const userId = jwtPayload?.user.userId;
 
     // if no user is provided, there's no way to get feature flag
     if (!userId) return undefined;

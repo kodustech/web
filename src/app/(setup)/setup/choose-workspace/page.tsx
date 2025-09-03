@@ -17,7 +17,6 @@ import { Label } from "@components/ui/label";
 import { Link } from "@components/ui/link";
 import { Page } from "@components/ui/page";
 import { Spinner } from "@components/ui/spinner";
-import { useRefreshToken } from "@hooks/use-refresh-token";
 import { joinOrganization } from "@services/users/fetch";
 import { ArrowRight } from "lucide-react";
 import { useAuth } from "src/core/providers/auth.provider";
@@ -29,10 +28,8 @@ import { useGoToStep } from "../_hooks/use-goto-step";
 export default function ChooseWorkspacePage() {
     useGoToStep();
 
-    const refreshTokenAction = useRefreshToken();
-
     const router = useRouter();
-    const { userId, email } = useAuth();
+    const { userId, email, refreshAccessTokens } = useAuth();
     const domain = email?.split("@")[1];
 
     const [isLoading, setIsLoading] = useState(true);
@@ -86,7 +83,7 @@ export default function ChooseWorkspacePage() {
         try {
             await joinOrganization(userId, selectedOrganization);
 
-            await refreshTokenAction();
+            await refreshAccessTokens();
 
             router.push("/");
         } catch (error) {
@@ -194,11 +191,7 @@ export default function ChooseWorkspacePage() {
                     If you don't see your organization,{" "}
                     <Link
                         target="_blank"
-                        href={
-                            process.env
-                                .NEXT_PUBLIC_WEB_SUPPORT_DISCORD_INVITE_URL ??
-                            ""
-                        }>
+                        href={process.env.WEB_SUPPORT_DISCORD_INVITE_URL ?? ""}>
                         contact support
                     </Link>
                     .

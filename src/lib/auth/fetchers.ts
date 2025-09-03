@@ -16,7 +16,9 @@ export const checkForEmailExistence = (email: string): Promise<TODO> => {
 export const loginEmailPassword = (credentials: {
     email: string;
     password: string;
-}): Promise<TODO> => {
+}): Promise<
+    AxiosResponse<{ data: { accessToken: string; refreshToken: string } }>
+> => {
     return axiosApi.post(pathToApiUrl(API_ROUTES.login), credentials);
 };
 
@@ -63,20 +65,22 @@ export const logout = (payload: TODO): Promise<TODO> => {
     return axiosApi.post(pathToApiUrl(API_ROUTES.logout), payload);
 };
 
-export const refreshAccessToken = (payload: {
+export const refreshAccessToken = async (payload: {
     refreshToken: string | undefined;
-}): Promise<
-    AxiosResponse<{
+}) => {
+    const response = await typedFetch<{
         data: {
             accessToken: string;
             refreshToken: string;
         };
-    }>
-> => {
-    return axiosApi.post<{
-        accessToken: string;
-        refreshToken: string;
-    }>(pathToApiUrl(API_ROUTES.refreshToken), payload);
+    }>(pathToApiUrl(API_ROUTES.refreshToken), {
+        method: "POST",
+        body: JSON.stringify({
+            refreshToken: payload.refreshToken,
+        }),
+    });
+
+    return response.data;
 };
 
 export const getInviteData = async (userId: string) => {
@@ -87,7 +91,6 @@ export const getInviteData = async (userId: string) => {
             organization: { name: string };
         }>(pathToApiUrl(API_ROUTES.getInviteData), {
             params: { userId },
-            signedIn: false,
         });
         return data;
     } catch (error) {

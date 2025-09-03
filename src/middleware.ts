@@ -1,9 +1,8 @@
-import { NextRequest, NextResponse } from "next/server";
-import { TeamRole, UserRole } from "@enums";
+import { NextResponse } from "next/server";
+import { UserStatus } from "@enums";
 
 import { auth } from "./core/config/auth";
 import { CURRENT_PATH_HEADER } from "./core/utils/headers";
-import { parseJwt } from "./core/utils/helpers";
 import { handleAuthenticated } from "./core/utils/permissions";
 
 // Rotas públicas que não precisam de autenticação
@@ -36,67 +35,58 @@ const authPaths = [
     "/api/auth",
 ];
 
-export default async function middleware(req: NextRequest) {
+export default auth(async (req) => {
     const pathname = req.nextUrl.pathname;
 
-    // Add a new header which can be used on Server Components
+    // add a new header which can be used on Server Components
     const headers = new Headers(req.headers);
     headers.set(CURRENT_PATH_HEADER, pathname);
 
-    if (pathname === "/register") {
-        return NextResponse.redirect(new URL("/sign-up", req.url));
+    const next = NextResponse.next({ request: { headers } });
+
+    const session = req.auth;
+    const isAuthenticated = !!session;
+
+    // If the token was updated just now during middleware execution,
+    // a redirect is performed so that server components receive the new cookies.
+    // `next-auth 5.0.0-beta.29` cannot send cookies using NextResponse.next()
+    if (session?.user.reason === "expired-token") {
+        return NextResponse.redirect(new URL(pathname, req.url));
     }
 
-    if (pathname === "/login") {
-        return NextResponse.redirect(new URL("/sign-in", req.url));
-    }
+    // Allows access to public routes
+    if (publicPaths.some((path) => pathname.startsWith(path))) return next;
 
-    // Permite acesso a rotas públicas
-    if (publicPaths.some((path) => pathname.startsWith(path))) {
-        return NextResponse.next({ request: { headers } });
-    }
-
-    const token = await auth();
-    const isAuthenticated = !!token;
-
-    // Se o usuário não estiver autenticado
+    // If the user is not authenticated
     if (!isAuthenticated) {
-        // Se tentar acessar uma rota protegida, redireciona para login
+        // Trying to access a protected route, it redirects to login
         if (!authPaths.some((path) => pathname.startsWith(path))) {
             return NextResponse.redirect(new URL("/sign-in", req.url));
         }
 
-        return NextResponse.next({ request: { headers } });
+        // If it is a public route, allow access
+        return next;
     }
 
-    const accessToken = token?.user?.accessToken;
-
-    // Se não tiver token de acesso, faz logout
-    if (!accessToken) {
-        return NextResponse.redirect(new URL("/sign-out", req.url));
+    // if user is waiting for approval, allow access to this page only
+    if (
+        session.user.status === UserStatus.AWAITING_APPROVAL &&
+        pathname !== "/user-waiting-for-approval"
+    ) {
+        return NextResponse.redirect(
+            new URL("/user-waiting-for-approval", req.url),
+        );
     }
 
-    const parsedToken = parseJwt(accessToken);
-
-    // Se o token não puder ser parseado, faz logout
-    if (!parsedToken?.payload) {
-        return NextResponse.redirect(new URL("/sign-out", req.url));
+    // If you are on an authentication route and are already authenticated, redirect to /cockpit
+    if (authPaths.some((path) => pathname.startsWith(path))) {
+        return NextResponse.redirect(new URL("/cockpit", req.url), {
+            status: 302,
+        });
     }
 
-    // Dados do usuário autenticado
-    const userRole = (parsedToken.payload.role as UserRole) || UserRole.USER;
-    const userTeamRole =
-        (parsedToken.payload.teamRole as TeamRole) || TeamRole.TEAM_MEMBER;
-
-    return handleAuthenticated(
-        req,
-        pathname,
-        userRole,
-        userTeamRole,
-        authPaths,
-        headers,
-    );
-}
+    return handleAuthenticated(req, pathname, session, next);
+});
 
 export const config = {
     matcher: [

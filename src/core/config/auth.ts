@@ -1,4 +1,5 @@
-import NextAuth, { DefaultSession, NextAuthConfig } from "next-auth";
+import { TeamRole, UserRole } from "@enums";
+import NextAuth, { NextAuthConfig } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from "next-auth/providers/github";
@@ -10,28 +11,24 @@ import {
 } from "src/lib/auth/fetchers";
 import { AuthProviders } from "src/lib/auth/types";
 
-import { isJwtExpired } from "../utils/helpers";
+import { isJwtExpired, parseJwt } from "../utils/helpers";
 
-declare module "next-auth" {
-    interface Session {
-        user: {
-            accessToken: string;
-            refreshToken: string;
-        } & DefaultSession["user"];
-    }
-    interface User {
-        accessToken: string;
-        refreshToken: string;
-    }
-}
+const getDataFromPayload = (accessToken: string) => {
+    const payload = parseJwt(accessToken)?.payload;
+    if (!payload) return;
 
-declare module "next-auth/jwt" {
-    interface JWT {
-        accessToken: string;
-        refreshToken: string;
-        exp?: number;
-    }
-}
+    return {
+        userId: payload.sub,
+        email: payload.email,
+        status: payload.status,
+        organizationId: payload.organizationId,
+        role: payload.role ?? UserRole.USER,
+        teamRole: payload.teamRole ?? TeamRole.TEAM_MEMBER,
+        iat: payload.iat,
+        exp: payload.exp,
+        jti: payload.jti,
+    } satisfies Partial<JWT>;
+};
 
 const credentialsProvider = CredentialsProvider({
     id: AuthProviders.CREDENTIALS,
@@ -47,13 +44,9 @@ const credentialsProvider = CredentialsProvider({
                 password: credentials.password as string,
             });
 
-            if (response && response.data) {
-                return { ...response.data.data };
-            }
-
-            return null;
+            return response?.data?.data;
         } catch (error: any) {
-            console.error(error);
+            console.error("loginEmailPassword:", error);
             return null;
         }
     },
@@ -73,70 +66,70 @@ const gitlabProvider = GitlabProvider({
 
 const authOptions: NextAuthConfig = {
     providers: [credentialsProvider, githubProvider, gitlabProvider],
-    session: {
-        strategy: "jwt",
-    },
+    session: { strategy: "jwt" },
     secret: process.env.WEB_NEXTAUTH_SECRET,
-    pages: {
-        signIn: "/sign-in",
-        error: "/error",
-    },
+    pages: { signIn: "/sign-in", error: "/error" },
     callbacks: {
-        async redirect({ url, baseUrl }) {
-            // Deixar o middleware controlar os redirecionamentos
-            return url;
-        },
-        async jwt({ token, user, trigger, session }) {
-            if (trigger === "update") return session as JWT;
+        redirect: ({ url }) => url, // let middleware control redirects
+        authorized: ({ auth }) => !!auth,
+        async jwt({ token, user, trigger, session: _session }) {
+            // on trigger update
+            if (trigger === "update") {
+                const session = _session as JWT;
 
+                return {
+                    ...token,
+                    ...session,
+                    reason: undefined,
+                    ...getDataFromPayload(session.accessToken),
+                };
+            }
+
+            // on token expiration
+            const exp = getDataFromPayload(token?.accessToken)?.exp;
+            if (exp && isJwtExpired(exp)) {
+                try {
+                    console.log("Access token has expired");
+
+                    const newTokens = await refreshAccessToken({
+                        refreshToken: token.refreshToken,
+                    });
+
+                    return {
+                        ...token,
+                        accessToken: newTokens.accessToken,
+                        refreshToken: newTokens.refreshToken,
+                        reason: "expired-token",
+                        ...getDataFromPayload(newTokens.accessToken),
+                    };
+                } catch (e) {
+                    console.error(e);
+                    return null;
+                }
+            }
+
+            // on user login by oauth or credentials
             if (user) {
                 return {
                     ...token,
                     accessToken: user.accessToken,
                     refreshToken: user.refreshToken,
+                    reason: undefined,
+                    ...getDataFromPayload(user.accessToken),
                 };
             }
 
-            if (token?.exp && isJwtExpired(token.exp * 1000)) {
-                try {
-                    const res = await refreshAccessToken({
-                        refreshToken: token.refreshToken,
-                    });
-
-                    if (res?.data?.data) {
-                        return {
-                            ...token,
-                            accessToken: res.data.data.accessToken,
-                            refreshToken: res.data.data.refreshToken,
-                        };
-                    }
-                } catch (error) {
-                    return null;
-                }
-            }
-
-            return token;
+            // already logged, only return data
+            return {
+                ...token,
+                accessToken: token.accessToken,
+                refreshToken: token.refreshToken,
+                reason: undefined,
+                ...getDataFromPayload(token.accessToken),
+            };
         },
         async session({ session, token }) {
-            if (!token) {
-                return {
-                    ...session,
-                    user: {
-                        ...session.user,
-                        accessToken: "",
-                        refreshToken: "",
-                    },
-                };
-            }
-
-            return {
-                ...session,
-                user: {
-                    ...session.user,
-                    accessToken: token.accessToken,
-                    refreshToken: token.refreshToken,
-                },
-            };
+            return { ...session, user: token };
         },
         async signIn({ account, user }) {
             switch (account?.provider) {
@@ -174,12 +167,9 @@ const authOptions: NextAuthConfig = {
                     return false;
             }
         },
-        async authorized({ auth }) {
-            return !!auth;
-        },
     },
     trustHost: true,
 };
 
-export const { auth, handlers, unstable_update, signIn, signOut } =
+export const { auth, handlers, signIn, unstable_update, signOut } =
     NextAuth(authOptions);

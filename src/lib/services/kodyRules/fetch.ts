@@ -1,4 +1,4 @@
-import { typedFetch } from "@services/fetch";
+import { authorizedFetch } from "@services/fetch";
 import { axiosAuthorized } from "src/core/utils/axios";
 
 import { KODY_RULES_PATHS } from ".";
@@ -44,7 +44,7 @@ export const deleteKodyRule = async (ruleId: string) => {
 };
 
 export const getLibraryKodyRules = async () => {
-    const rules = await typedFetch<Record<string, Array<LibraryRule>>>(
+    const rules = await authorizedFetch<Record<string, Array<LibraryRule>>>(
         KODY_RULES_PATHS.FIND_LIBRARY_KODY_RULES,
     );
     return Object.values(rules).flat();
@@ -55,7 +55,7 @@ export const getKodyRulesByRepositoryId = async (
     directoryId?: string,
     tags?: string[],
 ) => {
-    const rules = await typedFetch<Array<KodyRule>>(
+    const rules = await authorizedFetch<Array<KodyRule>>(
         KODY_RULES_PATHS.FIND_BY_ORGANIZATION_ID_AND_FILTER,
         {
             params: { repositoryId, directoryId },

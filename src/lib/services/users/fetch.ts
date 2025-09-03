@@ -1,5 +1,5 @@
-import { typedFetch } from "@services/fetch";
-import { UserStatus } from "@services/setup/types";
+import { UserStatus } from "@enums";
+import { authorizedFetch } from "@services/fetch";
 import { axiosAuthorized } from "src/core/utils/axios";
 import { pathToApiUrl } from "src/core/utils/helpers";
 
@@ -23,4 +23,4 @@ export const approveUser = async (userId: string) =>
         status: UserStatus.ACTIVE,
     });
 
-export const getUserInfo = () => typedFetch<User>(USERS_PATHS.USER_INFO);
+export const getUserInfo = () => authorizedFetch<User>(USERS_PATHS.USER_INFO);

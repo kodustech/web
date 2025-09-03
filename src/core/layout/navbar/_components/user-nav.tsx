@@ -2,6 +2,7 @@
 
 import { Link } from "@components/ui/link";
 import { toast } from "@components/ui/toaster/use-toast";
+import { UserRole } from "@enums";
 import { ActivityIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "src/core/components/ui/avatar";
 import { Button } from "src/core/components/ui/button";
@@ -26,7 +27,7 @@ export function UserNav({
 }: {
     logsPagesFeatureFlag: Awaited<ReturnType<typeof getFeatureFlagWithPayload>>;
 }) {
-    const { email, isOwner } = useAuth();
+    const { email, role } = useAuth();
     const { teams } = useAllTeams();
     const { teamId, setTeamId } = useSelectedTeamId();
 
@@ -90,7 +91,7 @@ export function UserNav({
 
                 <DropdownMenuSeparator />
 
-                {isOwner && (
+                {role === UserRole.OWNER && (
                     <Link href="/organization/general">
                         <DropdownMenuItem leftIcon={<SettingsIcon />}>
                             Settings

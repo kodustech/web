@@ -1,5 +1,5 @@
 import type { INTEGRATIONS_KEY } from "@enums";
-import { typedFetch } from "@services/fetch";
+import { authorizedFetch } from "@services/fetch";
 import { axiosAuthorized } from "src/core/utils/axios";
 import { pathToApiUrl } from "src/core/utils/helpers";
 
@@ -36,7 +36,7 @@ export function getConnectionsOnClient(teamId: string) {
 }
 
 export function getConnections(teamId: string) {
-    return typedFetch(SETUP_PATHS.CONNECTIONS, {
+    return authorizedFetch(SETUP_PATHS.CONNECTIONS, {
         params: { teamId },
     }).catch((error) => {
         console.error("Failed to fetch connections:", error);

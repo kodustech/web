@@ -11,7 +11,8 @@ import {
 } from "@components/ui/dropdown-menu";
 import { magicModal } from "@components/ui/magic-modal";
 import { toast } from "@components/ui/toaster/use-toast";
-import { UserStatus, type MembersSetup } from "@services/setup/types";
+import { UserStatus } from "@enums";
+import { type MembersSetup } from "@services/setup/types";
 import { approveUser } from "@services/users/fetch";
 import { ColumnDef } from "@tanstack/react-table";
 import { CheckIcon, CopyIcon, EllipsisVertical, TrashIcon } from "lucide-react";

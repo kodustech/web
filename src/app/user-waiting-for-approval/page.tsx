@@ -1,6 +1,6 @@
 import { Metadata } from "next";
-import { SessionProvider } from "next-auth/react";
 import { auth } from "src/core/config/auth";
+import { AuthProvider } from "src/core/providers/auth.provider";
 
 import { UserWaitingForApprovalPage } from "./_components/page.client";
 
@@ -12,8 +12,8 @@ export default async function WaitingForApprovalPage() {
     const session = await auth();
 
     return (
-        <SessionProvider session={session}>
+        <AuthProvider session={session}>
             <UserWaitingForApprovalPage />
-        </SessionProvider>
+        </AuthProvider>
     );
 }

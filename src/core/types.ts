@@ -1,9 +1,9 @@
-import type { TeamRole, UserRole } from "@enums";
-import type { UserStatus } from "@services/setup/types";
-
 export type LiteralUnion<LiteralType extends string> =
     | LiteralType
     | (string & Record<never, never>);
+
+export type FunctionPromiseReturnType<T extends (...args: any) => any> =
+    Awaited<ReturnType<T>>;
 
 export type IntegrationsCommon = {
     name: string;
@@ -32,25 +32,6 @@ export enum TEAM_STATUS {
     INACTIVE = "inactive",
     PENDING = "pending",
     REMOVED = "removed",
-}
-
-export interface JwtPayload {
-    email: string;
-    role: UserRole;
-    teamRole: TeamRole;
-    sub: string;
-    status: UserStatus;
-    organizationId: string;
-    iss: string;
-    aud: string;
-    iat: number;
-    exp: number;
-}
-
-export interface ParsedJwt {
-    headers: Record<string, any>;
-    payload: JwtPayload;
-    expired: boolean;
 }
 
 export enum IntegrationCategory {

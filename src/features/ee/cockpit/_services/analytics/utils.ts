@@ -43,7 +43,7 @@ export const analyticsFetch = async <Data>(
     });
 
     try {
-        return await typedFetch<Data>(finalUrl, {
+        return typedFetch<Data>(finalUrl, {
             ...options,
             params,
             headers: {

@@ -1,4 +1,4 @@
-import { typedFetch } from "@services/fetch";
+import { authorizedFetch } from "@services/fetch";
 import type { CodeReviewRepositoryConfig } from "src/app/(app)/settings/code-review/_types";
 import type { LiteralUnion } from "src/core/types";
 import { axiosAuthorized } from "src/core/utils/axios";
@@ -13,7 +13,7 @@ export const getTeamParameters = async <
     key: ParametersConfigKey;
     teamId: string;
 }) =>
-    typedFetch<T>(PARAMETERS_PATHS.GET_BY_KEY, {
+    authorizedFetch<T>(PARAMETERS_PATHS.GET_BY_KEY, {
         params,
         next: { tags: ["team-dependent"] },
     });

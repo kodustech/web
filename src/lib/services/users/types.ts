@@ -1,5 +1,4 @@
-import type { TeamRole, UserRole } from "@enums";
-import { UserStatus } from "@services/setup/types";
+import type { TeamRole, UserRole, UserStatus } from "@enums";
 import type { Organization } from "@services/teams/types";
 
 export interface User {

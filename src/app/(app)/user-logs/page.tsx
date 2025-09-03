@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getUserLogs } from "@services/userLogs/fetch";
 import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
 import { UserLogsPageClient } from "./_components/page.client";
@@ -19,7 +18,5 @@ export default async function UserLogsPage() {
         notFound();
     }
 
-    const logsData = await getUserLogs();
-
-    return <UserLogsPageClient data={logsData} />;
+    return <UserLogsPageClient />;
 }

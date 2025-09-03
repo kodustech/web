@@ -7,31 +7,28 @@ import { Card } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { SvgKodus } from "@components/ui/icons/SvgKodus";
 import { Page } from "@components/ui/page";
+import { UserStatus } from "@enums";
 import { useEffectOnce } from "@hooks/use-effect-once";
-import { useRefreshToken } from "@hooks/use-refresh-token";
-import { UserStatus } from "@services/setup/types";
+import { useInterval } from "@hooks/use-interval";
 import { LogOutIcon } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { parseJwt } from "src/core/utils/helpers";
+import { useAuth } from "src/core/providers/auth.provider";
 
 export const UserWaitingForApprovalPage = () => {
     const router = useRouter();
-    const refreshTokenAction = useRefreshToken();
-    const { data } = useSession();
-    const email = parseJwt(data?.user.accessToken)?.payload.email;
+    const { status, email, refreshAccessTokens } = useAuth();
+
+    const getOut = () => router.replace("/");
 
     useEffectOnce(() => {
-        const a = async () => {
-            const updatedTokens = await refreshTokenAction();
-            const newAcessToken = parseJwt(updatedTokens?.user.accessToken);
-
-            if (newAcessToken?.payload.status === UserStatus.ACTIVE) {
-                router.replace("/");
-            }
-        };
-
-        a();
+        if (status !== UserStatus.AWAITING_APPROVAL) getOut();
     });
+
+    useInterval(() => {
+        // update tokens to get new data
+        refreshAccessTokens().then((newSession) => {
+            if (newSession?.user.status === UserStatus.ACTIVE) getOut();
+        });
+    }, 60000);
 
     return (
         <Page.Root className="flex h-full w-full flex-col items-center justify-center overflow-auto">
@@ -57,7 +54,7 @@ export const UserWaitingForApprovalPage = () => {
                     </div>
                 </Page.Header>
 
-                <Link href="/sign-out">
+                <Link href="/sign-out" replace>
                     <Button
                         size="sm"
                         decorative

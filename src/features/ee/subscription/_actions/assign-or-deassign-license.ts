@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { getJwtPayload } from "src/lib/auth/utils";
+import { auth } from "src/core/config/auth";
 
 import { assignOrDeassignUserLicense } from "../_services/billing/fetch";
 
@@ -18,11 +18,7 @@ export const assignOrDeassignUserLicenseAction = async ({
     };
     userName?: string;
 }) => {
-    const jwtPayload = await getJwtPayload();
-    const currentUser = {
-        userId: jwtPayload?.sub,
-        email: jwtPayload?.email,
-    };
+    const jwtPayload = await auth();
 
     const { error, successful } = await assignOrDeassignUserLicense({
         teamId,
@@ -31,7 +27,10 @@ export const assignOrDeassignUserLicenseAction = async ({
             gitTool: user.git_tool,
             licenseStatus: user.licenseStatus,
         },
-        currentUser,
+        currentUser: {
+            userId: jwtPayload?.user.userId,
+            email: jwtPayload?.user.email,
+        },
         userName,
     });
 

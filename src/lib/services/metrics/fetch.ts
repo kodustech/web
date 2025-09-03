@@ -1,11 +1,11 @@
-import { typedFetch } from "@services/fetch";
+import { authorizedFetch } from "@services/fetch";
 import { axiosAuthorized } from "src/core/utils/axios";
 
 import { FLOW_METRICS_PATH } from ".";
 import type { Metric } from "./types";
 
 export const getTeamsFlowMetrics = async (teamId: string) => {
-    return typedFetch<Metric[]>(FLOW_METRICS_PATH.GET_TEAM_FLOW_METRICS, {
+    return authorizedFetch<Metric[]>(FLOW_METRICS_PATH.GET_TEAM_FLOW_METRICS, {
         params: { teamId },
         next: { tags: ["cockpit-date-range-dependent"] },
     });
