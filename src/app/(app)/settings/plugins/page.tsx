@@ -44,10 +44,6 @@ export default async function PluginsPage() {
                         <Link
                             key={item.id}
                             className="w-full"
-                            disabled={
-                                item.isConnected &&
-                                item.connectionStatus === "ACTIVE"
-                            }
                             href={`/settings/plugins/${item.id}`}>
                             <Button
                                 size="lg"
