@@ -34,6 +34,8 @@ export const getMCPPluginById = ({
         provider: string;
         allowedTools: Array<string>;
         isConnected: boolean;
+        connectionId?: string;
+        mcpConnectionId?: string;
         requiredParams: Array<{
             name: string;
             displayName: string;
@@ -112,6 +114,80 @@ export const finishOauthMCPPluginInstallation = async ({
         body: JSON.stringify({
             integrationId: id,
             status: "ACTIVE",
+        }),
+    });
+
+    return response;
+};
+
+export const deleteMCPConnection = async ({
+    connectionId,
+}: {
+    connectionId: string;
+}) => {
+    const response = await mcpManagerFetch<{}>(`/mcp/connections/${connectionId}`, {
+        method: "DELETE",
+        body: JSON.stringify({}),
+    });
+
+    return response;
+};
+
+export const getMCPConnections = () =>
+    mcpManagerFetch<{
+        items: Array<{
+            id: string;
+            integrationId: string;
+            organizationId: string;
+            status: "ACTIVE" | "PENDING";
+            provider: string;
+            mcpUrl: string;
+            appName: string;
+            allowedTools: Array<string>;
+        }>;
+        total: number;
+    }>("/mcp/connections");
+
+export const getMCPConnection = async ({
+    integrationId,
+}: {
+    integrationId: string;
+}) => {
+    const response = await mcpManagerFetch<{
+        id: string;
+        integrationId: string;
+        organizationId: string;
+        status: "ACTIVE" | "PENDING";
+        provider: string;
+        mcpUrl: string;
+        appName: string;
+        ALLOWED_TOOLS: Array<string>;
+    }>(`/mcp/connections/${integrationId}`);
+
+    return response;
+};
+
+
+export const updateMCPAllowedTools = async ({
+    integrationId,
+    allowedTools,
+}: {
+    integrationId: string;
+    allowedTools: string[];
+}) => {
+    const response = await mcpManagerFetch<{
+        id: string;
+        integrationId: string;
+        organizationId: string;
+        status: "ACTIVE" | "PENDING";
+        provider: string;
+        mcpUrl: string;
+        appName: string;
+        allowedTools: Array<string>;
+    }>(`/mcp/connections/${integrationId}/allowed-tools`, {
+        method: "PUT",
+        body: JSON.stringify({
+            allowedTools,
         }),
     });
 
