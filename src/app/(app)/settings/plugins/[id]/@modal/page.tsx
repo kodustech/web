@@ -1,5 +1,4 @@
 import {
-    getMCPConnection,
     getMCPConnections,
     getMCPPluginById,
     getMCPPluginTools,
@@ -20,9 +19,6 @@ export default async function PluginModalPage({
             getMCPPluginTools({ id }),
         ]);
 
-        console.log("Fetched plugin data:", { plugin, tools });
-        console.log("Plugin ID being used:", id);
-        console.log("Plugin object keys:", Object.keys(plugin));
 
         // Se o plugin estiver conectado, buscar dados da conexão para obter allowedTools
         if (plugin.isConnected) {
@@ -40,12 +36,9 @@ export default async function PluginModalPage({
                     const pluginWithConnection = {
                         ...plugin,
                         allowedTools: connection.allowedTools || [],
+                        connectionId: connection.id,
                     };
 
-                    console.log(
-                        "Final plugin with connection:",
-                        pluginWithConnection,
-                    );
 
                     return (
                         <PluginModal

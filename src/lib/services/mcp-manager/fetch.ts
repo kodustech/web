@@ -121,11 +121,11 @@ export const finishOauthMCPPluginInstallation = async ({
 };
 
 export const deleteMCPConnection = async ({
-    integrationId,
+    connectionId,
 }: {
-    integrationId: string;
+    connectionId: string;
 }) => {
-    const response = await mcpManagerFetch<{}>(`/mcp/connections/${integrationId}`, {
+    const response = await mcpManagerFetch<{}>(`/mcp/connections/${connectionId}`, {
         method: "DELETE",
         body: JSON.stringify({}),
     });

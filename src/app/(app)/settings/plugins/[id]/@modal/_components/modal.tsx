@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarImage } from "@components/ui/avatar";
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
@@ -18,6 +18,7 @@ import {
 } from "@components/ui/dialog";
 import { Label } from "@components/ui/label";
 import { MagicModalContext } from "@components/ui/magic-modal";
+import { useToast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
 import {
     deleteMCPConnection,
@@ -41,6 +42,7 @@ export const PluginModal = ({
     tools: AwaitedReturnType<typeof getMCPPluginTools>;
 }) => {
     const router = useRouter();
+    const { toast } = useToast();
 
     const isConnected = plugin.isConnected;
 
@@ -70,15 +72,8 @@ export const PluginModal = ({
     });
     console.log("Full plugin object:", JSON.stringify(plugin, null, 2));
 
-    const [isEditingTools, setIsEditingTools] = useState(false);
     const [isResettingAuth, setIsResettingAuth] = useState(false);
 
-    // Reset selectedTools quando entrar no modo de edição
-    useEffect(() => {
-        if (isEditingTools && isConnected) {
-            setSelectedTools(plugin.allowedTools || []);
-        }
-    }, [isEditingTools, isConnected, plugin.allowedTools]);
 
     const hasToolsWithWarningSelected = useMemo(
         () =>
@@ -121,20 +116,38 @@ export const PluginModal = ({
                 allowedTools: selectedTools,
             });
 
-            setIsEditingTools(false);
             await revalidateServerSidePath("/settings/plugins");
+            
+            toast({
+                variant: "success",
+                title: "Tools updated successfully",
+                description: `Updated ${selectedTools.length} tools for ${plugin.appName}`,
+            });
+
+            router.back();
         },
     );
 
     const [resetAuth, { loading: isResetAuthLoading }] = useAsyncAction(
         async () => {
+            if (!plugin.connectionId) {
+                throw new Error("Connection ID not found");
+            }
+
             await deleteMCPConnection({
-                integrationId: plugin.id,
+                connectionId: plugin.connectionId,
+            });
+
+            await revalidateServerSidePath("/settings/plugins");
+            
+            toast({
+                variant: "success",
+                title: "Authentication reset successfully",
+                description: `${plugin.appName} plugin has been disconnected`,
             });
 
             setIsResettingAuth(false);
-            await revalidateServerSidePath("/settings/plugins");
-            router.push("/settings/plugins");
+            router.back();
         },
     );
 
@@ -142,7 +155,7 @@ export const PluginModal = ({
         isInstallPluginLoading || isUpdateToolsLoading || isResetAuthLoading;
 
     return (
-        <MagicModalContext value={{ closeable: !isAnyLoading }}>
+        <MagicModalContext value={{ closeable: !isInstallPluginLoading && !isUpdateToolsLoading }}>
             <Dialog open onOpenChange={() => router.push("/settings/plugins")}>
                 <DialogContent className="max-w-4xl">
                     <DialogHeader className="flex-row items-start justify-start gap-4">
@@ -192,119 +205,17 @@ export const PluginModal = ({
                                 />
                             )}
 
-                            {isConnected && !isEditingTools ? (
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-lg font-semibold">
-                                            Tools Configuration
-                                        </h3>
-                                        <div className="flex gap-2">
-                                            <Button
-                                                size="sm"
-                                                variant="secondary"
-                                                leftIcon={<EditIcon />}
-                                                onClick={() =>
-                                                    setIsEditingTools(true)
-                                                }>
-                                                Edit Tools
-                                            </Button>
-                                            <Button
-                                                size="sm"
-                                                variant="tertiary"
-                                                leftIcon={<RefreshCwIcon />}
-                                                onClick={() =>
-                                                    setIsResettingAuth(true)
-                                                }
-                                                disabled={isResetAuthLoading}>
-                                                Reset Authentication
-                                            </Button>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <h4 className="font-medium">
-                                            Currently Allowed Tools:
-                                        </h4>
-                                        <div className="flex flex-wrap gap-2">
-                                            {plugin.allowedTools?.length > 0 ? (
-                                                plugin.allowedTools.map(
-                                                    (toolSlug) => {
-                                                        const tool = tools.find(
-                                                            (t) =>
-                                                                t.slug ===
-                                                                toolSlug,
-                                                        );
-                                                        return (
-                                                            <Badge
-                                                                key={toolSlug}
-                                                                variant="secondary"
-                                                                className={
-                                                                    tool?.warning
-                                                                        ? "bg-warning text-card-lv2"
-                                                                        : ""
-                                                                }>
-                                                                {tool?.name ||
-                                                                    toolSlug}
-                                                            </Badge>
-                                                        );
-                                                    },
-                                                )
-                                            ) : (
-                                                <span className="text-text-secondary text-sm">
-                                                    No tools currently allowed -
-                                                    click "Edit Tools" to
-                                                    configure
-                                                </span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                            ) : (
-                                <SelectTools
-                                    tools={tools.length > 0 ? tools : []}
-                                    defaultOpen={
-                                        !isConnected ||
-                                        isEditingTools ||
-                                        plugin.requiredParams.length === 0
-                                    }
-                                    selectedTools={selectedTools}
-                                    setSelectedTools={(tools) => {
-                                        setSelectedTools(tools);
-                                        setConfirmInstallationOfToolsWithWarnings(
-                                            false,
-                                        );
-                                    }}
-                                />
-                            )}
-
-                            {isEditingTools && (
-                                <div className="flex justify-end gap-2">
-                                    <Button
-                                        size="sm"
-                                        variant="cancel"
-                                        onClick={() => {
-                                            setIsEditingTools(false);
-                                            setSelectedTools(
-                                                plugin.allowedTools || [],
-                                            );
-                                        }}
-                                        disabled={isUpdateToolsLoading}>
-                                        Cancel
-                                    </Button>
-                                    <Button
-                                        size="sm"
-                                        variant="primary"
-                                        onClick={() => updateTools()}
-                                        loading={isUpdateToolsLoading}
-                                        disabled={
-                                            selectedTools.length === 0 ||
-                                            (hasToolsWithWarningSelected &&
-                                                !confirmInstallationOfToolsWithWarnings)
-                                        }>
-                                        Update Tools
-                                    </Button>
-                                </div>
-                            )}
+                            <SelectTools
+                                tools={tools.length > 0 ? tools : []}
+                                defaultOpen={plugin.requiredParams.length === 0}
+                                selectedTools={selectedTools}
+                                setSelectedTools={(tools) => {
+                                    setSelectedTools(tools);
+                                    setConfirmInstallationOfToolsWithWarnings(
+                                        false,
+                                    );
+                                }}
+                            />
                         </div>
                     </div>
 
@@ -338,13 +249,13 @@ export const PluginModal = ({
                             </div>
 
                             <div className="flex flex-row gap-x-2">
-                                <DialogClose disabled={isInstallPluginLoading}>
+                                <DialogClose disabled={isAnyLoading}>
                                     <Button size="md" variant="cancel">
-                                        Go back
+                                        {isConnected ? "Close" : "Go back"}
                                     </Button>
                                 </DialogClose>
 
-                                {!isConnected && (
+                                {!isConnected ? (
                                     <Button
                                         size="md"
                                         variant="primary"
@@ -359,6 +270,30 @@ export const PluginModal = ({
                                         }>
                                         Install plugin
                                     </Button>
+                                ) : (
+                                    <>
+                                        <Button
+                                            size="md"
+                                            variant="tertiary"
+                                            leftIcon={<RefreshCwIcon />}
+                                            onClick={() => setIsResettingAuth(true)}
+                                            disabled={isResetAuthLoading}>
+                                            Reset Authentication
+                                        </Button>
+                                        <Button
+                                            size="md"
+                                            variant="primary"
+                                            leftIcon={<EditIcon />}
+                                            loading={isUpdateToolsLoading}
+                                            onClick={() => updateTools()}
+                                            disabled={
+                                                selectedTools.length === 0 ||
+                                                (hasToolsWithWarningSelected &&
+                                                    !confirmInstallationOfToolsWithWarnings)
+                                            }>
+                                            Update Tools
+                                        </Button>
+                                    </>
                                 )}
                             </div>
                         </>
