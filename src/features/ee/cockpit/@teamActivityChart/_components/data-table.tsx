@@ -48,7 +48,7 @@ export const DataTable = ({
     startDate,
     endDate,
 }: {
-    data: [string, { date: string; commitCount: number; prCount: number }[]][];
+    data: [string, { date: string; prCount: number }[]][];
     startDate: string;
     endDate: string;
 }) => {

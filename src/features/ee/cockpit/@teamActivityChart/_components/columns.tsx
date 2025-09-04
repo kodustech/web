@@ -13,10 +13,7 @@ import {
 import { cn } from "src/core/utils/components";
 import { pluralize } from "src/core/utils/string";
 
-type Type = [
-    string,
-    Array<{ date: string; commitCount: number; prCount: number }>,
-];
+type Type = [string, Array<{ date: string; prCount: number }>];
 
 const prsClassname = "bg-(--color-danger)";
 const commitsClassname = "bg-[hsl(244,100%,78%)]";
@@ -41,11 +38,10 @@ export const getColumns = ({
             cell: ({ row }) => {
                 const all = row.original[1].reduce(
                     (acc, d) => {
-                        acc.commitCount += d.commitCount;
                         acc.prCount += d.prCount;
                         return acc;
                     },
-                    { commitCount: 0, prCount: 0 },
+                    { prCount: 0 },
                 );
 
                 return (

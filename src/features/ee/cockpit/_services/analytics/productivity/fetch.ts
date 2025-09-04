@@ -176,7 +176,6 @@ export const getDeveloperActivity = ({
         Array<{
             developer: string;
             date: string;
-            commitCount: number;
             prCount: number;
         }>
     >(`/productivity/charts/developer-activity`, {

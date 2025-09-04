@@ -30,10 +30,7 @@ export default async function TeamActivityChart() {
             acc[developer] = [rest];
             return acc;
         },
-        {} as Record<
-            string,
-            Array<{ date: string; commitCount: number; prCount: number }>
-        >,
+        {} as Record<string, Array<{ date: string; prCount: number }>>,
     );
 
     return (
