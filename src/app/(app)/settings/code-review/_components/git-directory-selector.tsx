@@ -26,6 +26,7 @@ export const GitDirectorySelector = ({
         organizationId,
         teamId,
         treeType: "directories",
+        useCache: true,
     });
 
     const ComponentTree = useCallback(

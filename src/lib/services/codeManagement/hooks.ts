@@ -47,6 +47,7 @@ export function useSuspenseGetRepositoryTree(params: {
     repositoryId: string;
     teamId?: string;
     treeType?: "directories" | "files";
+    useCache?: boolean;
 }) {
     return useSuspenseFetch<{ repository: string; tree: GitFileOrFolder[] }>(
         pathToApiUrl("/code-management/get-repository-tree"),
@@ -71,12 +72,12 @@ export function useSuspenseGetOnboardingPullRequests(teamId: string) {
     });
 
     // Transform to legacy format for compatibility
-    return rawData.map(pr => ({
+    return rawData.map((pr) => ({
         id: pr.id,
         pull_number: pr.pull_number,
         repository: pr.repository.name, // Extract name from repository object
         title: pr.title,
-        url: pr.url
+        url: pr.url,
     }));
 }
 
@@ -86,13 +87,16 @@ export function useSearchPullRequests(
         number?: string;
         title?: string;
         repositoryId?: string;
-    } = {}
+    } = {},
 ) {
     console.log("🌐 useSearchPullRequests - Debug:");
     console.log("  📋 Search Params:", searchParams);
     console.log("  👥 Team ID:", teamId);
-    console.log("  🌍 URL:", CODE_MANAGEMENT_API_PATHS.GET_ONBOARDING_PULL_REQUESTS);
-    
+    console.log(
+        "  🌍 URL:",
+        CODE_MANAGEMENT_API_PATHS.GET_ONBOARDING_PULL_REQUESTS,
+    );
+
     return useFetch<
         {
             id: string;
@@ -117,7 +121,7 @@ export function useSearchPullRequests(
             refetchOnWindowFocus: false,
             staleTime: 0, // No cache - always fresh data
             gcTime: 0, // Don't cache results
-        }
+        },
     );
 }
 
