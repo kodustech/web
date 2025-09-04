@@ -15,8 +15,9 @@ import { magicModal } from "@components/ui/magic-modal";
 import { toast } from "@components/ui/toaster/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useCreateOrUpdateTeamMembers } from "@services/setup/hooks";
-import { Check, Plus, X } from "lucide-react";
+import { Check, MailIcon, Plus, X } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
+import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 import { z } from "zod";
 
 const emailSchema = z.object({
@@ -44,13 +45,7 @@ interface InviteResponse {
     type: string;
 }
 
-export const InviteModal = ({
-    teamId,
-    onSuccess,
-}: {
-    teamId: string;
-    onSuccess?: () => void;
-}) => {
+export const InviteModal = ({ teamId }: { teamId: string }) => {
     const [emailList, setEmailList] = useState<string[]>([]);
 
     const createOrUpdateMutation = useCreateOrUpdateTeamMembers();
@@ -134,10 +129,7 @@ export const InviteModal = ({
                         ),
                     );
 
-                    // Chama o callback para atualizar a tabela
-                    if (onSuccess) {
-                        onSuccess();
-                    }
+                    revalidateServerSidePath("/settings/subscription");
 
                     // Fecha o modal primeiro
                     magicModal.hide();
@@ -335,8 +327,9 @@ export const InviteModal = ({
                     <div className="mt-6 flex justify-end">
                         <Button
                             size="md"
-                            variant="primary"
                             type="button"
+                            variant="primary"
+                            leftIcon={<MailIcon />}
                             onClick={handleSendEmails}
                             loading={createOrUpdateMutation.isPending}
                             disabled={

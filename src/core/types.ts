@@ -1,8 +1,10 @@
-import { Role, TeamRole } from "./utils/permissions";
-
 export type LiteralUnion<LiteralType extends string> =
     | LiteralType
     | (string & Record<never, never>);
+
+export type AwaitedReturnType<T extends (...args: any) => any> = Awaited<
+    ReturnType<T>
+>;
 
 export type IntegrationsCommon = {
     name: string;
@@ -31,24 +33,6 @@ export enum TEAM_STATUS {
     INACTIVE = "inactive",
     PENDING = "pending",
     REMOVED = "removed",
-}
-
-export interface JwtPayload {
-    email: string;
-    role: Role;
-    teamRole: TeamRole;
-    sub: string;
-    organizationId: string;
-    iss: string;
-    aud: string;
-    iat: number;
-    exp: number;
-}
-
-export interface ParsedJwt {
-    headers: Record<string, any>;
-    payload: JwtPayload;
-    expired: boolean;
 }
 
 export enum IntegrationCategory {

@@ -15,6 +15,7 @@ const nextConfig = {
     eslint: {
         ignoreDuringBuilds: true,
     },
+
     // Headers de segurança
     async headers() {
         return [

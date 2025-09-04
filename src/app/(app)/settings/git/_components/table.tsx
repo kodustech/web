@@ -7,6 +7,7 @@ import { Input } from "@components/ui/input";
 import { Link } from "@components/ui/link";
 import type { getIntegrationConfig } from "@services/integrations/integrationConfig/fetch";
 import { PlusIcon, SearchIcon } from "lucide-react";
+import type { AwaitedReturnType } from "src/core/types";
 
 import { columns } from "./table-columns";
 
@@ -14,7 +15,7 @@ export const GitRepositoriesTable = ({
     platformName,
     repositories,
 }: {
-    repositories: Awaited<ReturnType<typeof getIntegrationConfig>>;
+    repositories: AwaitedReturnType<typeof getIntegrationConfig>;
     platformName: string;
 }) => {
     const [query, setQuery] = useState("");

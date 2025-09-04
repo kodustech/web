@@ -77,7 +77,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 />
 
                 {(loading || RightIcon) && (
-                    <div className="pointer-events-none absolute inset-y-0 right-4 z-1 flex items-center [&_svg]:size-5 [&_svg]:text-current">
+                    <div className="pointer-events-[bounding-box] absolute inset-y-0 right-4 z-1 flex items-center [&_svg]:size-5 [&_svg]:text-current">
                         {loading ? (
                             <Spinner className="fill-card-lv3 text-primary-light" />
                         ) : (

@@ -1,9 +1,10 @@
 import { decodeJwt, decodeProtectedHeader } from "jose";
+import type { JWT } from "next-auth/jwt";
 import { CodeReviewRepositoryConfig } from "src/app/(app)/settings/code-review/_types";
 import invariant from "tiny-invariant";
 
 import { API_ROUTES } from "../config/constants";
-import { JwtPayload, ParsedJwt, type LiteralUnion } from "../types";
+import { type LiteralUnion } from "../types";
 import { isSelfHosted } from "../utils/self-hosted";
 import { isServerSide } from "./server-side";
 
@@ -123,36 +124,25 @@ export function createUrl(
     return `${protocol}://${hostName}${finalPort}${path}`;
 }
 
-export function isJwtExpired(expirationDate?: number) {
-    if (!expirationDate) return false;
-
-    return +new Date() > expirationDate;
+export function isJwtExpired(expirationDate: number) {
+    const THRESHOLD = 300;
+    const expirationInMilliseconds = expirationDate * 1000;
+    return Date.now() > expirationInMilliseconds - THRESHOLD;
 }
 
-const getJwtSecretKey = () => {
-    const secret = process.env.WEB_JWT_SECRET_KEY;
-
-    if (!secret || secret.length === 0) {
-        throw new Error(
-            "The environment variable WEB_JWT_SECRET_KEY is not set.",
-        );
-    }
-
-    return secret;
-};
-
-export function parseJwt(jwt?: string | null): ParsedJwt | null {
+export function parseJwt(jwt: string | null | undefined): {
+    headers: Record<string, any>;
+    payload: JWT;
+} | null {
     if (!jwt) return null;
 
     try {
         const headers = decodeProtectedHeader(jwt);
-        const payload = decodeJwt(jwt) as JwtPayload;
+        const payload = decodeJwt(jwt) as JWT;
 
-        if (!payload || !headers) {
-            return null;
-        }
+        if (!payload || !headers) return null;
 
-        return { headers, payload, expired: isJwtExpired(payload.exp! * 1000) };
+        return { headers, payload };
     } catch (error) {
         console.warn("Error decoding jwt token:", error);
         return null;

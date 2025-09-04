@@ -1,7 +1,8 @@
 import { typedFetch } from "@services/fetch";
+import type { AxiosResponse } from "axios";
 import { API_ROUTES } from "src/core/config/constants";
 import type { TODO } from "src/core/types";
-import { axiosApi } from "src/core/utils/axios";
+import { axiosApi, axiosAuthorized } from "src/core/utils/axios";
 import { pathToApiUrl } from "src/core/utils/helpers";
 
 import { AuthProviders } from "./types";
@@ -15,7 +16,9 @@ export const checkForEmailExistence = (email: string): Promise<TODO> => {
 export const loginEmailPassword = (credentials: {
     email: string;
     password: string;
-}): Promise<TODO> => {
+}): Promise<
+    AxiosResponse<{ data: { accessToken: string; refreshToken: string } }>
+> => {
     return axiosApi.post(pathToApiUrl(API_ROUTES.login), credentials);
 };
 
@@ -62,8 +65,20 @@ export const logout = (payload: TODO): Promise<TODO> => {
     return axiosApi.post(pathToApiUrl(API_ROUTES.logout), payload);
 };
 
-export const refreshAccessToken = (payload: TODO): Promise<TODO> => {
-    return axiosApi.post(pathToApiUrl(API_ROUTES.refreshToken), payload);
+export const refreshAccessToken = async (payload: { refreshToken: string }) => {
+    const response = await typedFetch<{
+        data: {
+            accessToken: string;
+            refreshToken: string;
+        };
+    }>(pathToApiUrl(API_ROUTES.refreshToken), {
+        method: "POST",
+        body: JSON.stringify({
+            refreshToken: payload.refreshToken,
+        }),
+    });
+
+    return response.data;
 };
 
 export const getInviteData = async (userId: string) => {
@@ -74,7 +89,6 @@ export const getInviteData = async (userId: string) => {
             organization: { name: string };
         }>(pathToApiUrl(API_ROUTES.getInviteData), {
             params: { userId },
-            signedIn: false,
         });
         return data;
     } catch (error) {
@@ -113,13 +127,12 @@ export const resetPassword = async (newPassword: string, token: string) => {
 
 export const getOrganizationsByDomain = async (domain: string) => {
     try {
-        const data = await typedFetch<
+        const data = await axiosAuthorized.fetcher<
             { uuid: string; name: string; owner?: string }[]
         >(pathToApiUrl(API_ROUTES.getOrganizationsByDomain), {
             params: { domain },
-            signedIn: false,
         });
-        return data;
+        return data.data;
     } catch (error) {
         if (error instanceof Error) {
             throw new Error(

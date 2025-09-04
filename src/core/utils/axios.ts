@@ -1,5 +1,4 @@
 import Axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { signOut } from "next-auth/react";
 
 import { getJWTToken } from "./session";
 
@@ -10,70 +9,6 @@ const axiosClient = Axios.create({
         "Content-Type": "application/json",
     },
 });
-
-// TODO: rethink this logic, it works only for first refresh
-// There is a problem with the originalRequest: _retry is always undefined in if
-let retryRequest = false;
-
-// axiosClient.interceptors.request.use(
-//     async (request) => {
-//         return request;
-//     },
-//     async (error) => {
-//         // const originalRequest = error?.config;
-//         // const errStatus = error?.response?.status;
-//         // const refreshToken = await getJWTRefreshToken();
-
-//         // console.log("session 1", refreshToken, errStatus);
-
-//         // if (errStatus === 401 && !retryRequest) {
-//         //     retryRequest = true;
-
-//         //     const data = await refreshAccessToken({ refreshToken });
-
-//         //     console.log("token data", data);
-
-//         //     // originalRequest.headers.Authentication = token;
-
-//         //     return axiosClient(originalRequest);
-//         // }
-
-//         return Promise.reject(error);
-//     },
-// );
-
-axiosClient.interceptors.response.use(
-    (response) => response,
-    async (error) => {
-        try {
-            // const { data: session, status, update } = await useSession();
-
-            // const originalRequest = error?.config;
-            // const refreshToken = await getJWTRefreshToken();
-
-            // if (error?.response?.status === 401 && !retryRequest) {
-            //     await signOut();
-
-            //     retryRequest = true;
-
-            //     // const data = await refreshAccessToken({ refreshToken });
-
-            //     // originalRequest.headers.Authentication = data.accessToken;
-            //     // await update();
-
-            //     // return axiosClient(originalRequest);
-            // }
-
-            // await axiosClient.post("/api/auth/signout", {
-            //     csrfToken: await getCsrfToken(),
-            // }); // Você pode precisar obter o CSRF token antes de fazer a solicitação
-
-            return Promise.reject(error);
-        } catch (error) {
-            return Promise.reject(error);
-        }
-    },
-);
 
 export const axiosApi = {
     get: <T>(

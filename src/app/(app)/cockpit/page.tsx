@@ -1,3 +1,1 @@
-export default function CockpitPage() {
-    return null;
-}
+export default () => null;

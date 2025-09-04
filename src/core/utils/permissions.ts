@@ -1,26 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-
-// permissions.ts
-export enum Role {
-    OWNER = "owner",
-    USER = "user",
-}
-
-export enum TeamRole {
-    TEAM_LEADER = "team_leader",
-    MEMBER = "team_member",
-}
+import { TeamRole, UserRole } from "@enums";
+import type { Session } from "next-auth";
 
 const permissions = {
     routes: {
-        [Role.OWNER]: ["*"],
-        [TeamRole.MEMBER]: [
+        [UserRole.OWNER]: ["*"],
+        [TeamRole.TEAM_MEMBER]: [
             "/cockpit",
             "/chat",
             "/chat/:id",
-            "/sign-out",
             "/settings/subscription",
             "/issues",
+            "/user-waiting-for-approval",
         ],
         [TeamRole.TEAM_LEADER]: [
             "/teams",
@@ -56,27 +47,29 @@ const permissions = {
             "/teams/parameters/:teamId",
             "/chat",
             "/chat/:id",
-            "/sign-out",
             "/library/kody-rules",
             "/issues",
+            "/user-waiting-for-approval",
         ],
     },
     components: {
-        [Role.OWNER]: ["AdminPanel", "SettingsPanel"],
-        [TeamRole.MEMBER]: ["TeamMemberCookpit"],
+        [UserRole.OWNER]: ["AdminPanel", "SettingsPanel"],
+        [TeamRole.TEAM_MEMBER]: ["TeamMemberCookpit"],
         [TeamRole.TEAM_LEADER]: ["TeamLeaderCookpit", "TeamMemberCookpit"],
     },
 };
 
-const canAccessRoute = (
-    role: Role,
-    teamRole: TeamRole,
-    pathname: string,
-): boolean => {
+const canAccessRoute = ({
+    pathname,
+    role,
+    teamRole,
+}: {
+    role: UserRole;
+    teamRole: TeamRole;
+    pathname: string;
+}): boolean => {
     // Se for owner, tem acesso a tudo
-    if (role === Role.OWNER) {
-        return true;
-    }
+    if (role === UserRole.OWNER) return true;
 
     // Pega as rotas permitidas para o papel do usuário na equipe
     const teamRolePaths: string[] = permissions.routes[teamRole] || [];
@@ -114,51 +107,40 @@ const canAccessRoute = (
 export function handleAuthenticated(
     req: NextRequest,
     pathname: string,
-    userRole: Role,
-    userTeamRole: TeamRole,
-    authPaths: string[],
-    headers: Headers,
+    session: Session,
+    next: NextResponse,
 ) {
-    // Detecta requisições RSC (React Server Components) de múltiplas formas
+    // Detects RSC (React Server Components) requests in multiple ways
     const isRSCRequest =
         req.nextUrl.searchParams.has("_rsc") ||
         req.headers.get("rsc") === "1" ||
         req.headers.get("next-router-prefetch") === "1" ||
         req.headers.get("next-router-state-tree") !== null;
 
-    // Redireciona a raiz "/" para "/cockpit" (apenas se não for RSC)
+    // Redirect root "/" to "/cockpit" (only if not RSC)
     if ((pathname === "/" || pathname === "") && !isRSCRequest) {
         return NextResponse.redirect(new URL("/cockpit", req.url), {
             status: 302,
         });
     }
 
-    // Se for RSC request na raiz, permite passar
-    if ((pathname === "/" || pathname === "") && isRSCRequest) {
-        return NextResponse.next({ request: { headers } });
-    }
+    // If it is RSC request in root, it allows to pass
+    if ((pathname === "/" || pathname === "") && isRSCRequest) return next;
 
-    // Se estiver em uma rota de autenticação e já estiver autenticado, redireciona para /cockpit
-    if (authPaths.some((path) => pathname.startsWith(path))) {
-        return NextResponse.redirect(new URL("/cockpit", req.url), {
-            status: 302,
-        });
-    }
-
-    if (pathname.startsWith("/chat")) {
-        return NextResponse.redirect(new URL("/cockpit", req.url), {
-            status: 302,
-        });
-    }
-
-    // Se o usuário não tiver permissão, bloqueia o acesso
-    if (!canAccessRoute(userRole, userTeamRole, pathname)) {
+    // If the user does not have permission, block access
+    if (
+        !canAccessRoute({
+            pathname,
+            role: session.user.role,
+            teamRole: session.user.teamRole,
+        })
+    ) {
         const referer = req.headers.get("referer");
         // Use URL relativa para evitar problemas com localhost
         const redirectUrl = referer ? new URL(referer) : new URL("/", req.url);
         return NextResponse.redirect(redirectUrl);
     }
 
-    // Permite acesso à rota
-    return NextResponse.next({ request: { headers } });
+    // Allows access to the route
+    return next;
 }

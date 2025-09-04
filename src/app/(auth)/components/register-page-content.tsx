@@ -1,22 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@components/ui/button";
-import { Card, CardContent, CardHeader } from "@components/ui/card";
-import { Checkbox } from "@components/ui/checkbox";
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleIndicator,
-    CollapsibleTrigger,
-} from "@components/ui/collapsible";
 import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
 import { Input } from "@components/ui/input";
-import { Label } from "@components/ui/label";
 import { Link } from "@components/ui/link";
 import { MultiStep, useMultiStep } from "@components/ui/multi-step";
-import { ScrollArea } from "@components/ui/scroll-area";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useDebouncedCallback } from "@hooks/use-debounced-callback";
 import {
@@ -36,11 +26,7 @@ import {
 } from "react-hook-form";
 import type { TODO } from "src/core/types";
 import { cn } from "src/core/utils/components";
-import {
-    checkForEmailExistence,
-    getOrganizationsByDomain,
-    registerUser,
-} from "src/lib/auth/fetchers";
+import { checkForEmailExistence, registerUser } from "src/lib/auth/fetchers";
 import { z } from "zod";
 
 import { OAuthButtons } from "./oauth";
@@ -59,41 +45,6 @@ const GetStarted = () => {
             shouldTouch: true,
         });
     });
-
-    const [isLoading, setIsLoading] = useState(false);
-
-    // TODO: investigate why using form.handleSubmit was not transitioning multi step pages or showing console.logs for some reason
-    const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-
-        const isEmailValid = await form.trigger("email");
-        if (!isEmailValid) {
-            return;
-        }
-
-        setIsLoading(true);
-
-        const email = form.getValues("email");
-        const [, domain] = email.split("@");
-
-        try {
-            const matchedOrganizations = await getOrganizationsByDomain(domain);
-
-            if (matchedOrganizations.length > 0) {
-                form.setValue("foundOrganizations", matchedOrganizations);
-                multiStep.navigateTo("match-domain");
-            } else {
-                form.setValue("foundOrganizations", []);
-                multiStep.navigateTo("with-email");
-            }
-        } catch (error) {
-            console.error("Error fetching organizations:", error);
-            form.setValue("foundOrganizations", []);
-            multiStep.navigateTo("with-email");
-        } finally {
-            setIsLoading(false);
-        }
-    };
 
     return (
         <div className="flex flex-col gap-6">
@@ -118,7 +69,10 @@ const GetStarted = () => {
 
             <form
                 className="flex w-full flex-col gap-4"
-                onSubmit={handleFormSubmit}>
+                onSubmit={(ev) => {
+                    ev.preventDefault();
+                    multiStep.navigateTo("with-email");
+                }}>
                 <Controller
                     name="email"
                     control={form.control}
@@ -162,135 +116,10 @@ const GetStarted = () => {
                     variant="primary"
                     className="w-full"
                     rightIcon={<ArrowRight />}
-                    disabled={!isEmailFilled || isEmailInvalid || isLoading}>
+                    disabled={!isEmailFilled || isEmailInvalid}>
                     Continue
                 </Button>
             </form>
-        </div>
-    );
-};
-
-const MatchDomain = () => {
-    const multiStep = useMultiStep();
-    const form = useFormContext<z.infer<typeof formSchema>>();
-    const organizations = form.watch("foundOrganizations");
-
-    const [selectedOrganization, setSelectedOrganization] = useState<
-        string | undefined
-    >(undefined);
-
-    return (
-        <div className="flex flex-col gap-10">
-            <Button
-                size="sm"
-                variant="helper"
-                className="text-xs"
-                leftIcon={<ArrowLeft />}
-                onClick={() => multiStep.navigateTo("get-started")}>
-                Back to Sign Up
-            </Button>
-
-            <div className="flex flex-col gap-2">
-                <Heading variant="h2">We found some organizations!</Heading>
-
-                <p className="text-text-secondary text-sm">
-                    We found organizations associated with your email domain.
-                    Select one to join or create a new organization.
-                </p>
-            </div>
-
-            <div className="max-h-[30vh] w-full overflow-y-auto">
-                <div className="flex h-full w-full flex-col gap-2">
-                    {organizations.map((org) => (
-                        <Card key={org.uuid}>
-                            <Collapsible className="w-full">
-                                <CardHeader className="flex flex-row items-center gap-3 px-5 py-4">
-                                    <Checkbox
-                                        id={org.uuid}
-                                        className="flex-shrink-0 self-center"
-                                        checked={
-                                            selectedOrganization === org.uuid
-                                        }
-                                        onClick={() => {
-                                            setSelectedOrganization(
-                                                selectedOrganization ===
-                                                    org.uuid
-                                                    ? ""
-                                                    : org.uuid,
-                                            );
-                                        }}
-                                    />
-
-                                    <Label
-                                        htmlFor={org.uuid}
-                                        className="flex-1">
-                                        {org.name}
-                                    </Label>
-
-                                    <div className="flex items-center gap-3">
-                                        <CollapsibleTrigger asChild>
-                                            <Button
-                                                active
-                                                size="icon-sm"
-                                                variant="helper">
-                                                <CollapsibleIndicator />
-                                            </Button>
-                                        </CollapsibleTrigger>
-                                    </div>
-                                </CardHeader>
-
-                                <CollapsibleContent asChild className="pb-0">
-                                    <CardContent className="bg-card-lv1 flex flex-col gap-5 pt-4">
-                                        <p className="text-text-secondary text-sm">
-                                            Owner: {org.owner}
-                                        </p>
-                                    </CardContent>
-                                </CollapsibleContent>
-                            </Collapsible>
-                        </Card>
-                    ))}
-                </div>
-            </div>
-
-            <div className="flex flex-col gap-4">
-                <Button
-                    size="lg"
-                    variant="primary"
-                    className="w-full"
-                    rightIcon={<ArrowRight />}
-                    onClick={() => {
-                        if (selectedOrganization) {
-                            form.setValue(
-                                "selectedOrganization",
-                                selectedOrganization,
-                            );
-                        }
-                        multiStep.navigateTo("with-email");
-                    }}
-                    disabled={!selectedOrganization}>
-                    Continue
-                </Button>
-
-                <Button
-                    size="md"
-                    variant="secondary"
-                    className="w-full"
-                    onClick={() => {
-                        form.setValue("selectedOrganization", undefined);
-                        multiStep.navigateTo("with-email");
-                    }}>
-                    Create a new organization
-                </Button>
-                <div className="text-text-secondary text-center text-xs">
-                    If you don't see your organization,{" "}
-                    <Link
-                        target="_blank"
-                        href={process.env.WEB_SUPPORT_DISCORD_INVITE_URL ?? ""}>
-                        contact support
-                    </Link>
-                    .
-                </div>
-            </div>
         </div>
     );
 };
@@ -331,16 +160,9 @@ const WithEmail = () => {
 
     const onSubmit = form.handleSubmit(async (data) => {
         try {
-            const { name, password, email, selectedOrganization } = data;
+            const { name, password, email } = data;
 
-            console.log(data);
-
-            await registerUser({
-                name,
-                email,
-                password,
-                organizationId: selectedOrganization,
-            });
+            await registerUser({ name, email, password });
 
             await signIn("credentials", {
                 email,
@@ -360,20 +182,6 @@ const WithEmail = () => {
         }
     });
 
-    const foundOrganizations = form.watch("foundOrganizations");
-    const backButtonText =
-        foundOrganizations?.length > 0
-            ? "Back to Organization Selection"
-            : "Back to Sign Up";
-
-    const handleBack = () => {
-        if (foundOrganizations?.length > 0) {
-            multiStep.navigateTo("match-domain");
-        } else {
-            multiStep.navigateTo("get-started");
-        }
-    };
-
     return (
         <div className="flex flex-col gap-10">
             <Button
@@ -381,8 +189,8 @@ const WithEmail = () => {
                 variant="helper"
                 className="text-xs"
                 leftIcon={<ArrowLeft />}
-                onClick={handleBack}>
-                {backButtonText}
+                onClick={() => multiStep.back()}>
+                Back to Sign Up
             </Button>
 
             <div className="flex flex-col gap-2">
@@ -624,14 +432,6 @@ const formSchema = z
                     "Password must include at least 1 uppercase letter, 1 number, and 1 special character",
             }),
         confirmPassword: z.string({ required_error: "Confirm your password" }),
-        foundOrganizations: z.array(
-            z.object({
-                uuid: z.string(),
-                name: z.string(),
-                owner: z.string().optional(),
-            }),
-        ),
-        selectedOrganization: z.string().optional(),
     })
 
     .superRefine(({ confirmPassword, password }, ctx) => {
@@ -653,8 +453,6 @@ export const RegisterPageContent = () => {
             email: "",
             password: "",
             confirmPassword: "",
-            foundOrganizations: [],
-            selectedOrganization: "",
         },
     });
 
@@ -664,7 +462,6 @@ export const RegisterPageContent = () => {
                 initialStep="get-started"
                 steps={{
                     "get-started": GetStarted,
-                    "match-domain": MatchDomain,
                     "with-email": WithEmail,
                 }}
             />

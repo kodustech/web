@@ -1,4 +1,4 @@
-import { INTEGRATIONS_KEY, TeamRole } from "@enums";
+import { INTEGRATIONS_KEY, TeamRole, type UserStatus } from "@enums";
 import { IntegrationsCommon } from "src/core/types";
 
 export type IntegrationsCommonForSetInfos = {
@@ -8,26 +8,17 @@ export type IntegrationsCommonForSetInfos = {
     boardSelected?: IntegrationsCommon;
 };
 
-export enum STATUS {
-    ACTIVE = "active",
-    INACTIVE = "inactive",
-    PENDING = "pending",
-    REMOVED = "removed",
-}
-
 export type MembersSetup = {
     uuid?: string;
     isCreate?: boolean;
     active: boolean;
     avatar?: string;
-    communicationId?: string;
     name: string;
-    teamRole?: TeamRole.TEAM_LEADER | TeamRole.TEAM_MEMBER;
-    communication: { name: string; id: string };
+    teamRole?: TeamRole;
     email: string;
     error: boolean;
     isCurrentUser?: boolean;
-    userStatus?: string;
+    userStatus?: UserStatus;
     userId?: string;
 };
 

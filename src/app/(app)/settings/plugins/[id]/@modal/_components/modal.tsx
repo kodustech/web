@@ -24,6 +24,7 @@ import {
     type getMCPPluginTools,
 } from "@services/mcp-manager/fetch";
 import { PlugIcon } from "lucide-react";
+import type { AwaitedReturnType } from "src/core/types";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 
 import { RequiredConfiguration } from "./required-configuration";
@@ -33,8 +34,8 @@ export const PluginModal = ({
     plugin,
     tools,
 }: {
-    plugin: Awaited<ReturnType<typeof getMCPPluginById>>;
-    tools: Awaited<ReturnType<typeof getMCPPluginTools>>;
+    plugin: AwaitedReturnType<typeof getMCPPluginById>;
+    tools: AwaitedReturnType<typeof getMCPPluginTools>;
 }) => {
     const router = useRouter();
 

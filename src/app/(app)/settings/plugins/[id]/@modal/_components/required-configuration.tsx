@@ -14,6 +14,7 @@ import { Input } from "@components/ui/input";
 import { Markdown } from "@components/ui/markdown";
 import type { getMCPPluginById } from "@services/mcp-manager/fetch";
 import { AlertTriangleIcon, CheckCircle2Icon } from "lucide-react";
+import type { AwaitedReturnType } from "src/core/types";
 
 export const RequiredConfiguration = ({
     plugin,
@@ -21,7 +22,7 @@ export const RequiredConfiguration = ({
     setValues,
     isValid,
 }: {
-    plugin: Awaited<ReturnType<typeof getMCPPluginById>>;
+    plugin: AwaitedReturnType<typeof getMCPPluginById>;
     values: Record<string, string>;
     setValues: Dispatch<SetStateAction<Record<string, string>>>;
     isValid: boolean;

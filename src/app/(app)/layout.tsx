@@ -5,6 +5,7 @@ import {
     getOrganizationName,
 } from "@services/organizations/fetch";
 import { getTeams } from "@services/teams/fetch";
+import { auth } from "src/core/config/auth";
 import { NavMenu } from "src/core/layout/navbar";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
@@ -15,13 +16,12 @@ import {
     getUsersWithLicense,
     validateOrganizationLicense,
 } from "src/features/ee/subscription/_services/billing/fetch";
-import { getJwtPayload } from "src/lib/auth/utils";
 
 import { Providers } from "./providers";
 
 export default async function Layout({ children }: React.PropsWithChildren) {
-    const jwtPayload = await getJwtPayload();
-    if (!jwtPayload) return redirect("/sign-in");
+    const session = await auth();
+    if (!session) redirect("/sign-out");
 
     const [teams, teamId, organizationId, organizationName] = await Promise.all(
         [
@@ -46,7 +46,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
 
     return (
         <Providers
-            jwtPayload={jwtPayload}
+            session={session}
             teams={teams}
             organization={{
                 id: organizationId,

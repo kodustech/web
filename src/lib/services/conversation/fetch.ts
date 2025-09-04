@@ -1,4 +1,4 @@
-import { typedFetch } from "@services/fetch";
+import { authorizedFetch } from "@services/fetch";
 import { axiosAuthorized } from "src/core/utils/axios";
 
 import { CONVERSATION_API } from ".";
@@ -23,7 +23,7 @@ export const getConversations = async (
     teamId?: string,
 ): Promise<Record<string, Conversation[]>> => {
     try {
-        const response = await typedFetch<Record<string, Conversation[]>>(
+        const response = await authorizedFetch<Record<string, Conversation[]>>(
             CONVERSATION_API.GET_ALL_CONVERSATIONS,
         );
 

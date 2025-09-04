@@ -1,5 +1,5 @@
 import type { Repository } from "@services/codeManagement/types";
-import { typedFetch } from "@services/fetch";
+import { authorizedFetch } from "@services/fetch";
 import { IntegrationCategory } from "src/core/types";
 import { axiosAuthorized } from "src/core/utils/axios";
 
@@ -34,7 +34,7 @@ export const getIntegrationConfig = ({
     teamId: string;
     integrationCategory?: IntegrationCategory;
 }) => {
-    return typedFetch<Array<IntegrationConfig>>(
+    return authorizedFetch<Array<IntegrationConfig>>(
         INTEGRATION_CONFIG.GET_INTEGRATION_CONFIG_BY_CATEGORY,
         {
             params: { teamId, integrationCategory },

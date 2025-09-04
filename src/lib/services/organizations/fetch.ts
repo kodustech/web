@@ -1,9 +1,12 @@
-import { typedFetch } from "@services/fetch";
+import { authorizedFetch } from "@services/fetch";
+import { auth } from "src/core/config/auth";
 
 import { ORGANIZATIONS_PATHS } from ".";
 
-export const getOrganizationId = () =>
-    typedFetch<string>(ORGANIZATIONS_PATHS.ORGANIZATION_ID);
+export const getOrganizationId = async () => {
+    const session = await auth();
+    return session?.user.organizationId!;
+};
 
 export const getOrganizationName = () =>
-    typedFetch<string>(ORGANIZATIONS_PATHS.ORGANIZATION_NAME);
+    authorizedFetch<string>(ORGANIZATIONS_PATHS.ORGANIZATION_NAME);

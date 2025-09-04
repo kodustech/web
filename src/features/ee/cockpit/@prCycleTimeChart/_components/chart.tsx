@@ -3,6 +3,7 @@
 import { use } from "react";
 import useResizeObserver from "@hooks/use-resize-observer";
 import { ExpandableContext } from "src/core/providers/expandable";
+import type { AwaitedReturnType } from "src/core/types";
 import type { getLeadTimeForChange } from "src/features/ee/cockpit/_services/analytics/productivity/fetch";
 import {
     VictoryAxis,
@@ -25,7 +26,7 @@ const separateHoursAndMinutes = (hours: number) => {
 export const Chart = ({
     data,
 }: {
-    data: Awaited<ReturnType<typeof getLeadTimeForChange>>;
+    data: AwaitedReturnType<typeof getLeadTimeForChange>;
 }) => {
     const [graphRef, boundingRect] = useResizeObserver();
     const { isExpanded } = use(ExpandableContext);

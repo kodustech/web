@@ -1,11 +1,11 @@
-import { typedFetch } from "@services/fetch";
+import { authorizedFetch } from "@services/fetch";
 import { axiosAuthorized } from "src/core/utils/axios";
 
 import { TEAMS_PATHS } from ".";
 import { Team, TeamWithIntegrations } from "./types";
 
-export const getTeams = async () =>
-    typedFetch<Team[]>(TEAMS_PATHS.LIST_ALL, {
+export const getTeams = () =>
+    authorizedFetch<Team[]>(TEAMS_PATHS.LIST_ALL, {
         next: { tags: ["teams-list"] },
     });
 

@@ -31,6 +31,19 @@ export enum TeamRole {
     TEAM_MEMBER = "team_member",
 }
 
+export enum UserRole {
+    OWNER = "owner",
+    USER = "user",
+}
+
+export enum UserStatus {
+    ACTIVE = "active",
+    INACTIVE = "inactive",
+    PENDING = "pending",
+    AWAITING_APPROVAL = "awaiting_approval",
+    REMOVED = "removed",
+}
+
 export enum AutomationsTagsEnum {
     ENSURE_BEST_PRACTICE = "Ensure Best Practice",
     IMPROVE_PRODUCTIVITY = "Improve Productivity",

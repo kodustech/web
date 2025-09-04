@@ -1,16 +1,11 @@
-import { TypedFetchError } from "@services/fetch";
+import { typedFetch } from "@services/fetch";
 import { createUrl } from "src/core/utils/helpers";
 import { isServerSide } from "src/core/utils/server-side";
 
 export const billingFetch = async <Data>(
-    _url: Parameters<typeof globalThis.fetch>[0],
-    config?: Parameters<typeof globalThis.fetch>[1] & {
-        params?: Record<string, string>;
-    },
+    _url: Parameters<typeof typedFetch>[0],
+    config?: Parameters<typeof typedFetch>[1],
 ): Promise<Data> => {
-    const { params, ...paramsRest } = config ?? {};
-    const searchParams = new URLSearchParams(params);
-
     let hostName = process.env.WEB_HOSTNAME_BILLING;
 
     // if 'true' we are in the server and hostname is not a domain
@@ -23,29 +18,9 @@ export const billingFetch = async <Data>(
     const port = process.env.WEB_PORT_BILLING;
     const url = createUrl(hostName, port, `/api/billing/${_url}`);
 
-    const urlWithParams =
-        searchParams.size > 0 ? `${url}?${searchParams.toString()}` : url;
-
     try {
-        const response = await fetch(urlWithParams, {
-            ...paramsRest,
-            headers: {
-                "Accept": "application/json",
-                "Content-Type": "application/json",
-                ...config?.headers,
-            },
-        });
-
-        if (!response.ok) {
-            throw new TypedFetchError(
-                response.status,
-                response.statusText,
-                urlWithParams,
-            );
-        }
-
-        return response.json();
-    } catch (error) {
+        return typedFetch(url, config);
+    } catch {
         return null as Data;
     }
 };

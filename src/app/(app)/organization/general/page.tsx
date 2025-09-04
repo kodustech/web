@@ -1,4 +1,4 @@
-import { typedFetch, TypedFetchError } from "@services/fetch";
+import { authorizedFetch, TypedFetchError } from "@services/fetch";
 import { ORGANIZATION_PARAMETERS_PATHS } from "@services/organizationParameters";
 import { getOrganizationParameterByKey } from "@services/organizationParameters/fetch";
 import { getOrganizationId } from "@services/organizations/fetch";
@@ -7,19 +7,20 @@ import {
     OrganizationParametersConfigKey,
     Timezone,
 } from "@services/parameters/types";
-import { getJwtPayload } from "src/lib/auth/utils";
+import { auth } from "src/core/config/auth";
 
 import { GeneralOrganizationSettingsPage } from "./_page-component";
 
 export default async function OrganizationSettingsPage() {
     const organizationId = await getOrganizationId();
-    const jwtPayload = await getJwtPayload();
-    const email = jwtPayload?.email ?? "";
+    const jwtPayload = await auth();
+    const email = jwtPayload?.user.email ?? "";
+    const userDomain = email.split("@")[1];
 
     let timezoneConfigValue: Timezone = Timezone.NEW_YORK;
     let autoJoinConfigValue: OrganizationParametersAutoJoinConfig = {
         enabled: false,
-        domains: [],
+        domains: [userDomain],
     };
 
     try {
@@ -35,14 +36,17 @@ export default async function OrganizationSettingsPage() {
         }
     } catch (error: unknown) {
         if (error instanceof TypedFetchError && error.statusCode === 404) {
-            await typedFetch(ORGANIZATION_PARAMETERS_PATHS.CREATE_OR_UPDATE, {
-                method: "POST",
-                body: JSON.stringify({
-                    key: OrganizationParametersConfigKey.TIMEZONE_CONFIG,
-                    configValue: timezoneConfigValue,
-                    organizationAndTeamData: { organizationId },
-                }),
-            });
+            await authorizedFetch(
+                ORGANIZATION_PARAMETERS_PATHS.CREATE_OR_UPDATE,
+                {
+                    method: "POST",
+                    body: JSON.stringify({
+                        key: OrganizationParametersConfigKey.TIMEZONE_CONFIG,
+                        configValue: timezoneConfigValue,
+                        organizationAndTeamData: { organizationId },
+                    }),
+                },
+            );
         }
     }
 
@@ -59,14 +63,17 @@ export default async function OrganizationSettingsPage() {
         }
     } catch (error: unknown) {
         if (error instanceof TypedFetchError && error.statusCode === 404) {
-            await typedFetch(ORGANIZATION_PARAMETERS_PATHS.CREATE_OR_UPDATE, {
-                method: "POST",
-                body: JSON.stringify({
-                    key: OrganizationParametersConfigKey.AUTO_JOIN_CONFIG,
-                    configValue: autoJoinConfigValue,
-                    organizationAndTeamData: { organizationId },
-                }),
-            });
+            await authorizedFetch(
+                ORGANIZATION_PARAMETERS_PATHS.CREATE_OR_UPDATE,
+                {
+                    method: "POST",
+                    body: JSON.stringify({
+                        key: OrganizationParametersConfigKey.AUTO_JOIN_CONFIG,
+                        configValue: autoJoinConfigValue,
+                        organizationAndTeamData: { organizationId },
+                    }),
+                },
+            );
         }
     }
     return (

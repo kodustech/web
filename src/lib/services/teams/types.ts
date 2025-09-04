@@ -19,7 +19,7 @@ export interface TeamWithIntegrations {
     isCommunicationConfigured: boolean;
 }
 
-interface Organization {
+export interface Organization {
     uuid: string;
     name: string;
     tenantName: string;

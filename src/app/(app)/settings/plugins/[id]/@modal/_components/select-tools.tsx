@@ -16,6 +16,7 @@ import { Input } from "@components/ui/input";
 import { ToggleGroup } from "@components/ui/toggle-group";
 import type { getMCPPluginTools } from "@services/mcp-manager/fetch";
 import { AlertTriangleIcon, SearchIcon } from "lucide-react";
+import type { AwaitedReturnType } from "src/core/types";
 import { cn } from "src/core/utils/components";
 
 export const SelectTools = ({
@@ -27,7 +28,7 @@ export const SelectTools = ({
     defaultOpen: boolean;
     selectedTools: Array<string>;
     setSelectedTools: Dispatch<SetStateAction<Array<string>>>;
-    tools: Awaited<ReturnType<typeof getMCPPluginTools>>;
+    tools: AwaitedReturnType<typeof getMCPPluginTools>;
 }) => {
     const alphabeticallySortedTools = useMemo(
         () => tools.sort((a, b) => (a.name > b.name ? 1 : -1)),

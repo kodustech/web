@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@components/ui/button";
 import { SvgGithub } from "@components/ui/icons/SvgGithub";
 import { Link } from "@components/ui/link";
+import { typedFetch } from "@services/fetch";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { XIcon } from "lucide-react";
 import { cn } from "src/core/utils/components";
@@ -15,14 +16,13 @@ export const GithubStars = () => {
         localStorage.getItem(localStorageKey) !== "true",
     );
 
-    const data = useSuspenseQuery<{ stargazers_count: number }, Error>({
+    const data = useSuspenseQuery({
         queryKey: ["github-project-repository-data"],
         queryFn: async ({ signal }) => {
-            const response = await fetch(
+            return typedFetch<{ stargazers_count: number }>(
                 `https://api.github.com/repos/${repository}`,
                 { signal },
             );
-            return response.json();
         },
     });
 

@@ -1,4 +1,4 @@
-import { typedFetch } from "@services/fetch";
+import { authorizedFetch } from "@services/fetch";
 import type { OrganizationParametersConfigKey } from "@services/parameters/types";
 import { axiosAuthorized } from "src/core/utils/axios";
 
@@ -31,6 +31,6 @@ export const getOrganizationParameterByKey = async <
     key: OrganizationParametersConfigKey;
     organizationId: string;
 }) =>
-    await typedFetch<T>(ORGANIZATION_PARAMETERS_PATHS.GET_BY_KEY, {
+    await authorizedFetch<T>(ORGANIZATION_PARAMETERS_PATHS.GET_BY_KEY, {
         params,
     });

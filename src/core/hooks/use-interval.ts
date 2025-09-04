@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef } from "react";
 
 export function useInterval(
     callback: () => void,
-    delay: number | undefined,
+    ms: number | undefined,
     deps: unknown[] = [],
 ) {
     const savedCallback = useRef(callback);
@@ -14,7 +14,7 @@ export function useInterval(
 
     // Set up the interval.
     useEffect(() => {
-        const id = setInterval(() => savedCallback.current(), delay ?? 0);
+        const id = setInterval(() => savedCallback.current(), ms ?? 0);
         return () => clearInterval(id);
-    }, [delay, ...deps]);
+    }, [ms, ...deps]);
 }

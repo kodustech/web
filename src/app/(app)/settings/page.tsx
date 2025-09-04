@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
 
-export default function SettingsPage() {
+export default async function SettingsPage() {
     redirect("/settings/git");
 }
