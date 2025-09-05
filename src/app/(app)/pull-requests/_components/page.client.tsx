@@ -21,7 +21,7 @@ export function PullRequestsPageClient() {
     });
 
     return (
-        <Page.Root className="overflow-hidden pb-0">
+        <Page.Root className="pb-0">
             <Page.Header className="max-w-full">
                 <div className="flex items-center justify-between w-full">
                     <div className="flex items-center gap-5">
