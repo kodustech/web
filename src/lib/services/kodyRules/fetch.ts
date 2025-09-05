@@ -1,8 +1,9 @@
 import { authorizedFetch } from "@services/fetch";
 import { axiosAuthorized } from "src/core/utils/axios";
+import { ProgrammingLanguage } from "src/core/enums/programming-language";
 
 import { KODY_RULES_PATHS } from ".";
-import type { KodyRule, KodyRulesStatus, LibraryRule } from "./types";
+import type { KodyRule, KodyRulesStatus, LibraryRule, KodyRuleBucket, PaginatedResponse, FindLibraryKodyRulesFilters } from "./types";
 
 export const createOrUpdateKodyRule = async (
     rule: KodyRule,
@@ -48,6 +49,63 @@ export const getLibraryKodyRules = async () => {
         KODY_RULES_PATHS.FIND_LIBRARY_KODY_RULES,
     );
     return Object.values(rules).flat();
+};
+
+export const getLibraryKodyRulesWithFeedback = async (params?: { 
+    page?: number; 
+    limit?: number; 
+    buckets?: string[];
+    name?: string;
+    severity?: "Low" | "Medium" | "High" | "Critical";
+    tags?: string[];
+    language?: keyof typeof ProgrammingLanguage;
+}) => {
+    // Build params object for authorizedFetch
+    const fetchParams: Record<string, string | number | boolean | undefined> = {
+        page: params?.page || 1,
+        limit: params?.limit || 50,
+    };
+
+    // Add other filters if provided
+    if (params?.name) fetchParams.name = params.name;
+    if (params?.severity) fetchParams.severity = params.severity;
+    if (params?.language) fetchParams.language = String(params.language);
+    
+    // For arrays, we need to handle them as multiple parameters with the same key
+    // But since authorizedFetch doesn't handle array params well, we'll build the URL manually
+    const queryParams = new URLSearchParams();
+    
+    Object.entries(fetchParams).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+            queryParams.append(key, String(value));
+        }
+    });
+
+    // Add bucket filters as multiple parameters
+    if (params?.buckets && params.buckets.length > 0) {
+        params.buckets.forEach(bucket => {
+            queryParams.append('buckets', bucket);
+        });
+    }
+
+    // Add tag filters as multiple parameters
+    if (params?.tags && params.tags.length > 0) {
+        params.tags.forEach(tag => {
+            queryParams.append('tags', tag);
+        });
+    }
+    
+    const url = `${KODY_RULES_PATHS.FIND_LIBRARY_KODY_RULES_WITH_FEEDBACK}?${queryParams.toString()}`;
+    
+    const response = await authorizedFetch<PaginatedResponse<LibraryRule>>(url);
+    return response;
+};
+
+export const getLibraryKodyRulesBuckets = async () => {
+    const response = await authorizedFetch<Array<KodyRuleBucket>>(
+        KODY_RULES_PATHS.FIND_LIBRARY_KODY_RULES_BUCKETS,
+    );
+    return response || [];
 };
 
 export const getKodyRulesByRepositoryId = async (

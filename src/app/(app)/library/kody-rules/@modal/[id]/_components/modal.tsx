@@ -25,10 +25,9 @@ import {
     type KodyRule,
     type LibraryRule,
 } from "@services/kodyRules/types";
-import { setRuleLike } from "@services/ruleLike/fetch";
-import type { RuleLike } from "@services/ruleLike/types";
+import { sendRuleFeedback, type FeedbackType } from "@services/ruleFeedback/fetch";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { HeartIcon, Plus } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Plus } from "lucide-react";
 import type { CodeReviewRepositoryConfig } from "src/app/(app)/settings/code-review/_types";
 import { useAuth } from "src/core/providers/auth.provider";
 import type { LiteralUnion } from "src/core/types";
@@ -53,8 +52,11 @@ export const KodyRuleLibraryItemModal = ({
     const router = useRouter();
     const { userId } = useAuth();
     const queryClient = useQueryClient();
-    const [isLiked, setIsLiked] = useState(rule.isLiked);
-    const [likeCount, setLikeCount] = useState(rule.likesCount ?? 0);
+    const [positiveCount, setPositiveCount] = useState(rule.positiveCount ?? 0);
+    const [negativeCount, setNegativeCount] = useState(rule.negativeCount ?? 0);
+    const [userFeedback, setUserFeedback] = useState<FeedbackType | null>(
+        rule.userFeedback as FeedbackType | null
+    );
 
     const [selectedRepositoriesIds, setSelectedRepositoriesIds] = useState<
         string[]
@@ -145,18 +147,25 @@ export const KodyRuleLibraryItemModal = ({
     const badExample = rule.examples?.find(({ isCorrect }) => !isCorrect);
     const goodExample = rule.examples?.find(({ isCorrect }) => isCorrect);
 
-    const { mutate: toggleLike, isPending: isLikeActionInProgress } =
-        useMutation<RuleLike, Error, void>({
-            mutationFn: async () => {
-                return setRuleLike(rule.uuid, rule.language, !isLiked, userId);
+    const { mutate: sendFeedback, isPending: isFeedbackActionInProgress } =
+        useMutation<any, Error, FeedbackType>({
+            mutationFn: async (feedback: FeedbackType) => {
+                return sendRuleFeedback(rule.uuid, feedback);
             },
-            onSuccess: (data: any) => {
+            onSuccess: (data, feedback) => {
                 revalidateServerSidePath("/library/kody-rules");
-                setIsLiked(data.data.liked);
-                setLikeCount(data.data.count);
+                // Update local state optimistically
+                if (feedback === "positive") {
+                    setPositiveCount(prev => userFeedback === "positive" ? prev : prev + 1);
+                    setNegativeCount(prev => userFeedback === "negative" ? prev - 1 : prev);
+                } else {
+                    setNegativeCount(prev => userFeedback === "negative" ? prev : prev + 1);
+                    setPositiveCount(prev => userFeedback === "positive" ? prev - 1 : prev);
+                }
+                setUserFeedback(userFeedback === feedback ? null : feedback);
             },
             onError: (error) => {
-                console.error("Error toggling like:", error);
+                console.error("Error sending feedback:", error);
             },
         });
 
@@ -184,26 +193,45 @@ export const KodyRuleLibraryItemModal = ({
                         />
                     </DialogTitle>
 
-                    <Button
-                        size="md"
-                        variant="cancel"
-                        onClick={() => toggleLike()}
-                        className="-my-2 gap-1.5 px-2"
-                        rightIcon={
-                            isLikeActionInProgress ? (
-                                <Spinner className="text-brand-red size-2.5" />
-                            ) : (
-                                <HeartIcon
-                                    className={cn(
-                                        "transition-colors",
-                                        isLiked &&
-                                            "fill-brand-red text-brand-red",
-                                    )}
-                                />
-                            )
-                        }>
-                        {likeCount === 0 ? null : likeCount}
-                    </Button>
+                    <div className="flex items-center gap-1">
+                        <Button
+                            size="md"
+                            variant="cancel"
+                            onClick={() => sendFeedback("positive")}
+                            disabled={isFeedbackActionInProgress}
+                            className={cn(
+                                "-my-2 gap-1.5 px-2 transition-colors",
+                                userFeedback === "positive" && "bg-green-500/10 text-green-500 border-green-500/20"
+                            )}
+                            rightIcon={
+                                isFeedbackActionInProgress ? (
+                                    <Spinner className="size-2.5" />
+                                ) : (
+                                    <ThumbsUp className="size-3" />
+                                )
+                            }>
+                            {positiveCount > 0 ? positiveCount : null}
+                        </Button>
+                        
+                        <Button
+                            size="md"
+                            variant="cancel"
+                            onClick={() => sendFeedback("negative")}
+                            disabled={isFeedbackActionInProgress}
+                            className={cn(
+                                "-my-2 gap-1.5 px-2 transition-colors",
+                                userFeedback === "negative" && "bg-red-500/10 text-red-500 border-red-500/20"
+                            )}
+                            rightIcon={
+                                isFeedbackActionInProgress ? (
+                                    <Spinner className="size-2.5" />
+                                ) : (
+                                    <ThumbsDown className="size-3" />
+                                )
+                            }>
+                            {negativeCount > 0 ? negativeCount : null}
+                        </Button>
+                    </div>
                 </DialogHeader>
 
                 <div className="-mx-6 overflow-auto px-6">

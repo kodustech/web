@@ -6,9 +6,9 @@ import { Badge } from "@components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import type { LibraryRule } from "@services/kodyRules/types";
-import { setRuleLike, type RuleLike } from "@services/ruleLike/fetch";
+import { sendRuleFeedback, type FeedbackType } from "@services/ruleFeedback/fetch";
 import { useMutation } from "@tanstack/react-query";
-import { HeartIcon } from "lucide-react";
+import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { ProgrammingLanguage } from "src/core/enums/programming-language";
 import { useAuth } from "src/core/providers/auth.provider";
 import { cn } from "src/core/utils/components";
@@ -32,13 +32,17 @@ export const KodyRuleLibraryItem = ({
     showLikeButton?: boolean;
 }) => {
     const { userId } = useAuth();
-    const [isLiked, setIsLiked] = useState(rule.isLiked);
-    const [likeCount, setLikeCount] = useState(rule.likesCount ?? 0);
+    const [positiveCount, setPositiveCount] = useState(rule.positiveCount ?? 0);
+    const [negativeCount, setNegativeCount] = useState(rule.negativeCount ?? 0);
+    const [userFeedback, setUserFeedback] = useState<FeedbackType | null>(
+        rule.userFeedback as FeedbackType | null
+    );
 
     useEffect(() => {
-        setIsLiked(rule.isLiked);
-        setLikeCount(rule.likesCount);
-    }, [rule.isLiked, rule.likesCount]);
+        setPositiveCount(rule.positiveCount ?? 0);
+        setNegativeCount(rule.negativeCount ?? 0);
+        setUserFeedback(rule.userFeedback as FeedbackType | null);
+    }, [rule.positiveCount, rule.negativeCount, rule.userFeedback]);
 
     const sortedTags = [...rule.tags.sort((a, b) => a.length - b.length)];
 
@@ -70,17 +74,24 @@ export const KodyRuleLibraryItem = ({
         },
     );
 
-    const { mutate: toggleLike, isPending: isLikeActionInProgress } =
-        useMutation<RuleLike, Error, void>({
-            mutationFn: async () => {
-                return setRuleLike(rule.uuid, rule.language, !isLiked, userId);
+    const { mutate: sendFeedback, isPending: isFeedbackActionInProgress } =
+        useMutation<any, Error, FeedbackType>({
+            mutationFn: async (feedback: FeedbackType) => {
+                return sendRuleFeedback(rule.uuid, feedback);
             },
-            onSuccess: (data: any) => {
-                setIsLiked(data.data.liked);
-                setLikeCount(data.data.count);
+            onSuccess: (data, feedback) => {
+                // Update local state optimistically
+                if (feedback === "positive") {
+                    setPositiveCount(prev => userFeedback === "positive" ? prev : prev + 1);
+                    setNegativeCount(prev => userFeedback === "negative" ? prev - 1 : prev);
+                } else {
+                    setNegativeCount(prev => userFeedback === "negative" ? prev : prev + 1);
+                    setPositiveCount(prev => userFeedback === "positive" ? prev - 1 : prev);
+                }
+                setUserFeedback(userFeedback === feedback ? null : feedback);
             },
             onError: (error) => {
-                console.error("Error toggling like:", error);
+                console.error("Error sending feedback:", error);
             },
         });
 
@@ -168,26 +179,45 @@ export const KodyRuleLibraryItem = ({
                 </div>
 
                 {showLikeButton && (
-                    <Button
-                        size="md"
-                        variant="cancel"
-                        onClick={() => toggleLike()}
-                        className="-my-2 -mr-2 gap-1.5 px-2"
-                        rightIcon={
-                            isLikeActionInProgress ? (
-                                <Spinner className="text-brand-red size-2.5" />
-                            ) : (
-                                <HeartIcon
-                                    className={cn(
-                                        "transition-colors",
-                                        isLiked &&
-                                            "fill-brand-red text-brand-red",
-                                    )}
-                                />
-                            )
-                        }>
-                        {likeCount === 0 ? null : likeCount}
-                    </Button>
+                    <div className="flex items-center gap-1">
+                        <Button
+                            size="sm"
+                            variant="cancel"
+                            onClick={() => sendFeedback("positive")}
+                            disabled={isFeedbackActionInProgress}
+                            className={cn(
+                                "-my-2 gap-1 px-2 transition-colors",
+                                userFeedback === "positive" && "bg-green-500/10 text-green-500 border-green-500/20"
+                            )}
+                            rightIcon={
+                                isFeedbackActionInProgress ? (
+                                    <Spinner className="size-2.5" />
+                                ) : (
+                                    <ThumbsUp className="size-3" />
+                                )
+                            }>
+                            {positiveCount > 0 ? positiveCount : null}
+                        </Button>
+                        
+                        <Button
+                            size="sm"
+                            variant="cancel"
+                            onClick={() => sendFeedback("negative")}
+                            disabled={isFeedbackActionInProgress}
+                            className={cn(
+                                "-my-2 gap-1 px-2 transition-colors",
+                                userFeedback === "negative" && "bg-red-500/10 text-red-500 border-red-500/20"
+                            )}
+                            rightIcon={
+                                isFeedbackActionInProgress ? (
+                                    <Spinner className="size-2.5" />
+                                ) : (
+                                    <ThumbsDown className="size-3" />
+                                )
+                            }>
+                            {negativeCount > 0 ? negativeCount : null}
+                        </Button>
+                    </div>
                 )}
             </CardFooter>
         </Card>
