@@ -57,6 +57,24 @@ const buttonVariants = cva(
                     "button-disabled:text-placeholder/30",
                     "group-disabled/link:text-placeholder/30",
                 ),
+
+                "success": cn(
+                    "[--button-background:#152120] [--button-foreground:#42BE65]",
+                    "button-disabled:bg-text-placeholder/30 button-disabled:text-text-placeholder",
+                    "group-disabled/link:bg-text-placeholder/30 group-disabled/link:text-text-placeholder",
+                ),
+
+                "in-progress": cn(
+                    "[--button-background:#171D30] [--button-foreground:#5C97FF]",
+                    "button-disabled:bg-text-placeholder/30 button-disabled:text-text-placeholder",
+                    "group-disabled/link:bg-text-placeholder/30 group-disabled/link:text-text-placeholder",
+                ),
+
+                "error": cn(
+                    "[--button-background:#271720] [--button-foreground:#FA5867]",
+                    "button-disabled:bg-text-placeholder/30 button-disabled:text-text-placeholder",
+                    "group-disabled/link:bg-text-placeholder/30 group-disabled/link:text-text-placeholder",
+                ),
             },
             size: {
                 "xs": "min-h-7 [--icon-size:calc(var(--spacing)*4)] rounded-full text-xs px-3.5 py-1.5 gap-1.5",

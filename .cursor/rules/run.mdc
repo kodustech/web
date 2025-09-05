@@ -1,0 +1,41 @@
+---
+description: Docker development environment guidelines - assume services are running
+globs: ["**/*.{ts,tsx,js,jsx,md,sh}"]
+alwaysApply: true
+---
+
+## Docker Development Environment
+
+### Default Assumption
+- **Project is always running** via Docker containers
+- **Services are available** and properly configured
+- **No need to start/stop** services for each task
+
+### Available Environments
+- **Development**: `docker-compose.dev.yml`
+- **QA**: `docker-compose.qa.yml` 
+- **Production**: `docker-compose.prod.yml`
+- **Self-hosted**: `docker-compose.selfhosted.yml`
+
+### When NOT to Run Commands
+- ❌ Don't run `npm install` or `yarn install`
+- ❌ Don't run `npm start` or development servers
+- ❌ Don't build the project unless specifically requested
+- ❌ Don't restart services unless there's an error
+
+### When Commands ARE Needed
+- ✅ Database migrations or schema changes
+- ✅ Specific debugging or troubleshooting
+- ✅ User explicitly requests build/restart
+- ✅ Adding new dependencies (but assume they'll handle container restart)
+
+### Examples
+```bash
+# ❌ Avoid - services already running
+npm run dev
+docker-compose up
+
+# ✅ OK - specific requests
+docker-compose exec web npm run migrate
+docker-compose logs web
+```
