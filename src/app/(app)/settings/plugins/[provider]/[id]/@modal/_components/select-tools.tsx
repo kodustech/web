@@ -21,13 +21,13 @@ import { cn } from "src/core/utils/components";
 
 export const SelectTools = ({
     selectedTools,
-    setSelectedTools,
+    setSelectedToolsAction,
     tools,
     defaultOpen,
 }: {
     defaultOpen: boolean;
     selectedTools: Array<string>;
-    setSelectedTools: Dispatch<SetStateAction<Array<string>>>;
+    setSelectedToolsAction: Dispatch<SetStateAction<Array<string>>>;
     tools: AwaitedReturnType<typeof getMCPPluginTools>;
 }) => {
     const alphabeticallySortedTools = useMemo(
@@ -96,10 +96,10 @@ export const SelectTools = ({
                             variant="primary-dark"
                             onClick={() => {
                                 if (isAllToolsSelected) {
-                                    return setSelectedTools([]);
+                                    return setSelectedToolsAction([]);
                                 }
 
-                                setSelectedTools(tools.map(({ slug }) => slug));
+                                setSelectedToolsAction(tools.map(({ slug }) => slug));
                             }}>
                             {isAllToolsSelected ? "Unselect all" : "Select all"}
                         </Button>
@@ -109,7 +109,7 @@ export const SelectTools = ({
                         <ToggleGroup.Root
                             type="multiple"
                             value={selectedTools}
-                            onValueChange={setSelectedTools}
+                            onValueChange={setSelectedToolsAction}
                             className="columns-2 space-y-2 gap-x-2 pb-4">
                             {filteredTools.map((tool) => (
                                 <ToggleGroup.ToggleGroupItem
@@ -125,7 +125,7 @@ export const SelectTools = ({
                                             className={cn(
                                                 "size-5",
                                                 tool.warning &&
-                                                    "[--button-background:var(--color-warning)]",
+                                                "[--button-background:var(--color-warning)]",
                                             )}
                                             checked={selectedTools.includes(
                                                 tool.slug,
@@ -138,7 +138,7 @@ export const SelectTools = ({
                                                 className={cn(
                                                     "text-text-primary min-h-5",
                                                     tool.warning &&
-                                                        "text-warning",
+                                                    "text-warning",
                                                 )}>
                                                 {tool.name}
 

@@ -1,6 +1,10 @@
 import { mcpManagerFetch } from "./utils";
 
 type PluginAuthScheme = "BEARER_TOKEN" | "API_KEY" | "OAUTH2" | "BASIC";
+export enum MCP_CONNECTION_STATUS {
+    ACTIVE = "ACTIVE",
+    PENDING = "PENDING",
+}
 
 export const getMCPPlugins = () =>
     mcpManagerFetch<
@@ -13,16 +17,17 @@ export const getMCPPlugins = () =>
             logo: string;
             provider: string;
             isConnected: boolean;
-            connectionStatus?: "ACTIVE" | "PENDING";
+            connectionStatus?: MCP_CONNECTION_STATUS;
+            isDefault?: boolean;
         }>
     >("/mcp/integrations", { params: { page: 1, pageSize: 100 } });
 
 export const getMCPPluginById = ({
     id,
-    provider = "composio",
+    provider,
 }: {
     id: string;
-    provider?: string;
+    provider: string;
 }) =>
     mcpManagerFetch<{
         id: string;
@@ -34,6 +39,7 @@ export const getMCPPluginById = ({
         provider: string;
         allowedTools: Array<string>;
         isConnected: boolean;
+        isDefault?: boolean;
         connectionId?: string;
         mcpConnectionId?: string;
         requiredParams: Array<{
@@ -47,10 +53,10 @@ export const getMCPPluginById = ({
 
 export const getMCPPluginTools = ({
     id,
-    provider = "composio",
+    provider,
 }: {
     id: string;
-    provider?: string;
+    provider: string;
 }) =>
     mcpManagerFetch<
         Array<{
@@ -64,7 +70,7 @@ export const getMCPPluginTools = ({
 
 export const installMCPPlugin = async ({
     id,
-    provider = "composio",
+    provider,
     allowedTools,
     authParams = {},
 }: {
@@ -77,7 +83,7 @@ export const installMCPPlugin = async ({
         id: string;
         integrationId: string;
         organizationId: string;
-        status: "ACTIVE" | "PENDING";
+        status: MCP_CONNECTION_STATUS;
         provider: string;
         mcpUrl: string;
         appName: string;
@@ -87,7 +93,7 @@ export const installMCPPlugin = async ({
                 id: string;
                 appName: string;
                 authUrl: string;
-                status: "ACTIVE" | "PENDING";
+                status: MCP_CONNECTION_STATUS;
                 mcpUrl: string;
                 allowedTools: Array<string>;
             };
@@ -113,7 +119,7 @@ export const finishOauthMCPPluginInstallation = async ({
         method: "PATCH",
         body: JSON.stringify({
             integrationId: id,
-            status: "ACTIVE",
+            status: MCP_CONNECTION_STATUS.ACTIVE,
         }),
     });
 
@@ -125,10 +131,13 @@ export const deleteMCPConnection = async ({
 }: {
     connectionId: string;
 }) => {
-    const response = await mcpManagerFetch<{}>(`/mcp/connections/${connectionId}`, {
-        method: "DELETE",
-        body: JSON.stringify({}),
-    });
+    const response = await mcpManagerFetch<{}>(
+        `/mcp/connections/${connectionId}`,
+        {
+            method: "DELETE",
+            body: JSON.stringify({}),
+        },
+    );
 
     return response;
 };
@@ -139,7 +148,7 @@ export const getMCPConnections = () =>
             id: string;
             integrationId: string;
             organizationId: string;
-            status: "ACTIVE" | "PENDING";
+            status: MCP_CONNECTION_STATUS;
             provider: string;
             mcpUrl: string;
             appName: string;
@@ -157,7 +166,7 @@ export const getMCPConnection = async ({
         id: string;
         integrationId: string;
         organizationId: string;
-        status: "ACTIVE" | "PENDING";
+        status: MCP_CONNECTION_STATUS;
         provider: string;
         mcpUrl: string;
         appName: string;
@@ -166,7 +175,6 @@ export const getMCPConnection = async ({
 
     return response;
 };
-
 
 export const updateMCPAllowedTools = async ({
     integrationId,
@@ -179,7 +187,7 @@ export const updateMCPAllowedTools = async ({
         id: string;
         integrationId: string;
         organizationId: string;
-        status: "ACTIVE" | "PENDING";
+        status: MCP_CONNECTION_STATUS;
         provider: string;
         mcpUrl: string;
         appName: string;
