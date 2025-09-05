@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarImage } from "@components/ui/avatar";
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
@@ -45,6 +44,7 @@ export const PluginModal = ({
     const { toast } = useToast();
 
     const isConnected = plugin.isConnected;
+    const isDefault = plugin.isDefault;
 
     const [requiredParamsValues, setRequiredParamsValues] = useState<
         Record<string, string>
@@ -60,6 +60,11 @@ export const PluginModal = ({
             ? plugin.allowedTools || []
             : tools.filter(({ warning }) => !warning).map(({ slug }) => slug),
     );
+
+    // Para integrações padrão, usar todos os tools disponíveis
+    const effectiveSelectedTools = isDefault
+        ? tools.map(({ slug }) => slug)
+        : selectedTools;
 
     // Debug: log para verificar os dados
     console.log("Plugin data in modal:", {
@@ -84,9 +89,10 @@ export const PluginModal = ({
     );
 
     const areRequiredParametersValid =
-        Object.keys(requiredParamsValues).length ===
-            plugin.requiredParams.length &&
-        Object.values(requiredParamsValues).every((v) => v.trim().length > 0);
+        isDefault ||
+        (Object.keys(requiredParamsValues).length ===
+            (plugin.requiredParams?.length || 0) &&
+            Object.values(requiredParamsValues).every((v) => v.trim().length > 0));
 
     const [installPlugin, { loading: isInstallPluginLoading }] = useAsyncAction(
         async () => {
@@ -117,7 +123,7 @@ export const PluginModal = ({
             });
 
             await revalidateServerSidePath("/settings/plugins");
-            
+
             toast({
                 variant: "success",
                 title: "Tools updated successfully",
@@ -139,7 +145,7 @@ export const PluginModal = ({
             });
 
             await revalidateServerSidePath("/settings/plugins");
-            
+
             toast({
                 variant: "success",
                 title: "Authentication reset successfully",
@@ -193,27 +199,37 @@ export const PluginModal = ({
                                             Installed
                                         </Badge>
                                     )}
+
+                                    {isDefault && (
+                                        <Badge
+                                            variant="secondary"
+                                            className="bg-primary! text-primary-foreground!">
+                                            Default
+                                        </Badge>
+                                    )}
                                 </div>
                             )}
 
-                            {plugin.requiredParams.length > 0 && (
+                            {(plugin.requiredParams?.length || 0) > 0 && (
                                 <RequiredConfiguration
                                     plugin={plugin}
                                     values={requiredParamsValues}
-                                    setValues={setRequiredParamsValues}
+                                    setValuesAction={setRequiredParamsValues}
                                     isValid={areRequiredParametersValid}
                                 />
                             )}
 
                             <SelectTools
                                 tools={tools.length > 0 ? tools : []}
-                                defaultOpen={plugin.requiredParams.length === 0}
-                                selectedTools={selectedTools}
-                                setSelectedTools={(tools) => {
-                                    setSelectedTools(tools);
-                                    setConfirmInstallationOfToolsWithWarnings(
-                                        false,
-                                    );
+                                defaultOpen={(plugin.requiredParams?.length || 0) === 0}
+                                selectedTools={effectiveSelectedTools}
+                                setSelectedToolsAction={(tools) => {
+                                    if (!isDefault) {
+                                        setSelectedTools(tools);
+                                        setConfirmInstallationOfToolsWithWarnings(
+                                            false,
+                                        );
+                                    }
                                 }}
                             />
                         </div>
@@ -263,6 +279,7 @@ export const PluginModal = ({
                                         loading={isInstallPluginLoading}
                                         onClick={() => installPlugin()}
                                         disabled={
+                                            isDefault ||
                                             !areRequiredParametersValid ||
                                             selectedTools.length === 0 ||
                                             (hasToolsWithWarningSelected &&
@@ -277,7 +294,7 @@ export const PluginModal = ({
                                             variant="tertiary"
                                             leftIcon={<RefreshCwIcon />}
                                             onClick={() => setIsResettingAuth(true)}
-                                            disabled={isResetAuthLoading}>
+                                            disabled={isDefault || isResetAuthLoading}>
                                             Reset Authentication
                                         </Button>
                                         <Button
@@ -287,6 +304,7 @@ export const PluginModal = ({
                                             loading={isUpdateToolsLoading}
                                             onClick={() => updateTools()}
                                             disabled={
+                                                isDefault ||
                                                 selectedTools.length === 0 ||
                                                 (hasToolsWithWarningSelected &&
                                                     !confirmInstallationOfToolsWithWarnings)

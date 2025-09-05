@@ -10,14 +10,13 @@ import { PluginModal } from "./_components/modal";
 export default async function PluginModalPage({
     params,
 }: {
-    params: Promise<{ id: string }>;
+    params: Promise<{ provider: string; id: string }>;
 }) {
-    const { id } = await params;
+    const { id, provider } = await params;
 
-    // Buscar dados do plugin primeiro
     let plugin;
     try {
-        plugin = await getMCPPluginById({ id });
+        plugin = await getMCPPluginById({ id, provider });
     } catch (error) {
         console.error("Error fetching plugin data:", error);
         return null;
@@ -25,7 +24,7 @@ export default async function PluginModalPage({
 
     let tools: AwaitedReturnType<typeof getMCPPluginTools> = [];
     try {
-        const fetchedTools = await getMCPPluginTools({ id });
+        const fetchedTools = await getMCPPluginTools({ id, provider });
         tools = fetchedTools || [];
     } catch (error) {
         console.error(

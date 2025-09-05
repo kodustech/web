@@ -19,12 +19,12 @@ import type { AwaitedReturnType } from "src/core/types";
 export const RequiredConfiguration = ({
     plugin,
     values,
-    setValues,
+    setValuesAction,
     isValid,
 }: {
     plugin: AwaitedReturnType<typeof getMCPPluginById>;
     values: Record<string, string>;
-    setValues: Dispatch<SetStateAction<Record<string, string>>>;
+    setValuesAction: Dispatch<SetStateAction<Record<string, string>>>;
     isValid: boolean;
 }) => {
     return (
@@ -54,7 +54,7 @@ export const RequiredConfiguration = ({
                                             }
                                         </span>
                                         <span>
-                                            of {plugin.requiredParams.length}
+                                            of {plugin.requiredParams?.length || 0}
                                         </span>
                                     </div>
                                     <AlertTriangleIcon className="text-alert" />
@@ -65,7 +65,7 @@ export const RequiredConfiguration = ({
                 </CollapsibleTrigger>
 
                 <CollapsibleContent className="pb-0">
-                    {plugin.requiredParams.length > 0 && (
+                    {(plugin.requiredParams?.length || 0) > 0 && (
                         <CardContent className="flex flex-col gap-4 pb-4">
                             {plugin.requiredParams.map((p) => (
                                 <FormControl.Root key={p.name}>
@@ -80,7 +80,7 @@ export const RequiredConfiguration = ({
                                             placeholder="This information is required"
                                             value={values?.[p.name] ?? ""}
                                             onChange={(e) => {
-                                                setValues((rpv) => ({
+                                                setValuesAction((rpv) => ({
                                                     ...rpv,
                                                     [p.name]: e.target.value,
                                                 }));

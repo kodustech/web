@@ -9,7 +9,7 @@ import {
 } from "@components/ui/card";
 import { Link } from "@components/ui/link";
 import { Page } from "@components/ui/page";
-import { getMCPPlugins } from "@services/mcp-manager/fetch";
+import { getMCPPlugins, MCP_CONNECTION_STATUS } from "@services/mcp-manager/fetch";
 import { CheckIcon } from "lucide-react";
 
 export default async function PluginsPage() {
@@ -17,6 +17,7 @@ export default async function PluginsPage() {
     const alphabeticallySortedPlugins = plugins.sort((a, b) =>
         a.name > b.name ? 1 : -1,
     );
+
 
     return (
         <Page.Root>
@@ -44,7 +45,7 @@ export default async function PluginsPage() {
                         <Link
                             key={item.id}
                             className="w-full"
-                            href={`/settings/plugins/${item.id}`}>
+                            href={`/settings/plugins/${item.provider}/${item.id}`}>
                             <Button
                                 size="lg"
                                 decorative
@@ -54,7 +55,11 @@ export default async function PluginsPage() {
                                     <CardHeader className="gap-4">
                                         <div className="flex h-fit flex-row items-center gap-5">
                                             <Avatar className="bg-card-lv3 group-disabled/link:bg-card-lv3/50 size-10 rounded-lg p-1">
-                                                <AvatarImage src={item.logo} />
+                                                <AvatarImage
+                                                    src={item.logo}
+                                                    alt={`${item.appName} logo`}
+                                                    className="object-contain"
+                                                />
                                             </Avatar>
 
                                             <div className="flex-1">
@@ -69,12 +74,12 @@ export default async function PluginsPage() {
 
                                             {item.isConnected &&
                                                 item.connectionStatus ===
-                                                    "ACTIVE" && (
+                                                MCP_CONNECTION_STATUS.ACTIVE && (
                                                     <Badge
                                                         variant="tertiary"
                                                         leftIcon={<CheckIcon />}
                                                         className="bg-success! text-card-lv2! pointer-events-none">
-                                                        Installed
+                                                        {item.isDefault ? "Default" : "Installed"}
                                                     </Badge>
                                                 )}
                                         </div>
