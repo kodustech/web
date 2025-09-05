@@ -20,6 +20,7 @@ export type Repository = {
         id?: string;
         name?: string;
     };
+    selected?: boolean;
 };
 
 export type GitFileOrFolder = {

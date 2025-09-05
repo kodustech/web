@@ -29,11 +29,14 @@ export const RepositoryFilter = ({
     selectedRepository, 
     onRepositoryChange 
 }: Props) => {
-    const { data: repositories = [], isLoading } = useGetRepositories(
+    const { data: allRepositories = [], isLoading } = useGetRepositories(
         teamId,
         undefined,
-        { isSelected: true },
     );
+
+    // Filter only selected repositories in the frontend as a temporary fix
+    // TODO: Backend should handle isSelected filter properly
+    const repositories = allRepositories.filter((repo: any) => repo.selected);
 
     const [open, setOpen] = useState(false);
 
