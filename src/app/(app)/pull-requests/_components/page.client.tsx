@@ -13,7 +13,7 @@ export function PullRequestsPageClient() {
     const [selectedRepository, setSelectedRepository] = useState<string>();
 
     const {
-        data: pullRequests,
+        data: pullRequests = [],
         isLoading,
         error,
     } = usePullRequestExecutions({
