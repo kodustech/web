@@ -1,0 +1,39 @@
+---
+description: Guidelines for code commenting - prioritize self-documenting code over comments
+globs: ["**/*.{ts,tsx,js,jsx}"]
+alwaysApply: true
+---
+
+## Code Comments Guidelines
+
+### When to Comment
+- **Avoid comments** whenever possible - prefer self-documenting code through:
+  - Clear variable and function names
+  - Small, focused functions with single responsibilities
+  - Descriptive type definitions
+  - Well-structured code organization
+
+### When Comments Are Acceptable
+Only add comments for:
+- **Complex business logic** that cannot be simplified
+- **Non-obvious algorithmic decisions** or optimizations
+- **External API constraints** or workarounds
+- **Temporary workarounds** with TODO/FIXME tags
+- **Public API documentation** (JSDoc for exported functions)
+
+### Comment Language
+- **Always write comments in English** for consistency and accessibility
+- Use clear, concise language
+- Explain "why" not "what" - the code should show what it does
+
+### Examples
+```typescript
+// ❌ Bad - explains what the code does
+const total = price * 1.1; // Multiply price by 1.1
+
+// ✅ Good - explains why
+const total = price * TAX_MULTIPLIER; // Brazilian tax rate as of 2024
+
+// ✅ Better - self-documenting
+const totalWithTax = calculateTotalWithBrazilianTax(price);
+```
