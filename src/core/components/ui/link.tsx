@@ -5,8 +5,12 @@ import { cn } from "src/core/utils/components";
 
 export const Link = ({
     disabled,
+    noHoverUnderline,
     ...props
-}: React.ComponentProps<typeof NextLink> & { disabled?: boolean }) => {
+}: React.ComponentProps<typeof NextLink> & { 
+    disabled?: boolean;
+    noHoverUnderline?: boolean;
+}) => {
     if (disabled) {
         return (
             <div data-disabled className="group/link contents">
@@ -22,7 +26,7 @@ export const Link = ({
                 "group/link",
                 "w-fit underline-offset-5 transition",
                 "text-primary-light",
-                "link-hover:underline",
+                !noHoverUnderline && "link-hover:underline",
                 "link-focused:underline",
                 "link-disabled:text-inherit",
                 props.className,

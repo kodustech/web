@@ -14,6 +14,12 @@ export const KODY_RULES_PATHS = {
     FIND_LIBRARY_KODY_RULES: pathToApiUrl(
         "/kody-rules/find-library-kody-rules",
     ),
+    FIND_LIBRARY_KODY_RULES_WITH_FEEDBACK: pathToApiUrl(
+        "/kody-rules/find-library-kody-rules-with-feedback",
+    ),
+    FIND_LIBRARY_KODY_RULES_BUCKETS: pathToApiUrl(
+        "/kody-rules/find-library-kody-rules-buckets",
+    ),
     ADD_LIBRARY_KODY_RULES: pathToApiUrl("/kody-rules/add-library-kody-rules"),
     CHANGE_STATUS_KODY_RULES: pathToApiUrl(
         "/kody-rules/change-status-kody-rules",

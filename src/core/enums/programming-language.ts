@@ -1,10 +1,12 @@
 export const ProgrammingLanguage = {
-    JSTS: "JS/TS",
-    PYTHON: "Python",
-    JAVA: "Java",
-    CSHARP: "C#",
-    DART: "Dart",
-    RUBY: "Ruby",
-    PHP: "PHP",
-    GO: "Go"
+    jsts: "JS/TS",
+    python: "Python",
+    java: "Java",
+    csharp: "C#",
+    dart: "Dart",
+    ruby: "Ruby",
+    php: "PHP",
+    go: "Go",
+    kotlin: "Kotlin",
+    rust: "Rust",
 };

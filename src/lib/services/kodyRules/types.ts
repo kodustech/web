@@ -21,11 +21,18 @@ export type LibraryRule = {
     rule: string;
     why_is_this_important: string;
     severity: "Low" | "Medium" | "High" | "Critical";
+    bad_example?: string;
+    good_example?: string;
     examples: KodyRulesExample[];
     tags: string[];
     language: keyof typeof ProgrammingLanguage;
-    likesCount: number | 0;
-    isLiked: boolean | false;
+    buckets?: string[];
+    scope?: string;
+    positiveCount?: number;
+    negativeCount?: number;
+    userFeedback?: string | null;
+    likesCount?: number;
+    isLiked?: boolean;
 };
 
 type KodyRulesExample = {
@@ -38,6 +45,28 @@ export type FindLibraryKodyRulesFilters = {
     severity?: "Low" | "Medium" | "High" | "Critical";
     tags?: string[];
     language?: keyof typeof ProgrammingLanguage;
+    buckets?: string[];
+    page?: number;
+    limit?: number;
+};
+
+export type PaginatedResponse<T> = {
+    data: T[];
+    pagination: {
+        currentPage: number;
+        totalPages: number;
+        totalItems: number;
+        itemsPerPage: number;
+        hasNextPage: boolean;
+        hasPreviousPage: boolean;
+    };
+};
+
+export type KodyRuleBucket = {
+    slug: string;
+    title: string;
+    description: string;
+    rulesCount: number;
 };
 
 export enum KodyRulesOrigin {

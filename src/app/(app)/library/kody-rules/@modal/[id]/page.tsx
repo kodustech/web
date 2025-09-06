@@ -1,8 +1,7 @@
 import { redirect } from "next/navigation";
-import { getLibraryKodyRules } from "@services/kodyRules/fetch";
+import { getLibraryKodyRulesWithFeedback } from "@services/kodyRules/fetch";
 import { getTeamParameters } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
-import { getAllRulesWithLikes } from "@services/ruleLike/fetch";
 import type { AutomationCodeReviewConfigType } from "src/app/(app)/settings/code-review/_types";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 
@@ -15,18 +14,11 @@ export default async function Route(context: {
     const params = await context.params;
     const searchParams = await context.searchParams;
 
-    const [rules, rulesWithLikes] = await Promise.all([
-        getLibraryKodyRules(),
-        getAllRulesWithLikes(),
-    ]);
+    const rulesResponse = await getLibraryKodyRulesWithFeedback();
 
+    const rules = rulesResponse?.data || [];
     const rule = rules.find((r) => r.uuid === params.id);
     if (!rule) redirect("/library/kody-rules");
-
-    const likes = rulesWithLikes.find((r) => r.ruleId === rule.uuid);
-
-    rule.isLiked = likes?.userLiked ?? false;
-    rule.likesCount = likes?.likeCount ?? 0;
 
     const teamId = await getGlobalSelectedTeamId();
 
