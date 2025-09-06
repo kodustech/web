@@ -11,6 +11,14 @@ export const useSuspenseFindLibraryKodyRules = () => {
     return Object.values(rules).flat();
 };
 
+export const useSuspenseFindLibraryKodyRulesWithFeedback = () => {
+    const response = useSuspenseFetch<{ data: Array<LibraryRule> }>(
+        KODY_RULES_PATHS.FIND_LIBRARY_KODY_RULES_WITH_FEEDBACK,
+    );
+
+    return response.data;
+};
+
 export const useSuspenseKodyRulesByRepositoryId = (
     repositoryId: string,
     directoryId?: string,
