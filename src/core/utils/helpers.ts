@@ -198,9 +198,6 @@ export const formatPeriodLabel = (period: string): string => {
 export const codeReviewConfigRemovePropertiesNotInType = (
     config: Partial<CodeReviewRepositoryConfig>,
 ) => {
-    console.log("🔧 Config before processing:", config);
-    console.log("🔧 reviewOptions before processing:", config.reviewOptions);
-    
     const newConfig: Partial<CodeReviewRepositoryConfig> = {};
     const expectedKeys: LiteralUnion<keyof CodeReviewRepositoryConfig>[] = [
         "id",
@@ -230,9 +227,6 @@ export const codeReviewConfigRemovePropertiesNotInType = (
         ] as any;
     });
 
-    console.log("🔧 Config after processing:", newConfig);
-    console.log("🔧 reviewOptions after processing:", newConfig.reviewOptions);
-    
     return newConfig;
 };
 

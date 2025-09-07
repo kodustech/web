@@ -32,16 +32,6 @@ export default function ReviewCategories() {
 
     const handleSubmit = form.handleSubmit(async (formData) => {
         try {
-            console.log("🔍 Form data being sent:", formData);
-            console.log("🔍 reviewOptions specifically:", formData.reviewOptions);
-            console.log("🔍 codeReviewVersion:", formData.codeReviewVersion);
-            console.log(
-                "🔍 reviewOptions types:",
-                Object.entries(formData.reviewOptions || {}).map(
-                    ([key, value]) => `${key}: ${typeof value} (${value})`,
-                ),
-            );
-            console.log("🔍 Total reviewOptions count:", Object.keys(formData.reviewOptions || {}).length);
 
             const result = await createOrUpdateCodeReviewParameter(
                 formData,
