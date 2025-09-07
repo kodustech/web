@@ -67,20 +67,15 @@ const getDefaultValues = (
             critical: config?.suggestionControl?.severityLimits?.critical ?? 0,
         },
     },
-    reviewOptions: {
-        code_style: config?.reviewOptions?.code_style ?? false,
-        documentation_and_comments:
-            config?.reviewOptions?.documentation_and_comments ?? false,
-        error_handling: config?.reviewOptions?.error_handling ?? false,
-        maintainability: config?.reviewOptions?.maintainability ?? false,
-        performance_and_optimization:
-            config?.reviewOptions?.performance_and_optimization ?? false,
-        potential_issues: config?.reviewOptions?.potential_issues ?? false,
-        refactoring: config?.reviewOptions?.refactoring ?? false,
-        security: config?.reviewOptions?.security ?? false,
-        kody_rules: config?.reviewOptions?.kody_rules ?? false,
-        breaking_changes: config?.reviewOptions?.breaking_changes ?? false,
-    },
+    reviewOptions: (() => {
+        const options = config?.reviewOptions ?? {};
+        const booleanOptions: Record<string, boolean> = {};
+        Object.entries(options).forEach(([key, value]) => {
+            booleanOptions[key] = Boolean(value);
+        });
+        return booleanOptions;
+    })(),
+    codeReviewVersion: config?.codeReviewVersion ?? "legacy",
     kodyRulesGeneratorEnabled: config?.kodyRulesGeneratorEnabled ?? true,
 });
 

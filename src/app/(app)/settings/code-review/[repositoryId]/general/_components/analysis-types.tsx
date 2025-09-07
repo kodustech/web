@@ -5,63 +5,23 @@ import { Checkbox } from "@components/ui/checkbox";
 import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
-import { useSuspenseGetCodeReviewLabels } from "@services/parameters/hooks";
+import { useGetCodeReviewLabels, useGetAllCodeReviewLabels } from "@services/parameters/hooks";
 import { Controller, useFormContext } from "react-hook-form";
+import { useEffect } from "react";
 
 import type { CodeReviewFormType, CodeReviewOptions } from "../../../_types";
 
-const labelTypeToKey: Record<string, keyof CodeReviewOptions> = {
-    performance_and_optimization: "performance_and_optimization",
-    security: "security",
-    error_handling: "error_handling",
-    refactoring: "refactoring",
-    maintainability: "maintainability",
-    potential_issues: "potential_issues",
-    code_style: "code_style",
-    documentation_and_comments: "documentation_and_comments",
-    kody_rules: "kody_rules",
-    breaking_changes: "breaking_changes",
-};
-
+// Dynamic mapping - no need for fixed keys anymore
 const mapReviewOptionsToValues = (
     reviewOptions: CodeReviewOptions,
 ): Record<string, boolean> => {
-    const values: Record<string, boolean> = {};
-    Object.keys(labelTypeToKey).forEach((key) => {
-        const optionKey = labelTypeToKey[key];
-        values[key] = reviewOptions[optionKey];
-    });
-
-    return values;
+    return { ...reviewOptions };
 };
 
 const mapToReviewOptions = (
     values: Record<string, boolean> = {},
 ): CodeReviewOptions => {
-    const options: Partial<CodeReviewOptions> = {};
-
-    Object.keys(values).forEach((key) => {
-        const mappedKey = labelTypeToKey[key];
-        if (mappedKey) {
-            options[mappedKey] = values[key];
-        } else {
-            console.warn(`Chave não mapeada: ${key}`);
-        }
-    });
-
-    return {
-        security: options.security || false,
-        code_style: options.code_style || false,
-        refactoring: options.refactoring || false,
-        error_handling: options.error_handling || false,
-        maintainability: options.maintainability || false,
-        potential_issues: options.potential_issues || false,
-        documentation_and_comments: options.documentation_and_comments || false,
-        performance_and_optimization:
-            options.performance_and_optimization || false,
-        kody_rules: options.kody_rules || false,
-        breaking_changes: options.breaking_changes || false,
-    };
+    return { ...values };
 };
 
 interface CheckboxCardOption {
@@ -72,7 +32,25 @@ interface CheckboxCardOption {
 
 export const AnalysisTypes = () => {
     const form = useFormContext<CodeReviewFormType>();
-    const labels = useSuspenseGetCodeReviewLabels();
+    const codeReviewVersion = form.watch("codeReviewVersion") || "legacy";
+    const { data: labels = [], isLoading } = useGetCodeReviewLabels(codeReviewVersion);
+    const { v1, v2, isLoading: allLabelsLoading, allLabels } = useGetAllCodeReviewLabels();
+    
+    // Merge all categories ensuring boolean values - keep user's existing values
+    useEffect(() => {
+        if (allLabels.length > 0) {
+            const currentOptions = form.getValues("reviewOptions");
+            const mergedOptions: Record<string, boolean> = {};
+            
+            // Add all categories from both versions with their current values or false as default
+            allLabels.forEach(label => {
+                mergedOptions[label.type] = Boolean(currentOptions[label.type] ?? false);
+            });
+
+            form.setValue("reviewOptions", mergedOptions);
+        }
+    }, [allLabels, form]);
+
     const reviewOptionsOptions: CheckboxCardOption[] = labels.map(
         (label: any) => ({
             value: label.type,
@@ -81,15 +59,20 @@ export const AnalysisTypes = () => {
         }),
     );
 
+    if (isLoading || allLabelsLoading) {
+        return (
+            <div className="flex items-center justify-center py-8">
+                <div className="text-text-secondary">Loading categories...</div>
+            </div>
+        );
+    }
+
     return (
         <Controller
             name="reviewOptions"
             control={form.control}
             render={({ field }) => (
                 <FormControl.Root className="@container space-y-1">
-                    <FormControl.Label htmlFor={field.name}>
-                        Analysis types
-                    </FormControl.Label>
 
                     <FormControl.Input>
                         <ToggleGroup.Root
@@ -97,29 +80,30 @@ export const AnalysisTypes = () => {
                             type="multiple"
                             disabled={field.disabled}
                             className="grid auto-rows-fr grid-cols-1 gap-2 @lg:grid-cols-2 @3xl:grid-cols-3"
-                            value={Object.entries(
-                                mapReviewOptionsToValues(
+                            value={(() => {
+                                const validOptions = labels.map(label => label.type);
+                                const mappedValues = mapReviewOptionsToValues(
                                     mapToReviewOptions(field.value),
-                                ),
-                            )
-                                .filter(([, value]) => value)
-                                .map(([key]) => key)}
+                                );
+                                
+                                return Object.entries(mappedValues)
+                                    .filter(([key, value]) => validOptions.includes(key) && value)
+                                    .map(([key]) => key);
+                            })()}
                             onValueChange={(values) => {
-                                const selectedOptions = mapToReviewOptions({
-                                    // get all options and set them to false
-                                    ...Object.fromEntries(
-                                        Object.keys(field.value ?? {}).map(
-                                            (value) => [value, false],
-                                        ),
-                                    ),
+                                // Keep all existing categories from both versions, only update current version
+                                const currentOptions = form.getValues("reviewOptions") || {};
+                                const currentVersionOptions = labels.map(label => label.type);
 
-                                    // then, set only selected options to true
-                                    ...Object.fromEntries(
-                                        values.map((value) => [value, true]),
-                                    ),
+                                // Start with all existing options
+                                const updatedOptions: Record<string, boolean> = { ...currentOptions };
+                                
+                                // Update only the current version's categories
+                                currentVersionOptions.forEach(option => {
+                                    updatedOptions[option] = values.includes(option);
                                 });
 
-                                field.onChange(selectedOptions);
+                                field.onChange(updatedOptions);
                             }}>
                             {reviewOptionsOptions.map((option) => (
                                 <ToggleGroup.ToggleGroupItem
@@ -146,9 +130,7 @@ export const AnalysisTypes = () => {
                                             <Checkbox
                                                 decorative
                                                 checked={
-                                                    field.value?.[
-                                                        option.value as keyof CodeReviewOptions
-                                                    ]
+                                                    field.value?.[option.value] || false
                                                 }
                                             />
                                         </div>

@@ -23,7 +23,6 @@ import GeneratingConfig from "../../_components/generating-config";
 import { type CodeReviewFormType } from "../../_types";
 import { usePlatformConfig } from "../../../_components/context";
 import { useCodeReviewRouteParams } from "../../../_hooks";
-import { AnalysisTypes } from "./_components/analysis-types";
 import { AutomatedReviewActive } from "./_components/automated-review-active";
 import { BaseBranches } from "./_components/base-branches";
 import { IgnorePaths } from "./_components/ignore-paths";
@@ -188,7 +187,6 @@ export default function General() {
                 <PullRequestApprovalActive />
                 <IsRequestChangesActive />
                 <RunOnDraft />
-                <AnalysisTypes />
                 <IgnorePaths />
                 <IgnoredTitleKeywords />
                 <BaseBranches />
