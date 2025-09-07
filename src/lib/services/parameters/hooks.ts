@@ -101,11 +101,19 @@ export const useGetAllCodeReviewLabels = () => {
         }>
     >(PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS, { params: { codeReviewVersion: "v2" } }, true);
 
+    // Remove duplicates based on type
+    const uniqueLabels = new Map();
+    [...(v1Labels.data || []), ...(v2Labels.data || [])].forEach(label => {
+        if (!uniqueLabels.has(label.type)) {
+            uniqueLabels.set(label.type, label);
+        }
+    });
+
     return {
         v1: v1Labels,
         v2: v2Labels,
         isLoading: v1Labels.isLoading || v2Labels.isLoading,
-        allLabels: [...(v1Labels.data || []), ...(v2Labels.data || [])]
+        allLabels: Array.from(uniqueLabels.values())
     };
 };
 

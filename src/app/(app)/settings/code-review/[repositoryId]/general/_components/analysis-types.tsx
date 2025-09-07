@@ -7,7 +7,7 @@ import { Heading } from "@components/ui/heading";
 import * as ToggleGroup from "@radix-ui/react-toggle-group";
 import { useGetCodeReviewLabels, useGetAllCodeReviewLabels } from "@services/parameters/hooks";
 import { Controller, useFormContext } from "react-hook-form";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import type { CodeReviewFormType, CodeReviewOptions } from "../../../_types";
 
@@ -35,21 +35,29 @@ export const AnalysisTypes = () => {
     const codeReviewVersion = form.watch("codeReviewVersion") || "legacy";
     const { data: labels = [], isLoading } = useGetCodeReviewLabels(codeReviewVersion);
     const { v1, v2, isLoading: allLabelsLoading, allLabels } = useGetAllCodeReviewLabels();
+    const initializedRef = useRef(false);
     
     // Merge all categories ensuring boolean values - keep user's existing values
     useEffect(() => {
-        if (allLabels.length > 0) {
+        if (allLabels.length > 0 && !allLabelsLoading && !initializedRef.current) {
             const currentOptions = form.getValues("reviewOptions");
             const mergedOptions: Record<string, boolean> = {};
+            
+            console.log("🔄 AnalysisTypes: Initial merge - allLabels loaded:", allLabels.map(l => l.type));
+            console.log("🔄 AnalysisTypes: currentOptions:", currentOptions);
+            console.log("🔄 AnalysisTypes: v1 labels:", v1.data?.map(l => l.type));
+            console.log("🔄 AnalysisTypes: v2 labels:", v2.data?.map(l => l.type));
             
             // Add all categories from both versions with their current values or false as default
             allLabels.forEach(label => {
                 mergedOptions[label.type] = Boolean(currentOptions[label.type] ?? false);
             });
 
+            console.log("🔄 AnalysisTypes: mergedOptions:", mergedOptions);
             form.setValue("reviewOptions", mergedOptions);
+            initializedRef.current = true;
         }
-    }, [allLabels, form]);
+    }, [allLabels.length, allLabelsLoading]); // Only run once when labels are loaded
 
     const reviewOptionsOptions: CheckboxCardOption[] = labels.map(
         (label: any) => ({
