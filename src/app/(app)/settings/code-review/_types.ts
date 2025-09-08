@@ -48,19 +48,7 @@ export type CodeReviewFormType = CodeReviewGlobalConfig & {
     language: LanguageValue;
 };
 
-export type CodeReviewOptions = Record<
-    | "security"
-    | "code_style"
-    | "refactoring"
-    | "error_handling"
-    | "maintainability"
-    | "potential_issues"
-    | "documentation_and_comments"
-    | "performance_and_optimization"
-    | "kody_rules"
-    | "breaking_changes",
-    boolean
->;
+export type CodeReviewOptions = Record<string, boolean>;
 
 type SuggestionControlConfig = {
     groupingMode: GroupingModeSuggestions;
@@ -102,6 +90,7 @@ export type CodeReviewGlobalConfig = {
     isRequestChangesActive: boolean;
     kodyRulesGeneratorEnabled?: boolean;
     runOnDraft: boolean;
+    codeReviewVersion?: "legacy" | "v2";
 };
 
 type CodeReviewRepositoryConfigBase = CodeReviewGlobalConfig & {

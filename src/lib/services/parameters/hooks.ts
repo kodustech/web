@@ -1,7 +1,7 @@
 import { UseMutationResult } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import type { AutomationCodeReviewConfigType } from "src/app/(app)/settings/code-review/_types";
-import { usePost, useSuspenseFetch } from "src/core/utils/reactQuery";
+import { useFetch, usePost, useSuspenseFetch } from "src/core/utils/reactQuery";
 
 import { PARAMETERS_PATHS } from ".";
 import { ParametersConfigKey, PlatformConfigValue } from "./types";
@@ -54,14 +54,67 @@ export const useSuspenseGetCodeReviewParameter = (teamId: string) => {
     );
 };
 
-export const useSuspenseGetCodeReviewLabels = () => {
+export const useSuspenseGetCodeReviewLabels = (codeReviewVersion?: string) => {
+    // Always send the parameter, even for legacy to be explicit
+    const params = { codeReviewVersion: codeReviewVersion || "legacy" };
+    
     return useSuspenseFetch<
         Array<{
             type: string;
             name: string;
             description: string;
         }>
-    >(PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS);
+    >(PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS, {
+        params
+    });
+};
+
+export const useGetCodeReviewLabels = (codeReviewVersion?: string) => {
+    // Always send the parameter, even for legacy to be explicit
+    const params = { 
+        params: { codeReviewVersion: codeReviewVersion || "legacy" }
+    };
+    
+    return useFetch<
+        Array<{
+            type: string;
+            name: string;
+            description: string;
+        }>
+    >(PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS, params, true);
+};
+
+export const useGetAllCodeReviewLabels = () => {
+    const v1Labels = useFetch<
+        Array<{
+            type: string;
+            name: string;
+            description: string;
+        }>
+    >(PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS, { params: { codeReviewVersion: "legacy" } }, true);
+    
+    const v2Labels = useFetch<
+        Array<{
+            type: string;
+            name: string;
+            description: string;
+        }>
+    >(PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS, { params: { codeReviewVersion: "v2" } }, true);
+
+    // Remove duplicates based on type
+    const uniqueLabels = new Map();
+    [...(v1Labels.data || []), ...(v2Labels.data || [])].forEach(label => {
+        if (!uniqueLabels.has(label.type)) {
+            uniqueLabels.set(label.type, label);
+        }
+    });
+
+    return {
+        v1: v1Labels,
+        v2: v2Labels,
+        isLoading: v1Labels.isLoading || v2Labels.isLoading,
+        allLabels: Array.from(uniqueLabels.values())
+    };
 };
 
 export const useSuspenseGetParameterByKey = <T>(
