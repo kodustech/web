@@ -14,7 +14,10 @@ export default async function Route(context: {
     const params = await context.params;
     const searchParams = await context.searchParams;
 
-    const rulesResponse = await getLibraryKodyRulesWithFeedback();
+    const rulesResponse = await getLibraryKodyRulesWithFeedback({ 
+        page: 1, 
+        limit: 1000 // Use maximum allowed limit to get all rules
+    });
 
     const rules = rulesResponse?.data || [];
     const rule = rules.find((r) => r.uuid === params.id);
