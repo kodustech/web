@@ -53,7 +53,7 @@ export const AnalysisTypes = () => {
             !allLabelsLoading &&
             !initializedRef.current
         ) {
-            const currentOptions = form.getValues("reviewOptions");
+            const currentOptions = form.getValues("reviewOptions") || {};
             const mergedOptions: Record<string, boolean> = {};
 
             // Add all categories from both versions with their current values or false as default
