@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDebounce } from "@hooks/use-debounce";
 import { useRouter } from "next/navigation";
 import { Badge } from "@components/ui/badge";
-import { 
+import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
@@ -75,9 +76,11 @@ export const KodyRulesLibrary = ({
     const [selectedBucket, setSelectedBucket] = useState<string | null>(
         initialSelectedBucket || null,
     );
-    
-    // Ref for infinite scroll sentinel
-    const loadMoreRef = useRef<HTMLDivElement>(null);
+
+    // Debounce name filter to avoid excessive API calls
+    const debouncedNameFilter = useDebounce(filters.name, 500);
+
+    // No refs needed for manual load more
 
     // Load bucket rules if initial bucket is provided
     useEffect(() => {
@@ -111,26 +114,25 @@ export const KodyRulesLibrary = ({
         }
     }, [initialSelectedBucket]);
 
-    // Apply filters when they change
+    // Apply filters when they change (using debounced name)
     useEffect(() => {
         const applyFilters = async () => {
-            // Check if filters have meaningful values (not just default empty values)
-            const hasActiveFilters = Object.values(filters).some(value => 
-                value !== undefined && 
-                value !== "" && 
-                (!Array.isArray(value) || value.length > 0)
-            );
-            
-            // Only apply filters if there are actual filter values
-            // Don't override initial server-side data if filters are empty
-            if (hasActiveFilters) {
+            // Create server filters with debounced name
+            const serverFilters = {
+                ...filters,
+                name: debouncedNameFilter, // Use debounced version
+            };
+
+            // Always fetch when filters change (including when filters are removed)
+            // This ensures that removing a filter also updates the results
+            if (true) { // Always fetch on filter changes
                 setIsLoading(true);
                 try {
                     const response = await getLibraryKodyRulesWithFeedback({
                         page: 1,
                         limit: 50,
-                        ...filters,
-                        buckets: selectedBucket ? [selectedBucket] : undefined, // Override buckets after filters
+                        ...serverFilters,
+                        buckets: selectedBucket ? [selectedBucket] : undefined,
                     });
 
                     if (response?.data) {
@@ -151,34 +153,10 @@ export const KodyRulesLibrary = ({
         };
 
         applyFilters();
-    }, [filters, selectedBucket]);
+    }, [debouncedNameFilter, filters.severity, filters.language, filters.tags, selectedBucket]);
 
-    const filteredRules = useMemo(() => {
-        let results = rules;
-
-        // Apply client-side filters (bucket filtering is now done server-side)
-        if (filters.name?.length) {
-            results = results?.filter((r) =>
-                r.title.toLowerCase().includes(filters.name!.toLowerCase()),
-            );
-        }
-
-        if (filters.tags?.length) {
-            results = results?.filter((r) =>
-                filters.tags!.every((tag) => r.tags.includes(tag)),
-            );
-        }
-
-        if (filters?.severity) {
-            results = results?.filter((r) => r.severity === filters.severity);
-        }
-
-        if (filters?.language) {
-            results = results?.filter((r) => r.language === filters.language);
-        }
-
-        return results;
-    }, [filters, rules]);
+    // All filtering is now done server-side, no need for client-side filtering
+    const filteredRules = rules;
 
     const tags = useMemo(() => {
         const tags = new Set<string>();
@@ -196,11 +174,16 @@ export const KodyRulesLibrary = ({
         setIsLoading(true);
         try {
             const nextPage = pagination.page + 1;
+            // Use debounced name filter for consistency
+            const serverFilters = {
+                ...filters,
+                name: debouncedNameFilter,
+            };
             const response = await getLibraryKodyRulesWithFeedback({
                 page: nextPage,
                 limit: pagination.limit,
-                ...filters, // Include all current filters
-                buckets: selectedBucket ? [selectedBucket] : undefined, // Override buckets after filters
+                ...serverFilters,
+                buckets: selectedBucket ? [selectedBucket] : undefined,
             });
 
             if (response?.data) {
@@ -215,42 +198,31 @@ export const KodyRulesLibrary = ({
         } finally {
             setIsLoading(false);
         }
-    }, [isLoading, pagination.page, pagination.totalPages, pagination.limit, selectedBucket, filters]);
+    }, [
+        isLoading,
+        pagination.page,
+        pagination.totalPages,
+        pagination.limit,
+        selectedBucket,
+        debouncedNameFilter,
+        filters.severity,
+        filters.language,
+        filters.tags,
+    ]);
 
-    // Infinite scroll with Intersection Observer
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                const target = entries[0];
-                if (target.isIntersecting && !isLoading && pagination.page < pagination.totalPages) {
-                    loadMoreRules();
-                }
-            },
-            {
-                rootMargin: '100px', // Trigger 100px before reaching the element
-            }
-        );
-
-        const currentRef = loadMoreRef.current;
-        if (currentRef) {
-            observer.observe(currentRef);
-        }
-
-        return () => {
-            if (currentRef) {
-                observer.unobserve(currentRef);
-            }
-        };
-    }, [loadMoreRules, isLoading, pagination.page, pagination.totalPages]);
+    // Manual load more - no automatic infinite scroll
 
     const loadAllRules = async () => {
         setIsLoading(true);
         try {
-            // Load all rules without bucket filter
+            const serverFilters = {
+                ...filters,
+                name: debouncedNameFilter,
+            };
             const response = await getLibraryKodyRulesWithFeedback({
                 page: 1,
                 limit: 50,
-                ...filters, // Include current filters when loading all rules
+                ...serverFilters,
             });
 
             if (response?.data) {
@@ -272,12 +244,15 @@ export const KodyRulesLibrary = ({
     const loadBucketRules = async (bucketSlug: string) => {
         setIsLoading(true);
         try {
-            // Use backend filtering by bucket
+            const serverFilters = {
+                ...filters,
+                name: debouncedNameFilter,
+            };
             const response = await getLibraryKodyRulesWithFeedback({
                 page: 1,
                 limit: 50,
-                ...filters, // Include current filters when loading bucket rules
-                buckets: [bucketSlug], // Override buckets after filters
+                ...serverFilters,
+                buckets: [bucketSlug],
             });
 
             if (response?.data) {
@@ -337,7 +312,7 @@ export const KodyRulesLibrary = ({
     return (
         <Page.Root className="over pb-0">
             <Page.Header>
-                <div className="flex flex-col justify-between gap-1 w-full">
+                <div className="flex w-full flex-col justify-between gap-1">
                     <Breadcrumb className="mb-1">
                         <BreadcrumbList>
                             <BreadcrumbItem>
@@ -349,7 +324,7 @@ export const KodyRulesLibrary = ({
                         <Page.Title className="text-2xl font-semibold">
                             Discovery Rules
                         </Page.Title>
-                        <div className="text-text-secondary text-sm text-right">
+                        <div className="text-text-secondary text-right text-sm">
                             {selectedBucket
                                 ? `Showing ${filteredRules.length} of ${pagination.total} rules`
                                 : `Showing ${filteredRules.length} rules${pagination.total > 0 ? ` of ${pagination.total}` : ""}`}
@@ -382,13 +357,15 @@ export const KodyRulesLibrary = ({
                                             ? null
                                             : bucket.slug;
                                     setSelectedBucket(newBucket);
-                                    
+
                                     // Update URL
                                     if (newBucket) {
-                                        router.push(`/library/kody-rules?bucket=${newBucket}`);
+                                        router.push(
+                                            `/library/kody-rules?bucket=${newBucket}`,
+                                        );
                                         loadBucketRules(newBucket);
                                     } else {
-                                        router.push('/library/kody-rules');
+                                        router.push("/library/kody-rules");
                                         // Load all rules when deselecting bucket
                                         loadAllRules();
                                     }
@@ -423,7 +400,7 @@ export const KodyRulesLibrary = ({
                                 e.preventDefault();
                                 setFilters(DEFAULT_FILTERS);
                                 setSelectedBucket(null);
-                                router.push('/library/kody-rules');
+                                router.push("/library/kody-rules");
                                 loadAllRules();
                             }}>
                             Clear all
@@ -644,27 +621,18 @@ export const KodyRulesLibrary = ({
                                 ))}
                             </div>
 
-                            {/* Infinite Scroll Sentinel */}
+                            {/* Manual Load More Button */}
                             {pagination.page < pagination.totalPages && (
-                                <div 
-                                    ref={loadMoreRef}
-                                    className="mt-8 flex justify-center items-center py-4"
-                                >
-                                    {isLoading && (
-                                        <div className="flex items-center gap-2 text-[#cdcddf]">
-                                            <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-[#f8b76d]"></div>
-                                            <span className="text-sm">Loading more rules...</span>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            {/* End indicator */}
-                            {pagination.page >= pagination.totalPages && rules.length > 0 && (
-                                <div className="mt-8 flex justify-center">
-                                    <span className="text-[#79799f] text-sm">
-                                        All {pagination.total} rules loaded
-                                    </span>
+                                <div className="mt-8 flex items-center justify-center py-4">
+                                    <Button
+                                        size="lg"
+                                        variant="helper"
+                                        onClick={loadMoreRules}
+                                        loading={isLoading}
+                                        disabled={isLoading}
+                                        className="px-8">
+                                        {isLoading ? "Loading..." : "Load More Rules"}
+                                    </Button>
                                 </div>
                             )}
                         </>

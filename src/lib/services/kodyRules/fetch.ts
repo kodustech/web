@@ -67,7 +67,7 @@ export const getLibraryKodyRulesWithFeedback = async (params?: {
     };
 
     // Add other filters if provided
-    if (params?.name) fetchParams.name = params.name;
+    if (params?.name) fetchParams.title = params.name; // Backend expects 'title' not 'name'
     if (params?.severity) fetchParams.severity = params.severity;
     if (params?.language) fetchParams.language = String(params.language);
     

@@ -46,6 +46,7 @@ export type FindLibraryKodyRulesFilters = {
     tags?: string[];
     language?: keyof typeof ProgrammingLanguage;
     buckets?: string[];
+    uuid?: string; // Filter by specific rule ID
     page?: number;
     limit?: number;
 };
