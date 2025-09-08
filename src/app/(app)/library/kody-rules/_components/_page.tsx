@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef, useCallback } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Badge } from "@components/ui/badge";
-import { 
+import {
     Breadcrumb,
     BreadcrumbItem,
     BreadcrumbLink,
@@ -75,7 +75,7 @@ export const KodyRulesLibrary = ({
     const [selectedBucket, setSelectedBucket] = useState<string | null>(
         initialSelectedBucket || null,
     );
-    
+
     // Ref for infinite scroll sentinel
     const loadMoreRef = useRef<HTMLDivElement>(null);
 
@@ -115,12 +115,13 @@ export const KodyRulesLibrary = ({
     useEffect(() => {
         const applyFilters = async () => {
             // Check if filters have meaningful values (not just default empty values)
-            const hasActiveFilters = Object.values(filters).some(value => 
-                value !== undefined && 
-                value !== "" && 
-                (!Array.isArray(value) || value.length > 0)
+            const hasActiveFilters = Object.values(filters).some(
+                (value) =>
+                    value !== undefined &&
+                    value !== "" &&
+                    (!Array.isArray(value) || value.length > 0),
             );
-            
+
             // Only apply filters if there are actual filter values
             // Don't override initial server-side data if filters are empty
             if (hasActiveFilters) {
@@ -215,20 +216,31 @@ export const KodyRulesLibrary = ({
         } finally {
             setIsLoading(false);
         }
-    }, [isLoading, pagination.page, pagination.totalPages, pagination.limit, selectedBucket, filters]);
+    }, [
+        isLoading,
+        pagination.page,
+        pagination.totalPages,
+        pagination.limit,
+        selectedBucket,
+        filters,
+    ]);
 
     // Infinite scroll with Intersection Observer
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {
                 const target = entries[0];
-                if (target.isIntersecting && !isLoading && pagination.page < pagination.totalPages) {
+                if (
+                    target.isIntersecting &&
+                    !isLoading &&
+                    pagination.page < pagination.totalPages
+                ) {
                     loadMoreRules();
                 }
             },
             {
-                rootMargin: '100px', // Trigger 100px before reaching the element
-            }
+                rootMargin: "100px", // Trigger 100px before reaching the element
+            },
         );
 
         const currentRef = loadMoreRef.current;
@@ -337,7 +349,7 @@ export const KodyRulesLibrary = ({
     return (
         <Page.Root className="over pb-0">
             <Page.Header>
-                <div className="flex flex-col justify-between gap-1 w-full">
+                <div className="flex w-full flex-col justify-between gap-1">
                     <Breadcrumb className="mb-1">
                         <BreadcrumbList>
                             <BreadcrumbItem>
@@ -349,7 +361,7 @@ export const KodyRulesLibrary = ({
                         <Page.Title className="text-2xl font-semibold">
                             Discovery Rules
                         </Page.Title>
-                        <div className="text-text-secondary text-sm text-right">
+                        <div className="text-text-secondary text-right text-sm">
                             {selectedBucket
                                 ? `Showing ${filteredRules.length} of ${pagination.total} rules`
                                 : `Showing ${filteredRules.length} rules${pagination.total > 0 ? ` of ${pagination.total}` : ""}`}
@@ -382,13 +394,15 @@ export const KodyRulesLibrary = ({
                                             ? null
                                             : bucket.slug;
                                     setSelectedBucket(newBucket);
-                                    
+
                                     // Update URL
                                     if (newBucket) {
-                                        router.push(`/library/kody-rules?bucket=${newBucket}`);
+                                        router.push(
+                                            `/library/kody-rules?bucket=${newBucket}`,
+                                        );
                                         loadBucketRules(newBucket);
                                     } else {
-                                        router.push('/library/kody-rules');
+                                        router.push("/library/kody-rules");
                                         // Load all rules when deselecting bucket
                                         loadAllRules();
                                     }
@@ -423,7 +437,7 @@ export const KodyRulesLibrary = ({
                                 e.preventDefault();
                                 setFilters(DEFAULT_FILTERS);
                                 setSelectedBucket(null);
-                                router.push('/library/kody-rules');
+                                router.push("/library/kody-rules");
                                 loadAllRules();
                             }}>
                             Clear all
@@ -646,25 +660,17 @@ export const KodyRulesLibrary = ({
 
                             {/* Infinite Scroll Sentinel */}
                             {pagination.page < pagination.totalPages && (
-                                <div 
+                                <div
                                     ref={loadMoreRef}
-                                    className="mt-8 flex justify-center items-center py-4"
-                                >
+                                    className="mt-8 flex items-center justify-center py-4">
                                     {isLoading && (
                                         <div className="flex items-center gap-2 text-[#cdcddf]">
                                             <div className="h-4 w-4 animate-spin rounded-full border-b-2 border-[#f8b76d]"></div>
-                                            <span className="text-sm">Loading more rules...</span>
+                                            <span className="text-sm">
+                                                Loading more rules...
+                                            </span>
                                         </div>
                                     )}
-                                </div>
-                            )}
-
-                            {/* End indicator */}
-                            {pagination.page >= pagination.totalPages && rules.length > 0 && (
-                                <div className="mt-8 flex justify-center">
-                                    <span className="text-[#79799f] text-sm">
-                                        All {pagination.total} rules loaded
-                                    </span>
                                 </div>
                             )}
                         </>

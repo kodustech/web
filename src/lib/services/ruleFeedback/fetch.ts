@@ -10,3 +10,10 @@ export const sendRuleFeedback = async (ruleId: string, feedback: FeedbackType) =
         body: JSON.stringify({ feedback }),
     });
 };
+
+export const removeRuleFeedback = async (ruleId: string) => {
+    const url = pathToApiUrl(`/rule-like/${ruleId}/feedback`);
+    return authorizedFetch(url, {
+        method: "DELETE",
+    });
+};

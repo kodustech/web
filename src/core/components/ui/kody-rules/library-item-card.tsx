@@ -6,7 +6,7 @@ import { Badge } from "@components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import type { LibraryRule } from "@services/kodyRules/types";
-import { sendRuleFeedback, type FeedbackType } from "@services/ruleFeedback/fetch";
+import { sendRuleFeedback, removeRuleFeedback, type FeedbackType } from "@services/ruleFeedback/fetch";
 import { useMutation } from "@tanstack/react-query";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { ProgrammingLanguage } from "src/core/enums/programming-language";
@@ -77,18 +77,39 @@ export const KodyRuleLibraryItem = ({
     const { mutate: sendFeedback, isPending: isFeedbackActionInProgress } =
         useMutation<any, Error, FeedbackType>({
             mutationFn: async (feedback: FeedbackType) => {
-                return sendRuleFeedback(rule.uuid, feedback);
+                const isRemovingFeedback = userFeedback === feedback;
+                
+                if (isRemovingFeedback) {
+                    return removeRuleFeedback(rule.uuid);
+                } else {
+                    return sendRuleFeedback(rule.uuid, feedback);
+                }
             },
             onSuccess: (data, feedback) => {
-                // Update local state optimistically
+                const isRemovingFeedback = userFeedback === feedback;
+                const newFeedback = isRemovingFeedback ? null : feedback;
+                
                 if (feedback === "positive") {
-                    setPositiveCount(prev => userFeedback === "positive" ? prev : prev + 1);
-                    setNegativeCount(prev => userFeedback === "negative" ? prev - 1 : prev);
+                    if (isRemovingFeedback) {
+                        setPositiveCount(prev => prev - 1);
+                    } else {
+                        setPositiveCount(prev => prev + 1);
+                        if (userFeedback === "negative") {
+                            setNegativeCount(prev => prev - 1);
+                        }
+                    }
                 } else {
-                    setNegativeCount(prev => userFeedback === "negative" ? prev : prev + 1);
-                    setPositiveCount(prev => userFeedback === "positive" ? prev - 1 : prev);
+                    if (isRemovingFeedback) {
+                        setNegativeCount(prev => prev - 1);
+                    } else {
+                        setNegativeCount(prev => prev + 1);
+                        if (userFeedback === "positive") {
+                            setPositiveCount(prev => prev - 1);
+                        }
+                    }
                 }
-                setUserFeedback(userFeedback === feedback ? null : feedback);
+                
+                setUserFeedback(newFeedback);
             },
             onError: (error) => {
                 console.error("Error sending feedback:", error);
