@@ -49,15 +49,19 @@ export default async function PRSizeAnalytics() {
         endDate: formatISO(endDate, { representation: "date" }),
     });
 
+    // Handle both direct object response and wrapped {status, data} response
+    const actualData = (data as any)?.data || data;
+
     if (
-        data.currentPeriod.totalPRs === 0 &&
-        data.previousPeriod.totalPRs === 0
+        !actualData?.currentPeriod?.totalPRs ||
+        (actualData.currentPeriod.totalPRs === 0 &&
+            actualData.previousPeriod.totalPRs === 0)
     ) {
         return <NoData />;
     }
 
-    const [badge] = Object.entries(comparisonParameters).find(
-        ([, { compareFn }]) => compareFn(data?.currentPeriod?.averagePRSize),
+    const [badge] = Object.entries(comparisonParameters)?.find(
+        ([, { compareFn }]) => compareFn(actualData?.currentPeriod?.averagePRSize),
     )!;
 
     return (
@@ -114,18 +118,18 @@ export default async function PRSizeAnalytics() {
 
             <CardContent className="flex items-center justify-center">
                 <div className="text-3xl font-bold">
-                    {data?.currentPeriod?.averagePRSize}
+                    {actualData?.currentPeriod?.averagePRSize}
                 </div>
             </CardContent>
 
             <CardFooter className="text-text-secondary flex gap-1 text-xs">
                 <span>
-                    Last 2 weeks was {data?.previousPeriod?.averagePRSize}
+                    Last 2 weeks was {actualData?.previousPeriod?.averagePRSize}
                 </span>
                 <PercentageDiff
                     mode="lower-is-better"
-                    status={getPercentageDiff(data?.comparison)}>
-                    {data?.comparison?.percentageChange}%
+                    status={getPercentageDiff(actualData?.comparison)}>
+                    {actualData?.comparison?.percentageChange}%
                 </PercentageDiff>
             </CardFooter>
         </>

@@ -9,6 +9,7 @@ import {
 import { formatISO, subWeeks } from "date-fns";
 import { getLeadTimeForChangeAnalytics } from "src/features/ee/cockpit/_services/analytics/productivity/fetch";
 import { getPercentageDiff } from "src/features/ee/cockpit/_services/analytics/utils";
+import { extractApiData } from "../_helpers/api-data-extractor";
 
 import { InsightsBadge } from "../_components/insights-badge";
 import { PercentageDiff } from "../_components/percentage-diff";
@@ -50,20 +51,23 @@ export default async function LeadTimeForChangeAnalytics() {
     const endDate = new Date();
     const startDate = subWeeks(endDate, 2);
 
-    const data = await getLeadTimeForChangeAnalytics({
+    const response = await getLeadTimeForChangeAnalytics({
         startDate: formatISO(startDate, { representation: "date" }),
         endDate: formatISO(endDate, { representation: "date" }),
     });
 
+    const data = extractApiData(response);
+
     if (
-        data.currentPeriod.leadTimeP75Hours === 0 &&
-        data.currentPeriod.leadTimeP75Minutes === 0
+        !data?.currentPeriod?.leadTimeP75Hours ||
+        (data?.currentPeriod?.leadTimeP75Hours === 0 &&
+            data?.currentPeriod?.leadTimeP75Minutes === 0)
     ) {
         return <NoData />;
     }
 
     const [badge] = Object.entries(comparisonParameters).find(
-        ([, { compareFn }]) => compareFn(data?.currentPeriod?.leadTimeP75Hours),
+        ([, { compareFn }]) => compareFn(data.currentPeriod.leadTimeP75Hours),
     )!;
 
     const currentPeriod = separateHoursAndMinutes(

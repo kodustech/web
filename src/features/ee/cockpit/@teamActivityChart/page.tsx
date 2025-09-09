@@ -3,22 +3,25 @@ import { getDeveloperActivity } from "src/features/ee/cockpit/_services/analytic
 
 import { CockpitNoDataPlaceholder } from "../_components/no-data-placeholder";
 import { getSelectedDateRange } from "../_helpers/get-selected-date-range";
+import { extractApiData } from "../_helpers/api-data-extractor";
 import { TableNoSSR } from "./_components/table.no-ssr";
 
 export default async function TeamActivityChart() {
     const selectedDateRange = await getSelectedDateRange();
 
-    const data = await getDeveloperActivity({
+    const response = await getDeveloperActivity({
         startDate: selectedDateRange.startDate,
         endDate: selectedDateRange.endDate,
     });
 
-    if (data?.length === 0) {
+    const data = extractApiData(response);
+
+    if (!data || data.length === 0) {
         return <CockpitNoDataPlaceholder className="h-60" />;
     }
 
-    const groupedByDeveloper = data?.reduce(
-        (acc, item) => {
+    const groupedByDeveloper = data.reduce(
+        (acc: any, item: any) => {
             const { developer, ...rest } = item;
             const existingDeveloper = acc[developer];
 

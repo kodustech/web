@@ -3,17 +3,20 @@ import { getPRsOpenedVsClosed } from "src/features/ee/cockpit/_services/analytic
 
 import { CockpitNoDataPlaceholder } from "../_components/no-data-placeholder";
 import { getSelectedDateRange } from "../_helpers/get-selected-date-range";
+import { extractApiData } from "../_helpers/api-data-extractor";
 import { ChartNoSSR } from "./_components/chart.no-ssr";
 
 export default async function PRsOpenedVsClosedChart() {
     const selectedDateRange = await getSelectedDateRange();
 
-    const data = await getPRsOpenedVsClosed({
+    const response = await getPRsOpenedVsClosed({
         startDate: selectedDateRange.startDate,
         endDate: selectedDateRange.endDate,
     });
 
-    if (data?.length === 0) {
+    const data = extractApiData(response);
+
+    if (!data || data.length === 0) {
         return <CockpitNoDataPlaceholder />;
     }
 

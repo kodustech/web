@@ -12,6 +12,7 @@ import { getPercentageDiff } from "src/features/ee/cockpit/_services/analytics/u
 
 import { InsightsBadge } from "../_components/insights-badge";
 import { PercentageDiff } from "../_components/percentage-diff";
+import { extractApiData } from "../_helpers/api-data-extractor";
 import { BugRatioAnalyticsHeader } from "./_components/header";
 import NoData from "./_components/no-data";
 
@@ -44,17 +45,18 @@ export default async function BugRatioAnalytics() {
     const endDate = new Date();
     const startDate = subWeeks(endDate, 2);
 
-    const data = await getCodeHealthBugRatioAnalytics({
+    const response = await getCodeHealthBugRatioAnalytics({
         startDate: formatISO(startDate, { representation: "date" }),
         endDate: formatISO(endDate, { representation: "date" }),
     });
+    const data = extractApiData(response);
 
-    if (data.currentPeriod.ratio === 0 && data.previousPeriod.ratio === 0) {
+    if (!data?.currentPeriod?.ratio || (data?.currentPeriod?.ratio === 0 && data?.previousPeriod?.ratio === 0)) {
         return <NoData />;
     }
 
     const [badge] = Object.entries(comparisonParameters).find(
-        ([, { compareFn }]) => compareFn(data?.currentPeriod?.ratio),
+        ([, { compareFn }]) => compareFn(data.currentPeriod.ratio),
     )!;
 
     return (

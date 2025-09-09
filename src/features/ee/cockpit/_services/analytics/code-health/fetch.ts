@@ -11,7 +11,12 @@ export const getCodeHealthSuggestionsByCategory = ({
         }>
     >(`/code-health/charts/suggestions-by-category`, {
         params: { endDate, startDate },
-        next: { tags: ["cockpit-date-range-dependent", "cockpit-repository-dependent"] },
+        next: {
+            tags: [
+                "cockpit-date-range-dependent",
+                "cockpit-repository-dependent",
+            ],
+        },
     });
 };
 
@@ -30,7 +35,12 @@ export const getCodeHealthSuggestionsByRepository = ({
         }>
     >(`/code-health/charts/suggestions-by-repository`, {
         params: { endDate, startDate },
-        next: { tags: ["cockpit-date-range-dependent", "cockpit-repository-dependent"] },
+        next: {
+            tags: [
+                "cockpit-date-range-dependent",
+                "cockpit-repository-dependent",
+            ],
+        },
     });
 };
 
