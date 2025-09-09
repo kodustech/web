@@ -49,9 +49,13 @@ export default async function DeployFrequencyAnalytics() {
         endDate: formatISO(endDate, { representation: "date" }),
     });
 
+    // Handle both direct object response and wrapped {status, data} response
+    const actualData = (data as any)?.data || data;
+
     if (
-        data.currentPeriod.averagePerWeek === 0 &&
-        data.previousPeriod.averagePerWeek === 0
+        !actualData?.currentPeriod?.averagePerWeek ||
+        (actualData?.currentPeriod?.averagePerWeek === 0 &&
+            actualData?.previousPeriod?.averagePerWeek === 0)
     ) {
         return (
             <>
@@ -65,7 +69,7 @@ export default async function DeployFrequencyAnalytics() {
     }
 
     const [badge] = Object.entries(comparisonParameters).find(
-        ([, { compareFn }]) => compareFn(data?.currentPeriod?.averagePerWeek),
+        ([, { compareFn }]) => compareFn(actualData.currentPeriod.averagePerWeek),
     )!;
 
     return (
@@ -121,19 +125,19 @@ export default async function DeployFrequencyAnalytics() {
             </DeployFrequencyAnalyticsHeader>
 
             <CardContent className="flex items-center justify-center text-3xl font-bold">
-                {data?.currentPeriod?.averagePerWeek}
+                {actualData?.currentPeriod?.averagePerWeek}
                 <small>/week</small>
             </CardContent>
 
             <CardFooter className="text-text-secondary flex gap-1 text-xs">
                 <span>
-                    Last 2 weeks was {data?.previousPeriod?.averagePerWeek}
+                    Last 2 weeks was {actualData?.previousPeriod?.averagePerWeek}
                     /week
                 </span>
                 <PercentageDiff
-                    status={getPercentageDiff(data?.comparison)}
+                    status={getPercentageDiff(actualData?.comparison)}
                     mode="higher-is-better">
-                    {data?.comparison?.percentageChange}%
+                    {actualData?.comparison?.percentageChange}%
                 </PercentageDiff>
             </CardFooter>
         </>

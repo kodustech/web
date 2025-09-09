@@ -4,22 +4,25 @@ import { getCodeHealthSuggestionsByCategory } from "src/features/ee/cockpit/_ser
 
 import { CockpitNoDataPlaceholder } from "../_components/no-data-placeholder";
 import { getSelectedDateRange } from "../_helpers/get-selected-date-range";
+import { extractApiData } from "../_helpers/api-data-extractor";
 
 export default async function CodeHealthByCategory() {
     const selectedDateRange = await getSelectedDateRange();
 
-    const data = await getCodeHealthSuggestionsByCategory({
+    const response = await getCodeHealthSuggestionsByCategory({
         startDate: selectedDateRange.startDate,
         endDate: selectedDateRange.endDate,
     });
 
-    if (data?.length === 0) {
+    const data = extractApiData(response);
+
+    if (!data || data.length === 0) {
         return <CockpitNoDataPlaceholder mini className="col-span-3 mt-0" />;
     }
 
     return (
         <>
-            {data.map((d) => {
+            {data.map((d: any) => {
                 const categoryName = d.category
                     .split("_")
                     .map(capitalize)

@@ -13,14 +13,17 @@ export default async function PRsMergedByDeveloperChart() {
         endDate: selectedDateRange.endDate,
     });
 
-    if (data?.length === 0) {
+    // Handle both direct array response and wrapped {status, data} response
+    const actualData = Array.isArray(data) ? data : (data as any)?.data || [];
+
+    if (!actualData || actualData.length === 0) {
         return <CockpitNoDataPlaceholder />;
     }
 
     return (
         <>
             <CardContent className="flex items-center justify-center">
-                <ChartNoSSR data={data} />
+                <ChartNoSSR data={actualData} />
             </CardContent>
         </>
     );
