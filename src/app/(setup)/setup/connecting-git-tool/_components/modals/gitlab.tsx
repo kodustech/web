@@ -148,7 +148,7 @@ export const GitlabTokenModal = (props: { teamId: string; userId: string }) => {
                                     </Button>
                                 </CollapsibleTrigger>
 
-                                <div className="absolute inset-y-0 right-6 flex items-center">
+                                <div className="pointer-events-none absolute inset-y-0 right-6 flex items-center">
                                     <Switch decorative checked={selfhosted} />
                                 </div>
                             </div>
