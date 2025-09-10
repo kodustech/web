@@ -38,6 +38,14 @@ const authPaths = [
 export default auth(async (req) => {
     const pathname = req.nextUrl.pathname;
 
+    if (pathname === "/register") {
+        return NextResponse.redirect(new URL("/sign-up", req.url));
+    }
+
+    if (pathname === "/login") {
+        return NextResponse.redirect(new URL("/sign-in", req.url));
+    }
+
     // add a new header which can be used on Server Components
     const headers = new Headers(req.headers);
     headers.set(CURRENT_PATH_HEADER, pathname);
