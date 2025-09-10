@@ -14,6 +14,7 @@ import { CockpitNoDataBanner } from "./_components/no-data-banner";
 import { RepositoryPicker } from "./_components/repository-picker";
 import { tabs, type TabValue } from "./_constants";
 import { getAnalyticsStatus } from "./_services/analytics/fetch";
+import { extractApiData } from "./_helpers/api-data-extractor";
 import { AnalyticsNotAvailable } from "./not-available";
 
 export default async function Layout({
@@ -66,7 +67,8 @@ export default async function Layout({
         getAnalyticsStatus().catch(() => ({ hasData: false })),
     ]);
 
-    const hasAnalyticsData = analyticsResult?.hasData;
+    const data = extractApiData(analyticsResult);
+    const hasAnalyticsData = data?.hasData;
 
     const dateRangeCookieValue = cookieStore.get(
         "cockpit-selected-date-range" satisfies CookieName,
@@ -120,7 +122,7 @@ export default async function Layout({
                             {entries.map(([value, name]) => {
                                 if (
                                     value ===
-                                        ("flow-metrics" satisfies TabValue) &&
+                                    ("flow-metrics" satisfies TabValue) &&
                                     !hasJIRAConnected
                                 ) {
                                     return;
