@@ -27,10 +27,10 @@ const getDefaultValues = (
         config?.reviewCadence ??
         (config?.automatedReviewActive
             ? {
-                  type: ReviewCadenceType.AUTOMATIC,
-                  timeWindow: 15,
-                  pushesToTrigger: 3,
-              }
+                type: ReviewCadenceType.AUTOMATIC,
+                timeWindow: 15,
+                pushesToTrigger: 3,
+            }
             : undefined),
     ignorePaths: config?.ignorePaths ?? [],
     ignoredTitleKeywords: config?.ignoredTitleKeywords ?? [],
@@ -75,7 +75,7 @@ const getDefaultValues = (
         });
         return booleanOptions;
     })(),
-    codeReviewVersion: config?.codeReviewVersion ?? "legacy",
+    codeReviewVersion: config?.codeReviewVersion ?? "v2",
     kodyRulesGeneratorEnabled: config?.kodyRulesGeneratorEnabled ?? true,
 });
 
