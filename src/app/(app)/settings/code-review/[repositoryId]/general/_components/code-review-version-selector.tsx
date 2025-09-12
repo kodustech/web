@@ -6,16 +6,27 @@ import { Heading } from "@components/ui/heading";
 import { Switch } from "@components/ui/switch";
 import { Controller, useFormContext } from "react-hook-form";
 
+import { useCodeReviewConfig, useFullCodeReviewConfig } from "../../../../_components/context";
 import type { CodeReviewFormType } from "../../../_types";
 
 export const CodeReviewVersionSelector = () => {
     const form = useFormContext<CodeReviewFormType>();
+    const config = useCodeReviewConfig();
+    const fullConfig = useFullCodeReviewConfig();
+
+    const shouldHideToggle =
+        fullConfig?.showToggleCodeReviewVersion === false &&
+        config?.codeReviewVersion === "v2";
+
+    if (shouldHideToggle) {
+        return null;
+    }
 
     return (
         <Controller
             name="codeReviewVersion"
             control={form.control}
-                    defaultValue="legacy"
+            defaultValue="legacy"
             render={({ field }) => (
                 <Button
                     size="sm"
@@ -33,9 +44,9 @@ export const CodeReviewVersionSelector = () => {
                             </p>
                         </div>
 
-                        <Switch 
-                            decorative 
-                            checked={field.value === "v2"} 
+                        <Switch
+                            decorative
+                            checked={field.value === "v2"}
                         />
                     </CardHeader>
                 </Button>
