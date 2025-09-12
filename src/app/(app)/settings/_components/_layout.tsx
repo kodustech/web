@@ -22,10 +22,12 @@ import {
     SidebarMenuSub,
     SidebarMenuSubItem,
 } from "@components/ui/sidebar";
+import { UserRole } from "@enums";
 import {
     useSuspenseGetCodeReviewParameter,
     useSuspenseGetParameterPlatformConfigs,
 } from "@services/parameters/hooks";
+import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
@@ -58,24 +60,43 @@ export const SettingsLayout = ({
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
     const platformConfig = useSuspenseGetParameterPlatformConfigs(teamId);
     const { repositoryId, pageName, directoryId } = useCodeReviewRouteParams();
+    const { role } = useAuth();
 
     const mainRoutes = useMemo(() => {
         const routes: Array<{
             label: string;
             href: string;
             badge?: React.ReactNode;
-        }> = [
-            {
+        }> = [];
+
+        if (
+            [
+                UserRole.OWNER,
+                UserRole.BILLING_MANAGER,
+                UserRole.REPO_ADMIN,
+            ].includes(role)
+        ) {
+            routes.push({
                 label: "Git Settings",
                 href: "/settings/git",
-            },
-            {
+            });
+        }
+
+        if ([UserRole.OWNER, UserRole.BILLING_MANAGER].includes(role)) {
+            routes.push({
                 label: "Subscription",
                 href: "/settings/subscription",
-            },
-        ];
+            });
+        }
 
-        if (pluginsPageFeatureFlag?.value) {
+        if (
+            pluginsPageFeatureFlag?.value &&
+            [
+                UserRole.OWNER,
+                UserRole.BILLING_MANAGER,
+                UserRole.REPO_ADMIN,
+            ].includes(role)
+        ) {
             routes.push({
                 label: "Plugins",
                 href: "/settings/plugins",

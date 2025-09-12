@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "@components/ui/button";
 import { DataTableColumnHeader } from "@components/ui/data-table";
 import {
@@ -10,12 +11,26 @@ import {
     DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
 import { magicModal } from "@components/ui/magic-modal";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@components/ui/select";
 import { toast } from "@components/ui/toaster/use-toast";
-import { UserStatus } from "@enums";
+import { UserRole, UserStatus } from "@enums";
 import { type MembersSetup } from "@services/setup/types";
 import { approveUser } from "@services/users/fetch";
 import { ColumnDef } from "@tanstack/react-table";
-import { CheckIcon, CopyIcon, EllipsisVertical, TrashIcon } from "lucide-react";
+import {
+    CheckIcon,
+    ChevronsUpDown,
+    CopyIcon,
+    EllipsisVertical,
+    Pencil,
+    TrashIcon,
+} from "lucide-react";
 import { ClipboardHelpers } from "src/core/utils/clipboard";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 
@@ -39,6 +54,91 @@ export const columns: ColumnDef<MembersSetup>[] = [
         ),
     },
     {
+        id: "role",
+        size: 120,
+        minSize: 120,
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Role" />
+        ),
+        cell: ({ row }) => {
+            const [mock, setMock] = useState<UserRole>(row.original.role);
+
+            if (row.original.role === UserRole.OWNER) {
+                return <span className="font-medium">Owner</span>;
+            }
+
+            const role = mock
+                .toLowerCase()
+                .replaceAll("_", " ")
+                .replace(/\b\w/g, (c) => c.toUpperCase());
+
+            const shouldShowButton = [
+                UserRole.CONTRIBUTOR,
+                UserRole.REPO_ADMIN,
+            ].includes(mock);
+
+            return (
+                <div className="flex w-full items-center gap-2">
+                    <div className="flex-grow">
+                        <Select
+                            value={mock}
+                            onValueChange={(value) =>
+                                setMock(value as UserRole)
+                            }
+                            disabled={
+                                row.original.userStatus === UserStatus.INACTIVE
+                            }>
+                            <SelectTrigger className="w-full">
+                                <SelectValue
+                                    placeholder={
+                                        row.original.userStatus ===
+                                        UserStatus.INACTIVE
+                                            ? "Inactive"
+                                            : role
+                                    }>
+                                    {role}
+                                </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {Object.values(UserRole)
+                                    .filter((r) => r !== UserRole.OWNER)
+                                    .map((role) => (
+                                        <SelectItem
+                                            key={role}
+                                            value={role}
+                                            className="capitalize">
+                                            {role
+                                                .toLowerCase()
+                                                .replaceAll("_", " ")}
+                                        </SelectItem>
+                                    ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="w-[140px] flex-shrink-0">
+                        {shouldShowButton && (
+                            <Button
+                                variant="secondary"
+                                size="icon-sm"
+                                className="w-full gap-x-2"
+                                onClick={() =>
+                                    toast({
+                                        variant: "info",
+                                        title: "Not implemented",
+                                        description: "Not implemented yet.",
+                                    })
+                                }>
+                                <Pencil />
+                                Repositories
+                            </Button>
+                        )}
+                    </div>
+                </div>
+            );
+        },
+    },
+    {
         size: 70,
         minSize: 70,
         id: "actions",
@@ -47,7 +147,7 @@ export const columns: ColumnDef<MembersSetup>[] = [
         cell: ({ row }) => {
             const approveUserAction = async () => {
                 try {
-                    await approveUser(row.original.userId);
+                    await approveUser(row.original.userId!);
 
                     toast({
                         variant: "success",

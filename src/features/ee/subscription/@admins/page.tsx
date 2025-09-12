@@ -12,5 +12,7 @@ export default async function SubscriptionTabs() {
         { params: { teamId } },
     );
 
+    console.log({ members });
+
     return <AdminsPageClient data={members} />;
 }

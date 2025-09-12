@@ -18,6 +18,7 @@ import {
 } from "src/core/components/ui/dropdown-menu";
 import { useAllTeams } from "src/core/providers/all-teams-context";
 import { useAuth } from "src/core/providers/auth.provider";
+import { usePermissionsContext } from "src/core/providers/permissions.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { TEAM_STATUS, type AwaitedReturnType } from "src/core/types";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
@@ -99,13 +100,18 @@ export function UserNav({
                     </Link>
                 )}
 
-                {logsPagesFeatureFlag?.value && (
-                    <Link href="/user-logs">
-                        <DropdownMenuItem leftIcon={<ActivityIcon />}>
-                            Activity Logs
-                        </DropdownMenuItem>
-                    </Link>
-                )}
+                {logsPagesFeatureFlag?.value &&
+                    [
+                        UserRole.OWNER,
+                        UserRole.BILLING_MANAGER,
+                        UserRole.REPO_ADMIN,
+                    ].includes(role) && (
+                        <Link href="/user-logs">
+                            <DropdownMenuItem leftIcon={<ActivityIcon />}>
+                                Activity Logs
+                            </DropdownMenuItem>
+                        </Link>
+                    )}
 
                 <Link href="/sign-out" replace>
                     <DropdownMenuItem leftIcon={<LogOutIcon />}>

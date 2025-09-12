@@ -1,4 +1,4 @@
-import type { TeamRole, UserRole, UserStatus } from "@enums";
+import type { UserRole, UserStatus } from "@enums";
 
 declare module "next-auth" {
     interface Session {
@@ -6,7 +6,6 @@ declare module "next-auth" {
             accessToken: string;
             refreshToken: string;
             role: UserRole;
-            teamRole: TeamRole;
             status: UserStatus;
             userId: string;
             email: string;
@@ -29,7 +28,6 @@ declare module "next-auth/jwt" {
         accessToken: string;
         refreshToken: string;
         role: UserRole;
-        teamRole: TeamRole;
         status: UserStatus;
         email: string;
         organizationId: string;

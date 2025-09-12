@@ -12,11 +12,17 @@ import {
     NavigationMenuList,
 } from "@components/ui/navigation-menu";
 import { Spinner } from "@components/ui/spinner";
-import { TeamRole, UserRole } from "@enums";
-import { GaugeIcon, InfoIcon, SlidersHorizontalIcon, GitPullRequestIcon } from "lucide-react";
+import { UserRole } from "@enums";
+import {
+    GaugeIcon,
+    GitPullRequestIcon,
+    InfoIcon,
+    SlidersHorizontalIcon,
+} from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
 import { UserNav } from "src/core/layout/navbar/_components/user-nav";
 import { useAuth } from "src/core/providers/auth.provider";
+import { usePermissionsContext } from "src/core/providers/permissions.provider";
 import type { AwaitedReturnType } from "src/core/types";
 import { cn } from "src/core/utils/components";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
@@ -51,11 +57,14 @@ export const NavMenu = ({
         ReturnType<typeof getFeatureFlagWithPayload>
     >;
     logsPagesFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
-    pullRequestsPageFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
+    pullRequestsPageFeatureFlag: AwaitedReturnType<
+        typeof getFeatureFlagWithPayload
+    >;
 }) => {
     const pathname = usePathname();
-    const { role, teamRole } = useAuth();
+    const { role } = useAuth();
     const subscription = useSubscriptionStatus();
+    const permissions = usePermissionsContext();
 
     const items = useMemo(() => {
         const items: Array<{
@@ -74,7 +83,9 @@ export const NavMenu = ({
             {
                 label: "Cockpit",
                 href: "/cockpit",
-                visible: subscription.valid,
+                visible:
+                    subscription.valid &&
+                    [UserRole.OWNER, UserRole.REPO_ADMIN].includes(role),
                 icon: <GaugeIcon className="size-6" />,
             },
 
@@ -82,19 +93,26 @@ export const NavMenu = ({
                 label: "Code Review Settings",
                 icon: <SlidersHorizontalIcon className="size-5" />,
                 href: "/settings",
-                visible:
-                    role === UserRole.OWNER ||
-                    teamRole === TeamRole.TEAM_LEADER,
+                visible: [
+                    UserRole.OWNER,
+                    UserRole.BILLING_MANAGER,
+                    UserRole.REPO_ADMIN,
+                    UserRole.CONTRIBUTOR,
+                ].includes(role),
             },
         ];
 
-        if (issuesPageFeatureFlag?.value) {
+        if (issuesPageFeatureFlag?.value && permissions?.issues?.read) {
             items.push({
                 label: "Issues",
                 href: "/issues",
                 visible:
-                    role === UserRole.OWNER ||
-                    teamRole === TeamRole.TEAM_LEADER,
+                    issuesPageFeatureFlag.value === true &&
+                    [
+                        UserRole.OWNER,
+                        UserRole.REPO_ADMIN,
+                        UserRole.CONTRIBUTOR,
+                    ].includes(role),
                 icon: <InfoIcon className="size-5" />,
                 badge: (
                     <div className="h-5 min-h-auto min-w-8">
@@ -104,20 +122,23 @@ export const NavMenu = ({
             });
         }
 
-        items.push({
-            label: "Pull Requests",
-            href: "/pull-requests",
-            visible:
-                pullRequestsPageFeatureFlag?.value &&
-                (role === UserRole.OWNER ||
-                teamRole === TeamRole.TEAM_LEADER),
-            icon: <GitPullRequestIcon className="size-5" />,
-        });
+        if (
+            pullRequestsPageFeatureFlag?.value &&
+            permissions?.pull_requests?.read
+        ) {
+            items.push({
+                label: "Pull Requests",
+                href: "/pull-requests",
+                visible:
+                    pullRequestsPageFeatureFlag.value === true &&
+                    [UserRole.OWNER, UserRole.REPO_ADMIN].includes(role),
+                icon: <GitPullRequestIcon className="size-5" />,
+            });
+        }
 
         return items;
     }, [
         role,
-        teamRole,
         issuesPageFeatureFlag?.value,
         logsPagesFeatureFlag?.value,
         pullRequestsPageFeatureFlag?.value,

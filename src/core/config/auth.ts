@@ -1,4 +1,4 @@
-import { TeamRole, UserRole } from "@enums";
+import { UserRole } from "@enums";
 import NextAuth, { NextAuthConfig } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -22,8 +22,7 @@ const getDataFromPayload = (accessToken: string) => {
         email: payload.email,
         status: payload.status,
         organizationId: payload.organizationId,
-        role: payload.role ?? UserRole.USER,
-        teamRole: payload.teamRole ?? TeamRole.TEAM_MEMBER,
+        role: payload.role ?? UserRole.CONTRIBUTOR,
         iat: payload.iat,
         exp: payload.exp,
         jti: payload.jti,

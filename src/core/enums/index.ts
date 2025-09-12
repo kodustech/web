@@ -33,7 +33,9 @@ export enum TeamRole {
 
 export enum UserRole {
     OWNER = "owner",
-    USER = "user",
+    BILLING_MANAGER = "billing_manager",
+    REPO_ADMIN = "repo_admin",
+    CONTRIBUTOR = "contributor",
 }
 
 export enum UserStatus {
