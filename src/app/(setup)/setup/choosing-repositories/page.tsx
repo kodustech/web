@@ -75,16 +75,19 @@ export default function App() {
             const defaultConfigs: Partial<CodeReviewGlobalConfig> = {
                 automatedReviewActive: true,
                 reviewOptions: {
-                    code_style: true,
-                    documentation_and_comments: true,
-                    error_handling: true,
-                    maintainability: true,
-                    performance_and_optimization: true,
-                    potential_issues: true,
-                    refactoring: true,
+                    bug: true,
                     security: true,
+                    code_style: false,
+                    cross_file: true,
                     kody_rules: true,
+                    performance: true,
+                    refactoring: false,
+                    error_handling: false,
+                    maintainability: false,
                     breaking_changes: true,
+                    potential_issues: true,
+                    documentation_and_comments: false,
+                    performance_and_optimization: false,
                 },
                 summary: {
                     generatePRSummary: true,
@@ -96,6 +99,7 @@ export default function App() {
                 isRequestChangesActive: false,
                 kodyRulesGeneratorEnabled: true,
                 runOnDraft: true,
+                codeReviewVersion: "v2",
             };
 
             await createOrUpdateCodeReviewParameter(
