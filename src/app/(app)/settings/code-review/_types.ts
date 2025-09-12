@@ -111,6 +111,7 @@ export type CodeReviewRepositoryConfig = CodeReviewRepositoryConfigBase & {
 export type AutomationCodeReviewConfigType = {
     global: CodeReviewGlobalConfig;
     repositories: Array<CodeReviewRepositoryConfig>;
+    showToggleCodeReviewVersion?: boolean;
 };
 
 export enum BehaviourForNewCommits {

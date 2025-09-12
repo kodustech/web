@@ -65,15 +65,15 @@ export const SettingsLayout = ({
             href: string;
             badge?: React.ReactNode;
         }> = [
-            {
-                label: "Git Settings",
-                href: "/settings/git",
-            },
-            {
-                label: "Subscription",
-                href: "/settings/subscription",
-            },
-        ];
+                {
+                    label: "Git Settings",
+                    href: "/settings/git",
+                },
+                {
+                    label: "Subscription",
+                    href: "/settings/subscription",
+                },
+            ];
 
         if (pluginsPageFeatureFlag?.value) {
             routes.push({
@@ -170,7 +170,7 @@ export const SettingsLayout = ({
                                                     ({ label, href }) => {
                                                         const active =
                                                             repositoryId ===
-                                                                "global" &&
+                                                            "global" &&
                                                             pageName === href;
 
                                                         return (
