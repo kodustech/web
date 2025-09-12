@@ -21,6 +21,9 @@ export enum ResourceType {
 
 export type PermissionsMap = {
     [K in ResourceType]?: {
-        [A in Action]?: any;
+        [A in Action]?: {
+            organizationId: string;
+            repoId?: string;
+        };
     };
 };

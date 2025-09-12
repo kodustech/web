@@ -13,6 +13,8 @@ import {
 } from "@components/ui/navigation-menu";
 import { Spinner } from "@components/ui/spinner";
 import { UserRole } from "@enums";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import {
     GaugeIcon,
     GitPullRequestIcon,
@@ -22,7 +24,6 @@ import {
 import { ErrorBoundary } from "react-error-boundary";
 import { UserNav } from "src/core/layout/navbar/_components/user-nav";
 import { useAuth } from "src/core/providers/auth.provider";
-import { usePermissionsContext } from "src/core/providers/permissions.provider";
 import type { AwaitedReturnType } from "src/core/types";
 import { cn } from "src/core/utils/components";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
@@ -62,9 +63,23 @@ export const NavMenu = ({
     >;
 }) => {
     const pathname = usePathname();
-    const { role } = useAuth();
     const subscription = useSubscriptionStatus();
-    const permissions = usePermissionsContext();
+
+    const canReadCockpit = usePermission(Action.Read, ResourceType.Cockpit);
+    const canReadIssues = usePermission(Action.Read, ResourceType.Issues);
+    const canReadPullRequests = usePermission(
+        Action.Read,
+        ResourceType.PullRequests,
+    );
+    const canReadCodeReviewSettings = usePermission(
+        Action.Read,
+        ResourceType.CodeReviewSettings,
+    );
+    const canReadBilling = usePermission(Action.Read, ResourceType.Billing);
+    const canReadGitSettings = usePermission(
+        Action.Read,
+        ResourceType.GitSettings,
+    );
 
     const items = useMemo(() => {
         const items: Array<{
@@ -83,9 +98,7 @@ export const NavMenu = ({
             {
                 label: "Cockpit",
                 href: "/cockpit",
-                visible:
-                    subscription.valid &&
-                    [UserRole.OWNER, UserRole.REPO_ADMIN].includes(role),
+                visible: subscription.valid && canReadCockpit,
                 icon: <GaugeIcon className="size-6" />,
             },
 
@@ -93,26 +106,18 @@ export const NavMenu = ({
                 label: "Code Review Settings",
                 icon: <SlidersHorizontalIcon className="size-5" />,
                 href: "/settings",
-                visible: [
-                    UserRole.OWNER,
-                    UserRole.BILLING_MANAGER,
-                    UserRole.REPO_ADMIN,
-                    UserRole.CONTRIBUTOR,
-                ].includes(role),
+                visible:
+                    canReadCodeReviewSettings ||
+                    canReadGitSettings ||
+                    canReadBilling,
             },
         ];
 
-        if (issuesPageFeatureFlag?.value && permissions?.issues?.read) {
+        if (issuesPageFeatureFlag?.value && canReadIssues) {
             items.push({
                 label: "Issues",
                 href: "/issues",
-                visible:
-                    issuesPageFeatureFlag.value === true &&
-                    [
-                        UserRole.OWNER,
-                        UserRole.REPO_ADMIN,
-                        UserRole.CONTRIBUTOR,
-                    ].includes(role),
+                visible: issuesPageFeatureFlag.value === true && canReadIssues,
                 icon: <InfoIcon className="size-5" />,
                 badge: (
                     <div className="h-5 min-h-auto min-w-8">
@@ -122,23 +127,19 @@ export const NavMenu = ({
             });
         }
 
-        if (
-            pullRequestsPageFeatureFlag?.value &&
-            permissions?.pull_requests?.read
-        ) {
+        if (pullRequestsPageFeatureFlag?.value && canReadPullRequests) {
             items.push({
                 label: "Pull Requests",
                 href: "/pull-requests",
                 visible:
                     pullRequestsPageFeatureFlag.value === true &&
-                    [UserRole.OWNER, UserRole.REPO_ADMIN].includes(role),
+                    canReadPullRequests,
                 icon: <GitPullRequestIcon className="size-5" />,
             });
         }
 
         return items;
     }, [
-        role,
         issuesPageFeatureFlag?.value,
         logsPagesFeatureFlag?.value,
         pullRequestsPageFeatureFlag?.value,

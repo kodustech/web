@@ -11,7 +11,8 @@ const resourceRoutes = {
     [ResourceType.All]: [
         "/user-waiting-for-approval/*",
         "/settings",
-        "/forbidden",
+        "/forbidden/*",
+        "/library/*",
     ],
     [ResourceType.Billing]: ["/settings/subscription/*"],
     [ResourceType.Cockpit]: ["/cockpit/*"],

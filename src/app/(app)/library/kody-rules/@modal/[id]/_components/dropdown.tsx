@@ -26,6 +26,7 @@ export const SelectRepositoriesDropdown = ({
     selectedRepositoriesIds,
     setSelectedDirectoriesIds,
     setSelectedRepositoriesIds,
+    canEdit,
 }: {
     selectedRepositoriesIds: string[];
     selectedDirectoriesIds: Array<{
@@ -34,8 +35,8 @@ export const SelectRepositoriesDropdown = ({
     }>;
     setSelectedRepositoriesIds: (s: typeof selectedRepositoriesIds) => void;
     setSelectedDirectoriesIds: (s: typeof selectedDirectoriesIds) => void;
-
     repositories: Array<CodeReviewRepositoryConfig>;
+    canEdit: boolean;
 }) => {
     const repositories: Array<
         Omit<CodeReviewRepositoryConfig, keyof CodeReviewGlobalConfig> & {
@@ -51,6 +52,7 @@ export const SelectRepositoriesDropdown = ({
                 <Button
                     size="md"
                     variant="primary"
+                    disabled={!canEdit}
                     className="group rounded-l-none px-3">
                     <ChevronDown
                         className={cn(

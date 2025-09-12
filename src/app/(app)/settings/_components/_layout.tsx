@@ -27,6 +27,8 @@ import {
     useSuspenseGetCodeReviewParameter,
     useSuspenseGetParameterPlatformConfigs,
 } from "@services/parameters/hooks";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
@@ -60,7 +62,12 @@ export const SettingsLayout = ({
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
     const platformConfig = useSuspenseGetParameterPlatformConfigs(teamId);
     const { repositoryId, pageName, directoryId } = useCodeReviewRouteParams();
-    const { role } = useAuth();
+
+    const canReadGitSettings = usePermission(
+        Action.Read,
+        ResourceType.GitSettings,
+    );
+    const canReadBilling = usePermission(Action.Read, ResourceType.Billing);
 
     const mainRoutes = useMemo(() => {
         const routes: Array<{
@@ -69,34 +76,21 @@ export const SettingsLayout = ({
             badge?: React.ReactNode;
         }> = [];
 
-        if (
-            [
-                UserRole.OWNER,
-                UserRole.BILLING_MANAGER,
-                UserRole.REPO_ADMIN,
-            ].includes(role)
-        ) {
+        if (canReadGitSettings) {
             routes.push({
                 label: "Git Settings",
                 href: "/settings/git",
             });
         }
 
-        if ([UserRole.OWNER, UserRole.BILLING_MANAGER].includes(role)) {
+        if (canReadBilling) {
             routes.push({
                 label: "Subscription",
                 href: "/settings/subscription",
             });
         }
 
-        if (
-            pluginsPageFeatureFlag?.value &&
-            [
-                UserRole.OWNER,
-                UserRole.BILLING_MANAGER,
-                UserRole.REPO_ADMIN,
-            ].includes(role)
-        ) {
+        if (pluginsPageFeatureFlag?.value && canReadGitSettings) {
             routes.push({
                 label: "Plugins",
                 href: "/settings/plugins",

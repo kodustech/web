@@ -3,6 +3,8 @@
 import { Link } from "@components/ui/link";
 import { toast } from "@components/ui/toaster/use-toast";
 import { UserRole } from "@enums";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { ActivityIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "src/core/components/ui/avatar";
 import { Button } from "src/core/components/ui/button";
@@ -18,7 +20,6 @@ import {
 } from "src/core/components/ui/dropdown-menu";
 import { useAllTeams } from "src/core/providers/all-teams-context";
 import { useAuth } from "src/core/providers/auth.provider";
-import { usePermissionsContext } from "src/core/providers/permissions.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { TEAM_STATUS, type AwaitedReturnType } from "src/core/types";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
@@ -31,6 +32,11 @@ export function UserNav({
     const { email, role } = useAuth();
     const { teams } = useAllTeams();
     const { teamId, setTeamId } = useSelectedTeamId();
+    const canEditOrg = usePermission(
+        Action.Update,
+        ResourceType.OrganizationSettings,
+    );
+    const canReadLogs = usePermission(Action.Read, ResourceType.Logs);
 
     const handleChangeWorkspace = (teamId: string) => {
         setTeamId(teamId);
@@ -92,7 +98,7 @@ export function UserNav({
 
                 <DropdownMenuSeparator />
 
-                {role === UserRole.OWNER && (
+                {canEditOrg && (
                     <Link href="/organization/general">
                         <DropdownMenuItem leftIcon={<SettingsIcon />}>
                             Settings
@@ -100,18 +106,13 @@ export function UserNav({
                     </Link>
                 )}
 
-                {logsPagesFeatureFlag?.value &&
-                    [
-                        UserRole.OWNER,
-                        UserRole.BILLING_MANAGER,
-                        UserRole.REPO_ADMIN,
-                    ].includes(role) && (
-                        <Link href="/user-logs">
-                            <DropdownMenuItem leftIcon={<ActivityIcon />}>
-                                Activity Logs
-                            </DropdownMenuItem>
-                        </Link>
-                    )}
+                {logsPagesFeatureFlag?.value && canReadLogs && (
+                    <Link href="/user-logs">
+                        <DropdownMenuItem leftIcon={<ActivityIcon />}>
+                            Activity Logs
+                        </DropdownMenuItem>
+                    </Link>
+                )}
 
                 <Link href="/sign-out" replace>
                     <DropdownMenuItem leftIcon={<LogOutIcon />}>

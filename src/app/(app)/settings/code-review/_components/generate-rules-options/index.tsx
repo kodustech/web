@@ -22,6 +22,8 @@ import { useSuspenseKodyRulesCheckSyncStatus } from "@services/kodyRules/hooks";
 import { PARAMETERS_PATHS } from "@services/parameters";
 import { createOrUpdateCodeReviewParameter } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { SettingsIcon } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { SeverityLevel } from "src/core/types";
@@ -47,6 +49,10 @@ export const GenerateRulesOptions = () => {
         teamId,
         repositoryId,
     });
+    const canEdit = usePermission(
+        Action.Update,
+        ResourceType.CodeReviewSettings,
+    );
 
     const newConfig: CodeReviewGlobalConfig = {
         ...config,
@@ -248,6 +254,7 @@ export const GenerateRulesOptions = () => {
                         size="lg"
                         variant="helper"
                         className="w-full justify-between p-0"
+                        disabled={!canEdit}
                         onClick={() => handleIDESyncToggle()}>
                         <Card color="none" className="w-full">
                             <CardHeader>
@@ -298,6 +305,7 @@ export const GenerateRulesOptions = () => {
                         size="lg"
                         variant="helper"
                         className="w-full justify-between p-0"
+                        disabled={!canEdit}
                         onClick={() => handleGenerateFromPastReviewsToggle()}>
                         <Card color="none" className="w-full">
                             <CardHeader>

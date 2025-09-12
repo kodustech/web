@@ -37,10 +37,12 @@ export const KodyRulesPage = ({
     kodyRules,
     globalRules,
     pendingRules,
+    canEdit,
 }: {
     kodyRules: KodyRule[];
     globalRules: KodyRule[];
     pendingRules: KodyRule[];
+    canEdit: boolean;
 }) => {
     const platformConfig = usePlatformConfig();
     const config = useFullCodeReviewConfig();
@@ -80,6 +82,7 @@ export const KodyRulesPage = ({
             <KodyRuleAddOrUpdateItemModal
                 repositoryId={repositoryId}
                 directory={directory}
+                canEdit={canEdit}
             />
         ));
         if (!response) return;
@@ -156,6 +159,7 @@ export const KodyRulesPage = ({
                             type="button"
                             variant="primary"
                             leftIcon={<Plus />}
+                            disabled={!canEdit}
                             onClick={addNewEmptyRule}>
                             New rule
                         </Button>
@@ -202,6 +206,7 @@ export const KodyRulesPage = ({
                                     seconds or create your own by clicking on{" "}
                                     <Link
                                         href=""
+                                        disabled={!canEdit}
                                         onClick={(ev) => {
                                             ev.preventDefault();
                                             addNewEmptyRule();
@@ -258,6 +263,7 @@ export const KodyRulesPage = ({
                                                 key={rule.uuid}
                                                 rule={rule}
                                                 onAnyChange={refreshRulesList}
+                                                canEdit={canEdit}
                                             />
                                         ))}
                                     </div>

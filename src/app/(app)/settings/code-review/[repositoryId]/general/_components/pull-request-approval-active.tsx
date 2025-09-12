@@ -19,6 +19,7 @@ export const PullRequestApprovalActive = () => {
                 <Button
                     size="sm"
                     variant="helper"
+                    disabled={field.disabled}
                     onClick={() => field.onChange(!field.value)}
                     className="w-full">
                     <CardHeader className="flex flex-row items-center justify-between gap-6">

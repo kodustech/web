@@ -12,6 +12,8 @@ import { toast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { changeIssueParameter } from "@services/issues/fetch";
 import type { IssueItem, IssueListItem } from "@services/issues/types";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { SeverityLevel } from "src/core/types";
 import { cn } from "src/core/utils/components";
@@ -33,6 +35,7 @@ export const SeverityLevelSelect = ({
     severity: SeverityLevel;
 }) => {
     const queryClient = useQueryClient();
+    const canEdit = usePermission(Action.Update, ResourceType.Issues);
 
     const [changeIssueParameterAction, { loading }] = useAsyncAction(
         async (severity: SeverityLevel) => {
@@ -70,6 +73,7 @@ export const SeverityLevelSelect = ({
     return (
         <Select
             value={severity}
+            disabled={!canEdit || loading}
             onValueChange={(v) =>
                 changeIssueParameterAction(v as SeverityLevel)
             }>

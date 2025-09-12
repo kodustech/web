@@ -185,6 +185,7 @@ export const LanguageSelector = () => {
                                     role="combobox"
                                     variant="helper"
                                     id={field.name}
+                                    disabled={field.disabled}
                                     className="w-72 justify-between"
                                     rightIcon={
                                         <ChevronsUpDown className="-mr-2 opacity-50" />

@@ -27,6 +27,7 @@ export const TabContent = (props: {
         content: string;
         status: "active" | "inactive";
     }) => void;
+    canEdit: boolean;
 }) => {
     return (
         <div className="flex flex-1 flex-col gap-4">
@@ -34,6 +35,7 @@ export const TabContent = (props: {
                 size="sm"
                 variant="helper"
                 className="w-full"
+                disabled={!props.canEdit}
                 onClick={() =>
                     props.onChange({
                         content: props.value.content,
@@ -75,6 +77,7 @@ export const TabContent = (props: {
                         <CustomMessagesOptionsDropdown
                             value={props.value}
                             onChange={props.onChange}
+                            canEdit={props.canEdit}
                         />
                     </div>
 
@@ -85,7 +88,10 @@ export const TabContent = (props: {
                                 id="custom-message"
                                 placeholder="Write your custom message here..."
                                 className="h-full resize-none rounded-none bg-transparent p-6"
-                                disabled={props.value.status === "inactive"}
+                                disabled={
+                                    !props.canEdit ||
+                                    props.value.status === "inactive"
+                                }
                                 onChange={(ev) =>
                                     props.onChange({
                                         content: ev.target.value,
@@ -105,6 +111,7 @@ export const TabContent = (props: {
                             size="xs"
                             variant="cancel"
                             className="text-tertiary-light min-h-auto self-end"
+                            disabled={!props.canEdit}
                             onClick={() => {
                                 props.onChange({
                                     status: props.value.status,

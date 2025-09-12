@@ -10,7 +10,7 @@ import { magicModal } from "@components/ui/magic-modal";
 import { Section } from "@components/ui/section";
 import { Separator } from "@components/ui/separator";
 import type { KodyRule } from "@services/kodyRules/types";
-import { EditIcon, TrashIcon } from "lucide-react";
+import { EditIcon, EyeIcon, TrashIcon } from "lucide-react";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { DeleteKodyRuleConfirmationModal } from "../../../_components/delete-confirmation-modal";
@@ -19,9 +19,11 @@ import { useCodeReviewRouteParams } from "../../../../_hooks";
 export const KodyRuleItem = ({
     rule,
     onAnyChange,
+    canEdit,
 }: {
     rule: KodyRule;
     onAnyChange: () => void;
+    canEdit: boolean;
 }) => {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
 
@@ -58,7 +60,7 @@ export const KodyRuleItem = ({
                             size="icon-md"
                             variant="secondary"
                             className="size-9">
-                            <EditIcon />
+                            {canEdit ? <EditIcon /> : <EyeIcon />}
                         </Button>
                     </Link>
 
@@ -66,6 +68,7 @@ export const KodyRuleItem = ({
                         size="icon-md"
                         variant="secondary"
                         className="size-9 [--button-foreground:var(--color-danger)]"
+                        disabled={!canEdit}
                         onClick={() => {
                             magicModal.show(() => (
                                 <DeleteKodyRuleConfirmationModal

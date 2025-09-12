@@ -2,12 +2,18 @@
 
 import { useSuspenseKodyRulesByRepositoryId } from "@services/kodyRules/hooks";
 import { KodyRule, KodyRulesStatus } from "@services/kodyRules/types";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 
 import { useCodeReviewRouteParams } from "../../../_hooks";
 import { KodyRulesPage } from "./_components/_page";
 
 export default function KodyRules() {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
+    const canEdit = usePermission(
+        Action.Update,
+        ResourceType.CodeReviewSettings,
+    );
 
     const kodyRules = useSuspenseKodyRulesByRepositoryId(
         repositoryId,
@@ -46,6 +52,7 @@ export default function KodyRules() {
             kodyRules={activeRules}
             globalRules={activeGlobalRules}
             pendingRules={pendingRules}
+            canEdit={canEdit}
         />
     );
 }
