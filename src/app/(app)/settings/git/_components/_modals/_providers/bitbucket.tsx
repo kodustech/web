@@ -18,24 +18,25 @@ import { AxiosError } from "axios";
 import { Save } from "lucide-react";
 
 type Props = {
-    onSave: (token: string, username: string) => Promise<void>;
+    onSaveAction: (token: string, username: string, email: string) => Promise<void>;
 };
 
 export const BitbucketModal = (props: Props) => {
     const [username, setUsername] = useState("");
     const [token, setToken] = useState("");
+    const [email, setEmail] = useState("");
     const [error, setError] = useState({ message: "" });
 
     useEffect(() => {
         setError({ message: "" });
-    }, [token, username]);
+    }, [token, username, email]);
 
     const [saveToken, { loading: loadingSaveToken }] = useAsyncAction(
         async () => {
             magicModal.lock();
 
             try {
-                await props.onSave(token, username);
+                await props.onSaveAction(token, username, email);
                 magicModal.hide();
             } catch (error) {
                 magicModal.unlock();
@@ -74,17 +75,33 @@ export const BitbucketModal = (props: Props) => {
                 </FormControl.Root>
 
                 <FormControl.Root>
-                    <FormControl.Label htmlFor="bitbucket-app-password-input">
-                        App password
+                    <FormControl.Label htmlFor="bitbucket-email-input">
+                        Email
+                    </FormControl.Label>
+                    <FormControl.Input>
+                        <Input
+                            type="email"
+                            value={email}
+                            error={error.message}
+                            id="bitbucket-email-input"
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="Enter your email address"
+                        />
+                    </FormControl.Input>
+                </FormControl.Root>
+
+                <FormControl.Root>
+                    <FormControl.Label htmlFor="bitbucket-api-token-input">
+                        API token
                     </FormControl.Label>
                     <FormControl.Input>
                         <Input
                             type="password"
                             value={token}
                             error={error.message}
-                            id="bitbucket-app-password-input"
+                            id="bitbucket-api-token-input"
                             onChange={(e) => setToken(e.target.value)}
-                            placeholder="Paste your app password"
+                            placeholder="Paste your API token"
                         />
                     </FormControl.Input>
 
@@ -100,7 +117,7 @@ export const BitbucketModal = (props: Props) => {
                         onClick={saveToken}
                         leftIcon={<Save />}
                         loading={loadingSaveToken}
-                        disabled={!username || !token || !!error.message}>
+                        disabled={!username || !token || !email || !!error.message}>
                         Validate and save
                     </Button>
                 </DialogFooter>
