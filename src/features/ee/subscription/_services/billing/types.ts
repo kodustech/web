@@ -10,10 +10,23 @@ export type OrganizationLicenseTrial = {
     trialEnd: string;
 };
 
+export type PlanType =
+    | "free_byok"
+    | "teams_byok"
+    | "teams_byok_annual"
+    | "teams_managed"
+    | "teams_managed_annual"
+    | "teams_managed_legacy"
+    | "enterprise_byok"
+    | "enterprise_byok_annual"
+    | "enterprise_managed"
+    | "enterprise_managed_annual";
+
 export type OrganizationLicenseActive = {
     valid: true;
     subscriptionStatus: "active";
     numberOfLicenses: number;
+    planType: PlanType;
 };
 
 export type OrganizationLicenseSelfHosted = {

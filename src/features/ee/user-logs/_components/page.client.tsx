@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { DataTable } from "@components/ui/data-table";
 import { Input } from "@components/ui/input";
+import { Page } from "@components/ui/page";
 import { getUserLogs } from "@services/userLogs/fetch";
 import { SearchIcon } from "lucide-react";
 import type { AwaitedReturnType } from "src/core/types";
@@ -114,9 +115,17 @@ export const UserLogsPageClient = () => {
     });
 
     return (
-        <div className="flex flex-col gap-6">
-            <div className="flex flex-col gap-4">
-                <div className="flex flex-wrap items-center gap-4">
+        <Page.Root className="overflow-hidden pb-0">
+            <Page.Header className="max-w-full">
+                <Page.TitleContainer>
+                    <Page.Title>User Activity Logs</Page.Title>
+                    <Page.Description>
+                        Monitor all user activities and configuration changes
+                        across your organization.
+                    </Page.Description>
+                </Page.TitleContainer>
+
+                <Page.HeaderActions>
                     <DateRangeFilter
                         onDateRangeChange={handleDateRangeChange}
                         initialRange={dateRange || undefined}
@@ -130,14 +139,16 @@ export const UserLogsPageClient = () => {
                         placeholder="Search logs..."
                         onChange={(e) => setQuery(e.target.value)}
                     />
-                </div>
-            </div>
+                </Page.HeaderActions>
+            </Page.Header>
 
-            <DataTable
-                columns={columns}
-                data={filteredLogs ?? []}
-                loading={loading}
-            />
-        </div>
+            <Page.Content className="max-w-full overflow-auto px-0">
+                <DataTable
+                    columns={columns}
+                    data={filteredLogs ?? []}
+                    loading={loading}
+                />
+            </Page.Content>
+        </Page.Root>
     );
 };

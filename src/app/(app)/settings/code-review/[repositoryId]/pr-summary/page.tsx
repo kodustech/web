@@ -227,7 +227,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                                     size="lg"
                                                     variant="helper"
                                                     className="w-full items-start py-4">
-                                                    <div className="flex items-start justify-between gap-6 w-full">
+                                                    <div className="flex w-full items-start justify-between gap-6">
                                                         <div className="flex flex-col gap-2">
                                                             <Heading
                                                                 variant="h3"
@@ -251,7 +251,8 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                                         <Checkbox
                                                             decorative
                                                             checked={
-                                                                option.value ===field.value
+                                                                option.value ===
+                                                                field.value
                                                             }
                                                         />
                                                     </div>
@@ -354,28 +355,32 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
 
                             <Alert className="mb-3">
                                 <AlertTitle>Examples</AlertTitle>
-                                <AlertDescription className="space-y-2">
-                                    {examples.map((example) => (
-                                        <li key={example}>
-                                            <Link
-                                                href=""
-                                                disabled={!generatePRSummary}
-                                                onClick={(e) => {
-                                                    e.preventDefault();
+                                <AlertDescription>
+                                    <ul className="list-inside list-disc space-y-2">
+                                        {examples.map((example) => (
+                                            <li key={example}>
+                                                <Link
+                                                    href=""
+                                                    disabled={
+                                                        !generatePRSummary
+                                                    }
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
 
-                                                    const newInstructions =
-                                                        field.value
-                                                            ? `${field.value}\n${example}`
-                                                            : example;
+                                                        const newInstructions =
+                                                            field.value
+                                                                ? `${field.value}\n${example}`
+                                                                : example;
 
-                                                    field.onChange(
-                                                        newInstructions,
-                                                    );
-                                                }}>
-                                                {example}
-                                            </Link>
-                                        </li>
-                                    ))}
+                                                        field.onChange(
+                                                            newInstructions,
+                                                        );
+                                                    }}>
+                                                    {example}
+                                                </Link>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </AlertDescription>
                             </Alert>
 
