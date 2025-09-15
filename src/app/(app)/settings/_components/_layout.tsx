@@ -68,6 +68,10 @@ export const SettingsLayout = ({
         ResourceType.GitSettings,
     );
     const canReadBilling = usePermission(Action.Read, ResourceType.Billing);
+    const canReadPlugins = usePermission(
+        Action.Read,
+        ResourceType.PluginSettings,
+    );
 
     const mainRoutes = useMemo(() => {
         const routes: Array<{
@@ -90,7 +94,7 @@ export const SettingsLayout = ({
             });
         }
 
-        if (pluginsPageFeatureFlag?.value && canReadGitSettings) {
+        if (pluginsPageFeatureFlag?.value && canReadPlugins) {
             routes.push({
                 label: "Plugins",
                 href: "/settings/plugins",

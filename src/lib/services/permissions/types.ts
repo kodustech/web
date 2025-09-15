@@ -1,3 +1,5 @@
+import { UserRole } from "@enums";
+
 export enum Action {
     Manage = "manage", // wildcard for any action
     Create = "create",
@@ -16,6 +18,7 @@ export enum ResourceType {
     GitSettings = "git_settings",
     UserSettings = "user_settings",
     OrganizationSettings = "organization_settings",
+    PluginSettings = "plugin_settings",
     Logs = "logs",
 }
 
@@ -27,3 +30,10 @@ export type PermissionsMap = {
         };
     };
 };
+
+export const rolePriority = {
+    [UserRole.OWNER]: 1,
+    [UserRole.REPO_ADMIN]: 2,
+    [UserRole.BILLING_MANAGER]: 3,
+    [UserRole.CONTRIBUTOR]: 4,
+} as const;

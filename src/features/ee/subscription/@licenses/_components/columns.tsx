@@ -3,6 +3,8 @@
 import { magicModal } from "@components/ui/magic-modal";
 import { Switch } from "@components/ui/switch";
 import { useAsyncAction } from "@hooks/use-async-action";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { useSuspenseGetConnections } from "@services/setup/hooks";
 import { ColumnDef } from "@tanstack/react-table";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
@@ -29,6 +31,10 @@ export const columns: ColumnDef<Type>[] = [
             const subscription = useSubscriptionStatus();
             const { teamId } = useSelectedTeamId();
             const connections = useSuspenseGetConnections(teamId);
+            const canEdit = usePermission(
+                Action.Update,
+                ResourceType.UserSettings,
+            );
 
             const codeManagementConnection = connections.find(
                 (connection) => connection.category === "CODE_MANAGEMENT",
@@ -56,7 +62,7 @@ export const columns: ColumnDef<Type>[] = [
                 <Switch
                     loading={isAssigningOrDeassigningLicense}
                     checked={row.original.licenseStatus === "active"}
-                    disabled={subscription.status !== "active"}
+                    disabled={!canEdit || subscription.status !== "active"}
                     onCheckedChange={async () => {
                         if (
                             subscription.status === "active" &&

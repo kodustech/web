@@ -3,6 +3,8 @@
 import { Button } from "@components/ui/button";
 import { Card, CardHeader, CardTitle } from "@components/ui/card";
 import { useAsyncAction } from "@hooks/use-async-action";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import type { TeamMembersResponse } from "@services/setup/types";
 import { ArrowUpCircle } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
@@ -32,6 +34,8 @@ export const Trial = ({
     ) {
         return null;
     }
+
+    const canEdit = usePermission(Action.Update, ResourceType.Billing);
 
     return (
         <Card className="w-full">
@@ -65,6 +69,7 @@ export const Trial = ({
                     className="h-fit"
                     leftIcon={<ArrowUpCircle />}
                     loading={isCreatingLinkToCheckout}
+                    disabled={!canEdit}
                     onClick={() => createLinkToCheckout()}>
                     Upgrade
                 </Button>

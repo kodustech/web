@@ -4,6 +4,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
 import type { INTEGRATIONS_KEY } from "@enums";
 import { useAsyncAction } from "@hooks/use-async-action";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { getConnectionsOnClient } from "@services/setup/fetch";
 import { deleteCookie, setCookie } from "cookies-next";
 import integrationFactory from "src/core/integrations/integrationFactory";
@@ -18,6 +20,7 @@ export const ProviderOptionButton = (props: {
     provider: keyof typeof CODE_MANAGEMENT_PLATFORMS;
 }) => {
     const platformData = CODE_MANAGEMENT_PLATFORMS[props.provider];
+    const canCreate = usePermission(Action.Create, ResourceType.GitSettings);
 
     const router = useRouter();
     const pathname = usePathname();
@@ -70,6 +73,7 @@ export const ProviderOptionButton = (props: {
             size="lg"
             variant="helper"
             loading={loading}
+            disabled={!canCreate}
             onClick={() => handleIntegrationClick()}
             className="peer peer-button-loading:pointer-events-none h-40 flex-1 flex-col">
             <span className="*:size-10!">

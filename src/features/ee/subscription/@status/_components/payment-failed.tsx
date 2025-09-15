@@ -3,6 +3,8 @@
 import { Button } from "@components/ui/button";
 import { Card, CardHeader, CardTitle } from "@components/ui/card";
 import { useAsyncAction } from "@hooks/use-async-action";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import type { TeamMembersResponse } from "@services/setup/types";
 import { AlertTriangle, CircleDollarSign } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
@@ -19,6 +21,7 @@ export const PaymentFailed = ({
     const { teamId } = useSelectedTeamId();
     const subscription = useSubscriptionStatus();
     if (subscription.status !== "payment-failed") return null;
+    const canEdit = usePermission(Action.Update, ResourceType.Billing);
 
     const totalLicenses = subscription.numberOfLicenses;
 
@@ -67,6 +70,7 @@ export const PaymentFailed = ({
                     className="h-fit"
                     leftIcon={<CircleDollarSign />}
                     loading={isCreatingLinkToCheckout}
+                    disabled={!canEdit}
                     onClick={() => {
                         createLinkToCheckout();
                     }}>

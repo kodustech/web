@@ -20,8 +20,14 @@ import {
 } from "@components/ui/select";
 import { toast } from "@components/ui/toaster/use-toast";
 import { UserRole, UserStatus } from "@enums";
+import { usePermission } from "@services/permissions/hooks";
+import {
+    Action,
+    ResourceType,
+    rolePriority,
+} from "@services/permissions/types";
 import { type MembersSetup } from "@services/setup/types";
-import { approveUser } from "@services/users/fetch";
+import { updateUser } from "@services/users/fetch";
 import { ColumnDef } from "@tanstack/react-table";
 import {
     CheckIcon,
@@ -31,6 +37,7 @@ import {
     Pencil,
     TrashIcon,
 } from "lucide-react";
+import { useAuth } from "src/core/providers/auth.provider";
 import { ClipboardHelpers } from "src/core/utils/clipboard";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 
@@ -60,32 +67,72 @@ export const columns: ColumnDef<MembersSetup>[] = [
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Role" />
         ),
+        accessorFn: (r) => rolePriority[r.role],
         cell: ({ row }) => {
-            const [mock, setMock] = useState<UserRole>(row.original.role);
+            const { userId, role: userRole } = useAuth();
+            const canEdit = usePermission(
+                Action.Update,
+                ResourceType.UserSettings,
+            );
 
-            if (row.original.role === UserRole.OWNER) {
-                return <span className="font-medium">Owner</span>;
-            }
+            const rowRole = row.original.role;
 
-            const role = mock
+            const role = rowRole
                 .toLowerCase()
                 .replaceAll("_", " ")
                 .replace(/\b\w/g, (c) => c.toUpperCase());
 
+            if (row.original.userId === userId) {
+                return <span className="font-medium">{role}</span>;
+            }
+
             const shouldShowButton = [
                 UserRole.CONTRIBUTOR,
                 UserRole.REPO_ADMIN,
-            ].includes(mock);
+            ].includes(rowRole);
+
+            const updateRoleAction = async (newRole: UserRole) => {
+                try {
+                    await updateUser(row.original.userId!, { role: newRole });
+
+                    toast({
+                        variant: "success",
+                        title: "Role updated",
+                        description: (
+                            <span>
+                                Role for{" "}
+                                <span className="text-primary-light">
+                                    {row.original.email}
+                                </span>{" "}
+                                was changed to{" "}
+                                <span className="font-medium capitalize">
+                                    {newRole.toLowerCase().replaceAll("_", " ")}
+                                </span>
+                            </span>
+                        ),
+                    });
+
+                    revalidateServerSidePath("/settings/subscription");
+                } catch {
+                    toast({
+                        variant: "danger",
+                        title: "Role was not updated",
+                        description:
+                            "Something wrong happened. Please, try again.",
+                    });
+                }
+            };
 
             return (
                 <div className="flex w-full items-center gap-2">
                     <div className="flex-grow">
                         <Select
-                            value={mock}
+                            value={rowRole}
                             onValueChange={(value) =>
-                                setMock(value as UserRole)
+                                updateRoleAction(value as UserRole)
                             }
                             disabled={
+                                !canEdit ||
                                 row.original.userStatus === UserStatus.INACTIVE
                             }>
                             <SelectTrigger className="w-full">
@@ -100,18 +147,16 @@ export const columns: ColumnDef<MembersSetup>[] = [
                                 </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
-                                {Object.values(UserRole)
-                                    .filter((r) => r !== UserRole.OWNER)
-                                    .map((role) => (
-                                        <SelectItem
-                                            key={role}
-                                            value={role}
-                                            className="capitalize">
-                                            {role
-                                                .toLowerCase()
-                                                .replaceAll("_", " ")}
-                                        </SelectItem>
-                                    ))}
+                                {Object.values(UserRole).map((role) => (
+                                    <SelectItem
+                                        key={role}
+                                        value={role}
+                                        className="capitalize">
+                                        {role
+                                            .toLowerCase()
+                                            .replaceAll("_", " ")}
+                                    </SelectItem>
+                                ))}
                             </SelectContent>
                         </Select>
                     </div>
@@ -122,6 +167,7 @@ export const columns: ColumnDef<MembersSetup>[] = [
                                 variant="secondary"
                                 size="icon-sm"
                                 className="w-full gap-x-2"
+                                disabled={!canEdit}
                                 onClick={() =>
                                     toast({
                                         variant: "info",
@@ -145,9 +191,20 @@ export const columns: ColumnDef<MembersSetup>[] = [
         header: "Actions",
         meta: { align: "right" },
         cell: ({ row }) => {
+            const canEdit = usePermission(
+                Action.Update,
+                ResourceType.UserSettings,
+            );
+            const canDelete = usePermission(
+                Action.Delete,
+                ResourceType.UserSettings,
+            );
+
             const approveUserAction = async () => {
                 try {
-                    await approveUser(row.original.userId!);
+                    await updateUser(row.original.userId!, {
+                        status: UserStatus.ACTIVE,
+                    });
 
                     toast({
                         variant: "success",
@@ -199,6 +256,7 @@ export const columns: ColumnDef<MembersSetup>[] = [
                                     <DropdownMenuItem
                                         leftIcon={<CheckIcon />}
                                         className="text-success"
+                                        disabled={!canEdit}
                                         onClick={() => approveUserAction()}>
                                         Approve
                                     </DropdownMenuItem>
@@ -209,6 +267,7 @@ export const columns: ColumnDef<MembersSetup>[] = [
 
                             <DropdownMenuItem
                                 leftIcon={<CopyIcon />}
+                                disabled={!canEdit}
                                 onClick={async () => {
                                     await ClipboardHelpers.copyTextToClipboard(
                                         `${window.location.origin}/invite/${row.original.userId}`,
@@ -235,6 +294,7 @@ export const columns: ColumnDef<MembersSetup>[] = [
                             <DropdownMenuItem
                                 className="text-danger"
                                 leftIcon={<TrashIcon />}
+                                disabled={!canDelete}
                                 onClick={() =>
                                     magicModal.show(() => (
                                         <DeleteModal member={row.original} />

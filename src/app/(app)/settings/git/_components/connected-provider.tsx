@@ -3,6 +3,8 @@
 import { Button } from "@components/ui/button";
 import { Card, CardHeader } from "@components/ui/card";
 import { magicModal } from "@components/ui/magic-modal";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import type { getConnections } from "@services/setup/fetch";
 import { RefreshCcwIcon } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
@@ -19,6 +21,8 @@ export const GitConnectedProvider = ({
 }) => {
     const { teamId } = useSelectedTeamId();
     const { organizationId } = useOrganizationContext();
+
+    const canDelete = usePermission(Action.Delete, ResourceType.GitSettings);
 
     const platformKey =
         connection.platformName.toLowerCase() as keyof typeof CODE_MANAGEMENT_PLATFORMS;
@@ -41,6 +45,7 @@ export const GitConnectedProvider = ({
                     size="xs"
                     variant="tertiary"
                     leftIcon={<RefreshCcwIcon />}
+                    disabled={!canDelete}
                     onClick={() => {
                         magicModal.show(() => (
                             <ResetIntegrationModal

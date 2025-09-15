@@ -80,6 +80,10 @@ export const NavMenu = ({
         Action.Read,
         ResourceType.GitSettings,
     );
+    const canReadPlugins = usePermission(
+        Action.Read,
+        ResourceType.PluginSettings,
+    );
 
     const items = useMemo(() => {
         const items: Array<{
@@ -109,7 +113,8 @@ export const NavMenu = ({
                 visible:
                     canReadCodeReviewSettings ||
                     canReadGitSettings ||
-                    canReadBilling,
+                    canReadBilling ||
+                    canReadPlugins,
             },
         ];
 

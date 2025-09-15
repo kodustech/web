@@ -13,6 +13,8 @@ import { FormControl } from "@components/ui/form-control";
 import { Input } from "@components/ui/input";
 import { Markdown } from "@components/ui/markdown";
 import type { getMCPPluginById } from "@services/mcp-manager/fetch";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { AlertTriangleIcon, CheckCircle2Icon } from "lucide-react";
 import type { AwaitedReturnType } from "src/core/types";
 
@@ -27,6 +29,8 @@ export const RequiredConfiguration = ({
     setValuesAction: Dispatch<SetStateAction<Record<string, string>>>;
     isValid: boolean;
 }) => {
+    const canEdit = usePermission(Action.Update, ResourceType.PluginSettings);
+
     return (
         <Collapsible defaultOpen>
             <Card color="lv1">
@@ -54,7 +58,8 @@ export const RequiredConfiguration = ({
                                             }
                                         </span>
                                         <span>
-                                            of {plugin.requiredParams?.length || 0}
+                                            of{" "}
+                                            {plugin.requiredParams?.length || 0}
                                         </span>
                                     </div>
                                     <AlertTriangleIcon className="text-alert" />
@@ -79,6 +84,7 @@ export const RequiredConfiguration = ({
                                             id={p.name}
                                             placeholder="This information is required"
                                             value={values?.[p.name] ?? ""}
+                                            disabled={!canEdit}
                                             onChange={(e) => {
                                                 setValuesAction((rpv) => ({
                                                     ...rpv,

@@ -13,6 +13,8 @@ const resourceRoutes = {
         "/settings",
         "/forbidden/*",
         "/library/*",
+        "/setup/*",
+        "/auth/*",
     ],
     [ResourceType.Billing]: ["/settings/subscription/*"],
     [ResourceType.Cockpit]: ["/cockpit/*"],
@@ -20,7 +22,9 @@ const resourceRoutes = {
     [ResourceType.Issues]: ["/issues/*"],
     [ResourceType.CodeReviewSettings]: ["/settings/code-review/*"],
     [ResourceType.OrganizationSettings]: ["/organization/*"],
-    [ResourceType.GitSettings]: ["/settings/git/*", "/settings/plugins/*"],
+    [ResourceType.GitSettings]: ["/settings/git/*"],
+    [ResourceType.UserSettings]: ["/settings/subscription/*"],
+    [ResourceType.PluginSettings]: ["/settings/plugins/*"],
     [ResourceType.Logs]: ["/user-logs/*"],
 };
 
@@ -32,6 +36,7 @@ const roleRoutes = {
         ...resourceRoutes[ResourceType.Cockpit],
         ...resourceRoutes[ResourceType.CodeReviewSettings],
         ...resourceRoutes[ResourceType.GitSettings],
+        ...resourceRoutes[ResourceType.PluginSettings],
         ...resourceRoutes[ResourceType.Logs],
     ],
     [UserRole.BILLING_MANAGER]: [
@@ -39,6 +44,7 @@ const roleRoutes = {
         ...resourceRoutes[ResourceType.Billing],
         ...resourceRoutes[ResourceType.CodeReviewSettings],
         ...resourceRoutes[ResourceType.GitSettings],
+        ...resourceRoutes[ResourceType.PluginSettings],
         ...resourceRoutes[ResourceType.Logs],
     ],
     [UserRole.CONTRIBUTOR]: [

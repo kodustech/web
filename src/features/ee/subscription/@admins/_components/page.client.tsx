@@ -1,35 +1,39 @@
 "use client";
 
-import { use } from "react";
+import { use, useMemo } from "react";
 import { DataTable } from "@components/ui/data-table";
 import { UserRole } from "@enums";
+import { rolePriority } from "@services/permissions/types";
 import type { MembersSetup } from "@services/setup/types";
+import { useAuth } from "src/core/providers/auth.provider";
 
 import { TableFilterContext } from "../../_providers/table-filter-context";
 import { columns } from "./columns";
 
 export const AdminsPageClient = ({ data }: { data: MembersSetup[] }) => {
+    const { userId } = useAuth();
     const { query, setQuery } = use(TableFilterContext);
 
-    const mockData = data.concat(
-        Array.from({ length: 20 }, (_, i) => ({
-            id: `user-${i + 1}`,
-            name: `User ${i + 1}`,
-            email: `user${i + 1}`,
-            role:
-                i % 3 === 0
-                    ? UserRole.BILLING_MANAGER
-                    : i % 3 === 1
-                      ? UserRole.REPO_ADMIN
-                      : UserRole.CONTRIBUTOR,
-            active: true,
-            error: false,
-        })) as MembersSetup[],
+    const defaultSortedData = useMemo(
+        () =>
+            [...data].sort((a, b) => {
+                if (a.userId === userId) return -1; // Current user goes to the top
+                if (b.userId === userId) return 1;
+
+                // Sort by role first
+                const roleComparison =
+                    rolePriority[a.role] - rolePriority[b.role];
+                if (roleComparison !== 0) return roleComparison;
+
+                // Then sort by email
+                return a.email.localeCompare(b.email);
+            }),
+        [data, userId],
     );
 
     return (
         <DataTable
-            data={mockData}
+            data={defaultSortedData}
             columns={columns}
             state={{ globalFilter: query }}
             onGlobalFilterChange={setQuery}
