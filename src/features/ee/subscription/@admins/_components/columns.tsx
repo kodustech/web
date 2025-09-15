@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Button } from "@components/ui/button";
 import { DataTableColumnHeader } from "@components/ui/data-table";
 import {
@@ -41,6 +41,7 @@ import { useAuth } from "src/core/providers/auth.provider";
 import { ClipboardHelpers } from "src/core/utils/clipboard";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 
+import AssignReposModal from "./assign-repos.modal";
 import { DeleteModal } from "./delete-modal";
 
 export const columns: ColumnDef<MembersSetup>[] = [
@@ -69,7 +70,7 @@ export const columns: ColumnDef<MembersSetup>[] = [
         ),
         accessorFn: (r) => rolePriority[r.role],
         cell: ({ row }) => {
-            const { userId, role: userRole } = useAuth();
+            const { userId } = useAuth();
             const canEdit = usePermission(
                 Action.Update,
                 ResourceType.UserSettings,
@@ -169,11 +170,11 @@ export const columns: ColumnDef<MembersSetup>[] = [
                                 className="w-full gap-x-2"
                                 disabled={!canEdit}
                                 onClick={() =>
-                                    toast({
-                                        variant: "info",
-                                        title: "Not implemented",
-                                        description: "Not implemented yet.",
-                                    })
+                                    magicModal.show(() => (
+                                        <AssignReposModal
+                                            userId={row.original.userId!}
+                                        />
+                                    ))
                                 }>
                                 <Pencil />
                                 Repositories
