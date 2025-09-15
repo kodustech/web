@@ -135,19 +135,23 @@ export const GitlabTokenModal = (props: { teamId: string; userId: string }) => {
                             open={selfhosted}
                             onOpenChange={(s) => setSelfhosted(s)}
                             className="flex flex-col gap-1">
-                            <CollapsibleTrigger asChild>
-                                <Button
-                                    type="button"
-                                    variant="helper"
-                                    size="lg"
-                                    className="w-full items-center justify-between py-4">
-                                    <FormControl.Label className="mb-0">
-                                        Self-hosted
-                                    </FormControl.Label>
+                            <div className="relative">
+                                <CollapsibleTrigger asChild>
+                                    <Button
+                                        type="button"
+                                        variant="helper"
+                                        size="lg"
+                                        className="w-full items-center justify-between py-4">
+                                        <FormControl.Label className="mb-0">
+                                            Self-hosted
+                                        </FormControl.Label>
+                                    </Button>
+                                </CollapsibleTrigger>
 
+                                <div className="pointer-events-none absolute inset-y-0 right-6 flex items-center">
                                     <Switch decorative checked={selfhosted} />
-                                </Button>
-                            </CollapsibleTrigger>
+                                </div>
+                            </div>
 
                             <CollapsibleContent>
                                 <Card color="lv1">

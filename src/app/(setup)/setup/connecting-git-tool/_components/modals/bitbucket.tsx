@@ -26,6 +26,7 @@ import { z } from "zod";
 const tokenFormSchema = z.object({
     token: z.string().min(1, { message: "Enter a Token" }),
     username: z.string().min(1, { message: "Enter a Username" }),
+    email: z.string().email({ message: "Enter a valid email" }),
 });
 
 export const BitbucketTokenModal = (props: {
@@ -40,6 +41,7 @@ export const BitbucketTokenModal = (props: {
         defaultValues: {
             token: "",
             username: "",
+            email: "",
         },
     });
 
@@ -55,6 +57,7 @@ export const BitbucketTokenModal = (props: {
                     teamId: props.teamId,
                 },
                 username: data.username,
+                email: data.email,
             });
 
             await captureSegmentEvent({
@@ -107,7 +110,7 @@ export const BitbucketTokenModal = (props: {
             <DialogContent>
                 <form onSubmit={form.handleSubmit(submit)}>
                     <DialogHeader>
-                        <DialogTitle>Bitbucket App Password</DialogTitle>
+                        <DialogTitle>Bitbucket API Token</DialogTitle>
                         <DialogDescription></DialogDescription>
                     </DialogHeader>
 
@@ -134,6 +137,27 @@ export const BitbucketTokenModal = (props: {
                         />
 
                         <Controller
+                            name="email"
+                            control={form.control}
+                            render={({ field, fieldState }) => (
+                                <FormControl.Root>
+                                    <FormControl.Input>
+                                        <Input
+                                            {...field}
+                                            type="email"
+                                            error={fieldState.error}
+                                            placeholder="Enter your email address"
+                                        />
+                                    </FormControl.Input>
+
+                                    <FormControl.Error>
+                                        {fieldState.error?.message}
+                                    </FormControl.Error>
+                                </FormControl.Root>
+                            )}
+                        />
+
+                        <Controller
                             name="token"
                             control={form.control}
                             render={({ field, fieldState }) => (
@@ -143,7 +167,7 @@ export const BitbucketTokenModal = (props: {
                                             {...field}
                                             type="password"
                                             error={fieldState.error}
-                                            placeholder="Paste your App Password here"
+                                            placeholder="Paste your API token here"
                                         />
                                     </FormControl.Input>
 

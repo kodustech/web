@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@components/ui/button";
-import { Heading } from "@components/ui/heading";
 import { Page } from "@components/ui/page";
 import { toast } from "@components/ui/toaster/use-toast";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
@@ -32,7 +31,6 @@ export default function ReviewCategories() {
 
     const handleSubmit = form.handleSubmit(async (formData) => {
         try {
-
             const result = await createOrUpdateCodeReviewParameter(
                 formData,
                 teamId,

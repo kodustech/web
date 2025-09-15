@@ -35,7 +35,7 @@ interface CheckboxCardOption {
 
 export const AnalysisTypes = () => {
     const form = useFormContext<CodeReviewFormType>();
-    const codeReviewVersion = form.watch("codeReviewVersion") || "legacy";
+    const codeReviewVersion = form.watch("codeReviewVersion") || "v2";
     const { data: labels = [], isLoading } =
         useGetCodeReviewLabels(codeReviewVersion);
     const {
@@ -157,7 +157,7 @@ export const AnalysisTypes = () => {
                                                 decorative
                                                 checked={
                                                     field.value?.[
-                                                        option.value
+                                                    option.value
                                                     ] || false
                                                 }
                                             />
