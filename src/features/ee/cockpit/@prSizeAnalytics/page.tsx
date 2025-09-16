@@ -9,6 +9,7 @@ import {
 import { formatISO, subWeeks } from "date-fns";
 import { getPRSizeAnalytics } from "src/features/ee/cockpit/_services/analytics/productivity/fetch";
 import { getPercentageDiff } from "src/features/ee/cockpit/_services/analytics/utils";
+import { extractApiData } from "src/features/ee/cockpit/_helpers/api-data-extractor";
 
 import { InsightsBadge } from "../_components/insights-badge";
 import { PercentageDiff } from "../_components/percentage-diff";
@@ -44,24 +45,21 @@ export default async function PRSizeAnalytics() {
     const endDate = new Date();
     const startDate = subWeeks(endDate, 2);
 
-    const data = await getPRSizeAnalytics({
+    const response = await getPRSizeAnalytics({
         startDate: formatISO(startDate, { representation: "date" }),
         endDate: formatISO(endDate, { representation: "date" }),
     });
 
-    // Handle both direct object response and wrapped {status, data} response
-    const actualData = (data as any)?.data || data;
-
+    const data = extractApiData(response);
     if (
-        !actualData?.currentPeriod?.totalPRs ||
-        (actualData.currentPeriod.totalPRs === 0 &&
-            actualData.previousPeriod.totalPRs === 0)
+        data.currentPeriod.totalPRs === 0 &&
+        data.previousPeriod.totalPRs === 0
     ) {
         return <NoData />;
     }
 
     const [badge] = Object.entries(comparisonParameters)?.find(
-        ([, { compareFn }]) => compareFn(actualData?.currentPeriod?.averagePRSize),
+        ([, { compareFn }]) => compareFn(data?.currentPeriod?.averagePRSize),
     )!;
 
     return (
@@ -118,18 +116,18 @@ export default async function PRSizeAnalytics() {
 
             <CardContent className="flex items-center justify-center">
                 <div className="text-3xl font-bold">
-                    {actualData?.currentPeriod?.averagePRSize}
+                    {data?.currentPeriod?.averagePRSize}
                 </div>
             </CardContent>
 
             <CardFooter className="text-text-secondary flex gap-1 text-xs">
                 <span>
-                    Last 2 weeks was {actualData?.previousPeriod?.averagePRSize}
+                    Last 2 weeks was {data?.previousPeriod?.averagePRSize}
                 </span>
                 <PercentageDiff
                     mode="lower-is-better"
-                    status={getPercentageDiff(actualData?.comparison)}>
-                    {actualData?.comparison?.percentageChange}%
+                    status={getPercentageDiff(data?.comparison)}>
+                    {data?.comparison?.percentageChange}%
                 </PercentageDiff>
             </CardFooter>
         </>
