@@ -1,5 +1,6 @@
 import { useAuth } from "src/core/providers/auth.provider";
-import { usePermissionsContext } from "src/core/providers/permissions.provider";
+import { usePermissions } from "src/core/providers/permissions.provider";
+import { hasPermission } from "src/core/utils/permissions";
 
 import { Action, ResourceType } from "./types";
 
@@ -9,20 +10,13 @@ export const usePermission = (
     repoId?: string,
 ): boolean => {
     const { organizationId } = useAuth();
-    const permissions = usePermissionsContext();
+    const permissions = usePermissions();
 
-    if (!permissions || !organizationId) {
-        return false;
-    }
-
-    const resourcePermissions = permissions[resource]?.[action];
-
-    if (!resourcePermissions) {
-        return false;
-    }
-
-    const matchOrgId = resourcePermissions.organizationId === organizationId;
-    const matchRepoId = repoId ? resourcePermissions.repoId === repoId : true;
-
-    return matchOrgId && matchRepoId;
+    return hasPermission({
+        permissions,
+        organizationId: organizationId!,
+        action,
+        resource,
+        repoId,
+    });
 };

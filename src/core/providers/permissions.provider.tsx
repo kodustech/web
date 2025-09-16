@@ -16,7 +16,7 @@ export const PermissionsProvider = ({
     );
 };
 
-export const usePermissionsContext = () => {
+export const usePermissions = () => {
     const permissions = useContext(permissionsContext);
     return permissions;
 };

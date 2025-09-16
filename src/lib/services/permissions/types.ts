@@ -26,7 +26,7 @@ export type PermissionsMap = {
     [K in ResourceType]?: {
         [A in Action]?: {
             organizationId: string;
-            repoId?: string;
+            repoId?: string[];
         };
     };
 };

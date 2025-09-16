@@ -4,7 +4,7 @@ import {
     getOrganizationId,
     getOrganizationName,
 } from "@services/organizations/fetch";
-import { getAssignedRepos, getPermissions } from "@services/permissions/fetch";
+import { getPermissions } from "@services/permissions/fetch";
 import { getTeams } from "@services/teams/fetch";
 import { auth } from "src/core/config/auth";
 import { NavMenu } from "src/core/layout/navbar";
@@ -24,21 +24,14 @@ export default async function Layout({ children }: React.PropsWithChildren) {
     const session = await auth();
     if (!session) redirect("/sign-out");
 
-    const [
-        teams,
-        teamId,
-        organizationId,
-        organizationName,
-        permissions,
-        assignedRepos,
-    ] = await Promise.all([
-        getTeams(),
-        getGlobalSelectedTeamId(),
-        getOrganizationId(),
-        getOrganizationName(),
-        getPermissions(),
-        getAssignedRepos(),
-    ]);
+    const [teams, teamId, organizationId, organizationName, permissions] =
+        await Promise.all([
+            getTeams(),
+            getGlobalSelectedTeamId(),
+            getOrganizationId(),
+            getOrganizationName(),
+            getPermissions(),
+        ]);
 
     const [
         organizationLicense,
