@@ -1,5 +1,6 @@
 import { CardContent } from "@components/ui/card";
 import { getLeadTimeForChange } from "src/features/ee/cockpit/_services/analytics/productivity/fetch";
+import { extractApiData } from "src/features/ee/cockpit/_helpers/api-data-extractor";
 
 import { CockpitNoDataPlaceholder } from "../_components/no-data-placeholder";
 import { getSelectedDateRange } from "../_helpers/get-selected-date-range";
@@ -8,21 +9,20 @@ import { ChartNoSSR } from "./_components/chart.no-ssr";
 export default async function LeadTimeForChangeChart() {
     const selectedDateRange = await getSelectedDateRange();
 
-    const data = await getLeadTimeForChange({
+    const response = await getLeadTimeForChange({
         startDate: selectedDateRange.startDate,
         endDate: selectedDateRange.endDate,
     });
 
-    // Handle both direct array response and wrapped {status, data} response
-    const actualData = Array.isArray(data) ? data : (data as any)?.data || [];
+    const data = extractApiData(response);
 
-    if (!actualData || actualData.length === 0) {
+    if (!data || data.length === 0) {
         return <CockpitNoDataPlaceholder />;
     }
 
     return (
         <CardContent className="flex items-center justify-center">
-            <ChartNoSSR data={actualData} />
+            <ChartNoSSR data={data} />
         </CardContent>
     );
 }
