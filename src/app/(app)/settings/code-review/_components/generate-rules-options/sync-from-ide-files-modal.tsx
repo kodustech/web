@@ -7,6 +7,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@components/ui/dialog";
+import { InlineCode } from "@components/ui/inline-code";
 import { magicModal } from "@components/ui/magic-modal";
 import { toast } from "@components/ui/toaster/use-toast";
 import { useEffectOnce } from "@hooks/use-effect-once";
@@ -33,9 +34,9 @@ export const SyncFromIDEFilesFirstTimeModal = () => {
                     <ul className="list-disc pl-5">
                         <li>
                             Scan the repo for rule files{" "}
-                            <code className="bg-card-lv1 text-text-primary mx-0.5 rounded-lg px-1.5 py-0.5">
+                            <InlineCode className="bg-card-lv1">
                                 (e.g. .cursorrules, CLAUDE.md)
-                            </code>
+                            </InlineCode>
                         </li>
                         <li>
                             Import any of these files found into your workspace

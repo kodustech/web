@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from "@components/ui/card";
 import { Collapsible, CollapsibleContent } from "@components/ui/collapsible";
 import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
+import { InlineCode } from "@components/ui/inline-code";
 import { NumberInput } from "@components/ui/number-input";
 import {
     Select,
@@ -75,9 +76,9 @@ export const AutomatedReviewActive = () => {
                                     <p className="text-text-tertiary text-xs">
                                         When disabled, you can manually start
                                         the review by using the command{" "}
-                                        <code className="bg-background text-text-primary mx-0.5 rounded-lg px-1.5 py-1">
+                                        <InlineCode>
                                             @kody start-review
-                                        </code>{" "}
+                                        </InlineCode>{" "}
                                         in the Pull Request comments.
                                     </p>
                                 </div>
@@ -158,9 +159,9 @@ export const AutomatedReviewActive = () => {
                                                     <>
                                                         Only run when you
                                                         comment{" "}
-                                                        <code className="bg-background text-text-primary mx-0.5 rounded-lg px-1.5 py-0.5">
+                                                        <InlineCode>
                                                             @kody start-review
-                                                        </code>
+                                                        </InlineCode>
                                                     </>
                                                 )}
                                             </FormControl.Helper>

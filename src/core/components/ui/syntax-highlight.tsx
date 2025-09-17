@@ -11,23 +11,25 @@ export const SyntaxHighlight: React.FC<{
     contentStyle?: React.CSSProperties;
 }> = (props) => {
     const customStyle: React.CSSProperties = {
-        ...props.contentStyle,
         borderRadius: "0.75rem",
         paddingLeft: "1.5rem",
         paddingRight: "1.5rem",
         paddingTop: "1rem",
         paddingBottom: "1rem",
+        ...props.contentStyle,
     };
 
     const appLanguageToSyntaxHighlighterLanguage = {
-        JSTS: "typescript",
-        PYTHON: "python",
-        JAVA: "java",
-        CSHARP: "csharp",
-        DART: "dart",
-        RUBY: "ruby",
-        GO: "go",
-        PHP: "php",
+        jsts: "typescript",
+        python: "python",
+        java: "java",
+        csharp: "csharp",
+        dart: "dart",
+        ruby: "ruby",
+        go: "go",
+        php: "php",
+        kotlin: "kotlin",
+        rust: "rust",
     } satisfies Record<keyof typeof ProgrammingLanguage, string>;
 
     const language =
