@@ -20,6 +20,8 @@ import {
     KodyLearningStatus,
     ParametersConfigKey,
 } from "@services/parameters/types";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { EyeIcon, Save } from "lucide-react";
 import { Controller, useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
@@ -90,6 +92,8 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
     const platformConfig = usePlatformConfig();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const form = useFormContext<CodeReviewFormType>();
+
+    const canReadPrs = usePermission(Action.Read, ResourceType.PullRequests);
 
     const generatePRSummary = form.watch("summary.generatePRSummary");
 
@@ -411,7 +415,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                         size="md"
                         variant="helper"
                         leftIcon={<EyeIcon />}
-                        disabled={!generatePRSummary}
+                        disabled={!generatePRSummary || !canReadPrs}
                         onClick={() => {
                             const behaviourForExistingDescription =
                                 form.getValues(
