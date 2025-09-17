@@ -116,7 +116,7 @@ interface ValidationResult {
 }
 
 const MAX_BRANCH_LENGTH = 100;
-const INVALID_CHARS_REGEX = /[<>:"|?\x00-\x1f]/;
+const INVALID_CHARS_REGEX = /[<>"|?\x00-\x1f]/;
 
 const validateBranchExpression = (branch: string): ValidationResult => {
     const trimmedBranch = branch.trim();
