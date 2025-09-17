@@ -190,84 +190,118 @@ export const BaseBranches = () => {
                                         />
                                     </button>
                                 </DialogTrigger>
-                                <DialogContent className="max-w-2xl">
+                                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                                     <DialogHeader>
-                                        <DialogTitle>Configuração de Branches</DialogTitle>
+                                        <DialogTitle>Branch Configuration Guide</DialogTitle>
                                     </DialogHeader>
 
-                                    <div className="space-y-4">
+                                    <div className="space-y-6">
                                         <div>
-                                            <h3 className="font-semibold mb-2">Tipos de Expressão</h3>
+                                            <h3 className="font-semibold mb-3">Expression Types</h3>
                                             <div className="space-y-2">
                                                 <div className="flex items-center gap-2">
                                                     <Badge variant="helper" className="text-xs">branch</Badge>
-                                                    <span className="text-sm">Inclui (ex: <code className="bg-muted px-1 rounded text-xs">develop</code>, <code className="bg-muted px-1 rounded text-xs">feature/*</code>)</span>
+                                                    <span className="text-sm">Include specific branches (e.g., <code className="bg-muted px-1 rounded text-xs">develop</code>, <code className="bg-muted px-1 rounded text-xs">feature/*</code>)</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <Badge variant="error" className="text-xs">!branch</Badge>
-                                                    <span className="text-sm">Exclui (ex: <code className="bg-muted px-1 rounded text-xs">!main</code>, <code className="bg-muted px-1 rounded text-xs">!feature/*</code>)</span>
+                                                    <span className="text-sm">Exclude specific branches (e.g., <code className="bg-muted px-1 rounded text-xs">!main</code>, <code className="bg-muted px-1 rounded text-xs">!feature/*</code>)</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <Badge variant="success" className="text-xs">contains:text</Badge>
-                                                    <span className="text-sm">Contém (ex: <code className="bg-muted px-1 rounded text-xs">contains:hotfix</code>)</span>
+                                                    <span className="text-sm">Include branches containing text (e.g., <code className="bg-muted px-1 rounded text-xs">contains:hotfix</code>)</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
                                                     <Badge variant="primary" className="text-xs">*</Badge>
-                                                    <span className="text-sm">Wildcard universal - revisa TODAS as branches</span>
+                                                    <span className="text-sm">Universal wildcard - review ALL branches</span>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div>
-                                            <h3 className="font-semibold mb-2">Exemplos Práticos</h3>
-                                            <div className="space-y-2">
+                                            <h3 className="font-semibold mb-3">Practical Examples</h3>
+                                            <div className="space-y-4">
                                                 <div>
-                                                    <strong className="text-sm">GitFlow:</strong>
-                                                    <code className="ml-2 bg-muted px-2 py-1 rounded text-sm">feature/*, hotfix/*</code>
+                                                    <strong className="text-sm">GitFlow</strong>
+                                                    <code className="block bg-muted px-3 py-2 rounded text-sm font-mono mt-1">feature/*, hotfix/*</code>
+                                                    <div className="mt-2 text-xs text-muted-foreground">
+                                                        <div>✅ <code className="bg-background px-1 rounded">feature/xyz → develop</code> = REVIEW</div>
+                                                        <div>✅ <code className="bg-background px-1 rounded">hotfix/urgent → main</code> = REVIEW</div>
+                                                    </div>
                                                 </div>
+
                                                 <div>
-                                                    <strong className="text-sm">Com exclusões:</strong>
-                                                    <code className="ml-2 bg-muted px-2 py-1 rounded text-sm">feature/*, hotfix/*, !main</code>
+                                                    <strong className="text-sm">With Exclusions</strong>
+                                                    <code className="block bg-muted px-3 py-2 rounded text-sm font-mono mt-1">feature/*, hotfix/*, !main</code>
+                                                    <div className="mt-2 text-xs text-muted-foreground">
+                                                        <div>❌ <code className="bg-background px-1 rounded">feature/xyz → main</code> = NO REVIEW (excluded)</div>
+                                                        <div>✅ <code className="bg-background px-1 rounded">feature/xyz → develop</code> = REVIEW</div>
+                                                    </div>
                                                 </div>
+
                                                 <div>
-                                                    <strong className="text-sm">Revisar tudo exceto:</strong>
-                                                    <code className="ml-2 bg-muted px-2 py-1 rounded text-sm">*, !main, !develop, !release/*</code>
+                                                    <strong className="text-sm">Review Everything Except</strong>
+                                                    <code className="block bg-muted px-3 py-2 rounded text-sm font-mono mt-1">*, !main, !develop, !release/*</code>
+                                                    <div className="mt-2 text-xs text-muted-foreground">
+                                                        <div>❌ <code className="bg-background px-1 rounded">any → main</code> = NO REVIEW (excluded)</div>
+                                                        <div>❌ <code className="bg-background px-1 rounded">any → develop</code> = NO REVIEW (excluded)</div>
+                                                        <div>✅ <code className="bg-background px-1 rounded">any → staging</code> = REVIEW</div>
+                                                    </div>
                                                 </div>
+
                                                 <div>
-                                                    <strong className="text-sm">Client Flow:</strong>
-                                                    <code className="ml-2 bg-muted px-2 py-1 rounded text-sm">feature/aggregation, !develop, !main, !release</code>
+                                                    <strong className="text-sm">Client Flow (Aggregation Branch)</strong>
+                                                    <code className="block bg-muted px-3 py-2 rounded text-sm font-mono mt-1">feature/aggregation, !develop, !main, !release</code>
+                                                    <div className="mt-2 text-xs text-muted-foreground">
+                                                        <div>✅ <code className="bg-background px-1 rounded">feature/xyz → feature/aggregation</code> = REVIEW</div>
+                                                        <div>❌ <code className="bg-background px-1 rounded">feature/xyz → develop</code> = NO REVIEW (excluded)</div>
+                                                        <div>❌ <code className="bg-background px-1 rounded">feature/xyz → main</code> = NO REVIEW (excluded)</div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div>
-                                            <h3 className="font-semibold mb-2">Como Usar em Conjunto</h3>
-                                            <div className="space-y-2">
+                                            <h3 className="font-semibold mb-3">How to Use Combinations</h3>
+                                            <div className="space-y-3">
                                                 <div>
-                                                    <strong className="text-sm">Inclui + Exclui:</strong>
-                                                    <code className="ml-2 bg-muted px-2 py-1 rounded text-sm">feature/*, !main</code>
-                                                    <span className="ml-2 text-xs text-muted-foreground">= revisa feature/* exceto para main</span>
+                                                    <strong className="text-sm">Include + Exclude</strong>
+                                                    <code className="block bg-muted px-3 py-2 rounded text-sm font-mono mt-1">feature/*, !main</code>
+                                                    <span className="text-xs text-muted-foreground">Reviews <code className="bg-background px-1 rounded">feature/*</code> branches EXCEPT when targeting <code className="bg-background px-1 rounded">main</code></span>
                                                 </div>
                                                 <div>
-                                                    <strong className="text-sm">Tudo + Exclui:</strong>
-                                                    <code className="ml-2 bg-muted px-2 py-1 rounded text-sm">*, !main, !develop</code>
-                                                    <span className="ml-2 text-xs text-muted-foreground">= revisa tudo exceto main e develop</span>
+                                                    <strong className="text-sm">Everything + Exclude</strong>
+                                                    <code className="block bg-muted px-3 py-2 rounded text-sm font-mono mt-1">*, !main, !develop</code>
+                                                    <span className="text-xs text-muted-foreground">Reviews ALL branches EXCEPT when targeting <code className="bg-background px-1 rounded">main</code> or <code className="bg-background px-1 rounded">develop</code></span>
                                                 </div>
                                                 <div>
-                                                    <strong className="text-sm">Específico + Exclui:</strong>
-                                                    <code className="ml-2 bg-muted px-2 py-1 rounded text-sm">feature/aggregation, !develop</code>
-                                                    <span className="ml-2 text-xs text-muted-foreground">= revisa feature/aggregation exceto para develop</span>
+                                                    <strong className="text-sm">Specific + Exclude</strong>
+                                                    <code className="block bg-muted px-3 py-2 rounded text-sm font-mono mt-1">feature/aggregation, !develop</code>
+                                                    <span className="text-xs text-muted-foreground">Reviews <code className="bg-background px-1 rounded">feature/aggregation</code> EXCEPT when targeting <code className="bg-background px-1 rounded">develop</code></span>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div className="p-3 bg-muted/30 rounded-lg">
-                                            <h3 className="font-semibold mb-2 text-sm">💡 Dicas</h3>
+                                        <div className="p-4 bg-muted/30 rounded-lg">
+                                            <h3 className="font-semibold mb-3">💡 Tips</h3>
+                                            <ul className="text-sm space-y-2">
+                                                <li>• <strong>Order doesn't matter</strong> - expressions can be in any order</li>
+                                                <li>• <strong>Use <code className="bg-background px-1 rounded text-xs">*</code></strong> to review all branches</li>
+                                                <li>• <strong>Use <code className="bg-background px-1 rounded text-xs">!</code></strong> to exclude specific branches</li>
+                                                <li>• <strong>Maximum 100 characters</strong> per expression</li>
+                                                <li>• <strong>All configurations are TARGET patterns</strong> - they define which branches can receive PRs</li>
+                                            </ul>
+                                        </div>
+
+                                        <div className="p-4 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+                                            <h3 className="font-semibold mb-2 text-sm">🔑 Key Concept</h3>
+                                            <p className="text-sm text-muted-foreground mb-2">
+                                                <strong>All branch configurations define TARGET branches (where PRs can go):</strong>
+                                            </p>
                                             <ul className="text-xs space-y-1 text-muted-foreground">
-                                                <li>• Ordem não importa</li>
-                                                <li>• Use <code className="bg-background px-1 rounded text-xs">*</code> para revisar todas as branches</li>
-                                                <li>• Use <code className="bg-background px-1 rounded text-xs">!</code> para excluir branches específicas</li>
-                                                <li>• Máximo 100 caracteres por expressão</li>
+                                                <li>• <code className="bg-background px-1 rounded">['develop', 'main']</code> = "Any branch can go to develop or main"</li>
+                                                <li>• <code className="bg-background px-1 rounded">['feature/*']</code> = "Any branch can go to branches starting with feature/"</li>
+                                                <li>• <code className="bg-background px-1 rounded">['!main']</code> = "Any branch CANNOT go to main"</li>
                                             </ul>
                                         </div>
                                     </div>
@@ -337,3 +371,4 @@ export const BaseBranches = () => {
         />
     );
 };
+
