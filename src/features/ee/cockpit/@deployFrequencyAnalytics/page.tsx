@@ -9,6 +9,7 @@ import {
 import { formatISO, subWeeks } from "date-fns";
 import { getDeployFrequencyAnalytics } from "src/features/ee/cockpit/_services/analytics/productivity/fetch";
 import { getPercentageDiff } from "src/features/ee/cockpit/_services/analytics/utils";
+import { extractApiData } from "src/features/ee/cockpit/_helpers/api-data-extractor";
 
 import { InsightsBadge } from "../_components/insights-badge";
 import { CockpitNoDataPlaceholder } from "../_components/no-data-placeholder";
@@ -44,18 +45,15 @@ export default async function DeployFrequencyAnalytics() {
     const endDate = new Date();
     const startDate = subWeeks(endDate, 2);
 
-    const data = await getDeployFrequencyAnalytics({
+    const response = await getDeployFrequencyAnalytics({
         startDate: formatISO(startDate, { representation: "date" }),
         endDate: formatISO(endDate, { representation: "date" }),
     });
 
-    // Handle both direct object response and wrapped {status, data} response
-    const actualData = (data as any)?.data || data;
-
+    const data = extractApiData(response);
     if (
-        !actualData?.currentPeriod?.averagePerWeek ||
-        (actualData?.currentPeriod?.averagePerWeek === 0 &&
-            actualData?.previousPeriod?.averagePerWeek === 0)
+        data.currentPeriod.averagePerWeek === 0 &&
+        data.previousPeriod.averagePerWeek === 0
     ) {
         return (
             <>
@@ -69,7 +67,7 @@ export default async function DeployFrequencyAnalytics() {
     }
 
     const [badge] = Object.entries(comparisonParameters).find(
-        ([, { compareFn }]) => compareFn(actualData.currentPeriod.averagePerWeek),
+        ([, { compareFn }]) => compareFn(data.currentPeriod.averagePerWeek),
     )!;
 
     return (
@@ -125,19 +123,19 @@ export default async function DeployFrequencyAnalytics() {
             </DeployFrequencyAnalyticsHeader>
 
             <CardContent className="flex items-center justify-center text-3xl font-bold">
-                {actualData?.currentPeriod?.averagePerWeek}
+                {data?.currentPeriod?.averagePerWeek}
                 <small>/week</small>
             </CardContent>
 
             <CardFooter className="text-text-secondary flex gap-1 text-xs">
                 <span>
-                    Last 2 weeks was {actualData?.previousPeriod?.averagePerWeek}
+                    Last 2 weeks was {data?.previousPeriod?.averagePerWeek}
                     /week
                 </span>
                 <PercentageDiff
-                    status={getPercentageDiff(actualData?.comparison)}
+                    status={getPercentageDiff(data?.comparison)}
                     mode="higher-is-better">
-                    {actualData?.comparison?.percentageChange}%
+                    {data?.comparison?.percentageChange}%
                 </PercentageDiff>
             </CardFooter>
         </>

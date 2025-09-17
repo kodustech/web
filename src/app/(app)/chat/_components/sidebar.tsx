@@ -57,7 +57,7 @@
 //         <div className="h-full overflow-auto">
 //             <Sidebar>
 //                 <SidebarContent className="overflow-visible">
-//                     <Link href="/chat/new" legacyBehavior>
+//                     <Link href="/chat/new">
 //                         <Badge
 //                             variant="helper"
 //                             rightIcon={<Plus />}
