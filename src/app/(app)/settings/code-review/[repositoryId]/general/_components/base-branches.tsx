@@ -68,7 +68,7 @@ const processBranchExpression = (branches: string[]): { reviewRules: ReviewRules
             // Wildcard universal: *
             reviewRules.wildcard.push(trimmedBranch);
         } else {
-            // Inclusão normal: branch
+            // Inclusão normal: branch ou pattern/*
             reviewRules.include.push(trimmedBranch);
         }
     });
@@ -81,7 +81,6 @@ interface ValidationResult {
     error?: string;
 }
 
-// Constantes para validação
 const MAX_BRANCH_LENGTH = 100;
 const INVALID_CHARS_REGEX = /[<>:"|?\x00-\x1f]/;
 
@@ -317,7 +316,7 @@ export const BaseBranches = () => {
                                         type="text"
                                         disabled={field.disabled}
                                         value={inputValue}
-                                        maxLength={100}
+                                        maxLength={MAX_BRANCH_LENGTH}
                                         placeholder="Press Enter to add a branch or expression (!, contains:, *)"
                                         onChange={handleInputChange}
                                         onKeyDown={handleKeyDown}
@@ -372,3 +371,430 @@ export const BaseBranches = () => {
     );
 };
 
+<<<<<<< Updated upstream
+=======
+const HelpModal = () => (
+    <Dialog open onOpenChange={magicModal.hide}>
+        <DialogContent className="max-h-[90vh] max-w-4xl pb-0">
+            <DialogHeader>
+                <DialogTitle>Branch Configuration Guide</DialogTitle>
+            </DialogHeader>
+
+            <div className="-mx-6 space-y-6 overflow-y-auto px-6 py-6">
+                <Heading variant="h3" className="mb-2 text-base">
+                    Expression Types
+                </Heading>
+
+                <Card color="lv1" className="rounded-none">
+                    <Table className="**:border-card-lv2 *:border">
+                        <TableBody>
+                            <TableRow>
+                                <TableCell className="w-40">
+                                    <Badge
+                                        variant="helper"
+                                        className="pointer-events-none">
+                                        branch
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <span className="text-sm">
+                                        Allow PRs TO specific branches (e.g.,{" "}
+                                        <InlineCode>develop</InlineCode>,{" "}
+                                        <InlineCode>feature/*</InlineCode>)
+                                    </span>
+                                </TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>
+                                    <Badge
+                                        variant="error"
+                                        className="pointer-events-none">
+                                        !branch
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <span className="text-sm">
+                                        Block PRs TO specific branches (e.g.,{" "}
+                                        <InlineCode>!main</InlineCode>,{" "}
+                                        <InlineCode>!feature/*</InlineCode>)
+                                    </span>
+                                </TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>
+                                    <Badge
+                                        variant="success"
+                                        className="pointer-events-none">
+                                        contains:text
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <span className="text-sm">
+                                        Allow PRs TO branches containing text (e.g.,{" "}
+                                        <InlineCode>contains:hotfix</InlineCode>
+                                        )
+                                    </span>
+                                </TableCell>
+                            </TableRow>
+                            <TableRow>
+                                <TableCell>
+                                    <Badge
+                                        variant="primary"
+                                        className="pointer-events-none">
+                                        *
+                                    </Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <span className="text-sm">
+                                        Universal wildcard - allow PRs TO ALL branches
+                                    </span>
+                                </TableCell>
+                            </TableRow>
+                        </TableBody>
+                    </Table>
+                </Card>
+
+                <Alert variant="info">
+                    <KeyIcon />
+                    <AlertTitle>Key Concept</AlertTitle>
+
+                    <AlertDescription>
+                        <p className="text-muted-foreground mb-2 text-sm">
+                            <strong>
+                                All configurations define TARGET branches (where PRs are allowed to go):
+                            </strong>
+                        </p>
+                        <ul className="list-inside list-disc space-y-2 text-sm">
+                            <li>
+                                <InlineCode>['develop', 'main']</InlineCode> =
+                                "Any branch can make PRs TO develop or main"
+                            </li>
+                            <li>
+                                <InlineCode>['feature/*']</InlineCode> = "Any
+                                branch can make PRs TO branches starting with
+                                feature/"
+                            </li>
+                            <li>
+                                <InlineCode>['!main']</InlineCode> = "Any branch
+                                CANNOT make PRs TO main"
+                            </li>
+                        </ul>
+                    </AlertDescription>
+                </Alert>
+
+                <div className="mt-8">
+                    <Heading variant="h3" className="mb-2 text-base">
+                        Examples
+                    </Heading>
+
+                    <div className="flex flex-col gap-4">
+                        <Card color="lv1" className="rounded-none">
+                            <Table className="**:border-card-lv2 *:border">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead colSpan={2}>
+                                            <div>
+                                                <strong className="mr-1 text-sm">
+                                                    Simple - Only Main
+                                                </strong>
+                                                <InlineCode>
+                                                    ["main"]
+                                                </InlineCode>
+                                            </div>
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → main
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <CheckIcon className="text-success" />
+                                                REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                hotfix/urgent → main
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <CheckIcon className="text-success" />
+                                                REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → develop
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <XIcon className="text-danger" />
+                                                NO REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </Card>
+
+                        <Card color="lv1" className="rounded-none">
+                            <Table className="**:border-card-lv2 *:border">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead colSpan={2}>
+                                            <div>
+                                                <strong className="mr-1 text-sm">
+                                                    GitFlow with Exclusions
+                                                </strong>
+                                                <InlineCode>
+                                                    ["develop", "feature/*", "main", "!release/*"]
+                                                </InlineCode>
+                                            </div>
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → develop
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <CheckIcon className="text-success" />
+                                                REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → main
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <CheckIcon className="text-success" />
+                                                REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                hotfix/urgent → feature/abc
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <CheckIcon className="text-success" />
+                                                REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → release/v1.0
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <XIcon className="text-danger" />
+                                                NO REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </Card>
+
+                        <Card color="lv1" className="rounded-none">
+                            <Table className="**:border-card-lv2 *:border">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead colSpan={2}>
+                                            <div>
+                                                <strong className="mr-1 text-sm">
+                                                    Everything Except Main
+                                                </strong>
+                                                <InlineCode>
+                                                    ["*", "!main"]
+                                                </InlineCode>
+                                            </div>
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>feature/xyz → develop</InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <CheckIcon className="text-success" />
+                                                REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → staging
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <CheckIcon className="text-success" />
+                                                REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → main
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <XIcon className="text-danger" />
+                                                NO REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </Card>
+
+                        <Card color="lv1" className="rounded-none">
+                            <Table className="**:border-card-lv2 *:border">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead colSpan={2}>
+                                            <div>
+                                                <strong className="mr-1 text-sm">
+                                                    Client Flow (Aggregation Branch)
+                                                </strong>
+                                                <InlineCode>
+                                                    ["feature/aggregation", "!develop", "!main", "!release"]
+                                                </InlineCode>
+                                            </div>
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → feature/aggregation
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <CheckIcon className="text-success" />
+                                                REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                hotfix/urgent → feature/aggregation
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <CheckIcon className="text-success" />
+                                                REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → develop
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <XIcon className="text-danger" />
+                                                NO REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → main
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <XIcon className="text-danger" />
+                                                NO REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </Card>
+                    </div>
+                </div>
+
+                <Alert variant="warning">
+                    <LightbulbIcon />
+                    <AlertTitle>Tips</AlertTitle>
+
+                    <AlertDescription>
+                        <ul className="list-inside list-disc space-y-2 text-sm">
+                            <li>
+                                <strong>Order doesn't matter</strong> -
+                                expressions can be in any order
+                            </li>
+                            <li>
+                                <strong>
+                                    Use <InlineCode>*</InlineCode>
+                                </strong>{" "}
+                                to allow PRs to all branches
+                            </li>
+                            <li>
+                                <strong>
+                                    Use <InlineCode>!</InlineCode>
+                                </strong>{" "}
+                                to block PRs to specific branches
+                            </li>
+                            <li>
+                                <strong>Maximum 100 characters</strong> per
+                                expression
+                            </li>
+                        </ul>
+                    </AlertDescription>
+                </Alert>
+            </div>
+        </DialogContent>
+    </Dialog>
+);
+>>>>>>> Stashed changes
