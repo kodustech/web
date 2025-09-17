@@ -102,7 +102,7 @@ const processBranchExpression = (
             // Wildcard universal: *
             reviewRules.wildcard.push(trimmedBranch);
         } else {
-            // Inclusão normal: branch
+            // Inclusão normal: branch ou pattern/*
             reviewRules.include.push(trimmedBranch);
         }
     });
@@ -115,7 +115,6 @@ interface ValidationResult {
     error?: string;
 }
 
-// Constantes para validação
 const MAX_BRANCH_LENGTH = 100;
 const INVALID_CHARS_REGEX = /[<>:"|?\x00-\x1f]/;
 
@@ -277,7 +276,7 @@ export const BaseBranches = () => {
                                         type="text"
                                         disabled={field.disabled}
                                         value={inputValue}
-                                        maxLength={100}
+                                        maxLength={MAX_BRANCH_LENGTH}
                                         placeholder="Press Enter to add a branch or expression (!, contains:, *)"
                                         onChange={handleInputChange}
                                         onKeyDown={handleKeyDown}
@@ -362,7 +361,7 @@ const HelpModal = () => (
                                 </TableCell>
                                 <TableCell>
                                     <span className="text-sm">
-                                        Include specific branches (e.g.,{" "}
+                                        Allow PRs TO specific branches (e.g.,{" "}
                                         <InlineCode>develop</InlineCode>,{" "}
                                         <InlineCode>feature/*</InlineCode>)
                                     </span>
@@ -378,7 +377,7 @@ const HelpModal = () => (
                                 </TableCell>
                                 <TableCell>
                                     <span className="text-sm">
-                                        Exclude specific branches (e.g.,{" "}
+                                        Block PRs TO specific branches (e.g.,{" "}
                                         <InlineCode>!main</InlineCode>,{" "}
                                         <InlineCode>!feature/*</InlineCode>)
                                     </span>
@@ -394,7 +393,7 @@ const HelpModal = () => (
                                 </TableCell>
                                 <TableCell>
                                     <span className="text-sm">
-                                        Include branches containing text (e.g.,{" "}
+                                        Allow PRs TO branches containing text (e.g.,{" "}
                                         <InlineCode>contains:hotfix</InlineCode>
                                         )
                                     </span>
@@ -410,7 +409,7 @@ const HelpModal = () => (
                                 </TableCell>
                                 <TableCell>
                                     <span className="text-sm">
-                                        Universal wildcard - review ALL branches
+                                        Universal wildcard - allow PRs TO ALL branches
                                     </span>
                                 </TableCell>
                             </TableRow>
@@ -418,9 +417,37 @@ const HelpModal = () => (
                     </Table>
                 </Card>
 
+                <Alert variant="info">
+                    <KeyIcon />
+                    <AlertTitle>Key Concept</AlertTitle>
+
+                    <AlertDescription>
+                        <p className="text-muted-foreground mb-2 text-sm">
+                            <strong>
+                                All configurations define TARGET branches (where PRs are allowed to go):
+                            </strong>
+                        </p>
+                        <ul className="list-inside list-disc space-y-2 text-sm">
+                            <li>
+                                <InlineCode>['develop', 'main']</InlineCode> =
+                                "Any branch can make PRs TO develop or main"
+                            </li>
+                            <li>
+                                <InlineCode>['feature/*']</InlineCode> = "Any
+                                branch can make PRs TO branches starting with
+                                feature/"
+                            </li>
+                            <li>
+                                <InlineCode>['!main']</InlineCode> = "Any branch
+                                CANNOT make PRs TO main"
+                            </li>
+                        </ul>
+                    </AlertDescription>
+                </Alert>
+
                 <div className="mt-8">
                     <Heading variant="h3" className="mb-2 text-base">
-                        Practical Examples
+                        Examples
                     </Heading>
 
                     <div className="flex flex-col gap-4">
@@ -431,10 +458,10 @@ const HelpModal = () => (
                                         <TableHead colSpan={2}>
                                             <div>
                                                 <strong className="mr-1 text-sm">
-                                                    GitFlow
+                                                    Simple - Only Main
                                                 </strong>
                                                 <InlineCode>
-                                                    feature/*, hotfix/*
+                                                    ["main"]
                                                 </InlineCode>
                                             </div>
                                         </TableHead>
@@ -445,7 +472,7 @@ const HelpModal = () => (
                                     <TableRow>
                                         <TableCell className="w-1/2">
                                             <InlineCode>
-                                                feature/xyz → develop
+                                                feature/xyz → main
                                             </InlineCode>
                                         </TableCell>
                                         <TableCell>
@@ -469,6 +496,20 @@ const HelpModal = () => (
                                             </div>
                                         </TableCell>
                                     </TableRow>
+
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → develop
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <XIcon className="text-danger" />
+                                                NO REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
                                 </TableBody>
                             </Table>
                         </Card>
@@ -480,10 +521,10 @@ const HelpModal = () => (
                                         <TableHead colSpan={2}>
                                             <div>
                                                 <strong className="mr-1 text-sm">
-                                                    With Exclusions
+                                                    GitFlow with Exclusions
                                                 </strong>
                                                 <InlineCode>
-                                                    feature/*, hotfix/*, !main
+                                                    ["develop", "feature/*", "main", "!release/*"]
                                                 </InlineCode>
                                             </div>
                                         </TableHead>
@@ -491,20 +532,6 @@ const HelpModal = () => (
                                 </TableHeader>
 
                                 <TableBody>
-                                    <TableRow>
-                                        <TableCell className="w-1/2">
-                                            <InlineCode>
-                                                feature/xyz → main
-                                            </InlineCode>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-2 font-semibold">
-                                                <XIcon className="text-danger" />
-                                                NO REVIEW (excluded)
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-
                                     <TableRow>
                                         <TableCell className="w-1/2">
                                             <InlineCode>
@@ -518,64 +545,45 @@ const HelpModal = () => (
                                             </div>
                                         </TableCell>
                                     </TableRow>
-                                </TableBody>
-                            </Table>
-                        </Card>
-
-                        <Card color="lv1" className="rounded-none">
-                            <Table className="**:border-card-lv2 *:border">
-                                <TableHeader>
-                                    <TableRow>
-                                        <TableHead colSpan={2}>
-                                            <div>
-                                                <strong className="mr-1 text-sm">
-                                                    Review Everything Except
-                                                </strong>
-                                                <InlineCode>
-                                                    *, !main, !develop,
-                                                    !release/*
-                                                </InlineCode>
-                                            </div>
-                                        </TableHead>
-                                    </TableRow>
-                                </TableHeader>
-
-                                <TableBody>
-                                    <TableRow>
-                                        <TableCell className="w-1/2">
-                                            <InlineCode>any → main</InlineCode>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-2 font-semibold">
-                                                <XIcon className="text-danger" />
-                                                NO REVIEW (excluded)
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                    <TableRow>
-                                        <TableCell className="w-1/2">
-                                            <InlineCode>
-                                                any → develop
-                                            </InlineCode>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-2 font-semibold">
-                                                <XIcon className="text-danger" />
-                                                NO REVIEW (excluded)
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
 
                                     <TableRow>
                                         <TableCell className="w-1/2">
                                             <InlineCode>
-                                                any → staging
+                                                feature/xyz → main
                                             </InlineCode>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2 font-semibold">
                                                 <CheckIcon className="text-success" />
                                                 REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                hotfix/urgent → feature/abc
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <CheckIcon className="text-success" />
+                                                REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → release/v1.0
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <XIcon className="text-danger" />
+                                                NO REVIEW
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -590,12 +598,10 @@ const HelpModal = () => (
                                         <TableHead colSpan={2}>
                                             <div>
                                                 <strong className="mr-1 text-sm">
-                                                    Client Flow (Aggregation
-                                                    Branch)
+                                                    Everything Except Main
                                                 </strong>
                                                 <InlineCode>
-                                                    feature/aggregation,
-                                                    !develop, !main, !release
+                                                    ["*", "!main"]
                                                 </InlineCode>
                                             </div>
                                         </TableHead>
@@ -605,10 +611,7 @@ const HelpModal = () => (
                                 <TableBody>
                                     <TableRow>
                                         <TableCell className="w-1/2">
-                                            <InlineCode>
-                                                feature/xyz →
-                                                feature/aggregation
-                                            </InlineCode>
+                                            <InlineCode>feature/xyz → develop</InlineCode>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2 font-semibold">
@@ -617,17 +620,16 @@ const HelpModal = () => (
                                             </div>
                                         </TableCell>
                                     </TableRow>
-
                                     <TableRow>
                                         <TableCell className="w-1/2">
                                             <InlineCode>
-                                                feature/xyz → develop
+                                                feature/xyz → staging
                                             </InlineCode>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2 font-semibold">
-                                                <XIcon className="text-danger" />
-                                                NO REVIEW (excluded)
+                                                <CheckIcon className="text-success" />
+                                                REVIEW
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -641,7 +643,81 @@ const HelpModal = () => (
                                         <TableCell>
                                             <div className="flex items-center gap-2 font-semibold">
                                                 <XIcon className="text-danger" />
-                                                NO REVIEW (excluded)
+                                                NO REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </Card>
+
+                        <Card color="lv1" className="rounded-none">
+                            <Table className="**:border-card-lv2 *:border">
+                                <TableHeader>
+                                    <TableRow>
+                                        <TableHead colSpan={2}>
+                                            <div>
+                                                <strong className="mr-1 text-sm">
+                                                    Client Flow (Aggregation Branch)
+                                                </strong>
+                                                <InlineCode>
+                                                    ["feature/aggregation", "!develop", "!main", "!release"]
+                                                </InlineCode>
+                                            </div>
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → feature/aggregation
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <CheckIcon className="text-success" />
+                                                REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                hotfix/urgent → feature/aggregation
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <CheckIcon className="text-success" />
+                                                REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → develop
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <XIcon className="text-danger" />
+                                                NO REVIEW
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                    <TableRow>
+                                        <TableCell className="w-1/2">
+                                            <InlineCode>
+                                                feature/xyz → main
+                                            </InlineCode>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-2 font-semibold">
+                                                <XIcon className="text-danger" />
+                                                NO REVIEW
                                             </div>
                                         </TableCell>
                                     </TableRow>
@@ -650,118 +726,6 @@ const HelpModal = () => (
                         </Card>
                     </div>
                 </div>
-
-                <Card color="lv1">
-                    <CardHeader>
-                        <CardTitle className="text-base">
-                            How to Use Combinations
-                        </CardTitle>
-                    </CardHeader>
-
-                    <CardContent className="space-y-4">
-                        <FormControl.Root>
-                            <FormControl.Label>
-                                <strong className="mr-1.5">
-                                    Include + Exclude:
-                                </strong>
-                                <InlineCode>
-                                    <span className="text-success">
-                                        feature/*
-                                    </span>
-                                    , <span className="text-danger">!main</span>
-                                </InlineCode>
-                            </FormControl.Label>
-
-                            <FormControl.Helper className="mt-0 text-sm">
-                                <span className="text-success">
-                                    Reviews{" "}
-                                    <InlineCode className="text-success">
-                                        feature/*
-                                    </InlineCode>{" "}
-                                    branches{" "}
-                                </span>
-                                <span className="text-danger">
-                                    except when targeting{" "}
-                                    <InlineCode className="text-danger">
-                                        main
-                                    </InlineCode>
-                                </span>
-                            </FormControl.Helper>
-                        </FormControl.Root>
-
-                        <Separator />
-
-                        <FormControl.Root>
-                            <FormControl.Label>
-                                <strong className="mr-1.5">
-                                    Everything + Exclude:
-                                </strong>
-                                <InlineCode>
-                                    <span className="text-success">*</span>,{" "}
-                                    <span className="text-danger">!main</span>,{" "}
-                                    <span className="text-danger">
-                                        !develop
-                                    </span>
-                                </InlineCode>
-                            </FormControl.Label>
-
-                            <FormControl.Helper className="mt-0 text-sm">
-                                <span className="text-success">
-                                    Reviews{" "}
-                                    <strong className="text-success">
-                                        ALL
-                                    </strong>{" "}
-                                    branches{" "}
-                                </span>
-                                <span className="text-danger">
-                                    except when targeting{" "}
-                                    <InlineCode className="text-danger">
-                                        main
-                                    </InlineCode>{" "}
-                                    or{" "}
-                                    <InlineCode className="text-danger">
-                                        develop
-                                    </InlineCode>
-                                </span>
-                            </FormControl.Helper>
-                        </FormControl.Root>
-
-                        <Separator />
-
-                        <FormControl.Root>
-                            <FormControl.Label>
-                                <strong className="mr-1.5">
-                                    Specific + Exclude:
-                                </strong>
-                                <InlineCode>
-                                    <span className="text-success">
-                                        feature/aggregation
-                                    </span>
-                                    ,{" "}
-                                    <span className="text-danger">
-                                        !develop
-                                    </span>
-                                </InlineCode>
-                            </FormControl.Label>
-
-                            <FormControl.Helper className="mt-0 text-sm">
-                                <span className="text-success">
-                                    Reviews{" "}
-                                    <InlineCode className="text-success">
-                                        feature/aggregation
-                                    </InlineCode>{" "}
-                                </span>
-
-                                <span className="text-danger">
-                                    except when targeting{" "}
-                                    <InlineCode className="text-danger">
-                                        develop
-                                    </InlineCode>
-                                </span>
-                            </FormControl.Helper>
-                        </FormControl.Root>
-                    </CardContent>
-                </Card>
 
                 <Alert variant="warning">
                     <LightbulbIcon />
@@ -777,52 +741,17 @@ const HelpModal = () => (
                                 <strong>
                                     Use <InlineCode>*</InlineCode>
                                 </strong>{" "}
-                                to review all branches
+                                to allow PRs to all branches
                             </li>
                             <li>
                                 <strong>
                                     Use <InlineCode>!</InlineCode>
                                 </strong>{" "}
-                                to exclude specific branches
+                                to block PRs to specific branches
                             </li>
                             <li>
                                 <strong>Maximum 100 characters</strong> per
                                 expression
-                            </li>
-                            <li>
-                                <strong>
-                                    All configurations are TARGET patterns
-                                </strong>{" "}
-                                - they define which branches can receive PRs
-                            </li>
-                        </ul>
-                    </AlertDescription>
-                </Alert>
-
-                <Alert variant="info">
-                    <KeyIcon />
-                    <AlertTitle>Key Concept</AlertTitle>
-
-                    <AlertDescription>
-                        <p className="text-muted-foreground mb-2 text-sm">
-                            <strong>
-                                All branch configurations define TARGET branches
-                                (where PRs can go):
-                            </strong>
-                        </p>
-                        <ul className="list-inside list-disc space-y-2 text-sm">
-                            <li>
-                                <InlineCode>['develop', 'main']</InlineCode> =
-                                "Any branch can go to develop or main"
-                            </li>
-                            <li>
-                                <InlineCode>['feature/*']</InlineCode> = "Any
-                                branch can go to branches starting with
-                                feature/"
-                            </li>
-                            <li>
-                                <InlineCode>['!main']</InlineCode> = "Any branch
-                                CANNOT go to main"
                             </li>
                         </ul>
                     </AlertDescription>
