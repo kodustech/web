@@ -20,8 +20,8 @@ export const Active = ({
 }) => {
     const { teamId } = useSelectedTeamId();
     const subscription = useSubscriptionStatus();
-    if (subscription.status !== "active") return null;
     const canEdit = usePermission(Action.Update, ResourceType.Billing);
+    if (subscription.status !== "active") return null;
 
     const totalLicenses = subscription.numberOfLicenses;
 

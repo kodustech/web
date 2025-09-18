@@ -20,6 +20,7 @@ export const Trial = ({
 }) => {
     const { teamId } = useSelectedTeamId();
     const organizationAdminsCount = members.length;
+    const canEdit = usePermission(Action.Update, ResourceType.Billing);
 
     const [createLinkToCheckout, { loading: isCreatingLinkToCheckout }] =
         useAsyncAction(async () => {
@@ -34,8 +35,6 @@ export const Trial = ({
     ) {
         return null;
     }
-
-    const canEdit = usePermission(Action.Update, ResourceType.Billing);
 
     return (
         <Card className="w-full">

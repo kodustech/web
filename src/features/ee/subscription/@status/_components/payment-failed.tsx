@@ -20,8 +20,8 @@ export const PaymentFailed = ({
 }) => {
     const { teamId } = useSelectedTeamId();
     const subscription = useSubscriptionStatus();
-    if (subscription.status !== "payment-failed") return null;
     const canEdit = usePermission(Action.Update, ResourceType.Billing);
+    if (subscription.status !== "payment-failed") return null;
 
     const totalLicenses = subscription.numberOfLicenses;
 

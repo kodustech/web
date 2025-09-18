@@ -67,6 +67,7 @@ export default function SubscriptionLayout({
     );
     const [query, setQuery] = useState("");
     const { teamId } = useSelectedTeamId();
+    const canCreate = usePermission(Action.Create, ResourceType.UserSettings);
 
     if (isSelfHosted)
         return (
@@ -74,8 +75,6 @@ export default function SubscriptionLayout({
                 <SelfHostedInfo />
             </Page.Root>
         );
-
-    const canCreate = usePermission(Action.Create, ResourceType.UserSettings);
 
     return (
         <Page.Root>

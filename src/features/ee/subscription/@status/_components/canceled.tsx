@@ -21,8 +21,8 @@ export const Canceled = ({
 }) => {
     const { teamId } = useSelectedTeamId();
     const subscription = useSubscriptionStatus();
-    if (subscription.status !== "canceled") return null;
     const canEdit = usePermission(Action.Update, ResourceType.Billing);
+    if (subscription.status !== "canceled") return null;
 
     const totalLicenses = subscription.numberOfLicenses;
 
