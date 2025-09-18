@@ -22,9 +22,11 @@ export default function CustomMessages() {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const pullRequestMessages = useSuspensePullRequestMessages();
     const queryClient = useQueryClient();
+
     const canEdit = usePermission(
         Action.Update,
         ResourceType.CodeReviewSettings,
+        repositoryId,
     );
 
     const [messages, setMessages] = useState<

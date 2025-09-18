@@ -92,7 +92,6 @@ export const KodyRuleAddOrUpdateItemModal = ({
     canEdit: boolean;
 }) => {
     const initialScope = rule?.scope ?? "file";
-    console.log("canEdit", canEdit);
     const form = useForm<
         Omit<KodyRule, "examples"> & {
             badExample: string;
@@ -823,7 +822,11 @@ export const KodyRuleAddOrUpdateItemModal = ({
                         loading={formState.isSubmitting}
                         onClick={handleSubmit}
                         leftIcon={rule ? <SaveIcon /> : <PlusIcon />}
-                        disabled={formState.disabled || !formState.isValid || !formState.isDirty}>
+                        disabled={
+                            formState.disabled ||
+                            !formState.isValid ||
+                            !formState.isDirty
+                        }>
                         {rule ? "Update rule" : "Create rule"}
                     </Button>
                 </DialogFooter>

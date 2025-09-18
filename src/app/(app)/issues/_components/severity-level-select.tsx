@@ -30,12 +30,14 @@ const SEVERITY_OPTIONS = [
 export const SeverityLevelSelect = ({
     issueId,
     severity,
+    repoId,
 }: {
     issueId: string;
     severity: SeverityLevel;
+    repoId: string;
 }) => {
     const queryClient = useQueryClient();
-    const canEdit = usePermission(Action.Update, ResourceType.Issues);
+    const canEdit = usePermission(Action.Update, ResourceType.Issues, repoId);
 
     const [changeIssueParameterAction, { loading }] = useAsyncAction(
         async (severity: SeverityLevel) => {

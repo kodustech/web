@@ -26,6 +26,7 @@ export function KodyRuleModalClient({
     const canEdit = usePermission(
         Action.Update,
         ResourceType.CodeReviewSettings,
+        repositoryId,
     );
 
     const handleClose = async () => {

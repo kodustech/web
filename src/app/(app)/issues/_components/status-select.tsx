@@ -30,12 +30,14 @@ const STATUS_OPTIONS = [
 export const StatusSelect = ({
     issueId,
     status,
+    repoId,
 }: {
     issueId: string;
     status: IssueStatus;
+    repoId: string;
 }) => {
     const queryClient = useQueryClient();
-    const canEdit = usePermission(Action.Update, ResourceType.Issues);
+    const canEdit = usePermission(Action.Update, ResourceType.Issues, repoId);
 
     const [changeIssueParameterAction, { loading }] = useAsyncAction(
         async (status: IssueStatus) => {

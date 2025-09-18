@@ -27,6 +27,7 @@ export const SelectRepositoriesDropdown = ({
     setSelectedDirectoriesIds,
     setSelectedRepositoriesIds,
     canEdit,
+    global = true,
 }: {
     selectedRepositoriesIds: string[];
     selectedDirectoriesIds: Array<{
@@ -37,14 +38,17 @@ export const SelectRepositoriesDropdown = ({
     setSelectedDirectoriesIds: (s: typeof selectedDirectoriesIds) => void;
     repositories: Array<CodeReviewRepositoryConfig>;
     canEdit: boolean;
+    global?: boolean;
 }) => {
     const repositories: Array<
         Omit<CodeReviewRepositoryConfig, keyof CodeReviewGlobalConfig> & {
             id: LiteralUnion<"global">;
         }
-    > = [{ id: "global", name: "Global", isSelected: true }].concat(
-        _repositories,
-    );
+    > = global
+        ? [{ id: "global", name: "Global", isSelected: true }].concat(
+              _repositories,
+          )
+        : _repositories;
 
     return (
         <Popover>

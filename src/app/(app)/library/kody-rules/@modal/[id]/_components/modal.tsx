@@ -36,8 +36,10 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, ThumbsDown, ThumbsUp } from "lucide-react";
 import type { CodeReviewRepositoryConfig } from "src/app/(app)/settings/code-review/_types";
 import { useAuth } from "src/core/providers/auth.provider";
+import { usePermissions } from "src/core/providers/permissions.provider";
 import type { LiteralUnion } from "src/core/types";
 import { cn } from "src/core/utils/components";
+import { hasPermission } from "src/core/utils/permissions";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 
@@ -56,16 +58,34 @@ export const KodyRuleLibraryItemModal = ({
     repositories: Array<CodeReviewRepositoryConfig>;
 }) => {
     const router = useRouter();
-    const { userId } = useAuth();
+    const { organizationId } = useAuth();
     const queryClient = useQueryClient();
     const [positiveCount, setPositiveCount] = useState(rule.positiveCount ?? 0);
     const [negativeCount, setNegativeCount] = useState(rule.negativeCount ?? 0);
     const [userFeedback, setUserFeedback] = useState<FeedbackType | null>(
         rule.userFeedback as FeedbackType | null,
     );
+
+    const permissions = usePermissions();
+    const allowedRepositories = repositories.filter((repository) =>
+        hasPermission({
+            permissions,
+            action: Action.Create,
+            resource: ResourceType.KodyRules,
+            repoId: repository.id,
+            organizationId: organizationId!,
+        }),
+    );
+
+    const canGlobal = usePermission(
+        Action.Create,
+        ResourceType.KodyRules,
+        "global",
+    );
     const canEdit = usePermission(
         Action.Update,
-        ResourceType.CodeReviewSettings,
+        ResourceType.KodyRules,
+        repositoryId,
     );
 
     const [selectedRepositoriesIds, setSelectedRepositoriesIds] = useState<
@@ -349,7 +369,7 @@ export const KodyRuleLibraryItemModal = ({
                                 </Button>
 
                                 <SelectRepositoriesDropdown
-                                    repositories={repositories}
+                                    repositories={allowedRepositories}
                                     selectedRepositoriesIds={
                                         selectedRepositoriesIds
                                     }
@@ -363,6 +383,7 @@ export const KodyRuleLibraryItemModal = ({
                                         setSelectedDirectoriesIds
                                     }
                                     canEdit={canEdit}
+                                    global={canGlobal}
                                 />
                             </>
                         )}

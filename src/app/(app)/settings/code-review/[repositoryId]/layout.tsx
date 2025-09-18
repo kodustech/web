@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useParams } from "next/navigation";
 import { useSuspenseGetParameterByKey } from "@services/parameters/hooks";
 import { LanguageValue, ParametersConfigKey } from "@services/parameters/types";
 import { usePermission } from "@services/permissions/hooks";
@@ -95,9 +96,12 @@ export default function Layout(props: React.PropsWithChildren) {
             },
         },
     );
+    const params = useParams();
+
     const canEdit = usePermission(
         Action.Update,
         ResourceType.CodeReviewSettings,
+        params.repositoryId as string,
     );
 
     const form = useForm<CodeReviewFormType>({

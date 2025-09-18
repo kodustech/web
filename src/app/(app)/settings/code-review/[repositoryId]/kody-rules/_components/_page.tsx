@@ -17,6 +17,8 @@ import { KODY_RULES_PATHS } from "@services/kodyRules";
 import { useSuspenseFindLibraryKodyRules } from "@services/kodyRules/hooks";
 import { type KodyRule } from "@services/kodyRules/types";
 import { KodyLearningStatus } from "@services/parameters/types";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { BellRing, Plus, SearchIcon } from "lucide-react";
 
@@ -37,18 +39,21 @@ export const KodyRulesPage = ({
     kodyRules,
     globalRules,
     pendingRules,
-    canEdit,
 }: {
     kodyRules: KodyRule[];
     globalRules: KodyRule[];
     pendingRules: KodyRule[];
-    canEdit: boolean;
 }) => {
     const platformConfig = usePlatformConfig();
     const config = useFullCodeReviewConfig();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const [filterQuery, setFilterQuery] = useState("");
     const queryClient = useQueryClient();
+    const canEdit = usePermission(
+        Action.Update,
+        ResourceType.KodyRules,
+        repositoryId,
+    );
 
     const filteredRules = useMemo(
         () =>
@@ -263,7 +268,6 @@ export const KodyRulesPage = ({
                                                 key={rule.uuid}
                                                 rule={rule}
                                                 onAnyChange={refreshRulesList}
-                                                canEdit={canEdit}
                                             />
                                         ))}
                                     </div>

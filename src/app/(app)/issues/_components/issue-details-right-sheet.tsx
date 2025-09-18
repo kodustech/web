@@ -192,7 +192,11 @@ export const IssueDetailsRightSheet = ({
                             </ButtonWithFeedback.Content>
                         </ButtonWithFeedback>
 
-                        <StatusSelect issueId={peek} status={issue.status} />
+                        <StatusSelect
+                            issueId={peek}
+                            status={issue.status}
+                            repoId={issue.repository.id}
+                        />
                     </div>
                 </SheetHeader>
 
@@ -207,6 +211,7 @@ export const IssueDetailsRightSheet = ({
                         <SeverityLevelSelect
                             issueId={peek}
                             severity={issue.severity}
+                            repoId={issue.repository.id}
                         />
                     </div>
                 </SheetHeader>

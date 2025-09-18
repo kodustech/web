@@ -39,4 +39,8 @@ export type IssueItem = {
     reactions: { thumbsUp: number; thumbsDown: number };
     gitOrganizationName: string;
     language: string;
+    repository: {
+        id: string;
+        name: string;
+    };
 };

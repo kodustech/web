@@ -83,7 +83,7 @@ export const columns: ColumnDef<MembersSetup>[] = [
                 .replaceAll("_", " ")
                 .replace(/\b\w/g, (c) => c.toUpperCase());
 
-            if (row.original.userId === userId) {
+            if (row.original.userId === userId || !canEdit) {
                 return <span className="font-medium">{role}</span>;
             }
 

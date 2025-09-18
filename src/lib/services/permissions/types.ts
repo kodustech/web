@@ -20,6 +20,7 @@ export enum ResourceType {
     OrganizationSettings = "organization_settings",
     PluginSettings = "plugin_settings",
     Logs = "logs",
+    KodyRules = "kody_rules",
 }
 
 export type PermissionsMap = {

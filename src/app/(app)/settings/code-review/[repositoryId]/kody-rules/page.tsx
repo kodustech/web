@@ -10,10 +10,6 @@ import { KodyRulesPage } from "./_components/_page";
 
 export default function KodyRules() {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
-    const canEdit = usePermission(
-        Action.Update,
-        ResourceType.CodeReviewSettings,
-    );
 
     const kodyRules = useSuspenseKodyRulesByRepositoryId(
         repositoryId,
@@ -52,7 +48,6 @@ export default function KodyRules() {
             kodyRules={activeRules}
             globalRules={activeGlobalRules}
             pendingRules={pendingRules}
-            canEdit={canEdit}
         />
     );
 }

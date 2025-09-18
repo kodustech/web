@@ -79,8 +79,6 @@ export const SettingsLayout = ({
             }),
         );
 
-        console.log({ repos, configValue });
-
         return { ...configValue, repositories: repos };
     }, [configValue, permissions, organizationId]);
 
