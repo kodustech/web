@@ -10,6 +10,8 @@ import { magicModal } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
 import { Spinner } from "@components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { PlusIcon, SearchIcon, ServerIcon } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { isSelfHosted } from "src/core/utils/self-hosted";
@@ -65,6 +67,7 @@ export default function SubscriptionLayout({
     );
     const [query, setQuery] = useState("");
     const { teamId } = useSelectedTeamId();
+    const canCreate = usePermission(Action.Create, ResourceType.UserSettings);
 
     if (isSelfHosted)
         return (
@@ -106,6 +109,7 @@ export default function SubscriptionLayout({
                                             size="md"
                                             variant="helper"
                                             leftIcon={<PlusIcon />}
+                                            disabled={!canCreate}
                                             onClick={() => {
                                                 magicModal.show(() => (
                                                     <InviteModal

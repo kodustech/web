@@ -16,7 +16,12 @@ import {
     PopoverTrigger,
 } from "@components/ui/popover";
 import { useGetRepositories } from "@services/codeManagement/hooks";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { Check, GitBranch } from "lucide-react";
+import { useAuth } from "src/core/providers/auth.provider";
+import { usePermissions } from "src/core/providers/permissions.provider";
+import { hasPermission } from "src/core/utils/permissions";
 
 type Props = {
     teamId: string;
@@ -24,11 +29,13 @@ type Props = {
     onRepositoryChange: (repository?: string) => void;
 };
 
-export const RepositoryFilter = ({ 
-    teamId, 
-    selectedRepository, 
-    onRepositoryChange 
+export const RepositoryFilter = ({
+    teamId,
+    selectedRepository,
+    onRepositoryChange,
 }: Props) => {
+    const { organizationId } = useAuth();
+    const permissions = usePermissions();
     const { data: allRepositories = [], isLoading } = useGetRepositories(
         teamId,
         undefined,
@@ -36,7 +43,17 @@ export const RepositoryFilter = ({
 
     // Filter only selected repositories in the frontend as a temporary fix
     // TODO: Backend should handle isSelected filter properly
-    const repositories = allRepositories.filter((repo: any) => repo.selected);
+    const repositories = allRepositories.filter(
+        (repo: any) =>
+            repo.selected &&
+            hasPermission({
+                permissions,
+                organizationId: organizationId!,
+                action: Action.Read,
+                resource: ResourceType.PullRequests,
+                repoId: repo.id,
+            }),
+    );
 
     const [open, setOpen] = useState(false);
 
@@ -50,7 +67,9 @@ export const RepositoryFilter = ({
         setOpen(false);
     };
 
-    const selectedRepo = repositories.find(r => r.name === selectedRepository);
+    const selectedRepo = repositories.find(
+        (r) => r.name === selectedRepository,
+    );
 
     return (
         <Popover open={open} onOpenChange={setOpen}>
@@ -81,7 +100,7 @@ export const RepositoryFilter = ({
                 <Command
                     filter={(value, search) => {
                         if (value === "all") return 1;
-                        
+
                         const repository = repositories.find(
                             (r) => r.name === value,
                         );

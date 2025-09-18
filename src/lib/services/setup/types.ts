@@ -1,4 +1,4 @@
-import { INTEGRATIONS_KEY, TeamRole, type UserStatus } from "@enums";
+import { INTEGRATIONS_KEY, UserRole, type UserStatus } from "@enums";
 import { IntegrationsCommon } from "src/core/types";
 
 export type IntegrationsCommonForSetInfos = {
@@ -14,7 +14,7 @@ export type MembersSetup = {
     active: boolean;
     avatar?: string;
     name: string;
-    teamRole?: TeamRole;
+    role: UserRole;
     email: string;
     error: boolean;
     isCurrentUser?: boolean;

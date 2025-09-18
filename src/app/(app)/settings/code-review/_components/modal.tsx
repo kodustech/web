@@ -83,11 +83,13 @@ export const KodyRuleAddOrUpdateItemModal = ({
     directory,
     rule,
     onClose,
+    canEdit,
 }: {
     rule?: KodyRule;
     directory?: CodeReviewDirectoryConfig;
     repositoryId: string;
     onClose?: () => void;
+    canEdit: boolean;
 }) => {
     const initialScope = rule?.scope ?? "file";
     const form = useForm<
@@ -99,6 +101,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
         mode: "all",
         reValidateMode: "onChange",
         criteriaMode: "firstError",
+        disabled: !canEdit,
         defaultValues: {
             path:
                 initialScope === "pull-request"
@@ -213,6 +216,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             placeholder="Avoid using 'console.log' statements in production code."
                                             maxLength={300}
                                             value={field.value}
+                                            disabled={field.disabled}
                                             onChange={(e) =>
                                                 field.onChange(e.target.value)
                                             }
@@ -276,6 +280,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                         type="single"
                                         className="flex w-md gap-3"
                                         value={field.value}
+                                        disabled={field.disabled}
                                         onValueChange={(value) => {
                                             if (value) field.onChange(value);
 
@@ -432,8 +437,9 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                         "rounded-l-none",
                                                 )}
                                                 disabled={
+                                                    field.disabled ||
                                                     watchScope ===
-                                                    "pull-request"
+                                                        "pull-request"
                                                 }
                                                 onChange={(e) =>
                                                     field.onChange(
@@ -533,6 +539,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                         <Textarea
                                             id={field.name}
                                             value={field.value}
+                                            disabled={field.disabled}
                                             placeholder={
                                                 INSTRUCTIONS_PLACEHOLDER
                                             }
@@ -642,6 +649,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             <div className="w-96">
                                                 <SliderWithMarkers
                                                     id={field.name}
+                                                    disabled={field.disabled}
                                                     min={0}
                                                     max={3}
                                                     step={1}
@@ -722,6 +730,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             <Textarea
                                                 error={fieldState.error}
                                                 value={field.value}
+                                                disabled={field.disabled}
                                                 onChange={(e) =>
                                                     field.onChange(
                                                         e.target.value,
@@ -773,6 +782,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             <Textarea
                                                 error={fieldState.error}
                                                 value={field.value}
+                                                disabled={field.disabled}
                                                 onChange={(e) =>
                                                     field.onChange(
                                                         e.target.value,
@@ -812,7 +822,11 @@ export const KodyRuleAddOrUpdateItemModal = ({
                         loading={formState.isSubmitting}
                         onClick={handleSubmit}
                         leftIcon={rule ? <SaveIcon /> : <PlusIcon />}
-                        disabled={!formState.isValid || !formState.isDirty}>
+                        disabled={
+                            formState.disabled ||
+                            !formState.isValid ||
+                            !formState.isDirty
+                        }>
                         {rule ? "Update rule" : "Create rule"}
                     </Button>
                 </DialogFooter>

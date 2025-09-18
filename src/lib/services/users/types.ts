@@ -1,4 +1,4 @@
-import type { TeamRole, UserRole, UserStatus } from "@enums";
+import type { UserRole, UserStatus } from "@enums";
 import type { Organization } from "@services/teams/types";
 
 export interface User {
@@ -12,7 +12,6 @@ export interface User {
         status: boolean;
         name: string;
         avatar?: string;
-        teamRole: TeamRole;
         createdAt: Date;
     }>;
 }

@@ -1,8 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
+import { useParams } from "next/navigation";
 import { useSuspenseGetParameterByKey } from "@services/parameters/hooks";
 import { LanguageValue, ParametersConfigKey } from "@services/parameters/types";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { FormProvider, useForm } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { SeverityLevel } from "src/core/types";
@@ -27,10 +30,10 @@ const getDefaultValues = (
         config?.reviewCadence ??
         (config?.automatedReviewActive
             ? {
-                type: ReviewCadenceType.AUTOMATIC,
-                timeWindow: 15,
-                pushesToTrigger: 3,
-            }
+                  type: ReviewCadenceType.AUTOMATIC,
+                  timeWindow: 15,
+                  pushesToTrigger: 3,
+              }
             : undefined),
     ignorePaths: config?.ignorePaths ?? [],
     ignoredTitleKeywords: config?.ignoredTitleKeywords ?? [],
@@ -93,6 +96,13 @@ export default function Layout(props: React.PropsWithChildren) {
             },
         },
     );
+    const params = useParams();
+
+    const canEdit = usePermission(
+        Action.Update,
+        ResourceType.CodeReviewSettings,
+        params.repositoryId as string,
+    );
 
     const form = useForm<CodeReviewFormType>({
         mode: "all",
@@ -102,6 +112,7 @@ export default function Layout(props: React.PropsWithChildren) {
             config,
             parameters?.configValue ?? LanguageValue.ENGLISH,
         ),
+        disabled: !canEdit,
     });
 
     useEffect(() => {

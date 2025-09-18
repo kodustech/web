@@ -86,9 +86,9 @@ export default auth(async (req) => {
         );
     }
 
-    // If you are on an authentication route and are already authenticated, redirect to /cockpit
+    // If you are on an authentication route and are already authenticated, redirect to /settings
     if (authPaths.some((path) => pathname.startsWith(path))) {
-        return NextResponse.redirect(new URL("/cockpit", req.url), {
+        return NextResponse.redirect(new URL("/settings", req.url), {
             status: 302,
         });
     }

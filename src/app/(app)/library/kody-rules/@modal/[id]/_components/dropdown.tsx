@@ -26,6 +26,8 @@ export const SelectRepositoriesDropdown = ({
     selectedRepositoriesIds,
     setSelectedDirectoriesIds,
     setSelectedRepositoriesIds,
+    canEdit,
+    global = true,
 }: {
     selectedRepositoriesIds: string[];
     selectedDirectoriesIds: Array<{
@@ -34,16 +36,19 @@ export const SelectRepositoriesDropdown = ({
     }>;
     setSelectedRepositoriesIds: (s: typeof selectedRepositoriesIds) => void;
     setSelectedDirectoriesIds: (s: typeof selectedDirectoriesIds) => void;
-
     repositories: Array<CodeReviewRepositoryConfig>;
+    canEdit: boolean;
+    global?: boolean;
 }) => {
     const repositories: Array<
         Omit<CodeReviewRepositoryConfig, keyof CodeReviewGlobalConfig> & {
             id: LiteralUnion<"global">;
         }
-    > = [{ id: "global", name: "Global", isSelected: true }].concat(
-        _repositories,
-    );
+    > = global
+        ? [{ id: "global", name: "Global", isSelected: true }].concat(
+              _repositories,
+          )
+        : _repositories;
 
     return (
         <Popover>
@@ -51,6 +56,7 @@ export const SelectRepositoriesDropdown = ({
                 <Button
                     size="md"
                     variant="primary"
+                    disabled={!canEdit}
                     className="group rounded-l-none px-3">
                     <ChevronDown
                         className={cn(

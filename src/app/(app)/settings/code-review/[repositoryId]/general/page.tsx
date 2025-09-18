@@ -14,6 +14,8 @@ import {
     KodyLearningStatus,
     ParametersConfigKey,
 } from "@services/parameters/types";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { DownloadIcon, SaveIcon } from "lucide-react";
 import { FormProvider, useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
@@ -39,6 +41,12 @@ export default function General() {
     const { teamId } = useSelectedTeamId();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
+
+    const canEdit = usePermission(
+        Action.Update,
+        ResourceType.CodeReviewSettings,
+        repositoryId,
+    );
 
     const handleSubmit = form.handleSubmit(async (formData) => {
         const { language, ...config } = formData;
@@ -174,7 +182,7 @@ export default function General() {
                         variant="primary"
                         leftIcon={<SaveIcon />}
                         onClick={handleSubmit}
-                        disabled={!formIsDirty || !formIsValid}
+                        disabled={!canEdit || !formIsDirty || !formIsValid}
                         loading={formIsSubmitting}>
                         Save settings
                     </Button>

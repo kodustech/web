@@ -1,4 +1,5 @@
 import { authorizedFetch } from "@services/fetch";
+import { getIntegrationConfig } from "@services/integrations/integrationConfig/fetch";
 import { SETUP_PATHS } from "@services/setup";
 import type { TeamMembersResponse } from "@services/setup/types";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";

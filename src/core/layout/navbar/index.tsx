@@ -12,8 +12,15 @@ import {
     NavigationMenuList,
 } from "@components/ui/navigation-menu";
 import { Spinner } from "@components/ui/spinner";
-import { TeamRole, UserRole } from "@enums";
-import { GaugeIcon, InfoIcon, SlidersHorizontalIcon, GitPullRequestIcon } from "lucide-react";
+import { UserRole } from "@enums";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
+import {
+    GaugeIcon,
+    GitPullRequestIcon,
+    InfoIcon,
+    SlidersHorizontalIcon,
+} from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
 import { UserNav } from "src/core/layout/navbar/_components/user-nav";
 import { useAuth } from "src/core/providers/auth.provider";
@@ -51,11 +58,32 @@ export const NavMenu = ({
         ReturnType<typeof getFeatureFlagWithPayload>
     >;
     logsPagesFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
-    pullRequestsPageFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
+    pullRequestsPageFeatureFlag: AwaitedReturnType<
+        typeof getFeatureFlagWithPayload
+    >;
 }) => {
     const pathname = usePathname();
-    const { role, teamRole } = useAuth();
     const subscription = useSubscriptionStatus();
+
+    const canReadCockpit = usePermission(Action.Read, ResourceType.Cockpit);
+    const canReadIssues = usePermission(Action.Read, ResourceType.Issues);
+    const canReadPullRequests = usePermission(
+        Action.Read,
+        ResourceType.PullRequests,
+    );
+    const canReadCodeReviewSettings = usePermission(
+        Action.Read,
+        ResourceType.CodeReviewSettings,
+    );
+    const canReadBilling = usePermission(Action.Read, ResourceType.Billing);
+    const canReadGitSettings = usePermission(
+        Action.Read,
+        ResourceType.GitSettings,
+    );
+    const canReadPlugins = usePermission(
+        Action.Read,
+        ResourceType.PluginSettings,
+    );
 
     const items = useMemo(() => {
         const items: Array<{
@@ -74,7 +102,7 @@ export const NavMenu = ({
             {
                 label: "Cockpit",
                 href: "/cockpit",
-                visible: subscription.valid,
+                visible: subscription.valid && canReadCockpit,
                 icon: <GaugeIcon className="size-6" />,
             },
 
@@ -83,18 +111,18 @@ export const NavMenu = ({
                 icon: <SlidersHorizontalIcon className="size-5" />,
                 href: "/settings",
                 visible:
-                    role === UserRole.OWNER ||
-                    teamRole === TeamRole.TEAM_LEADER,
+                    canReadCodeReviewSettings ||
+                    canReadGitSettings ||
+                    canReadBilling ||
+                    canReadPlugins,
             },
         ];
 
-        if (issuesPageFeatureFlag?.value) {
+        if (issuesPageFeatureFlag?.value && canReadIssues) {
             items.push({
                 label: "Issues",
                 href: "/issues",
-                visible:
-                    role === UserRole.OWNER ||
-                    teamRole === TeamRole.TEAM_LEADER,
+                visible: issuesPageFeatureFlag.value === true && canReadIssues,
                 icon: <InfoIcon className="size-5" />,
                 badge: (
                     <div className="h-5 min-h-auto min-w-8">
@@ -104,20 +132,19 @@ export const NavMenu = ({
             });
         }
 
-        items.push({
-            label: "Pull Requests",
-            href: "/pull-requests",
-            visible:
-                pullRequestsPageFeatureFlag?.value &&
-                (role === UserRole.OWNER ||
-                teamRole === TeamRole.TEAM_LEADER),
-            icon: <GitPullRequestIcon className="size-5" />,
-        });
+        if (pullRequestsPageFeatureFlag?.value && canReadPullRequests) {
+            items.push({
+                label: "Pull Requests",
+                href: "/pull-requests",
+                visible:
+                    pullRequestsPageFeatureFlag.value === true &&
+                    canReadPullRequests,
+                icon: <GitPullRequestIcon className="size-5" />,
+            });
+        }
 
         return items;
     }, [
-        role,
-        teamRole,
         issuesPageFeatureFlag?.value,
         logsPagesFeatureFlag?.value,
         pullRequestsPageFeatureFlag?.value,

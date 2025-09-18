@@ -19,6 +19,7 @@ export const getRepositories = async (
     return data;
 };
 
+// TODO: remove, unused
 export const reviewOnboardingPullRequest = async (
     teamId: string,
     payload: {
@@ -95,6 +96,7 @@ export const createCodeManagementIntegration = ({
     });
 };
 
+// TODO: remove, unused
 export const saveCodeManagementConfigs = (
     organizationSelected: any,
     teamId: string,

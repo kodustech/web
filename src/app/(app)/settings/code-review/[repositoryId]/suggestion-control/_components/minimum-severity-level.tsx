@@ -53,6 +53,7 @@ export const MinimumSeverityLevel = () => {
                                             step={1}
                                             labels={labels}
                                             value={numberValue}
+                                            disabled={field.disabled}
                                             onValueChange={(value) =>
                                                 field.onChange(
                                                     Object.entries(

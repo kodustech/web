@@ -15,6 +15,8 @@ import { Heading } from "@components/ui/heading";
 import { Input } from "@components/ui/input";
 import { ToggleGroup } from "@components/ui/toggle-group";
 import type { getMCPPluginTools } from "@services/mcp-manager/fetch";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { AlertTriangleIcon, SearchIcon } from "lucide-react";
 import type { AwaitedReturnType } from "src/core/types";
 import { cn } from "src/core/utils/components";
@@ -30,6 +32,7 @@ export const SelectTools = ({
     setSelectedToolsAction: Dispatch<SetStateAction<Array<string>>>;
     tools: AwaitedReturnType<typeof getMCPPluginTools>;
 }) => {
+    const canEdit = usePermission(Action.Update, ResourceType.PluginSettings);
     const alphabeticallySortedTools = useMemo(
         () => tools.sort((a, b) => (a.name > b.name ? 1 : -1)),
         [tools],
@@ -94,12 +97,15 @@ export const SelectTools = ({
                         <Button
                             size="md"
                             variant="primary-dark"
+                            disabled={!canEdit}
                             onClick={() => {
                                 if (isAllToolsSelected) {
                                     return setSelectedToolsAction([]);
                                 }
 
-                                setSelectedToolsAction(tools.map(({ slug }) => slug));
+                                setSelectedToolsAction(
+                                    tools.map(({ slug }) => slug),
+                                );
                             }}>
                             {isAllToolsSelected ? "Unselect all" : "Select all"}
                         </Button>
@@ -119,13 +125,14 @@ export const SelectTools = ({
                                     <Button
                                         size="sm"
                                         variant="helper"
+                                        disabled={!canEdit}
                                         className="w-full items-start justify-start gap-3 py-4 font-normal">
                                         <Checkbox
                                             decorative
                                             className={cn(
                                                 "size-5",
                                                 tool.warning &&
-                                                "[--button-background:var(--color-warning)]",
+                                                    "[--button-background:var(--color-warning)]",
                                             )}
                                             checked={selectedTools.includes(
                                                 tool.slug,
@@ -138,7 +145,7 @@ export const SelectTools = ({
                                                 className={cn(
                                                     "text-text-primary min-h-5",
                                                     tool.warning &&
-                                                    "text-warning",
+                                                        "text-warning",
                                                 )}>
                                                 {tool.name}
 

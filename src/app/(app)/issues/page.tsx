@@ -4,8 +4,12 @@ import { useEffect, useMemo } from "react";
 import { Page } from "@components/ui/page";
 import { useEffectOnce } from "@hooks/use-effect-once";
 import { useIssues } from "@services/issues/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { parseAsJson, useQueryState } from "nuqs";
+import { useAuth } from "src/core/providers/auth.provider";
+import { usePermissions } from "src/core/providers/permissions.provider";
 import { filterArray, type FilterValueGroup } from "src/core/utils/filtering";
+import { hasPermission } from "src/core/utils/permissions";
 
 import { IssuesDataTable } from "./_components/data-table";
 import { IssuesFilters } from "./_components/filters";
@@ -14,7 +18,23 @@ import { DEFAULT_FILTERS, getFiltersInLocalStorage } from "./_constants";
 import { FiltersContext } from "./_contexts/filters";
 
 export default function IssuesPage() {
+    const permissions = usePermissions();
+    const { organizationId } = useAuth();
+
     const { data: issues, isLoading, error } = useIssues();
+
+    const canAccessIssues = useMemo(() => {
+        return issues.filter((issue) =>
+            hasPermission({
+                permissions,
+                organizationId: organizationId!,
+                action: Action.Read,
+                resource: ResourceType.Issues,
+                repoId: issue.repository.id,
+            }),
+        );
+    }, [issues, permissions, organizationId]);
+
     const [peek] = useQueryState("peek");
 
     const [_filtersQuery, setFilters] = useQueryState("filters", {
@@ -58,8 +78,8 @@ export default function IssuesPage() {
     const filters = _filtersQuery ?? savedFiltersOrDefault;
 
     const filteredData = useMemo(
-        () => filterArray(filters, issues),
-        [filters, issues],
+        () => filterArray(filters, canAccessIssues),
+        [filters, canAccessIssues],
     );
 
     useEffectOnce(() => {
@@ -88,7 +108,7 @@ export default function IssuesPage() {
                             <IssuesFilters />
                         </FiltersContext>
 
-                        {issues.length > 0 && (
+                        {canAccessIssues.length > 0 && (
                             <span className="flex gap-0.5 text-sm">
                                 <span>Showing </span>
                                 {filteredData.length !== issues.length ? (
@@ -97,12 +117,12 @@ export default function IssuesPage() {
                                             {filteredData.length}
                                         </span>
                                         <span className="text-text-secondary">
-                                            of {issues.length} issues
+                                            of {canAccessIssues.length} issues
                                         </span>
                                     </>
                                 ) : (
                                     <span className="text-text-secondary">
-                                        all {issues.length} issues
+                                        all {canAccessIssues.length} issues
                                     </span>
                                 )}
                             </span>

@@ -6,6 +6,8 @@ import { Page } from "@components/ui/page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { toast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { savePullRequestMessages } from "@services/pull-request-messages/fetch";
 import { useSuspensePullRequestMessages } from "@services/pull-request-messages/hooks";
 import { useQueryClient } from "@tanstack/react-query";
@@ -20,6 +22,12 @@ export default function CustomMessages() {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const pullRequestMessages = useSuspensePullRequestMessages();
     const queryClient = useQueryClient();
+
+    const canEdit = usePermission(
+        Action.Update,
+        ResourceType.CodeReviewSettings,
+        repositoryId,
+    );
 
     const [messages, setMessages] = useState<
         Pick<
@@ -105,8 +113,9 @@ export default function CustomMessages() {
                         leftIcon={<SaveIcon />}
                         onClick={() => action()}
                         disabled={
-                            !wasStartReviewMessageChanged &&
-                            !wasEndReviewMessageChanged
+                            !canEdit ||
+                            (!wasStartReviewMessageChanged &&
+                                !wasEndReviewMessageChanged)
                         }>
                         Save changes
                     </Button>
@@ -143,6 +152,7 @@ export default function CustomMessages() {
                                     startReviewMessage,
                                 }));
                             }}
+                            canEdit={canEdit}
                         />
                     </TabsContent>
 
@@ -159,6 +169,7 @@ export default function CustomMessages() {
                                     endReviewMessage,
                                 }));
                             }}
+                            canEdit={canEdit}
                         />
                     </TabsContent>
                 </Tabs>

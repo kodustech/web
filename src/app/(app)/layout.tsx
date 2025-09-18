@@ -5,6 +5,7 @@ import {
 } from "@services/organizations/fetch";
 import { getTeamParameters } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
+import { getPermissions } from "@services/permissions/fetch";
 import { getTeams } from "@services/teams/fetch";
 import { auth } from "src/core/config/auth";
 import { NavMenu } from "src/core/layout/navbar";
@@ -43,6 +44,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
     if (!platformConfigs?.configValue?.finishOnboard) redirect("/setup");
 
     const [
+        permissions,
         organizationId,
         organizationName,
         organizationLicense,
@@ -51,6 +53,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         logsPagesFeatureFlag,
         pullRequestsPageFeatureFlag,
     ] = await Promise.all([
+        getPermissions(),
         getOrganizationId(),
         getOrganizationName(),
         validateOrganizationLicense({ teamId }),
@@ -64,7 +67,11 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         <Providers
             session={session}
             teams={teams}
-            organization={{ id: organizationId, name: organizationName }}>
+            organization={{
+                id: organizationId,
+                name: organizationName,
+            }}
+            permissions={permissions}>
             <SubscriptionProvider
                 license={organizationLicense}
                 usersWithAssignedLicense={usersWithAssignedLicense}>

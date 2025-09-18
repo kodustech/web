@@ -12,8 +12,10 @@ import {
 } from "@components/ui/popover";
 import { Progress } from "@components/ui/progress";
 import { Separator } from "@components/ui/separator";
+import { UserRole } from "@enums";
 import { useEffectOnce } from "@hooks/use-effect-once";
 import { ArrowRight } from "lucide-react";
+import { useAuth } from "src/core/providers/auth.provider";
 import { cn } from "src/core/utils/components";
 import { ClientSideCookieHelpers } from "src/core/utils/cookie";
 
@@ -60,6 +62,9 @@ const MAX = TASKS.length;
 const HIDDEN_STATE_KEY = "get-started/hidden";
 
 export const GetStartedChecklist = () => {
+    const { role } = useAuth();
+    if (role !== UserRole.OWNER) return null;
+
     const [isOpen, _setIsOpen] = useState(false);
     const [isVisible, _setIsVisible] = useState(false);
 

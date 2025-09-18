@@ -20,6 +20,8 @@ import {
     KodyLearningStatus,
     ParametersConfigKey,
 } from "@services/parameters/types";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { EyeIcon, Save } from "lucide-react";
 import { Controller, useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
@@ -90,6 +92,8 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
     const platformConfig = usePlatformConfig();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const form = useFormContext<CodeReviewFormType>();
+
+    const canReadPrs = usePermission(Action.Read, ResourceType.PullRequests);
 
     const generatePRSummary = form.watch("summary.generatePRSummary");
 
@@ -174,6 +178,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                         <Button
                             size="sm"
                             variant="helper"
+                            disabled={field.disabled}
                             onClick={() => field.onChange(!field.value)}
                             className="w-full">
                             <CardHeader className="flex flex-row items-center justify-between">
@@ -211,7 +216,9 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                     type="single"
                                     value={field.value}
                                     className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3"
-                                    disabled={!generatePRSummary}
+                                    disabled={
+                                        field.disabled || !generatePRSummary
+                                    }
                                     onValueChange={(value) => {
                                         if (!value) return;
                                         field.onChange(value);
@@ -227,7 +234,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                                     size="lg"
                                                     variant="helper"
                                                     className="w-full items-start py-4">
-                                                    <div className="flex items-start justify-between gap-6 w-full">
+                                                    <div className="flex w-full items-start justify-between gap-6">
                                                         <div className="flex flex-col gap-2">
                                                             <Heading
                                                                 variant="h3"
@@ -251,7 +258,8 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                                         <Checkbox
                                                             decorative
                                                             checked={
-                                                                option.value ===field.value
+                                                                option.value ===
+                                                                field.value
                                                             }
                                                         />
                                                     </div>
@@ -282,7 +290,9 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                             <FormControl.Input>
                                 <ToggleGroup.Root
                                     type="single"
-                                    disabled={!generatePRSummary}
+                                    disabled={
+                                        field.disabled || !generatePRSummary
+                                    }
                                     className="grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3"
                                     value={field.value}
                                     onValueChange={(value) => {
@@ -359,7 +369,10 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                         <li key={example}>
                                             <Link
                                                 href=""
-                                                disabled={!generatePRSummary}
+                                                disabled={
+                                                    field.disabled ||
+                                                    !generatePRSummary
+                                                }
                                                 onClick={(e) => {
                                                     e.preventDefault();
 
@@ -382,7 +395,9 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                             <FormControl.Input>
                                 <Textarea
                                     value={field.value}
-                                    disabled={!generatePRSummary}
+                                    disabled={
+                                        field.disabled || !generatePRSummary
+                                    }
                                     id={field.name}
                                     className="min-h-48"
                                     placeholder="Write the instructions here"
@@ -400,7 +415,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                         size="md"
                         variant="helper"
                         leftIcon={<EyeIcon />}
-                        disabled={!generatePRSummary}
+                        disabled={!generatePRSummary || !canReadPrs}
                         onClick={() => {
                             const behaviourForExistingDescription =
                                 form.getValues(

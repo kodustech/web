@@ -1,5 +1,6 @@
 "use client";
 
+import { useContext, useState } from "react";
 import { Button } from "@components/ui/button";
 import { DataTableColumnHeader } from "@components/ui/data-table";
 import {
@@ -10,15 +11,37 @@ import {
     DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
 import { magicModal } from "@components/ui/magic-modal";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@components/ui/select";
 import { toast } from "@components/ui/toaster/use-toast";
-import { UserStatus } from "@enums";
+import { UserRole, UserStatus } from "@enums";
+import { usePermission } from "@services/permissions/hooks";
+import {
+    Action,
+    ResourceType,
+    rolePriority,
+} from "@services/permissions/types";
 import { type MembersSetup } from "@services/setup/types";
-import { approveUser } from "@services/users/fetch";
+import { updateUser } from "@services/users/fetch";
 import { ColumnDef } from "@tanstack/react-table";
-import { CheckIcon, CopyIcon, EllipsisVertical, TrashIcon } from "lucide-react";
+import {
+    CheckIcon,
+    ChevronsUpDown,
+    CopyIcon,
+    EllipsisVertical,
+    Pencil,
+    TrashIcon,
+} from "lucide-react";
+import { useAuth } from "src/core/providers/auth.provider";
 import { ClipboardHelpers } from "src/core/utils/clipboard";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 
+import AssignReposModal from "./assign-repos.modal";
 import { DeleteModal } from "./delete-modal";
 
 export const columns: ColumnDef<MembersSetup>[] = [
@@ -39,15 +62,150 @@ export const columns: ColumnDef<MembersSetup>[] = [
         ),
     },
     {
+        id: "role",
+        size: 120,
+        minSize: 120,
+        header: ({ column }) => (
+            <DataTableColumnHeader column={column} title="Role" />
+        ),
+        accessorFn: (r) => rolePriority[r.role],
+        cell: ({ row }) => {
+            const { userId } = useAuth();
+            const canEdit = usePermission(
+                Action.Update,
+                ResourceType.UserSettings,
+            );
+
+            const rowRole = row.original.role;
+
+            const role = rowRole
+                .toLowerCase()
+                .replaceAll("_", " ")
+                .replace(/\b\w/g, (c) => c.toUpperCase());
+
+            if (row.original.userId === userId || !canEdit) {
+                return <span className="font-medium">{role}</span>;
+            }
+
+            const shouldShowButton = [
+                UserRole.CONTRIBUTOR,
+                UserRole.REPO_ADMIN,
+            ].includes(rowRole);
+
+            const updateRoleAction = async (newRole: UserRole) => {
+                try {
+                    await updateUser(row.original.userId!, { role: newRole });
+
+                    toast({
+                        variant: "success",
+                        title: "Role updated",
+                        description: (
+                            <span>
+                                Role for{" "}
+                                <span className="text-primary-light">
+                                    {row.original.email}
+                                </span>{" "}
+                                was changed to{" "}
+                                <span className="font-medium capitalize">
+                                    {newRole.toLowerCase().replaceAll("_", " ")}
+                                </span>
+                            </span>
+                        ),
+                    });
+
+                    revalidateServerSidePath("/settings/subscription");
+                } catch {
+                    toast({
+                        variant: "danger",
+                        title: "Role was not updated",
+                        description:
+                            "Something wrong happened. Please, try again.",
+                    });
+                }
+            };
+
+            return (
+                <div className="flex w-full items-center gap-2">
+                    <div className="flex-grow">
+                        <Select
+                            value={rowRole}
+                            onValueChange={(value) =>
+                                updateRoleAction(value as UserRole)
+                            }
+                            disabled={
+                                !canEdit ||
+                                row.original.userStatus === UserStatus.INACTIVE
+                            }>
+                            <SelectTrigger className="w-full">
+                                <SelectValue
+                                    placeholder={
+                                        row.original.userStatus ===
+                                        UserStatus.INACTIVE
+                                            ? "Inactive"
+                                            : role
+                                    }>
+                                    {role}
+                                </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                                {Object.values(UserRole).map((role) => (
+                                    <SelectItem
+                                        key={role}
+                                        value={role}
+                                        className="capitalize">
+                                        {role
+                                            .toLowerCase()
+                                            .replaceAll("_", " ")}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="w-[140px] flex-shrink-0">
+                        {shouldShowButton && (
+                            <Button
+                                variant="secondary"
+                                size="icon-sm"
+                                className="w-full gap-x-2"
+                                disabled={!canEdit}
+                                onClick={() =>
+                                    magicModal.show(() => (
+                                        <AssignReposModal
+                                            userId={row.original.userId!}
+                                        />
+                                    ))
+                                }>
+                                <Pencil />
+                                Repositories
+                            </Button>
+                        )}
+                    </div>
+                </div>
+            );
+        },
+    },
+    {
         size: 70,
         minSize: 70,
         id: "actions",
         header: "Actions",
         meta: { align: "right" },
         cell: ({ row }) => {
+            const canEdit = usePermission(
+                Action.Update,
+                ResourceType.UserSettings,
+            );
+            const canDelete = usePermission(
+                Action.Delete,
+                ResourceType.UserSettings,
+            );
+
             const approveUserAction = async () => {
                 try {
-                    await approveUser(row.original.userId);
+                    await updateUser(row.original.userId!, {
+                        status: UserStatus.ACTIVE,
+                    });
 
                     toast({
                         variant: "success",
@@ -99,6 +257,7 @@ export const columns: ColumnDef<MembersSetup>[] = [
                                     <DropdownMenuItem
                                         leftIcon={<CheckIcon />}
                                         className="text-success"
+                                        disabled={!canEdit}
                                         onClick={() => approveUserAction()}>
                                         Approve
                                     </DropdownMenuItem>
@@ -109,6 +268,7 @@ export const columns: ColumnDef<MembersSetup>[] = [
 
                             <DropdownMenuItem
                                 leftIcon={<CopyIcon />}
+                                disabled={!canEdit}
                                 onClick={async () => {
                                     await ClipboardHelpers.copyTextToClipboard(
                                         `${window.location.origin}/invite/${row.original.userId}`,
@@ -135,6 +295,7 @@ export const columns: ColumnDef<MembersSetup>[] = [
                             <DropdownMenuItem
                                 className="text-danger"
                                 leftIcon={<TrashIcon />}
+                                disabled={!canDelete}
                                 onClick={() =>
                                     magicModal.show(() => (
                                         <DeleteModal member={row.original} />
