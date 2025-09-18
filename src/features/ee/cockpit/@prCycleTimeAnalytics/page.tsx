@@ -59,9 +59,8 @@ export default async function LeadTimeForChangeAnalytics() {
     const data = extractApiData(response);
 
     if (
-        !data?.currentPeriod?.leadTimeP75Hours ||
-        (data?.currentPeriod?.leadTimeP75Hours === 0 &&
-            data?.currentPeriod?.leadTimeP75Minutes === 0)
+        data.currentPeriod.leadTimeP75Hours === 0 &&
+        data.currentPeriod.leadTimeP75Minutes === 0
     ) {
         return <NoData />;
     }

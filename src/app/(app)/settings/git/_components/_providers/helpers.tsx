@@ -13,6 +13,7 @@ const onSaveToken = async (params: {
     token: string;
     teamId: string;
     username?: string;
+    email?: string;
     organizationName?: string;
     selfHostedUrl?: string;
     integrationKey: INTEGRATIONS_KEY;
@@ -25,6 +26,7 @@ const onSaveToken = async (params: {
         token: params.token,
         host: params.selfHostedUrl,
         username: params.username,
+        email: params.email,
         orgName: params.organizationName,
         organizationAndTeamData: {
             teamId: params.teamId,
@@ -72,10 +74,11 @@ const openBitbucketModal = async (props: {
 }) =>
     magicModal.show(() => (
         <BitbucketModal
-            onSave={async (token, username) => {
+            onSaveAction={async (token, username, email) => {
                 await onSaveToken({
                     token,
                     username,
+                    email,
                     teamId: props.teamId,
                     onSuccess: props.onSaveToken,
                     integrationKey: INTEGRATIONS_KEY.BITBUCKET,

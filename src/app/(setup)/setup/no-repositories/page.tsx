@@ -16,8 +16,10 @@ export default function App() {
     const router = useRouter();
     const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
-    if (configValue?.repositories?.length)
+
+    if (configValue?.repositories?.length) {
         redirect("/setup/choosing-a-pull-request");
+    }
 
     return (
         <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">

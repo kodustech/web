@@ -269,6 +269,7 @@ export default function CardsGroup({
     const onSaveToken = async (params: {
         token: string;
         username?: string;
+        email?: string;
         organizationName?: string;
         selfHostedUrl?: string;
         integrationKey: INTEGRATIONS_KEY;
@@ -280,6 +281,7 @@ export default function CardsGroup({
             token: params.token,
             host: params?.selfHostedUrl,
             username: params.username,
+            email: params.email,
             orgName: params.organizationName,
             organizationAndTeamData: {
                 teamId: team.uuid,
@@ -356,10 +358,11 @@ export default function CardsGroup({
     const openBitbucketModal = async () => {
         magicModal.show(() => (
             <BitbucketModal
-                onSave={async (token, username) => {
+                onSave={async (token, username, email) => {
                     await onSaveToken({
                         token,
                         username,
+                        email,
                         integrationKey: INTEGRATIONS_KEY.BITBUCKET,
                         integrationType: PlatformType.BITBUCKET,
                     });

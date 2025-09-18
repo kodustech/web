@@ -9,6 +9,7 @@ import {
     CollapsibleIndicator,
     CollapsibleTrigger,
 } from "@components/ui/collapsible";
+import { InlineCode } from "@components/ui/inline-code";
 import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
 import { Section } from "@components/ui/section";
@@ -270,10 +271,10 @@ export const GenerateRulesOptions = () => {
                                             <Section.Description>
                                                 When enabled, Kody will
                                                 automatically import rule files{" "}
-                                                <code className="bg-card-lv1 text-text-primary mx-0.5 rounded-lg px-1.5 py-0.5">
+                                                <InlineCode className="bg-card-lv1">
                                                     (.cursorrules, CLAUDE.md,
                                                     etc...)
-                                                </code>{" "}
+                                                </InlineCode>{" "}
                                                 found in this repository and
                                                 keep them in sync.
                                             </Section.Description>
