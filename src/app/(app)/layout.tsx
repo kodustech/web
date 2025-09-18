@@ -44,6 +44,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
     if (!platformConfigs?.configValue?.finishOnboard) redirect("/setup");
 
     const [
+        permissions,
         organizationId,
         organizationName,
         organizationLicense,
@@ -52,6 +53,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         logsPagesFeatureFlag,
         pullRequestsPageFeatureFlag,
     ] = await Promise.all([
+        getPermissions(),
         getOrganizationId(),
         getOrganizationName(),
         validateOrganizationLicense({ teamId }),
