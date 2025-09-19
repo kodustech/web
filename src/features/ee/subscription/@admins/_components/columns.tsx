@@ -126,7 +126,7 @@ export const columns: ColumnDef<MembersSetup>[] = [
 
             return (
                 <div className="flex w-full items-center gap-2">
-                    <div className="flex-grow">
+                    <div className="w-full">
                         <Select
                             value={rowRole}
                             onValueChange={(value) =>
@@ -161,13 +161,12 @@ export const columns: ColumnDef<MembersSetup>[] = [
                             </SelectContent>
                         </Select>
                     </div>
-
-                    <div className="w-[140px] flex-shrink-0">
-                        {shouldShowButton && (
+                    {shouldShowButton && (
+                        <div className="w-full">
                             <Button
-                                variant="secondary"
-                                size="icon-sm"
-                                className="w-full gap-x-2"
+                                variant="helper"
+                                size="sm"
+                                className="w-full gap-2 py-4"
                                 disabled={!canEdit}
                                 onClick={() =>
                                     magicModal.show(() => (
@@ -177,10 +176,10 @@ export const columns: ColumnDef<MembersSetup>[] = [
                                     ))
                                 }>
                                 <Pencil />
-                                Repositories
+                                Repository access
                             </Button>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             );
         },
