@@ -223,7 +223,7 @@ export const InviteModal = ({ teamId }: { teamId: string }) => {
         <Dialog open onOpenChange={() => magicModal.hide()}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Admin invitation</DialogTitle>
+                    <DialogTitle>Workspace member invitation</DialogTitle>
                 </DialogHeader>
 
                 <form onSubmit={form.handleSubmit(onSubmit)}>

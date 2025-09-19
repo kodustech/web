@@ -88,7 +88,7 @@ export default function SubscriptionLayout({
                                 PR licenses
                             </TabsTrigger>
                             <TabsTrigger value={tabs.admins}>
-                                Organization admins
+                                Workspace members
                             </TabsTrigger>
 
                             <div className="mb-5 flex h-full flex-1 items-center justify-end">
@@ -117,7 +117,7 @@ export default function SubscriptionLayout({
                                                     />
                                                 ));
                                             }}>
-                                            Invite admin
+                                            Invite member
                                         </Button>
                                     )}
                                 </div>
