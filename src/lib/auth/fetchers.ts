@@ -83,10 +83,12 @@ export const refreshAccessToken = async (payload: { refreshToken: string }) => {
 
 export const getInviteData = async (userId: string) => {
     try {
-        const data = await typedFetch<{
-            uuid: string;
-            email: string;
-            organization: { name: string };
+        const { data } = await typedFetch<{
+            data: {
+                uuid: string;
+                email: string;
+                organization: { name: string };
+            };
         }>(pathToApiUrl(API_ROUTES.getInviteData), {
             params: { userId },
         });
