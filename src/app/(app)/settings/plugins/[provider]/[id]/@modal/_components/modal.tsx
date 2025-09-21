@@ -65,20 +65,8 @@ export const PluginModal = ({
     );
 
     // Para integrações padrão, usar todos os tools disponíveis
-    const effectiveSelectedTools = isDefault
-        ? tools.map(({ slug }) => slug)
-        : selectedTools;
-
-    // Debug: log para verificar os dados
-    console.log("Plugin data in modal:", {
-        isConnected,
-        allowedTools: plugin.allowedTools,
-        allowedToolsLength: plugin.allowedTools?.length,
-        toolsCount: tools.length,
-        selectedTools,
-        plugin: plugin,
-    });
-    console.log("Full plugin object:", JSON.stringify(plugin, null, 2));
+    const effectiveSelectedTools =
+        selectedTools;
 
     const [isResettingAuth, setIsResettingAuth] = useState(false);
 
@@ -91,7 +79,6 @@ export const PluginModal = ({
     );
 
     const areRequiredParametersValid =
-        isDefault ||
         (Object.keys(requiredParamsValues).length ===
             (plugin.requiredParams?.length || 0) &&
             Object.values(requiredParamsValues).every(
@@ -233,12 +220,10 @@ export const PluginModal = ({
                                 }
                                 selectedTools={effectiveSelectedTools}
                                 setSelectedToolsAction={(tools) => {
-                                    if (!isDefault) {
-                                        setSelectedTools(tools);
-                                        setConfirmInstallationOfToolsWithWarnings(
-                                            false,
-                                        );
-                                    }
+                                    setSelectedTools(tools);
+                                    setConfirmInstallationOfToolsWithWarnings(
+                                        false,
+                                    );
                                 }}
                             />
                         </div>
@@ -299,20 +284,22 @@ export const PluginModal = ({
                                     </Button>
                                 ) : (
                                     <>
-                                        <Button
-                                            size="md"
-                                            variant="tertiary"
-                                            leftIcon={<RefreshCwIcon />}
-                                            onClick={() =>
-                                                setIsResettingAuth(true)
-                                            }
-                                            disabled={
-                                                !canEdit ||
-                                                isDefault ||
-                                                isResetAuthLoading
-                                            }>
-                                            Reset Authentication
-                                        </Button>
+                                        {
+                                            isDefault ? null : <Button
+                                                size="md"
+                                                variant="tertiary"
+                                                leftIcon={<RefreshCwIcon />}
+                                                onClick={() =>
+                                                    setIsResettingAuth(true)
+                                                }
+                                                disabled={
+                                                    !canEdit ||
+                                                    isDefault ||
+                                                    isResetAuthLoading
+                                                }>
+                                                Reset Authentication
+                                            </Button>
+                                        }
                                         <Button
                                             size="md"
                                             variant="primary"
@@ -321,7 +308,6 @@ export const PluginModal = ({
                                             onClick={() => updateTools()}
                                             disabled={
                                                 !canEdit ||
-                                                isDefault ||
                                                 selectedTools.length === 0 ||
                                                 (hasToolsWithWarningSelected &&
                                                     !confirmInstallationOfToolsWithWarnings)

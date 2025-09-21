@@ -1,6 +1,5 @@
 "use client";
 
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { useMemo, useState, type Dispatch, type SetStateAction } from "react";
 import { Button } from "@components/ui/button";
 import { Card, CardHeader } from "@components/ui/card";
@@ -132,7 +131,7 @@ export const SelectTools = ({
                                             className={cn(
                                                 "size-5",
                                                 tool.warning &&
-                                                    "[--button-background:var(--color-warning)]",
+                                                "[--button-background:var(--color-warning)]",
                                             )}
                                             checked={selectedTools.includes(
                                                 tool.slug,
@@ -145,7 +144,7 @@ export const SelectTools = ({
                                                 className={cn(
                                                     "text-text-primary min-h-5",
                                                     tool.warning &&
-                                                        "text-warning",
+                                                    "text-warning",
                                                 )}>
                                                 {tool.name}
 
