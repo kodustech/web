@@ -56,7 +56,7 @@ export default function AssignReposModal({ userId }: { userId: string }) {
     ] = useAsyncAction(async () => {
         const selectedIds = selectedRepositories.map((r) => r.id);
 
-        await assignRepos(selectedIds, userId);
+        await assignRepos(selectedIds, userId, teamId);
 
         magicModal.hide();
     });

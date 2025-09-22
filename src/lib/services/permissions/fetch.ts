@@ -32,10 +32,14 @@ export const getAssignedRepos = async (userId: string) => {
     return response;
 };
 
-export const assignRepos = async (repositoryIds: string[], userId: string) => {
+export const assignRepos = async (
+    repositoryIds: string[],
+    userId: string,
+    teamId: string,
+) => {
     const reponse = await axiosAuthorized.post<string[]>(
         PERMISSIONS_PATHS.ASSIGN_REPOS,
-        { repositoryIds, userId },
+        { repositoryIds, userId, teamId },
     );
 
     return reponse;
