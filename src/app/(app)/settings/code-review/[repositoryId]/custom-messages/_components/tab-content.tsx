@@ -23,7 +23,7 @@ export const TabContent = (props: {
         content: string;
         status: "active" | "inactive";
     };
-    onChange: (value: {
+    onChangeAction: (value: {
         content: string;
         status: "active" | "inactive";
     }) => void;
@@ -37,7 +37,7 @@ export const TabContent = (props: {
                 className="w-full"
                 disabled={!props.canEdit}
                 onClick={() =>
-                    props.onChange({
+                    props.onChangeAction({
                         content: props.value.content,
                         status:
                             props.value.status === "active"
@@ -76,7 +76,7 @@ export const TabContent = (props: {
 
                         <CustomMessagesOptionsDropdown
                             value={props.value}
-                            onChange={props.onChange}
+                            onChange={props.onChangeAction}
                             canEdit={props.canEdit}
                         />
                     </div>
@@ -93,7 +93,7 @@ export const TabContent = (props: {
                                     props.value.status === "inactive"
                                 }
                                 onChange={(ev) =>
-                                    props.onChange({
+                                    props.onChangeAction({
                                         content: ev.target.value,
                                         status: props.value.status,
                                     })
@@ -113,7 +113,7 @@ export const TabContent = (props: {
                             className="text-tertiary-light min-h-auto self-end"
                             disabled={!props.canEdit}
                             onClick={() => {
-                                props.onChange({
+                                props.onChangeAction({
                                     status: props.value.status,
                                     content:
                                         props.type === "startReviewMessage"

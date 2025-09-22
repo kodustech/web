@@ -31,11 +31,18 @@ export const mcpManagerFetch = async <Data>(
         containerName: hostName,
     });
 
-    return typedFetch<Data>(url, {
-        ...config,
-        headers: {
-            ...config?.headers,
-            Authorization: `Bearer ${authorization}`,
-        },
-    });
+    try {
+        return await typedFetch<Data>(url, {
+            ...config,
+            headers: {
+                ...config?.headers,
+                Authorization: `Bearer ${authorization}`,
+            },
+        });
+    } catch (error) {
+        if (error instanceof Error && error.message.includes("ENOTFOUND")) {
+            throw new Error("Could not load plugin information");
+        }
+        throw error;
+    }
 };

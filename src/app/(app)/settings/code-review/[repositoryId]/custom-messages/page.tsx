@@ -17,6 +17,7 @@ import { pathToApiUrl } from "src/core/utils/helpers";
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import { useCodeReviewRouteParams } from "../../../_hooks";
 import { TabContent } from "./_components/tab-content";
+import { GlobalSettings } from "./_components/global-settings";
 
 export default function CustomMessages() {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
@@ -39,30 +40,34 @@ export default function CustomMessages() {
         endReviewMessage: pullRequestMessages.endReviewMessage,
     });
 
+    const [globalSettings, setGlobalSettings] = useState({
+        hideComments: pullRequestMessages.globalSettings?.hideComments ?? false,
+    });
+
     useEffect(() => {
         setMessages({
             startReviewMessage: pullRequestMessages.startReviewMessage,
             endReviewMessage: pullRequestMessages.endReviewMessage,
         });
+        setGlobalSettings({
+            hideComments: pullRequestMessages.globalSettings?.hideComments ?? false,
+        });
     }, [pullRequestMessages]);
 
     const wasStartReviewMessageChanged =
         messages.startReviewMessage.status !==
-            pullRequestMessages.startReviewMessage.status ||
+        pullRequestMessages.startReviewMessage.status ||
         messages.startReviewMessage.content !==
-            pullRequestMessages.startReviewMessage.content;
-
-    const isStartReviewMessageValid =
-        messages.startReviewMessage.content.trim().length > 0;
+        pullRequestMessages.startReviewMessage.content;
 
     const wasEndReviewMessageChanged =
         messages.endReviewMessage.status !==
-            pullRequestMessages.endReviewMessage.status ||
+        pullRequestMessages.endReviewMessage.status ||
         messages.endReviewMessage.content !==
-            pullRequestMessages.endReviewMessage.content;
+        pullRequestMessages.endReviewMessage.content;
 
-    const isEndReviewMessageValid =
-        messages.endReviewMessage.content.trim().length > 0;
+    const wasGlobalSettingsChanged =
+        globalSettings.hideComments !== (pullRequestMessages.globalSettings?.hideComments ?? false);
 
     const [action, { loading: isSaving }] = useAsyncAction(async () => {
         try {
@@ -72,6 +77,7 @@ export default function CustomMessages() {
                 directoryId,
                 startReviewMessage: messages.startReviewMessage,
                 endReviewMessage: messages.endReviewMessage,
+                globalSettings: globalSettings,
             });
 
             await queryClient.invalidateQueries({
@@ -115,7 +121,8 @@ export default function CustomMessages() {
                         disabled={
                             !canEdit ||
                             (!wasStartReviewMessageChanged &&
-                                !wasEndReviewMessageChanged)
+                                !wasEndReviewMessageChanged &&
+                                !wasGlobalSettingsChanged)
                         }>
                         Save changes
                     </Button>
@@ -137,6 +144,12 @@ export default function CustomMessages() {
                                 <span className="text-tertiary-light">*</span>
                             )}
                         </TabsTrigger>
+                        <TabsTrigger value="global-settings">
+                            Global Settings
+                            {wasGlobalSettingsChanged && (
+                                <span className="text-tertiary-light">*</span>
+                            )}
+                        </TabsTrigger>
                     </TabsList>
 
                     <TabsContent
@@ -146,7 +159,7 @@ export default function CustomMessages() {
                         <TabContent
                             type="startReviewMessage"
                             value={messages.startReviewMessage}
-                            onChange={(startReviewMessage) => {
+                            onChangeAction={(startReviewMessage) => {
                                 setMessages((prev) => ({
                                     ...prev,
                                     startReviewMessage,
@@ -163,10 +176,26 @@ export default function CustomMessages() {
                         <TabContent
                             type="endReviewMessage"
                             value={messages.endReviewMessage}
-                            onChange={(endReviewMessage) => {
+                            onChangeAction={(endReviewMessage) => {
                                 setMessages((prev) => ({
                                     ...prev,
                                     endReviewMessage,
+                                }));
+                            }}
+                            canEdit={canEdit}
+                        />
+                    </TabsContent>
+
+                    <TabsContent
+                        forceMount
+                        className="flex-1"
+                        value="global-settings">
+                        <GlobalSettings
+                            hideComments={globalSettings.hideComments}
+                            onHideCommentsChangeAction={(value) => {
+                                setGlobalSettings((prev) => ({
+                                    ...prev,
+                                    hideComments: value,
                                 }));
                             }}
                             canEdit={canEdit}

@@ -43,12 +43,14 @@ Kodus Web is the official web interface for Kodus, delivering a modern and intui
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/kodustech/web.git
 cd web
 ```
 
 2. Build and start the containers:
+
 ```bash
 npm run docker:build
 npm run docker:start
@@ -61,21 +63,21 @@ yarn docker:start
 
 - **Framework**: Next.js 15
 - **Language**: TypeScript
-- **Styling**: 
-  - Tailwind CSS
-  - Radix UI
-  - Lucide React
-- **State Management**: 
-  - React Query (TanStack Query)
-  - React Hook Form
+- **Styling**:
+    - Tailwind CSS
+    - Radix UI
+    - Lucide React
+- **State Management**:
+    - React Query (TanStack Query)
+    - React Hook Form
 - **Authentication**: NextAuth.js
 - **Data Visualization**: Victory
 - **Development Tools**:
-  - ESLint
-  - Prettier
-  - TypeScript
-  - Docker
+    - ESLint
+    - Prettier
+    - TypeScript
+    - Docker
 
 ## Contributing
 
-We welcome contributions! 
+We welcome contributions!
