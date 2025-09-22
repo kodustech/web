@@ -8,6 +8,7 @@ export const savePullRequestMessages = ({
     startReviewMessage,
     endReviewMessage,
     directoryId,
+    globalSettings,
 }: {
     uuid?: string;
     repositoryId: LiteralUnion<"global">;
@@ -20,12 +21,16 @@ export const savePullRequestMessages = ({
         content: string;
         status: "active" | "inactive";
     };
+    globalSettings?: {
+        hideComments: boolean;
+    };
 }) => {
     return axiosAuthorized.post(pathToApiUrl("/pull-request-messages"), {
         uuid,
         directoryId,
         endReviewMessage,
         startReviewMessage,
+        globalSettings,
         repositoryId: repositoryId === "global" ? null : repositoryId,
         configLevel:
             repositoryId === "global"

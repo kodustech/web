@@ -23,6 +23,9 @@ export const useSuspensePullRequestMessages = () => {
             content: string;
             status: "active" | "inactive";
         };
+        globalSettings?: {
+            hideComments: boolean;
+        };
     }>(
         directoryId
             ? pathToApiUrl("/pull-request-messages/find-by-directory-id")
@@ -46,6 +49,9 @@ export const useSuspensePullRequestMessages = () => {
                 endReviewMessage: {
                     content: DEFAULT_END_REVIEW_MESSAGE,
                     status: "active",
+                },
+                globalSettings: {
+                    hideComments: false,
                 },
             },
         },
