@@ -8,6 +8,7 @@ export enum ParametersConfigKey {
 export enum OrganizationParametersConfigKey {
     TIMEZONE_CONFIG = "timezone_config",
     AUTO_JOIN_CONFIG = "auto_join_config",
+    BYOK_CONFIG = "byok_config",
 }
 
 export enum BoardPriorityType {

@@ -9,20 +9,14 @@ export const createOrUpdateOrganizationParameter = async (
     configValue: any,
     organizationId: string,
 ) => {
-    try {
-        const response = await axiosAuthorized.post<any>(
-            ORGANIZATION_PARAMETERS_PATHS.CREATE_OR_UPDATE,
-            {
-                key,
-                configValue,
-                organizationAndTeamData: { organizationId },
-            },
-        );
-
-        return response.data;
-    } catch (error: any) {
-        return { error: error.response?.status || "Unknown error" };
-    }
+    return await axiosAuthorized.post<any>(
+        ORGANIZATION_PARAMETERS_PATHS.CREATE_OR_UPDATE,
+        {
+            key,
+            configValue,
+            organizationAndTeamData: { organizationId },
+        },
+    );
 };
 
 export const getOrganizationParameterByKey = async <
@@ -31,6 +25,6 @@ export const getOrganizationParameterByKey = async <
     key: OrganizationParametersConfigKey;
     organizationId: string;
 }) =>
-    await authorizedFetch<T>(ORGANIZATION_PARAMETERS_PATHS.GET_BY_KEY, {
+    await authorizedFetch<T | null>(ORGANIZATION_PARAMETERS_PATHS.GET_BY_KEY, {
         params,
     });

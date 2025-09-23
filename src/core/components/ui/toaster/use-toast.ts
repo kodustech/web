@@ -134,7 +134,13 @@ function dispatch(action: Action) {
     });
 }
 
-type Toast = Pick<ToasterToast, "title" | "variant" | "description">;
+type ToastTitleRequired = Pick<ToasterToast, "variant" | "description"> &
+    Required<Pick<ToasterToast, "title">>;
+
+type ToastDescriptionRequired = Pick<ToasterToast, "variant" | "title"> &
+    Required<Pick<ToasterToast, "description">>;
+
+type Toast = ToastTitleRequired | ToastDescriptionRequired;
 
 function toast(props: Toast) {
     const id = genId();
