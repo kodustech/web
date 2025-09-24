@@ -113,20 +113,20 @@ export const PullRequestsFilters = ({
 
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-col gap-1.5">
-                        <Label className="text-xs uppercase text-text-secondary">
-                            Title
+                        <Label className="text-xs text-text-secondary">
+                            PR title
                         </Label>
                         <Input
                             size="md"
-                            placeholder="Filter by title"
+                            placeholder="Title contains..."
                             value={pullRequestTitle}
                             onChange={(event) => onTitleChange(event.target.value)}
                         />
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <Label className="text-xs uppercase text-text-secondary">
-                            Suggestions
+                        <Label className="text-xs text-text-secondary">
+                            Kody suggestions
                         </Label>
                         <Select
                             value={suggestionsFilter}
@@ -140,13 +140,13 @@ export const PullRequestsFilters = ({
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">
-                                    All statuses
+                                    Any (default)
                                 </SelectItem>
                                 <SelectItem value="true">
-                                    With sent suggestions
+                                    Has suggestions
                                 </SelectItem>
                                 <SelectItem value="false">
-                                    Without sent suggestions
+                                    No suggestions
                                 </SelectItem>
                             </SelectContent>
                         </Select>
@@ -154,10 +154,10 @@ export const PullRequestsFilters = ({
 
                     <div className="flex flex-col gap-1.5">
                         <Label className="text-xs uppercase text-text-secondary">
-                            Repository
+                            Repositories
                         </Label>
                         <Command>
-                            <CommandInput placeholder="Search repository" />
+                            <CommandInput placeholder="Search repositories..." />
                             <CommandList className="max-h-48 overflow-y-auto">
                                 <CommandEmpty>No repository found.</CommandEmpty>
                                 <CommandGroup>
