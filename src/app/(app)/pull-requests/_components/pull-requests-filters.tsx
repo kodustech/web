@@ -55,11 +55,14 @@ export const PullRequestsFilters = ({
     );
 
     const repositories = useMemo(() => {
+        if (!organizationId) {
+            return [];
+        }
         return allRepositories.filter((repo: any) =>
             repo.selected &&
             hasPermission({
                 permissions,
-                organizationId: organizationId!,
+                organizationId,
                 action: Action.Read,
                 resource: ResourceType.PullRequests,
                 repoId: repo.id,
