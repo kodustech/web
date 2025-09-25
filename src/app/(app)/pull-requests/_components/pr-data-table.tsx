@@ -49,8 +49,8 @@ export const PrDataTable = ({ data, loading }: PrDataTableProps) => {
                         <TableHead className="w-40">Branch</TableHead>
                         <TableHead className="w-32">Created</TableHead>
                         <TableHead className="w-32">Author</TableHead>
-                        <TableHead className="w-20 text-center">Merged</TableHead>
-                        <TableHead className="w-32">Status</TableHead>
+                        <TableHead className="w-20 text-center">Suggestions</TableHead>
+                        <TableHead className="w-32 text-center">Status</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
