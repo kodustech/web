@@ -418,7 +418,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
 
                             magicModal.show(() => (
                                 <PRSummaryPreviewModal
-                                    repositoryId={props.repositoryId}
+                                    repositoryId={repositoryId}
                                     customInstructions={customInstructions!}
                                     repositoryName={config?.name!}
                                     behaviourForExistingDescription={

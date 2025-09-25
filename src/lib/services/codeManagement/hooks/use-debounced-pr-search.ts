@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { buildSearchParams } from "src/core/utils/pr-search";
 import { useDebounce } from "@hooks/use-debounce";
-import { useSearchPullRequests, useSuspenseGetOnboardingPullRequests } from "@services/codeManagement/hooks";
+import {
+    useSearchPullRequests,
+    useSuspenseGetOnboardingPullRequests,
+} from "@services/codeManagement/hooks";
+import { buildSearchParams } from "src/core/utils/pr-search";
 
 type PullRequest = {
     id: string;
     pull_number: number;
     repository: string;
+    repositoryId: string;
     title: string;
     url: string;
 };
@@ -78,13 +82,14 @@ export function useDebouncedPRSearch({
     // Transform search results to match expected format
     const transformedSearchResults = useMemo(() => {
         if (!searchResults || !Array.isArray(searchResults)) return [];
-        
-        return searchResults.map(pr => ({
+
+        return searchResults.map((pr) => ({
             id: pr.id,
             pull_number: pr.pull_number,
             repository: pr.repository.name, // Extract name from repository object
+            repositoryId: pr.repository.id,
             title: pr.title,
-            url: pr.url
+            url: pr.url,
         }));
     }, [searchResults]);
 
@@ -98,9 +103,19 @@ export function useDebouncedPRSearch({
         console.log("  ⚡ Is Searching:", isSearching);
         if (error) console.log("  ❌ Error:", error);
 
-        console.log("🎯 Always returning API results:", transformedSearchResults);
+        console.log(
+            "🎯 Always returning API results:",
+            transformedSearchResults,
+        );
         return transformedSearchResults;
-    }, [debouncedSearchInput, apiSearchParams, searchResults, transformedSearchResults, isSearching, error]);
+    }, [
+        debouncedSearchInput,
+        apiSearchParams,
+        searchResults,
+        transformedSearchResults,
+        isSearching,
+        error,
+    ]);
 
     return {
         searchInput,

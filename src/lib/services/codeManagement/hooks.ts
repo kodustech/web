@@ -76,6 +76,7 @@ export function useSuspenseGetOnboardingPullRequests(teamId: string) {
         id: pr.id,
         pull_number: pr.pull_number,
         repository: pr.repository.name, // Extract name from repository object
+        repositoryId: pr.repository.id,
         title: pr.title,
         url: pr.url,
     }));

@@ -8,6 +8,7 @@ type PullRequest = {
     id: string;
     pull_number: number;
     repository: string;
+    repositoryId: string;
     title: string;
     url: string;
 };
