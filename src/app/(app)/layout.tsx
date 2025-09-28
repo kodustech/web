@@ -26,6 +26,14 @@ export default async function Layout({ children }: React.PropsWithChildren) {
     const session = await auth();
     if (!session) redirect("/sign-out");
 
+    const userStatus = session.user?.status
+        ? String(session.user.status).toLowerCase()
+        : undefined;
+
+    if (userStatus && ["pending", "pending_email"].includes(userStatus)) {
+        redirect("/confirm-email");
+    }
+
     const teams = await getTeams();
 
     if (!teams.some((team) => team.status === TEAM_STATUS.ACTIVE)) {

@@ -3,7 +3,7 @@ import type { JWT } from "next-auth/jwt";
 import { CodeReviewRepositoryConfig } from "src/app/(app)/settings/code-review/_types";
 import invariant from "tiny-invariant";
 
-import { API_ROUTES } from "../config/constants";
+import { API_ROUTES, type ApiRoute } from "../config/constants";
 import { type LiteralUnion } from "../types";
 import { isSelfHosted } from "../utils/self-hosted";
 import { isServerSide } from "./server-side";
@@ -12,7 +12,7 @@ const containerName =
     process.env.GLOBAL_API_CONTAINER_NAME || "kodus-orchestrator";
 
 export function pathToApiUrl(
-    path: API_ROUTES | string,
+    path: ApiRoute | string,
     params?: Record<string, string | number | boolean>,
 ): string {
     invariant(path, "Api path doesn't exist");
@@ -35,7 +35,7 @@ export function pathToApiUrl(
     return createUrl(hostName, port, path);
 }
 
-export function pathToSlackApiUrl(path: API_ROUTES | string): string {
+export function pathToSlackApiUrl(path: ApiRoute | string): string {
     invariant(path, "Api path doesn't exist");
 
     const defaultSlackHostname = "https://slack.com/api";
@@ -61,7 +61,7 @@ export function pathToSlackApiUrl(path: API_ROUTES | string): string {
     return createUrl(hostName, port, path);
 }
 
-export function pathToDiscordApiUrl(path: API_ROUTES | string): string {
+export function pathToDiscordApiUrl(path: ApiRoute | string): string {
     invariant(path, "Api path doesn't exist");
 
     const defaultDiscordUrl = "https://discord.com/api";
