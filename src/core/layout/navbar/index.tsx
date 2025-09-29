@@ -81,7 +81,10 @@ export const NavMenu = ({
             {
                 label: "Cockpit",
                 href: "/cockpit",
-                visible: subscription.valid,
+                visible:
+                    subscription.valid &&
+                    subscription.status !== "self-hosted" &&
+                    subscription.status !== "free",
                 icon: <GaugeIcon className="size-6" />,
             },
 
