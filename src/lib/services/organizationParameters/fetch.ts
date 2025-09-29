@@ -1,6 +1,8 @@
 import { authorizedFetch } from "@services/fetch";
-import type { OrganizationParametersConfigKey } from "@services/parameters/types";
+import { getOrganizationId } from "@services/organizations/fetch";
+import { OrganizationParametersConfigKey } from "@services/parameters/types";
 import { axiosAuthorized } from "src/core/utils/axios";
+import type { BYOKConfig } from "src/features/ee/byok/_types";
 
 import { ORGANIZATION_PARAMETERS_PATHS } from ".";
 
@@ -17,6 +19,19 @@ export const createOrUpdateOrganizationParameter = async (
             organizationAndTeamData: { organizationId },
         },
     );
+};
+
+export const getBYOK = async () => {
+    const organizationId = await getOrganizationId();
+
+    const byokConfig = await getOrganizationParameterByKey<{
+        configValue: { main: BYOKConfig; fallback: BYOKConfig };
+    }>({
+        key: OrganizationParametersConfigKey.BYOK_CONFIG,
+        organizationId,
+    });
+
+    return byokConfig?.configValue;
 };
 
 export const deleteBYOK = async (params: {
