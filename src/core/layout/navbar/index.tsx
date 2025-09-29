@@ -13,7 +13,12 @@ import {
 } from "@components/ui/navigation-menu";
 import { Spinner } from "@components/ui/spinner";
 import { TeamRole, UserRole } from "@enums";
-import { GaugeIcon, InfoIcon, SlidersHorizontalIcon, GitPullRequestIcon } from "lucide-react";
+import {
+    GaugeIcon,
+    GitPullRequestIcon,
+    InfoIcon,
+    SlidersHorizontalIcon,
+} from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
 import { UserNav } from "src/core/layout/navbar/_components/user-nav";
 import { useAuth } from "src/core/providers/auth.provider";
@@ -51,7 +56,9 @@ export const NavMenu = ({
         ReturnType<typeof getFeatureFlagWithPayload>
     >;
     logsPagesFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
-    pullRequestsPageFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
+    pullRequestsPageFeatureFlag: AwaitedReturnType<
+        typeof getFeatureFlagWithPayload
+    >;
 }) => {
     const pathname = usePathname();
     const { role, teamRole } = useAuth();
@@ -108,9 +115,8 @@ export const NavMenu = ({
             label: "Pull Requests",
             href: "/pull-requests",
             visible:
-                pullRequestsPageFeatureFlag?.value &&
-                (role === UserRole.OWNER ||
-                teamRole === TeamRole.TEAM_LEADER),
+                !!pullRequestsPageFeatureFlag?.value &&
+                (role === UserRole.OWNER || teamRole === TeamRole.TEAM_LEADER),
             icon: <GitPullRequestIcon className="size-5" />,
         });
 

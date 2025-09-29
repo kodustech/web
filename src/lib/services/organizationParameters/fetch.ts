@@ -19,6 +19,16 @@ export const createOrUpdateOrganizationParameter = async (
     );
 };
 
+export const deleteBYOK = async (params: {
+    configType: "main" | "fallback";
+    organizationId: string;
+}) => {
+    return await axiosAuthorized.deleted<any>(
+        ORGANIZATION_PARAMETERS_PATHS.DELETE_BYOK,
+        { params },
+    );
+};
+
 export const getOrganizationParameterByKey = async <
     T extends { configValue: unknown },
 >(params: {

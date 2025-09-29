@@ -8,6 +8,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@components/ui/dialog";
+import { FormControl } from "@components/ui/form-control";
 import { magicModal } from "@components/ui/magic-modal";
 import { Skeleton } from "@components/ui/skeleton";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -101,11 +102,21 @@ export const BYOKEditKeyModal = ({
                                     )}>
                                     <Suspense
                                         fallback={
-                                            <Skeleton className="h-16" />
+                                            <FormControl.Root>
+                                                <FormControl.Label>
+                                                    Provider
+                                                </FormControl.Label>
+
+                                                <FormControl.Input>
+                                                    <Skeleton className="h-10" />
+                                                </FormControl.Input>
+                                            </FormControl.Root>
                                         }>
                                         <ByokProviderSelect />
                                     </Suspense>
                                 </ErrorBoundary>
+
+                                {provider && <ByokBaseURLInput />}
 
                                 {provider && (
                                     <ErrorBoundary
@@ -135,19 +146,22 @@ export const BYOKEditKeyModal = ({
                                         )}>
                                         <Suspense
                                             fallback={
-                                                <Skeleton className="h-16" />
+                                                <FormControl.Root>
+                                                    <FormControl.Label>
+                                                        Model
+                                                    </FormControl.Label>
+
+                                                    <FormControl.Input>
+                                                        <Skeleton className="h-10" />
+                                                    </FormControl.Input>
+                                                </FormControl.Root>
                                             }>
                                             <ByokModelSelect />
                                         </Suspense>
                                     </ErrorBoundary>
                                 )}
 
-                                {model && (
-                                    <>
-                                        <ByokBaseURLInput />
-                                        <ByokKeyInput />
-                                    </>
-                                )}
+                                {model?.trim().length > 0 && <ByokKeyInput />}
                             </div>
 
                             <DialogFooter className="justify-between">

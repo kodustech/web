@@ -7,4 +7,5 @@ export const ORGANIZATION_PARAMETERS_PATHS = {
     GET_PROVIDER_MODELS_LIST: pathToApiUrl(
         "/organization-parameters/list-models",
     ),
+    DELETE_BYOK: pathToApiUrl("/organization-parameters/delete-byok-config"),
 };

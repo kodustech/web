@@ -14,7 +14,7 @@ export default async function ByokPage() {
     const teamId = await getGlobalSelectedTeamId();
     const subscription = await validateOrganizationLicense({ teamId });
 
-    if (!isBYOKSubscriptionPlan(subscription)) redirect("/subscription");
+    if (!isBYOKSubscriptionPlan(subscription)) redirect("/organization");
 
     const byokConfig = await getOrganizationParameterByKey<{
         configValue: { main: BYOKConfig; fallback: BYOKConfig };

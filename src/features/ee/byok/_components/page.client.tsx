@@ -2,7 +2,10 @@
 
 import { Page } from "@components/ui/page";
 import { toast } from "@components/ui/toaster/use-toast";
-import { createOrUpdateOrganizationParameter } from "@services/organizationParameters/fetch";
+import {
+    createOrUpdateOrganizationParameter,
+    deleteBYOK,
+} from "@services/organizationParameters/fetch";
 import { OrganizationParametersConfigKey } from "@services/parameters/types";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
@@ -63,20 +66,15 @@ export const ByokPageClient = ({
             toast({
                 variant: "danger",
                 title: "Fallback key couldn't be saved",
+                description:
+                    "If you're trying to add Fallback key before Main one, it will not work.",
             });
         }
     };
 
     const onDeleteMain = async () => {
         try {
-            await createOrUpdateOrganizationParameter(
-                OrganizationParametersConfigKey.BYOK_CONFIG,
-                {
-                    ...config,
-                    main: null,
-                },
-                organizationId,
-            );
+            await deleteBYOK({ organizationId, configType: "main" });
 
             toast({
                 variant: "success",
@@ -94,14 +92,7 @@ export const ByokPageClient = ({
 
     const onDeleteFallback = async () => {
         try {
-            await createOrUpdateOrganizationParameter(
-                OrganizationParametersConfigKey.BYOK_CONFIG,
-                {
-                    ...config,
-                    fallback: null,
-                },
-                organizationId,
-            );
+            await deleteBYOK({ organizationId, configType: "fallback" });
 
             toast({
                 variant: "success",
@@ -149,12 +140,10 @@ export const ByokPageClient = ({
                         onSave={onSaveFallback}
                         onDelete={onDeleteFallback}
                         tooltip={
-                            <div>
-                                <p>
-                                    Optional. This key will be used if Main key
-                                    couldn't.
-                                </p>
-                            </div>
+                            <p>
+                                Optional. This key will be used if Main key
+                                couldn't.
+                            </p>
                         }
                     />
                 </div>

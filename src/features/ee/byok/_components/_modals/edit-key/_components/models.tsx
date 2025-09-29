@@ -10,6 +10,7 @@ import {
     CommandList,
 } from "@components/ui/command";
 import { FormControl } from "@components/ui/form-control";
+import { Input } from "@components/ui/input";
 import {
     Popover,
     PopoverContent,
@@ -27,6 +28,53 @@ import { ArrayHelpers } from "src/core/utils/array";
 import type { EditKeyForm } from "../_types";
 
 export const ByokModelSelect = () => {
+    const form = useFormContext<EditKeyForm>();
+    const provider = form.watch("provider");
+    const { providers } = useSuspenseGetLLMProviders();
+    const foundProvider = providers.find((p) => p.id === provider);
+
+    return foundProvider?.requiresBaseUrl ? <ModelInput /> : <ModelSelect />;
+};
+
+const ModelInput = () => {
+    const form = useFormContext<EditKeyForm>();
+    const provider = form.watch("provider");
+    const baseURL = form.watch("baseURL");
+
+    return (
+        <Controller
+            name="model"
+            control={form.control}
+            render={({ field }) => (
+                <FormControl.Root>
+                    <FormControl.Label htmlFor={field.name}>
+                        Model
+                    </FormControl.Label>
+
+                    <FormControl.Input>
+                        <Input
+                            {...field}
+                            size="md"
+                            id={field.name}
+                            className="w-full justify-between"
+                            placeholder="Type a model name"
+                            onChange={(ev) => {
+                                form.reset({
+                                    model: ev.target.value,
+                                    provider,
+                                    apiKey: "",
+                                    baseURL: baseURL,
+                                });
+                            }}
+                        />
+                    </FormControl.Input>
+                </FormControl.Root>
+            )}
+        />
+    );
+};
+
+const ModelSelect = () => {
     const form = useFormContext<EditKeyForm>();
     const [open, setOpen] = useState(false);
     const provider = form.watch("provider");
@@ -105,15 +153,8 @@ export const ByokModelSelect = () => {
                                             model: v,
                                             provider,
                                             apiKey: "",
-                                            baseURL:
-                                                foundProvider?.requiresBaseUrl
-                                                    ? ""
-                                                    : null,
+                                            baseURL: null,
                                         });
-
-                                        if (foundProvider?.requiresBaseUrl) {
-                                            form.trigger("baseURL");
-                                        }
 
                                         resetErrorBoundary();
                                         setOpen(false);
