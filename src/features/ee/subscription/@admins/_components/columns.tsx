@@ -10,6 +10,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
+import { Badge } from "@components/ui/badge";
 import { magicModal } from "@components/ui/magic-modal";
 import {
     Select,
@@ -47,8 +48,8 @@ import { DeleteModal } from "./delete-modal";
 export const columns: ColumnDef<MembersSetup>[] = [
     {
         id: "name",
-        size: 150,
-        minSize: 150,
+        size: 120,
+        minSize: 120,
         accessorFn: (r) => r.name,
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Username" />
@@ -60,6 +61,23 @@ export const columns: ColumnDef<MembersSetup>[] = [
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Email" />
         ),
+        cell: ({ row }) => {
+            const isEmailPending =
+                row.original.userStatus === UserStatus.EMAIL_PENDING;
+
+            return (
+                <div className="flex items-center gap-2">
+                    <span>{row.original.email}</span>
+                    {isEmailPending && (
+                        <Badge
+                            variant="in-progress"
+                            className="pointer-events-none">
+                            Email verification pending
+                        </Badge>
+                    )}
+                </div>
+            );
+        },
     },
     {
         id: "role",
