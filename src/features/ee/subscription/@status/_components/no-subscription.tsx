@@ -2,37 +2,38 @@
 
 import { Button } from "@components/ui/button";
 import { Card, CardHeader, CardTitle } from "@components/ui/card";
+import { magicModal } from "@components/ui/magic-modal";
 import { useAsyncAction } from "@hooks/use-async-action";
 import type { TeamMembersResponse } from "@services/setup/types";
 import { ArrowUpCircle } from "lucide-react";
-import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { pluralize } from "src/core/utils/string";
 
-import { createCheckoutSessionAction } from "../../_actions/create-checkout-session";
+import { getPlans } from "../../_services/billing/fetch";
+import { NewPlanSelectionModal } from "./_modals/select-new-plan";
 
-export const TrialExpired = ({
+export const FreeByok = ({
     members,
 }: {
     members: TeamMembersResponse["members"];
 }) => {
-    const { teamId } = useSelectedTeamId();
     const organizationAdminsCount = members.length;
     const licensesAvailableCount = 0;
 
-    const [createLinkToCheckout, { loading: isCreatingLinkToCheckout }] =
-        useAsyncAction(async () => {
-            const { url } = await createCheckoutSessionAction({ teamId });
-            window.location.href = url;
-        });
+    const [_getPlans, { loading: isLoadingPlans }] = useAsyncAction(
+        async () => {
+            const plans = await getPlans();
+            magicModal.show(() => <NewPlanSelectionModal plans={plans} />);
+        },
+    );
 
     return (
         <Card className="w-full">
             <CardHeader className="flex flex-row justify-between gap-2">
                 <div className="flex flex-col gap-2">
-                    <p className="text-text-secondary text-sm">
-                        Trial finished
-                    </p>
-                    <CardTitle className="text-2xl">No subscription</CardTitle>
+                    <p className="text-text-secondary text-sm">Free (BYOK)</p>
+                    <CardTitle className="text-2xl">
+                        Community version
+                    </CardTitle>
 
                     <div className="mt-4 flex gap-6">
                         <p className="text-text-secondary text-sm">
@@ -59,11 +60,9 @@ export const TrialExpired = ({
                     size="lg"
                     variant="primary"
                     className="h-fit"
+                    loading={isLoadingPlans}
                     leftIcon={<ArrowUpCircle />}
-                    loading={isCreatingLinkToCheckout}
-                    onClick={() => {
-                        createLinkToCheckout();
-                    }}>
+                    onClick={() => _getPlans()}>
                     Upgrade
                 </Button>
             </CardHeader>

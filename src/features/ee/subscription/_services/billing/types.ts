@@ -39,3 +39,33 @@ export type OrganizationLicense =
     | OrganizationLicenseTrial
     | OrganizationLicenseActive
     | OrganizationLicenseSelfHosted;
+
+type PlanOrAddonPricing = {
+    amount: number;
+    priceId: string;
+    currency: string;
+    interval: "month" | "year";
+    planType: string;
+    intervalCount: number;
+    formattedAmount: string;
+};
+
+type PlanAddon = {
+    id: string;
+    label: string;
+    description: string;
+    aliases: Array<string>;
+    features: Array<string>;
+    pricing: Array<PlanOrAddonPricing>;
+};
+
+export type Plan = {
+    id: string;
+    label: string;
+    type: "plan" | "contact";
+    description: string;
+    features: Array<string>;
+    aliases?: Array<string>;
+    addons: Array<PlanAddon>;
+    pricing: Array<PlanOrAddonPricing>;
+};

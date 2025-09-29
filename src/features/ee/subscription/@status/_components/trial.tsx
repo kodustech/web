@@ -2,28 +2,30 @@
 
 import { Button } from "@components/ui/button";
 import { Card, CardHeader, CardTitle } from "@components/ui/card";
+import { magicModal } from "@components/ui/magic-modal";
 import { useAsyncAction } from "@hooks/use-async-action";
 import type { TeamMembersResponse } from "@services/setup/types";
 import { ArrowUpCircle } from "lucide-react";
-import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { pluralize } from "src/core/utils/string";
 
-import { createCheckoutSessionAction } from "../../_actions/create-checkout-session";
 import { useSubscriptionStatus } from "../../_hooks/use-subscription-status";
+import { getPlans } from "../../_services/billing/fetch";
+import { NewPlanSelectionModal } from "./_modals/select-new-plan";
 
 export const Trial = ({
     members,
 }: {
     members: TeamMembersResponse["members"];
 }) => {
-    const { teamId } = useSelectedTeamId();
     const organizationAdminsCount = members.length;
 
-    const [createLinkToCheckout, { loading: isCreatingLinkToCheckout }] =
-        useAsyncAction(async () => {
-            const { url } = await createCheckoutSessionAction({ teamId });
-            window.location.href = url;
-        });
+    const [_getPlans, { loading: isLoadingPlans }] = useAsyncAction(
+        async () => {
+            const plans = await getPlans();
+
+            magicModal.show(() => <NewPlanSelectionModal plans={plans} />);
+        },
+    );
 
     const subscriptionStatus = useSubscriptionStatus();
     if (
@@ -63,9 +65,9 @@ export const Trial = ({
                     size="lg"
                     variant="primary"
                     className="h-fit"
+                    loading={isLoadingPlans}
                     leftIcon={<ArrowUpCircle />}
-                    loading={isCreatingLinkToCheckout}
-                    onClick={() => createLinkToCheckout()}>
+                    onClick={() => _getPlans()}>
                     Upgrade
                 </Button>
             </CardHeader>
