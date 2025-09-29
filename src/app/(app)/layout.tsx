@@ -13,6 +13,7 @@ import { TEAM_STATUS } from "src/core/types";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 import { BYOKMissingKeyTopbar } from "src/features/ee/byok/_components/missing-key-topbar";
+import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { FinishedTrialModal } from "src/features/ee/subscription/_components/finished-trial-modal";
 import { SubscriptionStatusTopbar } from "src/features/ee/subscription/_components/subscription-status-topbar";
 import { SubscriptionProvider } from "src/features/ee/subscription/_providers/subscription-context";
@@ -80,7 +81,8 @@ export default async function Layout({ children }: React.PropsWithChildren) {
                 <FinishedTrialModal />
                 <SubscriptionStatusTopbar />
 
-                {!byokConfig?.main && <BYOKMissingKeyTopbar />}
+                {isBYOKSubscriptionPlan(organizationLicense) &&
+                    !byokConfig?.main && <BYOKMissingKeyTopbar />}
 
                 {children}
             </SubscriptionProvider>
