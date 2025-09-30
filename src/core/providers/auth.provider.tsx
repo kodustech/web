@@ -38,7 +38,6 @@ export const useAuth = () => {
 
     return {
         role: data?.user.role!,
-        teamRole: data?.user.teamRole!,
         email: data?.user.email!,
         userId: data?.user.userId!,
         status: data?.user.status!,

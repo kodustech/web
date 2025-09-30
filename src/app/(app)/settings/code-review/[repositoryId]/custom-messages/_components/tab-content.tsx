@@ -23,10 +23,11 @@ export const TabContent = (props: {
         content: string;
         status: "active" | "inactive";
     };
-    onChange: (value: {
+    onChangeAction: (value: {
         content: string;
         status: "active" | "inactive";
     }) => void;
+    canEdit: boolean;
 }) => {
     return (
         <div className="flex flex-1 flex-col gap-4">
@@ -34,8 +35,9 @@ export const TabContent = (props: {
                 size="sm"
                 variant="helper"
                 className="w-full"
+                disabled={!props.canEdit}
                 onClick={() =>
-                    props.onChange({
+                    props.onChangeAction({
                         content: props.value.content,
                         status:
                             props.value.status === "active"
@@ -74,7 +76,8 @@ export const TabContent = (props: {
 
                         <CustomMessagesOptionsDropdown
                             value={props.value}
-                            onChange={props.onChange}
+                            onChange={props.onChangeAction}
+                            canEdit={props.canEdit}
                         />
                     </div>
 
@@ -85,9 +88,12 @@ export const TabContent = (props: {
                                 id="custom-message"
                                 placeholder="Write your custom message here..."
                                 className="h-full resize-none rounded-none bg-transparent p-6"
-                                disabled={props.value.status === "inactive"}
+                                disabled={
+                                    !props.canEdit ||
+                                    props.value.status === "inactive"
+                                }
                                 onChange={(ev) =>
-                                    props.onChange({
+                                    props.onChangeAction({
                                         content: ev.target.value,
                                         status: props.value.status,
                                     })
@@ -105,8 +111,9 @@ export const TabContent = (props: {
                             size="xs"
                             variant="cancel"
                             className="text-tertiary-light min-h-auto self-end"
+                            disabled={!props.canEdit}
                             onClick={() => {
-                                props.onChange({
+                                props.onChangeAction({
                                     status: props.value.status,
                                     content:
                                         props.type === "startReviewMessage"

@@ -6,6 +6,8 @@ import { DataTable } from "@components/ui/data-table";
 import { Input } from "@components/ui/input";
 import { Link } from "@components/ui/link";
 import type { getIntegrationConfig } from "@services/integrations/integrationConfig/fetch";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { PlusIcon, SearchIcon } from "lucide-react";
 import type { AwaitedReturnType } from "src/core/types";
 
@@ -19,6 +21,7 @@ export const GitRepositoriesTable = ({
     platformName: string;
 }) => {
     const [query, setQuery] = useState("");
+    const canCreate = usePermission(Action.Create, ResourceType.GitSettings);
 
     return (
         <div>
@@ -38,6 +41,7 @@ export const GitRepositoriesTable = ({
                             size="md"
                             decorative
                             variant="primary-dark"
+                            disabled={!canCreate}
                             leftIcon={<PlusIcon />}>
                             Add repository
                         </Button>

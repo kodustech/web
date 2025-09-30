@@ -6,6 +6,7 @@ import {
 } from "@services/organizations/fetch";
 import { getTeamParameters } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
+import { getPermissions } from "@services/permissions/fetch";
 import { getTeams } from "@services/teams/fetch";
 import { auth } from "src/core/config/auth";
 import { NavMenu } from "src/core/layout/navbar";
@@ -25,7 +26,17 @@ import { Providers } from "./providers";
 
 export default async function Layout({ children }: React.PropsWithChildren) {
     const session = await auth();
-    if (!session) redirect("/sign-out");
+    if (!session) {
+        redirect("/sign-out");
+    }
+
+    const userStatus = session.user?.status
+        ? String(session.user.status).toLowerCase()
+        : undefined;
+
+    if (userStatus && ["pending", "pending_email"].includes(userStatus)) {
+        redirect("/confirm-email");
+    }
 
     const teams = await getTeams();
 
@@ -42,11 +53,14 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         teamId,
     });
 
-    if (!platformConfigs?.configValue?.finishOnboard) redirect("/setup");
+    if (!platformConfigs?.configValue?.finishOnboard) {
+        redirect("/setup");
+    }
 
     const organizationId = await getOrganizationId();
 
     const [
+        permissions,
         organizationName,
         organizationLicense,
         usersWithAssignedLicense,
@@ -55,6 +69,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         pullRequestsPageFeatureFlag,
         byokConfig,
     ] = await Promise.all([
+        getPermissions(),
         getOrganizationName(),
         validateOrganizationLicense({ teamId }),
         getUsersWithLicense({ teamId }),
@@ -68,7 +83,11 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         <Providers
             session={session}
             teams={teams}
-            organization={{ id: organizationId, name: organizationName }}>
+            organization={{
+                id: organizationId,
+                name: organizationName,
+            }}
+            permissions={permissions}>
             <SubscriptionProvider
                 license={organizationLicense}
                 usersWithAssignedLicense={usersWithAssignedLicense}>

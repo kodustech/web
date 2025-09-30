@@ -4,6 +4,8 @@ import { Button } from "@components/ui/button";
 import { Card, CardHeader, CardTitle } from "@components/ui/card";
 import { toast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import type { TeamMembersResponse } from "@services/setup/types";
 import { CircleDollarSign } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
@@ -19,6 +21,7 @@ export const Canceled = ({
 }) => {
     const { teamId } = useSelectedTeamId();
     const subscription = useSubscriptionStatus();
+    const canEdit = usePermission(Action.Update, ResourceType.Billing);
     if (subscription.status !== "canceled") return null;
 
     const totalLicenses = subscription.numberOfLicenses;
@@ -72,6 +75,7 @@ export const Canceled = ({
                     className="h-fit"
                     leftIcon={<CircleDollarSign />}
                     loading={isCreatingLinkToManageBilling}
+                    disabled={!canEdit}
                     onClick={() => createLinkToManageBilling()}>
                     Subscribe again
                 </Button>

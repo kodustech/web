@@ -17,6 +17,8 @@ import { KODY_RULES_PATHS } from "@services/kodyRules";
 import { useSuspenseFindLibraryKodyRules } from "@services/kodyRules/hooks";
 import { type KodyRule } from "@services/kodyRules/types";
 import { KodyLearningStatus } from "@services/parameters/types";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { BellRing, Plus, SearchIcon } from "lucide-react";
 
@@ -47,6 +49,11 @@ export const KodyRulesPage = ({
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const [filterQuery, setFilterQuery] = useState("");
     const queryClient = useQueryClient();
+    const canEdit = usePermission(
+        Action.Update,
+        ResourceType.KodyRules,
+        repositoryId,
+    );
 
     const filteredRules = useMemo(
         () =>
@@ -80,6 +87,7 @@ export const KodyRulesPage = ({
             <KodyRuleAddOrUpdateItemModal
                 repositoryId={repositoryId}
                 directory={directory}
+                canEdit={canEdit}
             />
         ));
         if (!response) return;
@@ -156,6 +164,7 @@ export const KodyRulesPage = ({
                             type="button"
                             variant="primary"
                             leftIcon={<Plus />}
+                            disabled={!canEdit}
                             onClick={addNewEmptyRule}>
                             New rule
                         </Button>
@@ -202,6 +211,7 @@ export const KodyRulesPage = ({
                                     seconds or create your own by clicking on{" "}
                                     <Link
                                         href=""
+                                        disabled={!canEdit}
                                         onClick={(ev) => {
                                             ev.preventDefault();
                                             addNewEmptyRule();

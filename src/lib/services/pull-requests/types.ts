@@ -42,10 +42,20 @@ export interface PullRequestExecution {
     automationExecution: AutomationExecution | null;
     codeReviewTimeline: CodeReviewTimelineItem[];
     enrichedData: Record<string, any>;
+    suggestionsCount: { sent: number; filtered: number };
 }
 
+export type PullRequestExecutionsPayload =
+    | PullRequestExecution[]
+    | {
+          data?: PullRequestExecution[] | null;
+          _page_data?: PullRequestExecution[] | null;
+      }
+    | null
+    | undefined;
+
 export interface PullRequestExecutionsResponse {
-    data: PullRequestExecution[];
+    data: PullRequestExecutionsPayload;
     statusCode: number;
-    type: "Array";
+    type: "Array" | string;
 }

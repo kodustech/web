@@ -22,11 +22,17 @@ import {
     SidebarMenuSub,
     SidebarMenuSubItem,
 } from "@components/ui/sidebar";
+import { UserRole } from "@enums";
 import {
     useSuspenseGetCodeReviewParameter,
     useSuspenseGetParameterPlatformConfigs,
 } from "@services/parameters/hooks";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
+import { useAuth } from "src/core/providers/auth.provider";
+import { usePermissions } from "src/core/providers/permissions.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { hasPermission } from "src/core/utils/permissions";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
 import { useCodeReviewRouteParams } from "../_hooks";
@@ -58,24 +64,56 @@ export const SettingsLayout = ({
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
     const platformConfig = useSuspenseGetParameterPlatformConfigs(teamId);
     const { repositoryId, pageName, directoryId } = useCodeReviewRouteParams();
+    const permissions = usePermissions();
+    const { organizationId } = useAuth();
+
+    // TODO: refactor this, ideally backend should return only the repos the user has access to
+    const filteredConfigValue = useMemo(() => {
+        const repos = configValue?.repositories.filter((repo) =>
+            hasPermission({
+                permissions,
+                organizationId: organizationId!,
+                action: Action.Read,
+                resource: ResourceType.CodeReviewSettings,
+                repoId: repo.id,
+            }),
+        );
+
+        return { ...configValue, repositories: repos };
+    }, [configValue, permissions, organizationId]);
+
+    const canReadGitSettings = usePermission(
+        Action.Read,
+        ResourceType.GitSettings,
+    );
+    const canReadBilling = usePermission(Action.Read, ResourceType.Billing);
+    const canReadPlugins = usePermission(
+        Action.Read,
+        ResourceType.PluginSettings,
+    );
 
     const mainRoutes = useMemo(() => {
         const routes: Array<{
             label: string;
             href: string;
             badge?: React.ReactNode;
-        }> = [
-                {
-                    label: "Git Settings",
-                    href: "/settings/git",
-                },
-                {
-                    label: "Subscription",
-                    href: "/settings/subscription",
-                },
-            ];
+        }> = [];
 
-        if (pluginsPageFeatureFlag?.value) {
+        if (canReadGitSettings) {
+            routes.push({
+                label: "Git Settings",
+                href: "/settings/git",
+            });
+        }
+
+        if (canReadBilling) {
+            routes.push({
+                label: "Subscription",
+                href: "/settings/subscription",
+            });
+        }
+
+        if (pluginsPageFeatureFlag?.value && canReadPlugins) {
             routes.push({
                 label: "Plugins",
                 href: "/settings/plugins",
@@ -93,7 +131,7 @@ export const SettingsLayout = ({
     }, [pluginsPageFeatureFlag?.value]);
 
     if (repositoryId && repositoryId !== "global") {
-        const repository = configValue?.repositories.find(
+        const repository = filteredConfigValue?.repositories.find(
             (r) => r.id === repositoryId,
         );
 
@@ -170,7 +208,7 @@ export const SettingsLayout = ({
                                                     ({ label, href }) => {
                                                         const active =
                                                             repositoryId ===
-                                                            "global" &&
+                                                                "global" &&
                                                             pageName === href;
 
                                                         return (
@@ -201,7 +239,7 @@ export const SettingsLayout = ({
 
                                 <PerRepository
                                     routes={routes}
-                                    configValue={configValue}
+                                    configValue={filteredConfigValue}
                                     platformConfig={platformConfig}
                                 />
                             </SidebarMenu>
@@ -213,7 +251,7 @@ export const SettingsLayout = ({
             <Page.WithSidebar>
                 <AutomationCodeReviewConfigProvider
                     key={teamId}
-                    config={configValue}>
+                    config={filteredConfigValue}>
                     <PlatformConfigProvider config={platformConfig.configValue}>
                         {children}
                     </PlatformConfigProvider>

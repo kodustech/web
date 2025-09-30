@@ -8,6 +8,8 @@ import {
     DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
 import { magicModal } from "@components/ui/magic-modal";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { EllipsisIcon, TrashIcon } from "lucide-react";
 
 import type { CodeReviewRepositoryConfig } from "../../code-review/_types";
@@ -20,6 +22,11 @@ export const SidebarRepositoryOrDirectoryDropdown = (props: {
         "id" | "name" | "path"
     >;
 }) => {
+    const canDelete = usePermission(
+        Action.Delete,
+        ResourceType.CodeReviewSettings,
+    );
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -32,6 +39,7 @@ export const SidebarRepositoryOrDirectoryDropdown = (props: {
                 <DropdownMenuItem
                     className="text-danger text-[13px] leading-none"
                     leftIcon={<TrashIcon className="size-4!" />}
+                    disabled={!canDelete}
                     onClick={() => {
                         magicModal.show(() => (
                             <DeleteRepoConfigModal

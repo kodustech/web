@@ -9,6 +9,7 @@ import {
     type Repository,
 } from "./types";
 
+// TODO: remove, unused
 export function useVerifyConnection(teamId: string) {
     return useFetch<any>(
         CODE_MANAGEMENT_API_PATHS.VERIFY_CONNECTION,
@@ -19,10 +20,12 @@ export function useVerifyConnection(teamId: string) {
     );
 }
 
+// TODO: remove, unused
 export function useGetCodeManagementMembers() {
     return useFetch<Select[]>(CODE_MANAGEMENT_API_PATHS.LIST_MEMBERS);
 }
 
+// TODO: remove, unused
 export function useGetOrganizations() {
     return useFetch<IntegrationsCommon[]>(
         CODE_MANAGEMENT_API_PATHS.GET_ORGANIZATIONS,

@@ -22,6 +22,8 @@ import { magicModal } from "@components/ui/magic-modal";
 import { Markdown } from "@components/ui/markdown";
 import { changeStatusKodyRules } from "@services/kodyRules/fetch";
 import { KodyRule, KodyRulesStatus } from "@services/kodyRules/types";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { pluralize } from "src/core/utils/string";
 
 export const PendingKodyRulesModal = ({
@@ -30,6 +32,10 @@ export const PendingKodyRulesModal = ({
     pendingRules: KodyRule[];
 }) => {
     const [selectedRuleIds, setSelectedRuleIds] = useState<string[]>([]);
+    const canEdit = usePermission(
+        Action.Update,
+        ResourceType.CodeReviewSettings,
+    );
 
     const changeStatusRules = async (status: KodyRulesStatus) => {
         magicModal.lock();
@@ -61,6 +67,7 @@ export const PendingKodyRulesModal = ({
                                         checked={selectedRuleIds.includes(
                                             r.uuid!,
                                         )}
+                                        disabled={!canEdit}
                                         onClick={() => {
                                             setSelectedRuleIds((selected) =>
                                                 selected.includes(r.uuid!)
@@ -111,6 +118,7 @@ export const PendingKodyRulesModal = ({
                                 <Button
                                     size="md"
                                     variant="helper"
+                                    disabled={!canEdit}
                                     onClick={() =>
                                         setSelectedRuleIds(
                                             pendingRules.map((r) => r.uuid!),
@@ -122,6 +130,7 @@ export const PendingKodyRulesModal = ({
                                 <Button
                                     size="md"
                                     variant="helper"
+                                    disabled={!canEdit}
                                     onClick={() => setSelectedRuleIds([])}>
                                     Unselect all
                                 </Button>
@@ -150,7 +159,7 @@ export const PendingKodyRulesModal = ({
                     <Button
                         size="md"
                         variant="primary"
-                        disabled={selectedRuleIds.length === 0}
+                        disabled={!canEdit || selectedRuleIds.length === 0}
                         onClick={() =>
                             changeStatusRules(KodyRulesStatus.ACTIVE)
                         }>

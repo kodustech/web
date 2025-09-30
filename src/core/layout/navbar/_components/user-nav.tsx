@@ -3,6 +3,8 @@
 import { Link } from "@components/ui/link";
 import { toast } from "@components/ui/toaster/use-toast";
 import { UserRole } from "@enums";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { ActivityIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
 import { Avatar, AvatarFallback } from "src/core/components/ui/avatar";
 import { Button } from "src/core/components/ui/button";
@@ -30,6 +32,11 @@ export function UserNav({
     const { email, role } = useAuth();
     const { teams } = useAllTeams();
     const { teamId, setTeamId } = useSelectedTeamId();
+    const canEditOrg = usePermission(
+        Action.Update,
+        ResourceType.OrganizationSettings,
+    );
+    const canReadLogs = usePermission(Action.Read, ResourceType.Logs);
 
     const handleChangeWorkspace = (teamId: string) => {
         setTeamId(teamId);
@@ -91,7 +98,7 @@ export function UserNav({
 
                 <DropdownMenuSeparator />
 
-                {role === UserRole.OWNER && (
+                {canEditOrg && (
                     <Link href="/organization/general">
                         <DropdownMenuItem leftIcon={<SettingsIcon />}>
                             Settings
@@ -99,7 +106,7 @@ export function UserNav({
                     </Link>
                 )}
 
-                {logsPagesFeatureFlag?.value && (
+                {logsPagesFeatureFlag?.value && canReadLogs && (
                     <Link href="/user-logs">
                         <DropdownMenuItem leftIcon={<ActivityIcon />}>
                             Activity Logs

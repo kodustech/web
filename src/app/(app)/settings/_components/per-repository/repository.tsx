@@ -21,6 +21,8 @@ import {
 } from "@components/ui/tooltip";
 import type { useSuspenseGetParameterPlatformConfigs } from "@services/parameters/hooks";
 import { KodyLearningStatus } from "@services/parameters/types";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { Plus } from "lucide-react";
 
 import { useCodeReviewRouteParams } from "../../_hooks";
@@ -39,6 +41,10 @@ export const PerRepository = ({
     routes: Array<{ label: string; href: string }>;
 }) => {
     const { repositoryId, directoryId, pageName } = useCodeReviewRouteParams();
+    const canCreate = usePermission(
+        Action.Create,
+        ResourceType.CodeReviewSettings,
+    );
 
     return (
         <SidebarMenuItem>
@@ -63,8 +69,9 @@ export const PerRepository = ({
                             ));
                         }}
                         disabled={
+                            !canCreate ||
                             platformConfig.configValue.kodyLearningStatus ===
-                            KodyLearningStatus.GENERATING_CONFIG
+                                KodyLearningStatus.GENERATING_CONFIG
                         }>
                         <Plus />
                     </Button>

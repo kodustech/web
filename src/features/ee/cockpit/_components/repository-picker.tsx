@@ -28,16 +28,14 @@ type Props = {
 };
 
 export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
-    const { data: allRepositories = [], isLoading } = useGetRepositories(
+    const { data: repositories = [], isLoading } = useGetRepositories(
         teamId,
         undefined,
+        {
+            isSelected: true,
+        },
     );
 
-    // Filter only selected repositories in the frontend as a temporary fix
-    // TODO: Backend should handle isSelected filter properly
-    const repositories = allRepositories.filter((repo: any) => repo.selected);
-
-    const router = useRouter();
     const [loading, startTransition] = useTransition();
 
     const [open, setOpen] = useState(false);

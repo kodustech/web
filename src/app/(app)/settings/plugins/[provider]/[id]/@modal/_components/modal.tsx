@@ -26,6 +26,8 @@ import {
     type getMCPPluginById,
     type getMCPPluginTools,
 } from "@services/mcp-manager/fetch";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { EditIcon, PlugIcon, RefreshCwIcon } from "lucide-react";
 import type { AwaitedReturnType } from "src/core/types";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
@@ -45,6 +47,7 @@ export const PluginModal = ({
 
     const isConnected = plugin.isConnected;
     const isDefault = plugin.isDefault;
+    const canEdit = usePermission(Action.Update, ResourceType.PluginSettings);
 
     const [requiredParamsValues, setRequiredParamsValues] = useState<
         Record<string, string>
@@ -62,23 +65,10 @@ export const PluginModal = ({
     );
 
     // Para integrações padrão, usar todos os tools disponíveis
-    const effectiveSelectedTools = isDefault
-        ? tools.map(({ slug }) => slug)
-        : selectedTools;
-
-    // Debug: log para verificar os dados
-    console.log("Plugin data in modal:", {
-        isConnected,
-        allowedTools: plugin.allowedTools,
-        allowedToolsLength: plugin.allowedTools?.length,
-        toolsCount: tools.length,
-        selectedTools,
-        plugin: plugin,
-    });
-    console.log("Full plugin object:", JSON.stringify(plugin, null, 2));
+    const effectiveSelectedTools =
+        selectedTools;
 
     const [isResettingAuth, setIsResettingAuth] = useState(false);
-
 
     const hasToolsWithWarningSelected = useMemo(
         () =>
@@ -89,10 +79,11 @@ export const PluginModal = ({
     );
 
     const areRequiredParametersValid =
-        isDefault ||
         (Object.keys(requiredParamsValues).length ===
             (plugin.requiredParams?.length || 0) &&
-            Object.values(requiredParamsValues).every((v) => v.trim().length > 0));
+            Object.values(requiredParamsValues).every(
+                (v) => v.trim().length > 0,
+            ));
 
     const [installPlugin, { loading: isInstallPluginLoading }] = useAsyncAction(
         async () => {
@@ -161,7 +152,10 @@ export const PluginModal = ({
         isInstallPluginLoading || isUpdateToolsLoading || isResetAuthLoading;
 
     return (
-        <MagicModalContext value={{ closeable: !isInstallPluginLoading && !isUpdateToolsLoading }}>
+        <MagicModalContext
+            value={{
+                closeable: !isInstallPluginLoading && !isUpdateToolsLoading,
+            }}>
             <Dialog open onOpenChange={() => router.push("/settings/plugins")}>
                 <DialogContent className="max-w-4xl">
                     <DialogHeader className="flex-row items-start justify-start gap-4">
@@ -221,15 +215,15 @@ export const PluginModal = ({
 
                             <SelectTools
                                 tools={tools.length > 0 ? tools : []}
-                                defaultOpen={(plugin.requiredParams?.length || 0) === 0}
+                                defaultOpen={
+                                    (plugin.requiredParams?.length || 0) === 0
+                                }
                                 selectedTools={effectiveSelectedTools}
                                 setSelectedToolsAction={(tools) => {
-                                    if (!isDefault) {
-                                        setSelectedTools(tools);
-                                        setConfirmInstallationOfToolsWithWarnings(
-                                            false,
-                                        );
-                                    }
+                                    setSelectedTools(tools);
+                                    setConfirmInstallationOfToolsWithWarnings(
+                                        false,
+                                    );
                                 }}
                             />
                         </div>
@@ -279,6 +273,7 @@ export const PluginModal = ({
                                         loading={isInstallPluginLoading}
                                         onClick={() => installPlugin()}
                                         disabled={
+                                            !canEdit ||
                                             isDefault ||
                                             !areRequiredParametersValid ||
                                             selectedTools.length === 0 ||
@@ -289,14 +284,22 @@ export const PluginModal = ({
                                     </Button>
                                 ) : (
                                     <>
-                                        <Button
-                                            size="md"
-                                            variant="tertiary"
-                                            leftIcon={<RefreshCwIcon />}
-                                            onClick={() => setIsResettingAuth(true)}
-                                            disabled={isDefault || isResetAuthLoading}>
-                                            Reset Authentication
-                                        </Button>
+                                        {
+                                            isDefault ? null : <Button
+                                                size="md"
+                                                variant="tertiary"
+                                                leftIcon={<RefreshCwIcon />}
+                                                onClick={() =>
+                                                    setIsResettingAuth(true)
+                                                }
+                                                disabled={
+                                                    !canEdit ||
+                                                    isDefault ||
+                                                    isResetAuthLoading
+                                                }>
+                                                Reset Authentication
+                                            </Button>
+                                        }
                                         <Button
                                             size="md"
                                             variant="primary"
@@ -304,7 +307,7 @@ export const PluginModal = ({
                                             loading={isUpdateToolsLoading}
                                             onClick={() => updateTools()}
                                             disabled={
-                                                isDefault ||
+                                                !canEdit ||
                                                 selectedTools.length === 0 ||
                                                 (hasToolsWithWarningSelected &&
                                                     !confirmInstallationOfToolsWithWarnings)

@@ -12,6 +12,8 @@ import type {
     IssueListItem,
     IssueStatus,
 } from "@services/issues/types";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { cn } from "src/core/utils/components";
 import { pathToApiUrl } from "src/core/utils/helpers";
@@ -28,11 +30,15 @@ const STATUS_OPTIONS = [
 export const StatusSelect = ({
     issueId,
     status,
+    repoId,
 }: {
     issueId: string;
     status: IssueStatus;
+    repoId: string;
 }) => {
     const queryClient = useQueryClient();
+    const canEdit = usePermission(Action.Update, ResourceType.Issues, repoId);
+
     const [changeIssueParameterAction, { loading }] = useAsyncAction(
         async (status: IssueStatus) => {
             try {
@@ -69,6 +75,7 @@ export const StatusSelect = ({
     return (
         <Select
             value={status}
+            disabled={!canEdit || loading}
             onValueChange={(v) => changeIssueParameterAction(v as IssueStatus)}>
             <SelectTrigger
                 size="xs"

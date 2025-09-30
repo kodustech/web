@@ -10,7 +10,9 @@ import { magicModal } from "@components/ui/magic-modal";
 import { Section } from "@components/ui/section";
 import { Separator } from "@components/ui/separator";
 import type { KodyRule } from "@services/kodyRules/types";
-import { EditIcon, TrashIcon } from "lucide-react";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
+import { EditIcon, EyeIcon, TrashIcon } from "lucide-react";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { DeleteKodyRuleConfirmationModal } from "../../../_components/delete-confirmation-modal";
@@ -24,6 +26,16 @@ export const KodyRuleItem = ({
     onAnyChange: () => void;
 }) => {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
+    const canEdit = usePermission(
+        Action.Update,
+        ResourceType.KodyRules,
+        repositoryId,
+    );
+    const canDelete = usePermission(
+        Action.Delete,
+        ResourceType.KodyRules,
+        repositoryId,
+    );
 
     return (
         <Card>
@@ -58,7 +70,7 @@ export const KodyRuleItem = ({
                             size="icon-md"
                             variant="secondary"
                             className="size-9">
-                            <EditIcon />
+                            {canEdit ? <EditIcon /> : <EyeIcon />}
                         </Button>
                     </Link>
 
@@ -66,6 +78,7 @@ export const KodyRuleItem = ({
                         size="icon-md"
                         variant="secondary"
                         className="size-9 [--button-foreground:var(--color-danger)]"
+                        disabled={!canDelete}
                         onClick={() => {
                             magicModal.show(() => (
                                 <DeleteKodyRuleConfirmationModal

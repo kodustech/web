@@ -25,13 +25,21 @@ import {
     type KodyRule,
     type LibraryRule,
 } from "@services/kodyRules/types";
-import { sendRuleFeedback, removeRuleFeedback, type FeedbackType } from "@services/ruleFeedback/fetch";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
+import {
+    removeRuleFeedback,
+    sendRuleFeedback,
+    type FeedbackType,
+} from "@services/ruleFeedback/fetch";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { ThumbsUp, ThumbsDown, Plus } from "lucide-react";
+import { Plus, ThumbsDown, ThumbsUp } from "lucide-react";
 import type { CodeReviewRepositoryConfig } from "src/app/(app)/settings/code-review/_types";
 import { useAuth } from "src/core/providers/auth.provider";
+import { usePermissions } from "src/core/providers/permissions.provider";
 import type { LiteralUnion } from "src/core/types";
 import { cn } from "src/core/utils/components";
+import { hasPermission } from "src/core/utils/permissions";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 
@@ -50,12 +58,34 @@ export const KodyRuleLibraryItemModal = ({
     repositories: Array<CodeReviewRepositoryConfig>;
 }) => {
     const router = useRouter();
-    const { userId } = useAuth();
+    const { organizationId } = useAuth();
     const queryClient = useQueryClient();
     const [positiveCount, setPositiveCount] = useState(rule.positiveCount ?? 0);
     const [negativeCount, setNegativeCount] = useState(rule.negativeCount ?? 0);
     const [userFeedback, setUserFeedback] = useState<FeedbackType | null>(
-        rule.userFeedback as FeedbackType | null
+        rule.userFeedback as FeedbackType | null,
+    );
+
+    const permissions = usePermissions();
+    const allowedRepositories = repositories.filter((repository) =>
+        hasPermission({
+            permissions,
+            action: Action.Create,
+            resource: ResourceType.KodyRules,
+            repoId: repository.id,
+            organizationId: organizationId!,
+        }),
+    );
+
+    const canGlobal = usePermission(
+        Action.Create,
+        ResourceType.KodyRules,
+        "global",
+    );
+    const canEdit = usePermission(
+        Action.Update,
+        ResourceType.KodyRules,
+        repositoryId,
     );
 
     const [selectedRepositoriesIds, setSelectedRepositoriesIds] = useState<
@@ -151,7 +181,7 @@ export const KodyRuleLibraryItemModal = ({
         useMutation<any, Error, FeedbackType>({
             mutationFn: async (feedback: FeedbackType) => {
                 const isRemovingFeedback = userFeedback === feedback;
-                
+
                 if (isRemovingFeedback) {
                     return removeRuleFeedback(rule.uuid);
                 } else {
@@ -162,27 +192,27 @@ export const KodyRuleLibraryItemModal = ({
                 revalidateServerSidePath("/library/kody-rules");
                 const isRemovingFeedback = userFeedback === feedback;
                 const newFeedback = isRemovingFeedback ? null : feedback;
-                
+
                 if (feedback === "positive") {
                     if (isRemovingFeedback) {
-                        setPositiveCount(prev => prev - 1);
+                        setPositiveCount((prev) => prev - 1);
                     } else {
-                        setPositiveCount(prev => prev + 1);
+                        setPositiveCount((prev) => prev + 1);
                         if (userFeedback === "negative") {
-                            setNegativeCount(prev => prev - 1);
+                            setNegativeCount((prev) => prev - 1);
                         }
                     }
                 } else {
                     if (isRemovingFeedback) {
-                        setNegativeCount(prev => prev - 1);
+                        setNegativeCount((prev) => prev - 1);
                     } else {
-                        setNegativeCount(prev => prev + 1);
+                        setNegativeCount((prev) => prev + 1);
                         if (userFeedback === "positive") {
-                            setPositiveCount(prev => prev - 1);
+                            setPositiveCount((prev) => prev - 1);
                         }
                     }
                 }
-                
+
                 setUserFeedback(newFeedback);
             },
             onError: (error) => {
@@ -222,7 +252,8 @@ export const KodyRuleLibraryItemModal = ({
                             disabled={isFeedbackActionInProgress}
                             className={cn(
                                 "-my-2 gap-1.5 px-2 transition-colors",
-                                userFeedback === "positive" && "bg-green-500/10 text-green-500 border-green-500/20"
+                                userFeedback === "positive" &&
+                                    "border-green-500/20 bg-green-500/10 text-green-500",
                             )}
                             rightIcon={
                                 isFeedbackActionInProgress ? (
@@ -233,7 +264,7 @@ export const KodyRuleLibraryItemModal = ({
                             }>
                             {positiveCount > 0 ? positiveCount : null}
                         </Button>
-                        
+
                         <Button
                             size="md"
                             variant="cancel"
@@ -241,7 +272,8 @@ export const KodyRuleLibraryItemModal = ({
                             disabled={isFeedbackActionInProgress}
                             className={cn(
                                 "-my-2 gap-1.5 px-2 transition-colors",
-                                userFeedback === "negative" && "bg-red-500/10 text-red-500 border-red-500/20"
+                                userFeedback === "negative" &&
+                                    "border-red-500/20 bg-red-500/10 text-red-500",
                             )}
                             rightIcon={
                                 isFeedbackActionInProgress ? (
@@ -313,6 +345,7 @@ export const KodyRuleLibraryItemModal = ({
                                 variant="primary"
                                 leftIcon={<Plus />}
                                 onClick={addToRepositories}
+                                disabled={!canEdit}
                                 loading={isAddingToRepositories}>
                                 Add to my rules
                             </Button>
@@ -328,14 +361,15 @@ export const KodyRuleLibraryItemModal = ({
                                     onClick={addToRepositories}
                                     loading={isAddingToRepositories}
                                     disabled={
-                                        selectedRepositoriesIds.length === 0 &&
-                                        selectedDirectoriesIds.length === 0
+                                        !canEdit ||
+                                        (selectedRepositoriesIds.length === 0 &&
+                                            selectedDirectoriesIds.length === 0)
                                     }>
                                     Add to my rules
                                 </Button>
 
                                 <SelectRepositoriesDropdown
-                                    repositories={repositories}
+                                    repositories={allowedRepositories}
                                     selectedRepositoriesIds={
                                         selectedRepositoriesIds
                                     }
@@ -348,6 +382,8 @@ export const KodyRuleLibraryItemModal = ({
                                     setSelectedDirectoriesIds={
                                         setSelectedDirectoriesIds
                                     }
+                                    canEdit={canEdit}
+                                    global={canGlobal}
                                 />
                             </>
                         )}

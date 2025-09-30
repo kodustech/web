@@ -18,9 +18,16 @@ export const joinOrganization = async (
     return response;
 };
 
-export const approveUser = async (userId: string) =>
-    axiosAuthorized.patch(`${pathToApiUrl(`/user/${userId}`)}`, {
-        status: UserStatus.ACTIVE,
-    });
+export const updateUser = async (
+    userId: string,
+    data: Pick<Partial<User>, "role" | "status">,
+) => {
+    const response = await axiosAuthorized.patch<User>(
+        pathToApiUrl(`/user/${userId}`),
+        data,
+    );
+
+    return response;
+};
 
 export const getUserInfo = () => authorizedFetch<User>(USERS_PATHS.USER_INFO);

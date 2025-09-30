@@ -66,22 +66,34 @@ export const typedFetch = async <Data>(
 
     const urlWithParams = addSearchParamsToUrl(url.toString(), params);
 
-    const response = await fetch(urlWithParams, {
-        ...configRest,
-        headers: {
-            "Accept": "application/json",
-            "Content-Type": "application/json",
-            ...configRest.headers,
-        },
-    });
+    try {
+        const response = await fetch(urlWithParams, {
+            ...configRest,
+            headers: {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                ...configRest.headers,
+            },
+        });
 
-    if (!response.ok) {
-        throw new TypedFetchError(
-            response.status,
-            response.statusText,
-            urlWithParams,
-        );
+        if (!response.ok) {
+            throw new TypedFetchError(
+                response.status,
+                response.statusText,
+                urlWithParams,
+            );
+        }
+
+        return response.json() as Data;
+    } catch (error) {
+        // Re-throw the error with more context if it's a network error
+        if (
+            error instanceof Error &&
+            (error.message.includes("ENOTFOUND") ||
+                error.message.includes("ECONNREFUSED"))
+        ) {
+            throw new Error(`Network error: ${error.message}`);
+        }
+        throw error;
     }
-
-    return response.json() as Data;
 };

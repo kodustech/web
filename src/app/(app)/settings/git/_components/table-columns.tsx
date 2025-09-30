@@ -18,6 +18,8 @@ import { INTEGRATION_CONFIG } from "@services/integrations/integrationConfig";
 import { PARAMETERS_PATHS } from "@services/parameters";
 import { updateCodeReviewParameterRepositories } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
+import { usePermission } from "@services/permissions/hooks";
+import { Action, ResourceType } from "@services/permissions/types";
 import { ColumnDef } from "@tanstack/react-table";
 import { Ellipsis } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
@@ -48,6 +50,10 @@ export const columns: ColumnDef<Repository>[] = [
             const { teamId } = useSelectedTeamId();
             const { generateQueryKey, resetQueries, invalidateQueries } =
                 useReactQueryInvalidateQueries();
+            const canDelete = usePermission(
+                Action.Delete,
+                ResourceType.GitSettings,
+            );
 
             const saveSelectedRepositoriesAction = async () => {
                 const repositoriesWithoutThisOne = table
@@ -120,7 +126,10 @@ export const columns: ColumnDef<Repository>[] = [
 
                     <DropdownMenuContent align="end">
                         <DropdownMenuItem
-                            disabled={table.getRowModel().rows.length === 1}
+                            disabled={
+                                !canDelete ||
+                                table.getRowModel().rows.length === 1
+                            }
                             className="text-danger"
                             onClick={async () => {
                                 magicModal.show(() => (

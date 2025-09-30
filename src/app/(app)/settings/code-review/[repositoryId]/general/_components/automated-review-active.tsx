@@ -35,6 +35,7 @@ export const AutomatedReviewActive = () => {
                             size="sm"
                             variant="helper"
                             className="w-full"
+                            disabled={field.disabled}
                             onClick={() => {
                                 const newValue = !field.value;
                                 field.onChange(newValue);
@@ -108,6 +109,7 @@ export const AutomatedReviewActive = () => {
                                             <FormControl.Input>
                                                 <Select
                                                     value={field.value}
+                                                    disabled={field.disabled}
                                                     onValueChange={
                                                         field.onChange
                                                     }>

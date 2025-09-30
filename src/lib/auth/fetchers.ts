@@ -83,10 +83,12 @@ export const refreshAccessToken = async (payload: { refreshToken: string }) => {
 
 export const getInviteData = async (userId: string) => {
     try {
-        const data = await typedFetch<{
-            uuid: string;
-            email: string;
-            organization: { name: string };
+        const { data } = await typedFetch<{
+            data: {
+                uuid: string;
+                email: string;
+                organization: { name: string };
+            };
         }>(pathToApiUrl(API_ROUTES.getInviteData), {
             params: { userId },
         });
@@ -116,6 +118,18 @@ export const loginOAuth = (
 
 export const sendForgotPasswordMail = async (email: string) => {
     return axiosApi.post(pathToApiUrl(API_ROUTES.forgotPassword), { email });
+};
+
+export const confirmEmail = async (token: string) => {
+    return axiosAuthorized.post(pathToApiUrl(API_ROUTES.confirmEmail), {
+        token,
+    });
+};
+
+export const resendConfirmEmail = async (email: string) => {
+    return axiosAuthorized.post(pathToApiUrl(API_ROUTES.resendEmail), {
+        email,
+    });
 };
 
 export const resetPassword = async (newPassword: string, token: string) => {

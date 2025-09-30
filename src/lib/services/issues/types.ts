@@ -18,7 +18,7 @@ export type IssueListItem = {
     createdAt: string;
     filePath: string;
     label: IssueCategory;
-    repository: { name: string };
+    repository: { name: string; id: string };
     severity: SeverityLevel;
     status: IssueStatus;
     title: string;
@@ -39,4 +39,8 @@ export type IssueItem = {
     reactions: { thumbsUp: number; thumbsDown: number };
     gitOrganizationName: string;
     language: string;
+    repository: {
+        id: string;
+        name: string;
+    };
 };

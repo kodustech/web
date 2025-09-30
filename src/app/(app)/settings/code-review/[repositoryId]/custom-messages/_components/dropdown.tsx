@@ -21,6 +21,7 @@ export const CustomMessagesOptionsDropdown = (props: {
         content: string;
         status: "active" | "inactive";
     }) => void;
+    canEdit: boolean;
 }) => {
     const allVariablesRegexSearch = useMemo(
         () => [...props.value.content.matchAll(VARIABLE_REGEX)],
@@ -31,7 +32,7 @@ export const CustomMessagesOptionsDropdown = (props: {
         <DropdownMenu>
             <DropdownMenuTrigger
                 asChild
-                disabled={props.value.status === "inactive"}>
+                disabled={!props.canEdit || props.value.status === "inactive"}>
                 <Button
                     size="xs"
                     variant="helper"
