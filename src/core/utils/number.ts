@@ -5,8 +5,7 @@ export const clamp = (
         min?: number;
     },
 ) => {
-    let _value = value;
-    if (props.min !== undefined) _value = Math.max(_value, props.min);
-    if (props.max !== undefined) _value = Math.min(_value, props.max);
-    return _value;
+    if (props.min !== undefined) value = Math.max(value, props.min);
+    if (props.max !== undefined) value = Math.min(value, props.max);
+    return value;
 };

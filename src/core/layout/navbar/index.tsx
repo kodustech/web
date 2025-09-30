@@ -91,16 +91,13 @@ export const NavMenu = ({
             visible: boolean;
             badge?: React.JSX.Element;
         }> = [
-                // {
-                //     label: "Chat",
-                //     icon: <MessageSquareText size={16} />,
-                //     href: "/chat",
-                //     visible: true,
-                // },
                 {
                     label: "Cockpit",
                     href: "/cockpit",
-                    visible: subscription.valid && canReadCockpit,
+                    visible:
+                        subscription.valid &&
+                        subscription.status !== "self-hosted" &&
+                        subscription.status !== "free",
                     icon: <GaugeIcon className="size-6" />,
                 },
 

@@ -58,7 +58,7 @@ const components: Partial<
     "active": SubscriptionActive,
     "trial-active": SubscriptionTrial,
     "trial-expiring": SubscriptionTrial,
-    "expired": SubscriptionUpgrade,
+    "free": SubscriptionUpgrade,
     "canceled": SubscriptionUpgrade,
     "payment-failed": SubscriptionPaymentFailed,
 };
