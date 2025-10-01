@@ -88,7 +88,7 @@ const getKodyRulePathWithoutDirectoryPath = ({
     directory: CodeReviewDirectoryConfig;
 }) => rule.path.replace(getDirectoryPathForReplace(directory), "");
 
-const DEFAULT_PATH_FOR_DIRECTORIES = "*";
+const DEFAULT_PATH_FOR_DIRECTORIES = "**";
 
 export const KodyRuleAddOrUpdateItemModal = ({
     repositoryId,
