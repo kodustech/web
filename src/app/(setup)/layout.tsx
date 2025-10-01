@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { MagicModalPortal } from "@components/ui/magic-modal";
 import {
     getOrganizationId,
@@ -18,6 +19,14 @@ export default async function Layout(props: React.PropsWithChildren) {
             getOrganizationName(),
             auth(),
         ]);
+
+    const userStatus = session?.user?.status
+        ? String(session.user.status).toLowerCase()
+        : undefined;
+
+    if (userStatus && ["pending", "pending_email"].includes(userStatus)) {
+        redirect("/confirm-email");
+    }
 
     return (
         <AuthProvider session={session}>

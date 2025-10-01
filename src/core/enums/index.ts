@@ -42,6 +42,7 @@ export enum UserStatus {
     ACTIVE = "active",
     INACTIVE = "inactive",
     PENDING = "pending",
+    EMAIL_PENDING = "pending_email",
     AWAITING_APPROVAL = "awaiting_approval",
     REMOVED = "removed",
 }

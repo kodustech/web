@@ -120,6 +120,18 @@ export const sendForgotPasswordMail = async (email: string) => {
     return axiosApi.post(pathToApiUrl(API_ROUTES.forgotPassword), { email });
 };
 
+export const confirmEmail = async (token: string) => {
+    return axiosAuthorized.post(pathToApiUrl(API_ROUTES.confirmEmail), {
+        token,
+    });
+};
+
+export const resendConfirmEmail = async (email: string) => {
+    return axiosAuthorized.post(pathToApiUrl(API_ROUTES.resendEmail), {
+        email,
+    });
+};
+
 export const resetPassword = async (newPassword: string, token: string) => {
     return axiosApi.post(pathToApiUrl(API_ROUTES.resetPassword), {
         newPassword,

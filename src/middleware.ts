@@ -26,11 +26,13 @@ const authPaths = [
     "/sign-in",
     "/sign-up",
     "/forgot-password",
+    "/confirm-email",
     "/create-new-password",
     "/invite",
     "/api/auth/login",
     "/api/auth/register",
     "/api/auth/forgot-password",
+    "/api/auth/confirm-email",
     "/api/auth/create-new-password",
     "/api/auth",
 ];
@@ -76,9 +78,27 @@ export default auth(async (req) => {
         return next;
     }
 
+    const isConfirmEmailPath = pathname.startsWith("/confirm-email");
+    const normalizedStatus = session.user.status
+        ? String(session.user.status).toLowerCase()
+        : undefined;
+    const requiresEmailConfirmation = ["pending", "pending_email"].includes(
+        normalizedStatus ?? "",
+    );
+
+    if (requiresEmailConfirmation) {
+        if (!isConfirmEmailPath) {
+            return NextResponse.redirect(new URL("/confirm-email", req.url), {
+                status: 302,
+            });
+        }
+
+        return next;
+    }
+
     // if user is waiting for approval, allow access to this page only
     if (
-        session.user.status === UserStatus.AWAITING_APPROVAL &&
+        normalizedStatus === UserStatus.AWAITING_APPROVAL &&
         pathname !== "/user-waiting-for-approval"
     ) {
         return NextResponse.redirect(
