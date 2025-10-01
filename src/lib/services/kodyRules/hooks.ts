@@ -38,3 +38,17 @@ export const useSuspenseKodyRulesCheckSyncStatus = (params: {
         kodyRulesGeneratorEnabledFirstTime: boolean;
     }>(KODY_RULES_PATHS.CHECK_SYNC_STATUS, { params });
 };
+
+export const useSuspenseGetInheritedKodyRules = (params: {
+    teamId: string;
+    repositoryId: string;
+    directoryId?: string;
+}) => {
+    return useSuspenseFetch<{
+        allRules: KodyRule[];
+        globalRules: KodyRule[];
+        repoRules: KodyRule[];
+        directoryRules: KodyRule[];
+        excludedRules: KodyRule[];
+    }>(KODY_RULES_PATHS.GET_INHERITED_RULES, { params });
+};

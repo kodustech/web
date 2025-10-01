@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
@@ -11,10 +12,13 @@ import {
 import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
 import { Input } from "@components/ui/input";
+import { Label } from "@components/ui/label";
 import { magicModal } from "@components/ui/magic-modal";
 import { Separator } from "@components/ui/separator";
 import { SliderWithMarkers } from "@components/ui/slider-with-markers";
+import { Switch } from "@components/ui/switch";
 import { Textarea } from "@components/ui/textarea";
+import { useToast } from "@components/ui/toaster/use-toast";
 import { ToggleGroup } from "@components/ui/toggle-group";
 import {
     Tooltip,
@@ -23,11 +27,19 @@ import {
 } from "@components/ui/tooltip";
 import { createOrUpdateKodyRule } from "@services/kodyRules/fetch";
 import {
+    KodyRuleInheritanceOrigin,
     KodyRulesOrigin,
     KodyRulesStatus,
     type KodyRule,
 } from "@services/kodyRules/types";
-import { CheckIcon, HelpCircle, PlusIcon, SaveIcon, XIcon } from "lucide-react";
+import {
+    CheckIcon,
+    HelpCircle,
+    Info,
+    PlusIcon,
+    SaveIcon,
+    XIcon,
+} from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { cn } from "src/core/utils/components";
 
@@ -91,17 +103,30 @@ export const KodyRuleAddOrUpdateItemModal = ({
     onClose?: () => void;
     canEdit: boolean;
 }) => {
+    const { toast } = useToast();
+
     const initialScope = rule?.scope ?? "file";
+
+    const isInherited = !!rule?.inherited;
+
+    const isExcluded = !!rule?.inheritance?.exclude?.find(
+        (id) => id === directory?.id || id === repositoryId,
+    );
+
+    const [isInheritanceDisabled, setIsInheritanceDisabled] =
+        useState(isExcluded);
+
     const form = useForm<
-        Omit<KodyRule, "examples"> & {
+        Omit<KodyRule, "examples" | "inheritance"> & {
             badExample: string;
             goodExample: string;
+            inheritable: boolean;
         }
     >({
         mode: "all",
         reValidateMode: "onChange",
         criteriaMode: "firstError",
-        disabled: !canEdit,
+        disabled: !canEdit || isInherited,
         defaultValues: {
             path:
                 initialScope === "pull-request"
@@ -135,6 +160,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                 "",
             origin: rule?.origin ?? KodyRulesOrigin.USER,
             status: rule?.status ?? KodyRulesStatus.ACTIVE,
+            inheritable: rule?.inheritance?.inheritable ?? true,
         },
     });
 
@@ -170,6 +196,14 @@ export const KodyRuleAddOrUpdateItemModal = ({
                 examples: examples,
                 origin: config.origin ?? KodyRulesOrigin.USER,
                 status: config.status ?? KodyRulesStatus.ACTIVE,
+                inheritance: {
+                    ...(rule?.inheritance ?? {
+                        inheritable: true,
+                        exclude: [],
+                        include: [],
+                    }),
+                    inheritable: config.inheritable,
+                },
             },
             repositoryId,
             directory?.id,
@@ -182,16 +216,123 @@ export const KodyRuleAddOrUpdateItemModal = ({
         }
     });
 
+    const handleDisableInherited = async (val: boolean) => {
+        magicModal.lock();
+
+        const targetId = directory?.id || repositoryId;
+
+        const excludeList = rule?.inheritance?.exclude
+            ? [...rule.inheritance.exclude]
+            : [];
+
+        if (!val) {
+            const index = excludeList.indexOf(targetId);
+            if (index !== -1) excludeList.splice(index, 1);
+        } else {
+            if (!excludeList.includes(targetId)) excludeList.push(targetId);
+        }
+
+        try {
+            await createOrUpdateKodyRule(
+                {
+                    path: rule?.path,
+                    rule: rule?.rule,
+                    title: rule?.title,
+                    severity: rule?.severity,
+                    scope: rule?.scope,
+                    uuid: rule?.uuid,
+                    examples: rule?.examples,
+                    origin: rule?.origin ?? KodyRulesOrigin.USER,
+                    status: rule?.status ?? KodyRulesStatus.ACTIVE,
+                    inheritance: {
+                        ...(rule?.inheritance ?? {
+                            inheritable: true,
+                            exclude: [],
+                            include: [],
+                        }),
+                        exclude: excludeList,
+                    },
+                } as KodyRule,
+                rule?.repositoryId,
+                rule?.directoryId,
+            );
+
+            setIsInheritanceDisabled(val);
+
+            const toastData = {
+                title: val ? "Disabled inheritance" : "Enabled inheritance",
+                description: val
+                    ? "This rule is no longer being inherited for this scope."
+                    : "This rule is now being inherited from higher scopes.",
+                variant: "success" as const,
+            };
+
+            toast(toastData);
+        } catch {
+            toast({
+                variant: "alert",
+                description:
+                    "An error occurred while disabling inheritance. Please try again.",
+                title: "Error disabling inheritance",
+            });
+        } finally {
+            magicModal.unlock();
+        }
+    };
+
+    let title = "Add new rule";
+    if (isInherited) {
+        title = "View inherited rule";
+    } else if (!canEdit) {
+        title = "View rule";
+    } else if (rule) {
+        title = "Edit rule";
+    }
+
     return (
         <Dialog
             open
             onOpenChange={() => (onClose ? onClose() : magicModal.hide())}>
             <DialogContent className="max-w-(--breakpoint-lg)">
                 <DialogHeader>
-                    <DialogTitle>
-                        {rule ? "Edit rule" : "Add new rule"}
-                    </DialogTitle>
+                    <DialogTitle>{title}</DialogTitle>
                 </DialogHeader>
+
+                {isInherited && (
+                    <div className="bg-card-lv1 mb-4 flex flex-col gap-4 rounded-lg border p-4 px-6">
+                        <div className="flex items-center gap-2">
+                            <Info className="text-text-secondary size-5" />
+                            <Heading variant="h3" className="text-base">
+                                Inherited Rule
+                            </Heading>
+                        </div>
+                        <p className="text-text-secondary text-sm">
+                            {rule.inherited ===
+                                KodyRuleInheritanceOrigin.GLOBAL &&
+                                "This rule is inherited from the Global configuration. To edit it, you must go to the global Kody Rules settings."}
+                            {rule.inherited ===
+                                KodyRuleInheritanceOrigin.REPOSITORY &&
+                                "This rule is inherited from the Repository configuration. To edit it, you must go to the repository Kody Rules settings."}
+                            {rule.inherited ===
+                                KodyRuleInheritanceOrigin.DIRECTORY &&
+                                "This rule is inherited from another Directory configuration. This is likely due to how the rule's path is defined. To edit it, you must go to the Kody Rules settings for the directory where it was created."}
+                        </p>
+                        <Separator />
+                        <div className="flex items-center justify-between">
+                            <Label
+                                htmlFor="disable-inheritance"
+                                className="text-sm font-medium">
+                                Override and disable for this scope
+                            </Label>
+                            <Switch
+                                id="disable-inheritance"
+                                disabled={!canEdit}
+                                onCheckedChange={handleDisableInherited}
+                                checked={isInheritanceDisabled}
+                            />
+                        </div>
+                    </div>
+                )}
 
                 <div className="-mx-6 flex flex-col gap-8 overflow-y-auto px-6 py-1">
                     <Controller
@@ -351,6 +492,62 @@ export const KodyRuleAddOrUpdateItemModal = ({
                     />
 
                     <Controller
+                        name="inheritable"
+                        control={form.control}
+                        render={({ field }) => (
+                            <div className="grid grid-cols-[1fr_3fr] gap-6">
+                                <FormControl.Root>
+                                    <FormControl.Label className="mb-0 flex flex-row gap-1">
+                                        Inheritable
+                                        <Tooltip>
+                                            <TooltipTrigger>
+                                                <HelpCircle
+                                                    size={16}
+                                                    className="text-primary-light"
+                                                />
+                                            </TooltipTrigger>
+                                            <TooltipContent
+                                                align="start"
+                                                className="flex max-w-prose flex-col gap-1 text-xs">
+                                                <p>
+                                                    When enabled, this rule can
+                                                    be inherited by lower
+                                                    scopes. For example, a
+                                                    global rule can be inherited
+                                                    by repositories, and a
+                                                    repository rule can be
+                                                    inherited by directories.
+                                                </p>
+                                                <p>
+                                                    If disabled, the rule will
+                                                    only apply to the current
+                                                    scope.
+                                                </p>
+                                                <p>
+                                                    Note: Lower scopes can still
+                                                    choose to override and
+                                                    disable this rule if needed.
+                                                </p>
+                                            </TooltipContent>
+                                        </Tooltip>
+                                    </FormControl.Label>
+                                    <FormControl.Helper>
+                                        Define if this rule can be inherited by
+                                        lower scopes
+                                    </FormControl.Helper>
+                                </FormControl.Root>
+                                <FormControl.Input>
+                                    <Switch
+                                        id={field.name}
+                                        disabled={field.disabled}
+                                        onCheckedChange={field.onChange}
+                                        checked={field.value}
+                                    />
+                                </FormControl.Input>
+                            </div>
+                        )}
+                    />
+                    <Controller
                         name="path"
                         control={form.control}
                         rules={{
@@ -416,7 +613,8 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                     <div className="flex flex-col">
                                         <div className="flex items-center">
                                             {directory &&
-                                                watchScope === "file" && (
+                                                watchScope === "file" &&
+                                                !isInherited && (
                                                     <Badge
                                                         size="md"
                                                         variant="helper"
@@ -433,6 +631,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                 error={fieldState.error}
                                                 className={cn(
                                                     directory &&
+                                                        !isInherited &&
                                                         watchScope === "file" &&
                                                         "rounded-l-none",
                                                 )}

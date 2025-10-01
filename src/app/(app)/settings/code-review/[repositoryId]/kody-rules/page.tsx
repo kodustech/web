@@ -1,14 +1,17 @@
 "use client";
 
-import { useSuspenseKodyRulesByRepositoryId } from "@services/kodyRules/hooks";
+import {
+    useSuspenseGetInheritedKodyRules,
+    useSuspenseKodyRulesByRepositoryId,
+} from "@services/kodyRules/hooks";
 import { KodyRule, KodyRulesStatus } from "@services/kodyRules/types";
-import { usePermission } from "@services/permissions/hooks";
-import { Action, ResourceType } from "@services/permissions/types";
+import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 
 import { useCodeReviewRouteParams } from "../../../_hooks";
 import { KodyRulesPage } from "./_components/_page";
 
 export default function KodyRules() {
+    const { teamId } = useSelectedTeamId();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
 
     const kodyRules = useSuspenseKodyRulesByRepositoryId(
@@ -16,10 +19,16 @@ export default function KodyRules() {
         directoryId,
     );
 
-    const globalRules =
-        repositoryId !== "global"
-            ? useSuspenseKodyRulesByRepositoryId("global")
-            : [];
+    const {
+        directoryRules = [],
+        globalRules = [],
+        repoRules = [],
+        excludedRules = [],
+    } = useSuspenseGetInheritedKodyRules({
+        teamId,
+        repositoryId,
+        directoryId,
+    });
 
     const { activeRules, pendingRules } = kodyRules.reduce<{
         activeRules: KodyRule[];
@@ -39,15 +48,14 @@ export default function KodyRules() {
         { activeRules: [], pendingRules: [] },
     );
 
-    const activeGlobalRules = globalRules.filter(
-        (rule) => rule.status === KodyRulesStatus.ACTIVE,
-    );
-
     return (
         <KodyRulesPage
             kodyRules={activeRules}
-            globalRules={activeGlobalRules}
             pendingRules={pendingRules}
+            excludedRules={excludedRules}
+            inheritedDirectoryRules={directoryRules}
+            inheritedGlobalRules={globalRules}
+            inheritedRepoRules={repoRules}
         />
     );
 }

@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
-import { getKodyRulesByRepositoryId } from "@services/kodyRules/fetch";
+import {
+    getInheritedKodyRules,
+    getKodyRulesByRepositoryId,
+} from "@services/kodyRules/fetch";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { KodyRuleModalClient } from "./modal-client";
@@ -9,23 +12,27 @@ export default async function KodyRuleDetailPage({
     searchParams,
 }: {
     params: Promise<{ repositoryId: string; id: string }>;
-    searchParams: Promise<{ directoryId: string }>;
+    searchParams: Promise<{ directoryId: string; teamId: string }>;
 }) {
     try {
         // Await params first (Next.js 15 requirement)
         const { repositoryId, id } = await params;
-        const { directoryId } = await searchParams;
+        const { directoryId, teamId } = await searchParams;
 
         const kodyRules = await getKodyRulesByRepositoryId(
             repositoryId,
             directoryId,
         );
-        const globalRules =
-            repositoryId !== "global"
-                ? await getKodyRulesByRepositoryId("global")
-                : [];
 
-        const rule = [...kodyRules, ...globalRules].find((r) => r.uuid === id);
+        let rule = kodyRules.find((r) => r.uuid === id);
+        if (!rule) {
+            const { allRules } = await getInheritedKodyRules({
+                teamId,
+                repositoryId,
+                directoryId,
+            });
+            rule = allRules.find((r) => r.uuid === id);
+        }
 
         if (!rule) {
             const url = addSearchParamsToUrl(
