@@ -1,5 +1,11 @@
 import { ProgrammingLanguage } from "src/core/enums/programming-language";
 
+export enum KodyRuleInheritanceOrigin {
+    GLOBAL = "global",
+    REPOSITORY = "repository",
+    DIRECTORY = "directory",
+}
+
 export type KodyRule = {
     uuid?: string;
     status: KodyRulesStatus;
@@ -13,6 +19,13 @@ export type KodyRule = {
     sourcePath?: string;
     origin: KodyRulesOrigin;
     examples: KodyRulesExample[];
+    inheritance?: {
+        inheritable?: boolean;
+        exclude?: string[];
+        include?: string[];
+    };
+
+    inherited?: KodyRuleInheritanceOrigin; // Internal frontend use only
 };
 
 export type LibraryRule = {

@@ -2,52 +2,57 @@
 
 import { Suspense, useMemo, useState } from "react";
 import { Button } from "@components/ui/button";
-import { Card } from "@components/ui/card";
-import { Heading } from "@components/ui/heading";
 import { SvgKodyRulesDiscovery } from "@components/ui/icons/SvgKodyRulesDiscovery";
-import { Input } from "@components/ui/input";
-import { KodyRuleLibraryItem } from "@components/ui/kody-rules/library-item-card";
 import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
 import { Separator } from "@components/ui/separator";
 import { Skeleton } from "@components/ui/skeleton";
-import { Spinner } from "@components/ui/spinner";
 import { KODY_RULES_PATHS } from "@services/kodyRules";
-import { useSuspenseFindLibraryKodyRules } from "@services/kodyRules/hooks";
-import { type KodyRule } from "@services/kodyRules/types";
+import {
+    KodyRuleInheritanceOrigin,
+    KodyRulesStatus,
+    type KodyRule,
+} from "@services/kodyRules/types";
 import { KodyLearningStatus } from "@services/parameters/types";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { useQueryClient } from "@tanstack/react-query";
-import { BellRing, Plus, SearchIcon } from "lucide-react";
+import { BellRing, Plus } from "lucide-react";
 
 import { CodeReviewPagesBreadcrumb } from "../../../_components/breadcrumb";
 import { GenerateRulesOptions } from "../../../_components/generate-rules-options";
 import GeneratingConfig from "../../../_components/generating-config";
 import { KodyRuleAddOrUpdateItemModal } from "../../../_components/modal";
 import { PendingKodyRulesModal } from "../../../_components/pending-rules-modal";
-import { KodyRulesRepoFollowsGlobalRulesModal } from "../../../_components/repo-global-rules-modal";
+import { KodyRulesInheritedRulesModal } from "../../../_components/repo-global-rules-modal";
 import {
     useFullCodeReviewConfig,
     usePlatformConfig,
 } from "../../../../_components/context";
 import { useCodeReviewRouteParams } from "../../../../_hooks";
-import { KodyRuleItem } from "./item";
+import { KodyRulesEmptyState } from "./empty";
+import { KodyRulesList } from "./list";
+import { KodyRulesToolbar, type VisibleScopes } from "./toolbar";
 
 export const KodyRulesPage = ({
     kodyRules,
-    globalRules,
     pendingRules,
+    excludedRules,
+    inheritedGlobalRules,
+    inheritedRepoRules,
+    inheritedDirectoryRules,
 }: {
     kodyRules: KodyRule[];
-    globalRules: KodyRule[];
+    excludedRules: KodyRule[];
+    inheritedGlobalRules: KodyRule[];
+    inheritedRepoRules: KodyRule[];
+    inheritedDirectoryRules: KodyRule[];
     pendingRules: KodyRule[];
 }) => {
     const platformConfig = usePlatformConfig();
     const config = useFullCodeReviewConfig();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
-    const [filterQuery, setFilterQuery] = useState("");
     const queryClient = useQueryClient();
     const canEdit = usePermission(
         Action.Update,
@@ -55,20 +60,87 @@ export const KodyRulesPage = ({
         repositoryId,
     );
 
-    const filteredRules = useMemo(
-        () =>
-            kodyRules?.filter((rule) => {
-                if (!filterQuery) return true;
-                const filterQueryLowercase = filterQuery.toLowerCase();
+    const repositoryOnlyRules = useMemo(() => {
+        if (directoryId) return [];
+        if (repositoryId === "global") return [];
 
-                return (
-                    rule.title.toLowerCase().includes(filterQueryLowercase) ||
-                    rule.path.toLowerCase().includes(filterQueryLowercase) ||
-                    rule.rule.toLowerCase().includes(filterQueryLowercase)
-                );
-            }),
-        [kodyRules, filterQuery],
-    );
+        return kodyRules.filter((rule) => !rule.directoryId);
+    }, [kodyRules, directoryId, repositoryId]);
+
+    const directoryOnlyRules = useMemo(() => {
+        if (!directoryId) return [];
+        if (repositoryId === "global") return [];
+
+        return kodyRules.filter((rule) => rule.directoryId === directoryId);
+    }, [kodyRules, directoryId, repositoryId]);
+
+    const isGlobalView = repositoryId === "global";
+    const isRepoView = !isGlobalView && !directoryId;
+    const parentRepository = isRepoView
+        ? ""
+        : config?.repositories.find((r) => r.id === repositoryId)?.name || "";
+
+    const [filterQuery, setFilterQuery] = useState("");
+    const [visibleScopes, setVisibleScopes] = useState<VisibleScopes>({
+        self: true,
+        dir: true,
+        repo: true,
+        global: true,
+        disabled: false,
+    });
+
+    const rulesToDisplay = useMemo(() => {
+        const combined: KodyRule[] = [];
+        if (isGlobalView) {
+            // When in global view, kodyRules array contains only global rules
+            combined.push(...kodyRules);
+        } else if (isRepoView) {
+            if (visibleScopes.self) combined.push(...repositoryOnlyRules);
+            if (visibleScopes.global) combined.push(...inheritedGlobalRules);
+        } else {
+            if (visibleScopes.self) combined.push(...directoryOnlyRules);
+            if (visibleScopes.dir) combined.push(...inheritedDirectoryRules);
+            if (visibleScopes.repo) combined.push(...inheritedRepoRules);
+            if (visibleScopes.global) combined.push(...inheritedGlobalRules);
+        }
+
+        if (visibleScopes.disabled) {
+            combined.push(...excludedRules);
+        }
+
+        const deDupedRules = Array.from(
+            combined
+                .reduce((map, rule) => {
+                    if (!map.has(rule.uuid!)) {
+                        map.set(rule.uuid!, rule);
+                    }
+                    return map;
+                }, new Map<string, KodyRule>())
+                .values(),
+        );
+
+        if (!filterQuery) return deDupedRules;
+
+        const filterQueryLowercase = filterQuery.toLowerCase();
+        return deDupedRules.filter(
+            (rule) =>
+                rule.title.toLowerCase().includes(filterQueryLowercase) ||
+                rule.path?.toLowerCase().includes(filterQueryLowercase) ||
+                rule.rule.toLowerCase().includes(filterQueryLowercase),
+        );
+    }, [
+        visibleScopes,
+        filterQuery,
+        kodyRules,
+        isGlobalView,
+        isRepoView,
+        directoryId,
+        directoryOnlyRules,
+        repositoryOnlyRules,
+        inheritedGlobalRules,
+        inheritedRepoRules,
+        inheritedDirectoryRules,
+    ]);
 
     const refreshRulesList = async () => {
         await queryClient.resetQueries({
@@ -82,7 +154,6 @@ export const KodyRulesPage = ({
         const directory = config.repositories
             .find((r) => r.id === repositoryId)
             ?.directories?.find((d) => d.id === directoryId);
-
         const response = await magicModal.show(() => (
             <KodyRuleAddOrUpdateItemModal
                 repositoryId={repositoryId}
@@ -90,23 +161,23 @@ export const KodyRulesPage = ({
                 canEdit={canEdit}
             />
         ));
-        if (!response) return;
-
-        await refreshRulesList();
+        if (response) await refreshRulesList();
     };
-
-    const repoFollowsGlobalRulesModal = () =>
-        magicModal.show(() => (
-            <KodyRulesRepoFollowsGlobalRulesModal globalRules={globalRules} />
-        ));
 
     const showPendingRules = async () => {
         const response = await magicModal.show(() => (
             <PendingKodyRulesModal pendingRules={pendingRules} />
         ));
-        if (!response) return;
-        refreshRulesList();
+        if (response) refreshRulesList();
     };
+
+    const showGlobalRulesModal = () =>
+        magicModal.show(() => (
+            <KodyRulesInheritedRulesModal
+                inheritedRules={inheritedGlobalRules}
+                repoName="Global"
+            />
+        ));
 
     if (
         platformConfig.kodyLearningStatus ===
@@ -115,38 +186,27 @@ export const KodyRulesPage = ({
         return <GeneratingConfig />;
     }
 
+    const hasAnyRulesInSystem =
+        kodyRules.length > 0 ||
+        inheritedGlobalRules.length > 0 ||
+        inheritedRepoRules.length > 0 ||
+        inheritedDirectoryRules.length > 0;
+    const isToolbarDisabled = !hasAnyRulesInSystem;
+    const hasRulesToDisplay = rulesToDisplay.length > 0;
+
     return (
         <Page.Root>
             <Page.Header>
                 <CodeReviewPagesBreadcrumb pageName="Kody Rules" />
             </Page.Header>
-
             <Page.Header>
                 <Page.TitleContainer>
                     <Page.Title>Kody Rules</Page.Title>
-
                     <Page.Description>
-                        {repositoryId === "global" ? (
-                            "Set up automated rules and guidelines for your code reviews."
-                        ) : (
-                            <>
-                                This repository follows{" "}
-                                <Link
-                                    href=""
-                                    onClick={(ev) => {
-                                        ev.preventDefault();
-                                        repoFollowsGlobalRulesModal();
-                                    }}>
-                                    Global Kody Rules
-                                </Link>{" "}
-                                by default. You can still customize automated
-                                rules and guidelines specific to this
-                                repository's code reviews.
-                            </>
-                        )}
+                        Set up automated rules and guidelines for your code
+                        reviews.
                     </Page.Description>
                 </Page.TitleContainer>
-
                 <div className="flex flex-col gap-2">
                     <Page.HeaderActions>
                         <Link href="/library/kody-rules">
@@ -158,7 +218,6 @@ export const KodyRulesPage = ({
                                 Discovery
                             </Button>
                         </Link>
-
                         <Button
                             size="md"
                             type="button"
@@ -169,9 +228,8 @@ export const KodyRulesPage = ({
                             New rule
                         </Button>
                     </Page.HeaderActions>
-
-                    <div className="flex justify-end">
-                        {pendingRules.length > 0 && (
+                    {pendingRules.length > 0 && (
+                        <div className="flex justify-end">
                             <Button
                                 size="md"
                                 variant="helper"
@@ -180,100 +238,41 @@ export const KodyRulesPage = ({
                                 onClick={showPendingRules}>
                                 Check out new rules!
                             </Button>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </Page.Header>
-
             <Page.Content>
-                {repositoryId !== "global" && !directoryId && (
+                {isRepoView && (
                     <>
                         <Suspense fallback={<Skeleton className="h-15" />}>
                             <GenerateRulesOptions />
                         </Suspense>
-
                         <div className="w-md self-center">
                             <Separator />
                         </div>
                     </>
                 )}
-
                 <div className="flex flex-col gap-4">
-                    {kodyRules?.length === 0 ? (
-                        <div className="mt-4 flex min-h-[540px] flex-col gap-2">
-                            <div className="flex flex-col gap-1">
-                                <Heading variant="h2">
-                                    Start with Discovery 🚀
-                                </Heading>
-                                <p className="text-text-secondary text-sm">
-                                    <strong>No rules yet?</strong> Import best
-                                    practices from top engineering teams in
-                                    seconds or create your own by clicking on{" "}
-                                    <Link
-                                        href=""
-                                        disabled={!canEdit}
-                                        onClick={(ev) => {
-                                            ev.preventDefault();
-                                            addNewEmptyRule();
-                                        }}>
-                                        New Rule
-                                    </Link>
-                                    .
-                                </p>
-                            </div>
-
-                            <div className="mt-4 grid h-full grid-cols-2 gap-2">
-                                <Suspense
-                                    fallback={
-                                        <>
-                                            {new Array(3)
-                                                .fill(null)
-                                                .map((_, index) => (
-                                                    <Card
-                                                        key={index}
-                                                        className="h-full flex-1 items-center justify-center">
-                                                        <Spinner />
-                                                    </Card>
-                                                ))}
-                                        </>
-                                    }>
-                                    <NoItems />
-                                </Suspense>
-
-                                <NoItemsViewMore />
-                            </div>
-                        </div>
+                    <KodyRulesToolbar
+                        filterQuery={filterQuery}
+                        onFilterQueryChange={setFilterQuery}
+                        visibleScopes={visibleScopes}
+                        onVisibleScopesChange={setVisibleScopes}
+                        isDisabled={isToolbarDisabled}
+                        isRepoView={isRepoView}
+                        isGlobalView={isGlobalView}
+                    />
+                    {!hasRulesToDisplay ? (
+                        <KodyRulesEmptyState
+                            canEdit={canEdit}
+                            onAddNewRule={addNewEmptyRule}
+                        />
                     ) : (
-                        <>
-                            <div className="mb-2">
-                                <Input
-                                    value={filterQuery}
-                                    leftIcon={<SearchIcon />}
-                                    onChange={(e) =>
-                                        setFilterQuery(e.target.value)
-                                    }
-                                    placeholder="Search for titles, paths or instructions"
-                                />
-                            </div>
-
-                            <div className="flex flex-col gap-3">
-                                {filteredRules.length === 0 ? (
-                                    <div className="text-text-secondary flex flex-col items-center gap-2 py-20 text-sm">
-                                        No rules found with your search query.
-                                    </div>
-                                ) : (
-                                    <div className="grid grid-cols-2 gap-2">
-                                        {filteredRules.map((rule) => (
-                                            <KodyRuleItem
-                                                key={rule.uuid}
-                                                rule={rule}
-                                                onAnyChange={refreshRulesList}
-                                            />
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        </>
+                        <KodyRulesList
+                            rules={rulesToDisplay}
+                            onAnyChange={refreshRulesList}
+                        />
                     )}
                 </div>
             </Page.Content>
@@ -281,33 +280,41 @@ export const KodyRulesPage = ({
     );
 };
 
-const NoItems = () => {
-    const rules = useSuspenseFindLibraryKodyRules();
-    const { repositoryId, directoryId } = useCodeReviewRouteParams();
+const getHeaderDescription = (
+    isGlobal: boolean,
+    isRepo: boolean,
+    showGlobalRulesModal: () => void,
+    showRepoRulesModal: () => void,
+) => {
+    if (isGlobal) {
+        return (
+            <>Set up automated rules and guidelines for your code reviews.</>
+        );
+    }
 
-    return rules
-        .slice(0, 3)
-        .map((r) => (
-            <KodyRuleLibraryItem
-                rule={r}
-                key={r.uuid}
-                repositoryId={repositoryId}
-                directoryId={directoryId}
-            />
-        ));
-};
+    if (isRepo) {
+        return (
+            <>
+                This repository follows{" "}
+                <Link href="" onClick={showGlobalRulesModal}>
+                    Global Kody Rules
+                </Link>{" "}
+                by default.
+            </>
+        );
+    }
 
-const NoItemsViewMore = () => {
     return (
-        <Link href="/library/kody-rules" className="w-full">
-            <Button
-                decorative
-                size="lg"
-                variant="helper"
-                className="h-full w-full"
-                leftIcon={<Plus />}>
-                View more
-            </Button>
-        </Link>
+        <>
+            This directory follows{" "}
+            <Link href="" onClick={showGlobalRulesModal}>
+                Global Kody Rules
+            </Link>{" "}
+            and{" "}
+            <Link href="" onClick={showRepoRulesModal}>
+                Repository Kody Rules
+            </Link>{" "}
+            by default.
+        </>
     );
 };
