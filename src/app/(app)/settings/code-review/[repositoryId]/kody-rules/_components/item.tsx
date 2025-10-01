@@ -9,10 +9,17 @@ import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
 import { Section } from "@components/ui/section";
 import { Separator } from "@components/ui/separator";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@components/ui/tooltip";
 import type { KodyRule } from "@services/kodyRules/types";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { EditIcon, EyeIcon, TrashIcon } from "lucide-react";
+import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { cn } from "src/core/utils/components";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { DeleteKodyRuleConfirmationModal } from "../../../_components/delete-confirmation-modal";
@@ -26,6 +33,7 @@ export const KodyRuleItem = ({
     onAnyChange: () => void;
 }) => {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
+    const { teamId } = useSelectedTeamId();
     const canEdit = usePermission(
         Action.Update,
         ResourceType.KodyRules,
@@ -37,12 +45,38 @@ export const KodyRuleItem = ({
         repositoryId,
     );
 
+    const isInherited = !!rule.inherited;
+
     return (
         <Card>
             <CardHeader className="flex-row items-start justify-between gap-10">
                 <div className="-mb-2 flex flex-col gap-2">
                     <div className="flex items-center gap-2">
                         <IssueSeverityLevelBadge severity={rule.severity} />
+
+                        {isInherited && (
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Badge
+                                        active
+                                        size="xs"
+                                        className="bg-muted/10 text-muted ring-muted/64 pointer-events-none h-6 min-h-auto rounded-lg px-2 text-[10px] leading-px uppercase ring-1 [--button-foreground:var(--color-muted)]">
+                                        Inherited
+                                    </Badge>
+                                </TooltipTrigger>
+
+                                <TooltipContent>
+                                    <p>
+                                        This rule is inherited and cannot be
+                                        edited or deleted here.
+                                    </p>
+                                    <p>
+                                        Click the eye icon to view its details
+                                        or to disable it for this scope.
+                                    </p>
+                                </TooltipContent>
+                            </Tooltip>
+                        )}
 
                         {rule.sourcePath && (
                             <Badge
@@ -63,14 +97,18 @@ export const KodyRuleItem = ({
                     <Link
                         href={addSearchParamsToUrl(
                             `/settings/code-review/${repositoryId}/kody-rules/${rule.uuid}`,
-                            { directoryId },
+                            { directoryId, teamId },
                         )}>
                         <Button
                             decorative
                             size="icon-md"
                             variant="secondary"
                             className="size-9">
-                            {canEdit ? <EditIcon /> : <EyeIcon />}
+                            {!canEdit || isInherited ? (
+                                <EyeIcon />
+                            ) : (
+                                <EditIcon />
+                            )}
                         </Button>
                     </Link>
 
@@ -78,7 +116,7 @@ export const KodyRuleItem = ({
                         size="icon-md"
                         variant="secondary"
                         className="size-9 [--button-foreground:var(--color-danger)]"
-                        disabled={!canDelete}
+                        disabled={!canDelete || isInherited}
                         onClick={() => {
                             magicModal.show(() => (
                                 <DeleteKodyRuleConfirmationModal

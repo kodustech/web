@@ -116,7 +116,7 @@ export const KodyRuleLibraryItemModal = ({
                 const directory = repository?.directories?.find(
                     (d) => d.id === directoryId,
                 );
-                newRule.path = `${directory?.path.slice(1)}/*`;
+                newRule.path = `${directory?.path.slice(1)}/**`;
             }
 
             const addedKodyRules = await addKodyRuleToRepositories({
