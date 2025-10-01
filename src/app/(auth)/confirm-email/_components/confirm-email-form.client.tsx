@@ -15,8 +15,12 @@ import { z } from "zod";
 
 const confirmEmailFormSchema = z.object({
     token: z
-        .string({ required_error: "Token is required" })
-        .min(1, { message: "Token is required" }),
+        .string({
+            error: (issue) => issue.input === undefined ? "Token is required" : undefined
+        })
+        .min(1, {
+            error: "Token is required"
+        }),
 });
 
 type ConfirmEmailFormSchema = z.infer<typeof confirmEmailFormSchema>;

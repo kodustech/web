@@ -84,14 +84,6 @@ export default async function Layout({
         "cockpit-selected-repository" satisfies CookieName,
     )?.value;
 
-    const hasJIRAConnected =
-        connections?.find(
-            (c) =>
-                c.platformName === "JIRA" &&
-                c.hasConnection &&
-                c.isSetupComplete,
-        ) !== undefined;
-
     const entries = Object.entries(tabs);
 
     return (
@@ -120,16 +112,14 @@ export default async function Layout({
                 <div className="mt-10">
                     <Tabs
                         defaultValue={
-                            (hasJIRAConnected
-                                ? "flow-metrics"
-                                : "productivity") satisfies TabValue
+                            ("productivity") satisfies TabValue
                         }>
                         <TabsList>
+                            {/* TODO: add JIRA tab */}
                             {entries.map(([value, name]) => {
                                 if (
                                     value ===
-                                        ("flow-metrics" satisfies TabValue) &&
-                                    !hasJIRAConnected
+                                    ("flow-metrics" satisfies TabValue)
                                 ) {
                                     return;
                                 }

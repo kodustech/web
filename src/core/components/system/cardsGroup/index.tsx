@@ -6,11 +6,8 @@ import { Button } from "@components/ui/button";
 import { Heading } from "@components/ui/heading";
 import { SvgAzureRepos } from "@components/ui/icons/SvgAzureRepos";
 import { SvgBitbucket } from "@components/ui/icons/SvgBitbucket";
-import { SvgDiscord } from "@components/ui/icons/SvgDiscord";
 import { SvgGithub } from "@components/ui/icons/SvgGithub";
 import { SvgGitlab } from "@components/ui/icons/SvgGitlab";
-import { SvgJira } from "@components/ui/icons/SvgJira";
-import { SvgSlack } from "@components/ui/icons/SvgSlack";
 import { magicModal } from "@components/ui/magic-modal";
 import { toast } from "@components/ui/toaster/use-toast";
 import { INTEGRATIONS_KEY, type INTEGRATIONS_TYPES } from "@enums";
@@ -30,7 +27,6 @@ import { useOrganizationContext } from "src/features/organization/_providers/org
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { INTEGRATION_CONFIG } from "@services/integrations/integrationConfig";
 import { IntegrationCategory } from "src/core/types";
-import { useAuth } from "src/core/providers/auth.provider";
 import CardConnection from "./cardConnection";
 import { AzureReposModal } from "./modals/azure-repos-token";
 import { BitbucketModal } from "./modals/bitbucket-token";
@@ -38,40 +34,6 @@ import { CloneOfferingModal } from "./modals/clone-offering";
 import { CloneSelectTeamModal } from "./modals/clone-select-team";
 import { OauthOrTokenModal } from "./modals/oauth-or-token";
 import TextTopIntegrations from "./textTopIntegrations";
-
-const communicationPlatforms = {
-    [INTEGRATIONS_KEY.SLACK]: {
-        svg: <SvgSlack />,
-        platformName: "Slack",
-    },
-    [INTEGRATIONS_KEY.DISCORD]: {
-        svg: <SvgDiscord />,
-        platformName: "Discord",
-    },
-} satisfies Partial<
-    Record<
-        INTEGRATIONS_KEY,
-        {
-            svg: React.ReactNode;
-            platformName: string;
-        }
-    >
->;
-
-const projectManagementPlatforms = {
-    [INTEGRATIONS_KEY.JIRA]: {
-        svg: <SvgJira />,
-        platformName: "Jira",
-    },
-} satisfies Partial<
-    Record<
-        INTEGRATIONS_KEY,
-        {
-            svg: React.ReactNode;
-            platformName: string;
-        }
-    >
->;
 
 const codeManagementPlatforms = {
     [INTEGRATIONS_KEY.GITHUB]: {
@@ -121,7 +83,6 @@ export default function CardsGroup({
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [integrationToDelete, setIntegrationToDelete] = useState<string>("");
     const { invalidateQueries, generateQueryKey } = useReactQueryInvalidateQueries();
-    const { userId } = useAuth();
 
     const [connections] = useState<
         Array<{
@@ -150,24 +111,6 @@ export default function CardsGroup({
                 isSetupComplete: false,
                 hasConnection: false,
                 serviceType: "codeManagement",
-            },
-            {
-                key: INTEGRATIONS_KEY.JIRA,
-                isSetupComplete: false,
-                hasConnection: false,
-                serviceType: "projectManagement",
-            },
-            {
-                key: INTEGRATIONS_KEY.SLACK,
-                isSetupComplete: false,
-                hasConnection: false,
-                serviceType: "communication",
-            },
-            {
-                key: INTEGRATIONS_KEY.DISCORD,
-                isSetupComplete: false,
-                hasConnection: false,
-                serviceType: "communication",
             },
             {
                 key: INTEGRATIONS_KEY.BITBUCKET,
@@ -467,17 +410,9 @@ export default function CardsGroup({
 
     const connectedPlatforms = connections.filter((c) => c.isSetupComplete);
 
-    const connectedCommunicationPlatform = connectedPlatforms.find(
-        (c) => c.serviceType === "communication",
-    )?.key as keyof typeof communicationPlatforms;
-
     const connectedCodeManagementPlatform = connectedPlatforms.find(
         (c) => c.serviceType === "codeManagement",
     )?.key as keyof typeof codeManagementPlatforms;
-
-    const connectedProjectManagementPlatform = connectedPlatforms.find(
-        (c) => c.serviceType === "projectManagement",
-    )?.key as keyof typeof projectManagementPlatforms;
 
     const wrappedConnectIntegration = (title: string, serviceType?: string) => {
         handleIntegrationClick(
@@ -488,7 +423,6 @@ export default function CardsGroup({
 
     const hasProjectOrCodeManagementConnection = (): boolean => {
         return (
-            !connectedProjectManagementPlatform &&
             !connectedCodeManagementPlatform
         );
     };
@@ -595,101 +529,6 @@ export default function CardsGroup({
                                                 handleIntegrationClick(
                                                     key as INTEGRATIONS_KEY,
                                                     "codeManagement",
-                                                );
-                                            }}
-                                        />
-                                    );
-                                },
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                <div>
-                    <TextTopIntegrations serviceType="projectManagement" />
-
-                    {connectedProjectManagementPlatform ? (
-                        <CardConnection
-                            integrationKey={connectedProjectManagementPlatform}
-                            svg={
-                                projectManagementPlatforms[
-                                    connectedProjectManagementPlatform
-                                ].svg
-                            }
-                            title={
-                                projectManagementPlatforms[
-                                    connectedProjectManagementPlatform
-                                ].platformName
-                            }
-                            isSetupComplete={true}
-                            connectIntegration={wrappedConnectIntegration}
-                            editIntegration={editIntegration}
-                            deleteIntegration={handleDeleteIntegration}
-                        />
-                    ) : (
-                        <div className="flex h-full flex-col gap-2 md:min-h-[220px]">
-                            {Object.entries(projectManagementPlatforms).map(
-                                ([key, connection]) => {
-                                    return (
-                                        <IntegrationCard
-                                            key={key}
-                                            connection={{
-                                                platformName:
-                                                    connection.platformName,
-                                                svg: connection.svg,
-                                            }}
-                                            onClick={() => {
-                                                handleIntegrationClick(
-                                                    key as INTEGRATIONS_KEY,
-                                                    "projectManagement",
-                                                );
-                                            }}
-                                        />
-                                    );
-                                },
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                <div>
-                    <TextTopIntegrations serviceType="communication" />
-
-                    {connectedCommunicationPlatform ? (
-                        <CardConnection
-                            integrationKey={connectedCommunicationPlatform}
-                            svg={
-                                communicationPlatforms[
-                                    connectedCommunicationPlatform
-                                ].svg
-                            }
-                            title={
-                                communicationPlatforms[
-                                    connectedCommunicationPlatform
-                                ].platformName
-                            }
-                            isSetupComplete={true}
-                            connectIntegration={wrappedConnectIntegration}
-                            editIntegration={editIntegration}
-                            deleteIntegration={handleDeleteIntegration}
-                        />
-                    ) : (
-                        <div className="flex h-full flex-col gap-2 md:min-h-[220px]">
-                            {Object.entries(communicationPlatforms).map(
-                                ([key, connection]) => {
-                                    return (
-                                        <IntegrationCard
-                                            key={key}
-                                            connection={{
-                                                platformName:
-                                                    connection.platformName,
-                                                svg: connection.svg,
-                                            }}
-                                            disabled={hasProjectOrCodeManagementConnection()}
-                                            onClick={() => {
-                                                handleIntegrationClick(
-                                                    key as INTEGRATIONS_KEY,
-                                                    "communication",
                                                 );
                                             }}
                                         />

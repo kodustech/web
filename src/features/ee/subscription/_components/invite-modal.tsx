@@ -21,10 +21,12 @@ import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side"
 import { z } from "zod";
 
 const emailSchema = z.object({
-    email: z
-        .string()
-        .min(1, { message: "Email is required" })
-        .email({ message: "Please enter a valid email" }),
+    email: z.email({
+                error: "Please enter a valid email"
+            })
+            .min(1, {
+                error: "Email is required"
+            }),
 });
 
 type EmailFormValues = z.infer<typeof emailSchema>;

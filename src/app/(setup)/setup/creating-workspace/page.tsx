@@ -33,10 +33,14 @@ const createFormSchema = (userDomain: string) =>
         .object({
             organizationName: z
                 .string()
-                .min(1, { message: "What's your organization's name?" }),
+                .min(1, {
+                    error: "What's your organization's name?"
+                }),
             phone: z
                 .string()
-                .refine(isValidPhoneNumber, { message: "Invalid phone number" })
+                .refine(isValidPhoneNumber, {
+                    error: "Invalid phone number"
+                })
                 .or(z.literal(""))
                 .optional(),
             autoJoin: z.boolean().optional(),
@@ -48,7 +52,7 @@ const createFormSchema = (userDomain: string) =>
                             return /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
                         },
                         {
-                            message: "Invalid domain format",
+                            error: "Invalid domain format"
                         },
                     ),
                 )
@@ -61,7 +65,7 @@ const createFormSchema = (userDomain: string) =>
 
                 if (validDomains.length === 0) {
                     ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
+                        code: "custom",
                         message:
                             "At least one domain is required when auto-join is enabled.",
                         path: ["autoJoinDomains"],
@@ -76,7 +80,7 @@ const createFormSchema = (userDomain: string) =>
 
                 if (isPublicDomain) {
                     ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
+                        code: "custom",
                         message:
                             "Public email domains like gmail.com are not allowed.",
                         path: ["autoJoinDomains"],
@@ -88,7 +92,7 @@ const createFormSchema = (userDomain: string) =>
                 );
                 if (hasMismatchedDomain) {
                     ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
+                        code: "custom",
                         message: "You can only add your own domain.",
                         path: ["autoJoinDomains"],
                     });

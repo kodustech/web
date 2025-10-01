@@ -24,8 +24,12 @@ import { captureSegmentEvent } from "src/core/utils/segment";
 import { z } from "zod";
 
 const tokenFormSchema = z.object({
-    token: z.string().min(1, { message: "Enter a Token" }),
-    orgName: z.string().min(1, { message: "Enter a Organization Name" }),
+    token: z.string().min(1, {
+        error: "Enter a Token"
+    }),
+    orgName: z.string().min(1, {
+        error: "Enter a Organization Name"
+    }),
 });
 
 export const AzureReposTokenModal = (props: {

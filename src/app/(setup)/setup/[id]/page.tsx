@@ -17,11 +17,6 @@ import { INTEGRATIONS_KEY } from "@enums";
 import { useEffectOnce } from "@hooks/use-effect-once";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { createCodeManagementIntegration } from "@services/codeManagement/fetch";
-import {
-    postDiscordAuthIntegration,
-    postSlackAuthIntegration,
-} from "@services/communication/fetch";
-import { createProjectManagementIntegration } from "@services/projectManagement/fetch";
 import { SETUP_PATHS } from "@services/setup";
 import { saveOrganizationNameGithub } from "@services/setup/fetch";
 import { useGetGithubOrganizationName } from "@services/setup/hooks";
@@ -89,8 +84,8 @@ export default function Redirect() {
             const selectedTeamCookie = getCookie("selectedTeam") as any;
             const savedTeam =
                 selectedTeamCookie &&
-                selectedTeamCookie !== "undefined" &&
-                selectedTeamCookie !== ""
+                    selectedTeamCookie !== "undefined" &&
+                    selectedTeamCookie !== ""
                     ? (JSON.parse(selectedTeamCookie) as any)
                     : null;
 
@@ -149,25 +144,7 @@ export default function Redirect() {
             teamId: selectedTeam || teamId,
         };
 
-        if (integration === INTEGRATIONS_KEY.SLACK) {
-            const codeFomatted = code ?? "";
-
-            if (organizationId && codeFomatted) {
-                integrationResponse = await postSlackAuthIntegration(
-                    codeFomatted,
-                    organizationAndTeamData,
-                );
-            }
-        } else if (integration === INTEGRATIONS_KEY.DISCORD) {
-            const codeFomatted = code ?? "";
-
-            if (organizationId && codeFomatted) {
-                integrationResponse = await postDiscordAuthIntegration(
-                    codeFomatted,
-                    organizationAndTeamData,
-                );
-            }
-        } else if (integration === INTEGRATIONS_KEY.GITHUB) {
+        if (integration === INTEGRATIONS_KEY.GITHUB) {
             if (organizationId) {
                 integrationResponse = await createCodeManagementIntegration({
                     integrationType: PlatformType.GITHUB,
@@ -202,24 +179,16 @@ export default function Redirect() {
                     },
                 });
             }
-        } else if (integration === INTEGRATIONS_KEY.JIRA) {
-            if (organizationId) {
-                integrationResponse = await createProjectManagementIntegration(
-                    code,
-                    "JIRA",
-                    organizationAndTeamData,
-                );
-            }
         }
 
         switch (integration) {
             case INTEGRATIONS_KEY.GITHUB: {
                 switch (
-                    (
-                        integrationResponse as Awaited<
-                            ReturnType<typeof createCodeManagementIntegration>
-                        >
-                    ).data.status
+                (
+                    integrationResponse as Awaited<
+                        ReturnType<typeof createCodeManagementIntegration>
+                    >
+                ).data.status
                 ) {
                     case "SUCCESS": {
                         await redirectToConfiguration(
@@ -274,58 +243,13 @@ export default function Redirect() {
                 }
             }
 
-            case INTEGRATIONS_KEY.SLACK:
-                if (integrationResponse?.success) {
-                    await redirectToConfiguration(
-                        INTEGRATIONS_KEY.SLACK,
-                        selectedTeam,
-                    );
-                }
-                break;
-
-            case INTEGRATIONS_KEY.JIRA:
-                if (integrationResponse?.data?.success) {
-                    await redirectToConfiguration(
-                        INTEGRATIONS_KEY.JIRA,
-                        selectedTeam,
-                    );
-                }
-                break;
-
-            case INTEGRATIONS_KEY.MSTEAMS:
-                if (integrationResponse?.success) {
-                    await redirectToConfiguration(
-                        INTEGRATIONS_KEY.MSTEAMS,
-                        selectedTeam,
-                    );
-                }
-                break;
-
-            case INTEGRATIONS_KEY.DISCORD:
-                if (integrationResponse?.success) {
-                    await redirectToConfiguration(
-                        INTEGRATIONS_KEY.DISCORD,
-                        selectedTeam,
-                    );
-                }
-                break;
-
-            case INTEGRATIONS_KEY.AZUREBOARDS:
-                if (integrationResponse?.success) {
-                    await redirectToConfiguration(
-                        INTEGRATIONS_KEY.AZUREBOARDS,
-                        selectedTeam,
-                    );
-                }
-                break;
-
             case INTEGRATIONS_KEY.GITLAB: {
                 switch (
-                    (
-                        integrationResponse as Awaited<
-                            ReturnType<typeof createCodeManagementIntegration>
-                        >
-                    ).data.status
+                (
+                    integrationResponse as Awaited<
+                        ReturnType<typeof createCodeManagementIntegration>
+                    >
+                ).data.status
                 ) {
                     case "SUCCESS": {
                         await redirectToConfiguration(
@@ -393,13 +317,6 @@ export default function Redirect() {
                 setError(true);
         }
     };
-
-    async function saveOrganizationName() {
-        await saveOrganizationNameGithub(
-            inputText?.toLocaleLowerCase()?.trim(),
-        );
-        router.replace("/setup");
-    }
 
     const handleConfirmIntegration = () => {
         setIsIntegrating(true);

@@ -3,7 +3,7 @@ import type { JWT } from "next-auth/jwt";
 import { CodeReviewRepositoryConfig } from "src/app/(app)/settings/code-review/_types";
 import invariant from "tiny-invariant";
 
-import { API_ROUTES, type ApiRoute } from "../config/constants";
+import { type ApiRoute } from "../config/constants";
 import { type LiteralUnion } from "../types";
 import { isSelfHosted } from "../utils/self-hosted";
 import { isServerSide } from "./server-side";
@@ -33,48 +33,6 @@ export function pathToApiUrl(
     const port = process.env.WEB_PORT_API;
 
     return createUrl(hostName, port, path);
-}
-
-export function pathToSlackApiUrl(path: ApiRoute | string): string {
-    invariant(path, "Api path doesn't exist");
-
-    const defaultSlackHostname = "https://slack.com/api";
-    const hostName = process.env.GLOBAL_SLACK_HOSTNAME || defaultSlackHostname;
-
-    if (!process.env.GLOBAL_SLACK_HOSTNAME) {
-        console.warn(
-            "Warning: Slack hostname is not configured. Using default:",
-            defaultSlackHostname,
-        );
-    }
-
-    const defaultSlackPort = "";
-    const port = process.env.WEB_SLACK_PORT_API || defaultSlackPort;
-
-    if (!process.env.WEB_SLACK_PORT_API) {
-        console.warn(
-            "Warning: Slack port is not configured. Using default:",
-            defaultSlackPort,
-        );
-    }
-
-    return createUrl(hostName, port, path);
-}
-
-export function pathToDiscordApiUrl(path: ApiRoute | string): string {
-    invariant(path, "Api path doesn't exist");
-
-    const defaultDiscordUrl = "https://discord.com/api";
-    const serviceUrl = process.env.GLOBAL_DISCORD_HOSTNAME || defaultDiscordUrl;
-
-    if (!process.env.GLOBAL_DISCORD_HOSTNAME) {
-        console.warn(
-            "Warning: Discord service URL is not configured. Using default:",
-            defaultDiscordUrl,
-        );
-    }
-
-    return `${serviceUrl}${path}`;
 }
 
 export function createUrl(

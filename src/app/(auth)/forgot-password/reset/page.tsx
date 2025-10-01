@@ -22,18 +22,23 @@ import AuthPageHeader from "../../components/auth-page-header";
 const resetPassFormSchema = z
     .object({
         password: z
-            .string({ required_error: "Enter a password" })
-            .min(8, { message: "Invalid password" })
+            .string({
+                error: (issue) => issue.input === undefined ? "Enter a password" : undefined
+            })
+            .min(8, {
+                error: "Invalid password"
+            })
             .regex(/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/, {
-                message:
-                    "Password must include at least 1 uppercase letter, 1 number, and 1 special character",
+                error: "Password must include at least 1 uppercase letter, 1 number, and 1 special character"
             }),
-        confirmPassword: z.string({ required_error: "Confirm your password" }),
+        confirmPassword: z.string({
+            error: (issue) => issue.input === undefined ? "Confirm your password" : undefined
+        }),
     })
     .superRefine(({ confirmPassword, password }, ctx) => {
         if (confirmPassword !== password) {
             ctx.addIssue({
-                code: z.ZodIssueCode.custom,
+                code: "custom",
                 message: "Passwords must match",
                 path: ["confirmPassword"],
             });

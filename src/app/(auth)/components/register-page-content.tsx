@@ -389,15 +389,18 @@ const formSchema = z
         name: z
             .string()
             .trim()
-            .min(1, { message: "Enter your name" })
+            .min(1, {
+                error: "Enter your name"
+            })
             .regex(/^[\p{L}\s'-]+$/u, {
-                message:
-                    "Name can only contain letters, spaces, hyphens and apostrophes",
+                error: "Name can only contain letters, spaces, hyphens and apostrophes"
             }),
-        email: z
-            .string()
-            .min(1, { message: "Enter your email" })
-            .email({ message: "Invalid email address" })
+        email: z.email({
+                        error: "Invalid email address"
+                    })
+                    .min(1, {
+                        error: "Enter your email"
+                    })
             .refine(
                 (email) => {
                     const [, domain] = email.split("@");
@@ -413,7 +416,9 @@ const formSchema = z
                         ].includes(domain.toLowerCase())
                     );
                 },
-                { message: "Please use a corporate email address" },
+                {
+                    error: "Please use a corporate email address"
+                },
             )
             .refine(async (email) => {
                 try {
@@ -425,19 +430,24 @@ const formSchema = z
                 }
             }, "The email is already in use"),
         password: z
-            .string({ required_error: "Enter a password" })
-            .min(8, { message: "Invalid password" })
+            .string({
+                error: (issue) => issue.input === undefined ? "Enter a password" : undefined
+            })
+            .min(8, {
+                error: "Invalid password"
+            })
             .regex(/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$/, {
-                message:
-                    "Password must include at least 1 uppercase letter, 1 number, and 1 special character",
+                error: "Password must include at least 1 uppercase letter, 1 number, and 1 special character"
             }),
-        confirmPassword: z.string({ required_error: "Confirm your password" }),
+        confirmPassword: z.string({
+            error: (issue) => issue.input === undefined ? "Confirm your password" : undefined
+        }),
     })
 
     .superRefine(({ confirmPassword, password }, ctx) => {
         if (confirmPassword !== password) {
             ctx.addIssue({
-                code: z.ZodIssueCode.custom,
+                code: "custom",
                 message: "Passwords must match",
                 path: ["confirmPassword"],
             });
