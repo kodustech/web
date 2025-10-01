@@ -69,7 +69,7 @@ export const getUsersWithLicense = async (params: { teamId: string }) => {
     if (isSelfHosted) return [];
 
     const organizationId = await getOrganizationId();
-    return billingFetch<Array<{ git_id: string }>>(`/users-with-license`, {
+    return billingFetch<Array<{ git_id: string }>>(`users-with-license`, {
         params: { organizationId, teamId: params.teamId },
     });
 };
@@ -77,7 +77,7 @@ export const getUsersWithLicense = async (params: { teamId: string }) => {
 export const getPlans = () =>
     billingFetch<{
         plans: Array<Plan>;
-    }>(`/plans`);
+    }>(`plans`);
 
 export const assignOrDeassignUserLicense = async (params: {
     teamId: string;
@@ -117,7 +117,7 @@ export const validateOrganizationLicense = async (params: {
     }
 
     const organizationId = await getOrganizationId();
-    return billingFetch(`/validate-org-license`, {
+    return billingFetch(`validate-org-license`, {
         method: "GET",
         params: { organizationId, teamId: params.teamId },
     });
