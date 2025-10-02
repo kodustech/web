@@ -30,6 +30,7 @@ import {
     KodyRuleInheritanceOrigin,
     KodyRulesOrigin,
     KodyRulesStatus,
+    KodyRuleWithInheritanceDetails,
     type KodyRule,
 } from "@services/kodyRules/types";
 import {
@@ -97,7 +98,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
     onClose,
     canEdit,
 }: {
-    rule?: KodyRule;
+    rule?: KodyRuleWithInheritanceDetails;
     directory?: CodeReviewDirectoryConfig;
     repositoryId: string;
     onClose?: () => void;

@@ -10,8 +10,7 @@ import { Separator } from "@components/ui/separator";
 import { Skeleton } from "@components/ui/skeleton";
 import { KODY_RULES_PATHS } from "@services/kodyRules";
 import {
-    KodyRuleInheritanceOrigin,
-    KodyRulesStatus,
+    KodyRuleWithInheritanceDetails,
     type KodyRule,
 } from "@services/kodyRules/types";
 import { KodyLearningStatus } from "@services/parameters/types";
@@ -25,7 +24,6 @@ import { GenerateRulesOptions } from "../../../_components/generate-rules-option
 import GeneratingConfig from "../../../_components/generating-config";
 import { KodyRuleAddOrUpdateItemModal } from "../../../_components/modal";
 import { PendingKodyRulesModal } from "../../../_components/pending-rules-modal";
-import { KodyRulesInheritedRulesModal } from "../../../_components/repo-global-rules-modal";
 import {
     useFullCodeReviewConfig,
     usePlatformConfig,
@@ -38,16 +36,14 @@ import { KodyRulesToolbar, type VisibleScopes } from "./toolbar";
 export const KodyRulesPage = ({
     kodyRules,
     pendingRules,
-    excludedRules,
     inheritedGlobalRules,
     inheritedRepoRules,
     inheritedDirectoryRules,
 }: {
     kodyRules: KodyRule[];
-    excludedRules: KodyRule[];
-    inheritedGlobalRules: KodyRule[];
-    inheritedRepoRules: KodyRule[];
-    inheritedDirectoryRules: KodyRule[];
+    inheritedGlobalRules: KodyRuleWithInheritanceDetails[];
+    inheritedRepoRules: KodyRuleWithInheritanceDetails[];
+    inheritedDirectoryRules: KodyRuleWithInheritanceDetails[];
     pendingRules: KodyRule[];
 }) => {
     const platformConfig = usePlatformConfig();
@@ -76,9 +72,6 @@ export const KodyRulesPage = ({
 
     const isGlobalView = repositoryId === "global";
     const isRepoView = !isGlobalView && !directoryId;
-    const parentRepository = isRepoView
-        ? ""
-        : config?.repositories.find((r) => r.id === repositoryId)?.name || "";
 
     const [filterQuery, setFilterQuery] = useState("");
     const [visibleScopes, setVisibleScopes] = useState<VisibleScopes>({
@@ -86,43 +79,50 @@ export const KodyRulesPage = ({
         dir: true,
         repo: true,
         global: true,
-        disabled: false,
+        disabled: true,
     });
 
     const rulesToDisplay = useMemo(() => {
-        const combined: KodyRule[] = [];
+        const sourceRuleSets = [] as (
+            | KodyRule
+            | KodyRuleWithInheritanceDetails
+        )[][];
         if (isGlobalView) {
             // When in global view, kodyRules array contains only global rules
-            combined.push(...kodyRules);
+            sourceRuleSets.push(kodyRules);
         } else if (isRepoView) {
-            if (visibleScopes.self) combined.push(...repositoryOnlyRules);
-            if (visibleScopes.global) combined.push(...inheritedGlobalRules);
+            if (visibleScopes.self) sourceRuleSets.push(repositoryOnlyRules);
+            if (visibleScopes.global) sourceRuleSets.push(inheritedGlobalRules);
         } else {
-            if (visibleScopes.self) combined.push(...directoryOnlyRules);
-            if (visibleScopes.dir) combined.push(...inheritedDirectoryRules);
-            if (visibleScopes.repo) combined.push(...inheritedRepoRules);
-            if (visibleScopes.global) combined.push(...inheritedGlobalRules);
+            if (visibleScopes.self) sourceRuleSets.push(directoryOnlyRules);
+            if (visibleScopes.dir) sourceRuleSets.push(inheritedDirectoryRules);
+            if (visibleScopes.repo) sourceRuleSets.push(inheritedRepoRules);
+            if (visibleScopes.global) sourceRuleSets.push(inheritedGlobalRules);
         }
 
-        if (visibleScopes.disabled) {
-            combined.push(...excludedRules);
+        const combinedRules = sourceRuleSets.flat();
+
+        const activeRules = visibleScopes.disabled
+            ? combinedRules
+            : combinedRules.filter(
+                  (rule) => !("excluded" in rule) || !rule.excluded,
+              );
+
+        const uniqueRulesMap = new Map<
+            string,
+            KodyRule | KodyRuleWithInheritanceDetails
+        >();
+        for (const rule of activeRules) {
+            if (rule.uuid) {
+                uniqueRulesMap.set(rule.uuid, rule);
+            }
         }
+        const uniqueRules = Array.from(uniqueRulesMap.values());
 
-        const deDupedRules = Array.from(
-            combined
-                .reduce((map, rule) => {
-                    if (!map.has(rule.uuid!)) {
-                        map.set(rule.uuid!, rule);
-                    }
-                    return map;
-                }, new Map<string, KodyRule>())
-                .values(),
-        );
-
-        if (!filterQuery) return deDupedRules;
+        if (!filterQuery) return uniqueRules;
 
         const filterQueryLowercase = filterQuery.toLowerCase();
-        return deDupedRules.filter(
+        return uniqueRules.filter(
             (rule) =>
                 rule.title.toLowerCase().includes(filterQueryLowercase) ||
                 rule.path?.toLowerCase().includes(filterQueryLowercase) ||
@@ -131,10 +131,9 @@ export const KodyRulesPage = ({
     }, [
         visibleScopes,
         filterQuery,
-        kodyRules,
         isGlobalView,
         isRepoView,
-        directoryId,
+        kodyRules,
         directoryOnlyRules,
         repositoryOnlyRules,
         inheritedGlobalRules,
@@ -170,14 +169,6 @@ export const KodyRulesPage = ({
         ));
         if (response) refreshRulesList();
     };
-
-    const showGlobalRulesModal = () =>
-        magicModal.show(() => (
-            <KodyRulesInheritedRulesModal
-                inheritedRules={inheritedGlobalRules}
-                repoName="Global"
-            />
-        ));
 
     if (
         platformConfig.kodyLearningStatus ===
@@ -277,44 +268,5 @@ export const KodyRulesPage = ({
                 </div>
             </Page.Content>
         </Page.Root>
-    );
-};
-
-const getHeaderDescription = (
-    isGlobal: boolean,
-    isRepo: boolean,
-    showGlobalRulesModal: () => void,
-    showRepoRulesModal: () => void,
-) => {
-    if (isGlobal) {
-        return (
-            <>Set up automated rules and guidelines for your code reviews.</>
-        );
-    }
-
-    if (isRepo) {
-        return (
-            <>
-                This repository follows{" "}
-                <Link href="" onClick={showGlobalRulesModal}>
-                    Global Kody Rules
-                </Link>{" "}
-                by default.
-            </>
-        );
-    }
-
-    return (
-        <>
-            This directory follows{" "}
-            <Link href="" onClick={showGlobalRulesModal}>
-                Global Kody Rules
-            </Link>{" "}
-            and{" "}
-            <Link href="" onClick={showRepoRulesModal}>
-                Repository Kody Rules
-            </Link>{" "}
-            by default.
-        </>
     );
 };

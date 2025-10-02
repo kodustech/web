@@ -1,7 +1,11 @@
 import { useSuspenseFetch } from "src/core/utils/reactQuery";
 
 import { KODY_RULES_PATHS } from ".";
-import type { KodyRule, LibraryRule } from "./types";
+import type {
+    KodyRule,
+    KodyRuleWithInheritanceDetails,
+    LibraryRule,
+} from "./types";
 
 export const useSuspenseFindLibraryKodyRules = () => {
     const rules = useSuspenseFetch<Record<string, Array<LibraryRule>>>(
@@ -45,10 +49,8 @@ export const useSuspenseGetInheritedKodyRules = (params: {
     directoryId?: string;
 }) => {
     return useSuspenseFetch<{
-        allRules: KodyRule[];
-        globalRules: KodyRule[];
-        repoRules: KodyRule[];
-        directoryRules: KodyRule[];
-        excludedRules: KodyRule[];
+        globalRules: KodyRuleWithInheritanceDetails[];
+        repoRules: KodyRuleWithInheritanceDetails[];
+        directoryRules: KodyRuleWithInheritanceDetails[];
     }>(KODY_RULES_PATHS.GET_INHERITED_RULES, { params });
 };

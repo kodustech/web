@@ -24,8 +24,11 @@ export type KodyRule = {
         exclude?: string[];
         include?: string[];
     };
+};
 
+export type KodyRuleWithInheritanceDetails = KodyRule & {
     inherited?: KodyRuleInheritanceOrigin; // Internal frontend use only
+    excluded?: boolean; // Internal frontend use only
 };
 
 export type LibraryRule = {

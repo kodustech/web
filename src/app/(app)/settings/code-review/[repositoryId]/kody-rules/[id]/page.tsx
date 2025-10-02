@@ -26,11 +26,13 @@ export default async function KodyRuleDetailPage({
 
         let rule = kodyRules.find((r) => r.uuid === id);
         if (!rule) {
-            const { allRules } = await getInheritedKodyRules({
-                teamId,
-                repositoryId,
-                directoryId,
-            });
+            const { directoryRules, globalRules, repoRules } =
+                await getInheritedKodyRules({
+                    teamId,
+                    repositoryId,
+                    directoryId,
+                });
+            const allRules = [...directoryRules, ...globalRules, ...repoRules];
             rule = allRules.find((r) => r.uuid === id);
         }
 

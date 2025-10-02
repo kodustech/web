@@ -23,7 +23,6 @@ export default function KodyRules() {
         directoryRules = [],
         globalRules = [],
         repoRules = [],
-        excludedRules = [],
     } = useSuspenseGetInheritedKodyRules({
         teamId,
         repositoryId,
@@ -52,7 +51,6 @@ export default function KodyRules() {
         <KodyRulesPage
             kodyRules={activeRules}
             pendingRules={pendingRules}
-            excludedRules={excludedRules}
             inheritedDirectoryRules={directoryRules}
             inheritedGlobalRules={globalRules}
             inheritedRepoRules={repoRules}

@@ -14,7 +14,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@components/ui/tooltip";
-import type { KodyRule } from "@services/kodyRules/types";
+import type { KodyRuleWithInheritanceDetails } from "@services/kodyRules/types";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { EditIcon, EyeIcon, TrashIcon } from "lucide-react";
@@ -29,7 +29,7 @@ export const KodyRuleItem = ({
     rule,
     onAnyChange,
 }: {
-    rule: KodyRule;
+    rule: KodyRuleWithInheritanceDetails;
     onAnyChange: () => void;
 }) => {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
@@ -46,22 +46,32 @@ export const KodyRuleItem = ({
     );
 
     const isInherited = !!rule.inherited;
+    const isExcluded = isInherited && !!rule.excluded;
 
     return (
         <Card>
             <CardHeader className="flex-row items-start justify-between gap-10">
                 <div className="-mb-2 flex flex-col gap-2">
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         <IssueSeverityLevelBadge severity={rule.severity} />
 
+                        {rule.sourcePath && (
+                            <Badge
+                                active
+                                size="xs"
+                                className="min-h-auto px-2.5 py-1">
+                                auto-sync
+                            </Badge>
+                        )}
+
                         {isInherited && (
-                            <Tooltip>
+                            <Tooltip delayDuration={500}>
                                 <TooltipTrigger>
                                     <Badge
                                         active
                                         size="xs"
                                         className="bg-muted/10 text-muted ring-muted/64 pointer-events-none h-6 min-h-auto rounded-lg px-2 text-[10px] leading-px uppercase ring-1 [--button-foreground:var(--color-muted)]">
-                                        Inherited
+                                        Inherited: {rule.inherited}
                                     </Badge>
                                 </TooltipTrigger>
 
@@ -78,13 +88,28 @@ export const KodyRuleItem = ({
                             </Tooltip>
                         )}
 
-                        {rule.sourcePath && (
-                            <Badge
-                                active
-                                size="xs"
-                                className="min-h-auto px-2.5 py-1">
-                                auto-sync
-                            </Badge>
+                        {isExcluded && (
+                            <Tooltip delayDuration={500}>
+                                <TooltipTrigger>
+                                    <Badge
+                                        active
+                                        size="xs"
+                                        className="bg-muted/10 text-muted ring-muted/64 pointer-events-none h-6 min-h-auto rounded-lg px-2 text-[10px] leading-px uppercase ring-1 [--button-foreground:var(--color-muted)]">
+                                        Disabled
+                                    </Badge>
+                                </TooltipTrigger>
+
+                                <TooltipContent>
+                                    <p>
+                                        This rule is inherited but disabled for
+                                        this scope.
+                                    </p>
+                                    <p>
+                                        Click the eye icon to view its details
+                                        or to enable it for this scope.
+                                    </p>
+                                </TooltipContent>
+                            </Tooltip>
                         )}
                     </div>
 
