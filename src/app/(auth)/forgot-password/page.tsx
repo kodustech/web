@@ -19,7 +19,9 @@ import AuthPageHeader from "../components/auth-page-header";
 import { useRouter } from "next/navigation";
 
 const forgotPasswordFormSchema = z.object({
-    email: z.string().email({ message: "Please use a valid email address" }),
+    email: z.email({
+            error: "Please use a valid email address"
+        }),
 });
 
 type ForgotPasswordFormSchema = z.infer<typeof forgotPasswordFormSchema>;

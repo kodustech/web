@@ -75,7 +75,6 @@ echo "🔑 Updating generated secrets in .env..."
 if [ -n "$JWT_SECRET" ]; then
     awk -v nextauth="$NEXTAUTH_SECRET" -v jwt="$JWT_SECRET" '
         /^WEB_NEXTAUTH_SECRET=/ { print "WEB_NEXTAUTH_SECRET=\"" nextauth "\""; next }
-        /^WEB_JWT_SECRET_KEY=/ { print "WEB_JWT_SECRET_KEY=\"" jwt "\""; next }
         { print }
     ' .env > .env.tmp && mv .env.tmp .env
 else
@@ -90,7 +89,6 @@ echo ""
 echo "🔑 Generated secrets:"
 echo "   WEB_NEXTAUTH_SECRET: $NEXTAUTH_SECRET"
 if [ -n "$JWT_SECRET" ]; then
-    echo "   WEB_JWT_SECRET_KEY: $JWT_SECRET"
     echo ""
     if [ "$jwt_option" = "1" ]; then
         echo "✅ JWT secret synchronized with your API"
@@ -100,7 +98,7 @@ if [ -n "$JWT_SECRET" ]; then
         echo ""
         echo "📁 Common API folder locations:"
         echo "   - ../api/.env"
-        echo "   - ../backend/.env" 
+        echo "   - ../backend/.env"
         echo "   - ../kodus-api/.env"
         echo "   - ../orchestrator/.env"
         echo "   - Or wherever your API .env is located"

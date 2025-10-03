@@ -29,7 +29,9 @@ export const useFinishOnboardingReviewingPR = ({
         finishOnboardingReviewingPR,
         { loading: isFinishingOnboardingReviewingPR },
     ] = useAsyncAction(async (selectedPR: SelectedPR | undefined) => {
-        if (!selectedPR) return;
+        if (!selectedPR) {
+            return;
+        }
 
         finishOnboarding({
             teamId,

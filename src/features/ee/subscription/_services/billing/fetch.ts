@@ -3,7 +3,7 @@ import { getOrganizationId } from "@services/organizations/fetch";
 import { pathToApiUrl } from "src/core/utils/helpers";
 import { isSelfHosted } from "src/core/utils/self-hosted";
 
-import type { OrganizationLicense } from "./types";
+import type { OrganizationLicense, Plan } from "./types";
 import { billingFetch } from "./utils";
 
 export const getPullRequestAuthors = async () => {
@@ -41,6 +41,7 @@ export const startTeamTrial = async (params: {
 export const createCheckoutSession = async (params: {
     teamId: string;
     quantity: number;
+    planId: string;
 }) => {
     const organizationId = await getOrganizationId();
 
@@ -50,6 +51,7 @@ export const createCheckoutSession = async (params: {
             organizationId,
             teamId: params.teamId,
             quantity: params.quantity,
+            planType: params.planId,
         }),
     });
 };
@@ -67,10 +69,15 @@ export const getUsersWithLicense = async (params: { teamId: string }) => {
     if (isSelfHosted) return [];
 
     const organizationId = await getOrganizationId();
-    return billingFetch<Array<{ git_id: string }>>(`/users-with-license`, {
+    return billingFetch<Array<{ git_id: string }>>(`users-with-license`, {
         params: { organizationId, teamId: params.teamId },
     });
 };
+
+export const getPlans = () =>
+    billingFetch<{
+        plans: Array<Plan>;
+    }>(`plans`);
 
 export const assignOrDeassignUserLicense = async (params: {
     teamId: string;
@@ -110,7 +117,7 @@ export const validateOrganizationLicense = async (params: {
     }
 
     const organizationId = await getOrganizationId();
-    return billingFetch(`/validate-org-license`, {
+    return billingFetch(`validate-org-license`, {
         method: "GET",
         params: { organizationId, teamId: params.teamId },
     });

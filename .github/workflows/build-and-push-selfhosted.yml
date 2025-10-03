@@ -26,26 +26,15 @@ jobs:
                   echo WEB_NODE_ENV=self-hosted >> .env
                   echo WEB_HOSTNAME_API=self-hosted >> .env
                   echo WEB_HOSTNAME_BILLING= >> .env
-                  echo WEB_JWT_SECRET_KEY= >> .env
                   echo WEB_NEXTAUTH_SECRET= >> .env
                   echo NEXTAUTH_URL= >> .env
-                  echo WEB_CONNECTION_SLACK= >> .env
-                  echo GLOBAL_JIRA_CLIENT_ID= >> .env
-                  echo GLOBAL_JIRA_REDIRECT_URL= >> .env
-                  echo WEB_JIRA_SCOPES= >> .env
-                  echo GLOBAL_GITHUB_CLIENT_ID= >> .env
-                  echo GLOBAL_GITHUB_REDIRECT_URL= >> .env
                   echo WEB_GITHUB_INSTALL_URL= >> .env
                   echo GITHUB_CLIENT_SECRET= >> .env
                   echo GLOBAL_GITLAB_CLIENT_ID= >> .env
                   echo GLOBAL_GITLAB_REDIRECT_URL= >> .env
                   echo WEB_GITLAB_SCOPES= >> .env
                   echo WEB_GITLAB_OAUTH_URL= >> .env
-                  echo GLOBAL_GITLAB_CLIENT_SECRET= >> .env
                   echo WEB_TERMS_AND_CONDITIONS="https://kodus.notion.site/Pol-tica-de-uso-de-dados-e-permiss-es-8e43a48513d74be984c3089a2f9631fd?pvs=4" >> .env
-                  echo GLOBAL_SLACK_HOSTNAME= >> .env
-                  echo WEB_CONNECTION_DISCORD= >> .env
-                  echo GLOBAL_DISCORD_HOSTNAME= >> .env
                   echo AZURE_REPOS_HOSTNAME= >> .env
                   echo WEB_OAUTH_GITLAB_CLIENT_ID= >> .env
                   echo WEB_OAUTH_GITLAB_CLIENT_SECRET= >> .env

@@ -1,6 +1,7 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import type { Route } from "next";
+import { usePathname } from "next/navigation";
 import { Button } from "@components/ui/button";
 import { Link } from "@components/ui/link";
 import { Separator } from "@components/ui/separator";
@@ -13,21 +14,35 @@ import {
     SidebarMenu,
     SidebarMenuItem,
 } from "@components/ui/sidebar";
-import { Cog } from "lucide-react";
+import { CogIcon, LockKeyholeOpenIcon } from "lucide-react";
+import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
+import { useSubscriptionContext } from "src/features/ee/subscription/_providers/subscription-context";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 export const ConfigsSidebar = () => {
     const { organizationName } = useOrganizationContext();
     const pathname = usePathname();
-    const router = useRouter();
+    const { license } = useSubscriptionContext();
 
     const topItems = [
         {
-            icon: Cog,
+            icon: CogIcon,
             label: "General",
             href: `/organization/general`,
+            visible: true,
         },
-    ];
+        {
+            icon: LockKeyholeOpenIcon,
+            label: "BYOK",
+            href: `/organization/byok`,
+            visible: isBYOKSubscriptionPlan(license),
+        },
+    ] satisfies Array<{
+        icon: React.ComponentType;
+        label: string;
+        href: Route;
+        visible: boolean;
+    }>;
 
     return (
         <Sidebar className="bg-card-lv1">
@@ -45,31 +60,33 @@ export const ConfigsSidebar = () => {
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
-                            {topItems.map(({ icon: Icon, ...project }) => {
-                                const selected = pathname.startsWith(
-                                    project.href,
-                                );
+                            {topItems
+                                .filter((item) => item.visible)
+                                .map(({ icon: Icon, ...project }) => {
+                                    const selected = pathname.startsWith(
+                                        project.href,
+                                    );
 
-                                return (
-                                    <SidebarMenuItem key={project.label}>
-                                        <Link href={project.href}>
-                                            <Button
-                                                size="md"
-                                                decorative
-                                                leftIcon={<Icon />}
-                                                active={selected}
-                                                className="w-full justify-start border-none"
-                                                variant={
-                                                    selected
-                                                        ? "helper"
-                                                        : "cancel"
-                                                }>
-                                                {project.label}
-                                            </Button>
-                                        </Link>
-                                    </SidebarMenuItem>
-                                );
-                            })}
+                                    return (
+                                        <SidebarMenuItem key={project.label}>
+                                            <Link href={project.href}>
+                                                <Button
+                                                    size="md"
+                                                    decorative
+                                                    leftIcon={<Icon />}
+                                                    active={selected}
+                                                    className="w-full justify-start border-none"
+                                                    variant={
+                                                        selected
+                                                            ? "helper"
+                                                            : "cancel"
+                                                    }>
+                                                    {project.label}
+                                                </Button>
+                                            </Link>
+                                        </SidebarMenuItem>
+                                    );
+                                })}
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>

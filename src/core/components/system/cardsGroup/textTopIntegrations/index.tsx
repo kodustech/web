@@ -6,17 +6,12 @@ const textTopObject = {
         title: "Source code management",
         subTitle: "(Choose one)",
     },
-    projectManagement: {
-        title: "Project management",
-        subTitle: "(Optional)",
-    },
-    communication: { title: "Communication", subTitle: "(Optional)" },
 };
 
 const TextTopIntegrations = ({
     serviceType,
 }: {
-    serviceType: "codeManagement" | "communication" | "projectManagement";
+    serviceType: "codeManagement"
 }): React.ReactNode => {
     const textObject = textTopObject[serviceType];
     return (

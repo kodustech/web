@@ -56,12 +56,6 @@ export type TODO = any;
 export enum PlatformType {
     GITHUB = "GITHUB",
     GITLAB = "GITLAB",
-    JIRA = "JIRA",
-    SLACK = "SLACK",
-    NOTION = "NOTION",
-    MSTEAMS = "MSTEAMS",
-    DISCORD = "DISCORD",
-    AZURE_BOARDS = "AZURE_BOARDS",
     AZURE_REPOS = "AZURE_REPOS",
     BITBUCKET = "BITBUCKET",
 }

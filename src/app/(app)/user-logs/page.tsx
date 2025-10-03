@@ -1,22 +1,9 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
-import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
-
-import { UserLogsPageClient } from "./_components/page.client";
+import Page from "src/features/ee/user-logs/page";
 
 export const metadata: Metadata = {
     title: "User Activity Logs",
     openGraph: { title: "User Activity Logs" },
 };
 
-export default async function UserLogsPage() {
-    const logsPagesFeatureFlag = await getFeatureFlagWithPayload({
-        feature: "logs-pages",
-    });
-
-    if (!logsPagesFeatureFlag?.value) {
-        notFound();
-    }
-
-    return <UserLogsPageClient />;
-}
+export default Page;

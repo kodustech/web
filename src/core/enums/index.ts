@@ -7,11 +7,6 @@ export const GIT_INTEGRATIONS_KEY = {
 
 export const INTEGRATIONS_KEY = {
     ...GIT_INTEGRATIONS_KEY,
-    JIRA: "jira",
-    AZUREBOARDS: "azure-boards",
-    SLACK: "slack",
-    MSTEAMS: "msteams",
-    DISCORD: "discord",
 } as const;
 
 export type INTEGRATIONS_KEY =
@@ -21,9 +16,7 @@ export type INTEGRATIONS_TYPES =
     (typeof INTEGRATIONS_TYPES)[keyof typeof INTEGRATIONS_TYPES];
 
 export const INTEGRATIONS_TYPES = {
-    PROJECT_MANAGEMENT: "projectManagement",
     CODE_MANAGEMENT: "codeManagement",
-    COMMUNICATION: "communication",
 } as const;
 
 export enum TeamRole {
@@ -56,17 +49,4 @@ export enum AutomationsTagsEnum {
 
 export enum AutomationType {
     AUTOMATION_CODE_REVIEW = "AutomationCodeReview",
-    AUTOMATION_DAILY_CHECKIN = "AutomationDailyCheckin",
-    AUTOMATION_TEAM_PROGRESS = "AutomationTeamProgress",
-
-    AUTOMATION_INTERACTION_MONITOR = "AutomationInteractionMonitor",
-    AUTOMATION_ISSUES_DETAILS = "AutomationIssuesDetails",
-    AUTOMATION_IMPROVE_TASK = "AutomationImproveTask",
-    AUTOMATION_ENSURE_ASSIGNEES = "AutomationEnsureAssignees",
-    AUTOMATION_COMMIT_VALIDATION = "AutomationCommitValidation",
-    AUTOMATION_WIP_LIMITS = "AutomationWipLimits",
-    AUTOMATION_WAITING_CONSTRAINTS = "AutomationWaitingConstraints",
-    AUTOMATION_TASK_BREAKDOWN = "AutomationTaskBreakdown",
-    AUTOMATION_USER_REQUESTED_BREAKDOWN = "AutomationUserRequestedBreakdown",
-    AUTOMATION_RETROACTIVE_MOVEMENT = "AutomationRetroactiveMovement",
 }

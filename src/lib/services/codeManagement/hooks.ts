@@ -9,29 +9,6 @@ import {
     type Repository,
 } from "./types";
 
-// TODO: remove, unused
-export function useVerifyConnection(teamId: string) {
-    return useFetch<any>(
-        CODE_MANAGEMENT_API_PATHS.VERIFY_CONNECTION,
-        {
-            params: { teamId },
-        },
-        !!teamId,
-    );
-}
-
-// TODO: remove, unused
-export function useGetCodeManagementMembers() {
-    return useFetch<Select[]>(CODE_MANAGEMENT_API_PATHS.LIST_MEMBERS);
-}
-
-// TODO: remove, unused
-export function useGetOrganizations() {
-    return useFetch<IntegrationsCommon[]>(
-        CODE_MANAGEMENT_API_PATHS.GET_ORGANIZATIONS,
-    );
-}
-
 export function useGetRepositories(
     teamId: string,
     organizationSelected?: any,
@@ -79,6 +56,7 @@ export function useSuspenseGetOnboardingPullRequests(teamId: string) {
         id: pr.id,
         pull_number: pr.pull_number,
         repository: pr.repository.name, // Extract name from repository object
+        repositoryId: pr.repository.id,
         title: pr.title,
         url: pr.url,
     }));

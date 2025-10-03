@@ -12,7 +12,6 @@ import {
     NavigationMenuList,
 } from "@components/ui/navigation-menu";
 import { Spinner } from "@components/ui/spinner";
-import { UserRole } from "@enums";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import {
@@ -23,7 +22,6 @@ import {
 } from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
 import { UserNav } from "src/core/layout/navbar/_components/user-nav";
-import { useAuth } from "src/core/providers/auth.provider";
 import type { AwaitedReturnType } from "src/core/types";
 import { cn } from "src/core/utils/components";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
@@ -93,30 +91,27 @@ export const NavMenu = ({
             visible: boolean;
             badge?: React.JSX.Element;
         }> = [
-            // {
-            //     label: "Chat",
-            //     icon: <MessageSquareText size={16} />,
-            //     href: "/chat",
-            //     visible: true,
-            // },
-            {
-                label: "Cockpit",
-                href: "/cockpit",
-                visible: subscription.valid && canReadCockpit,
-                icon: <GaugeIcon className="size-6" />,
-            },
+                {
+                    label: "Cockpit",
+                    href: "/cockpit",
+                    visible:
+                        subscription.valid &&
+                        subscription.status !== "self-hosted" &&
+                        subscription.status !== "free",
+                    icon: <GaugeIcon className="size-6" />,
+                },
 
-            {
-                label: "Code Review Settings",
-                icon: <SlidersHorizontalIcon className="size-5" />,
-                href: "/settings",
-                visible:
-                    canReadCodeReviewSettings ||
-                    canReadGitSettings ||
-                    canReadBilling ||
-                    canReadPlugins,
-            },
-        ];
+                {
+                    label: "Code Review Settings",
+                    icon: <SlidersHorizontalIcon className="size-5" />,
+                    href: "/settings",
+                    visible:
+                        canReadCodeReviewSettings ||
+                        canReadGitSettings ||
+                        canReadBilling ||
+                        canReadPlugins,
+                },
+            ];
 
         if (issuesPageFeatureFlag?.value && canReadIssues) {
             items.push({
