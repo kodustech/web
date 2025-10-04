@@ -29,7 +29,7 @@ export const startTeamTrial = async (params: {
         assignedLicenses: number;
         createdAt: Date;
         updatedAt: Date;
-    }>(`/trial`, {
+    }>(`trial`, {
         method: "POST",
         body: JSON.stringify({
             organizationId: params.organizationId,
@@ -45,7 +45,7 @@ export const createCheckoutSession = async (params: {
 }) => {
     const organizationId = await getOrganizationId();
 
-    return billingFetch<{ url: string }>(`/create-checkout-session`, {
+    return billingFetch<{ url: string }>(`create-checkout-session`, {
         method: "POST",
         body: JSON.stringify({
             organizationId,
@@ -60,7 +60,7 @@ export const createManageBillingLink = async (params: { teamId: string }) => {
     const organizationId = await getOrganizationId();
 
     return billingFetch<{ url: string }>(
-        `/portal/${organizationId}/${params.teamId}`,
+        `portal/${organizationId}/${params.teamId}`,
         { method: "GET" },
     );
 };
