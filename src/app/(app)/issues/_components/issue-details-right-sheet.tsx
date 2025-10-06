@@ -86,20 +86,29 @@ export const IssueDetailsRightSheet = ({
         });
     }, [peek]);
 
-    useShortcut("escape", () => {
-        if (!peek) return;
-        setPeek(null);
-    });
+    useShortcut(
+        "escape",
+        () => {
+            setPeek(null);
+        },
+        { enabled: !!peek },
+    );
 
-    useShortcut("k", () => {
-        if (!previousIssueId) return;
-        setPeek(previousIssueId);
-    });
+    useShortcut(
+        "k",
+        () => {
+            setPeek(previousIssueId!);
+        },
+        { enabled: !!peek && !!previousIssueId },
+    );
 
-    useShortcut("j", () => {
-        if (!nextIssueId || currentIssueIndex + 1 === 0) return;
-        setPeek(nextIssueId);
-    });
+    useShortcut(
+        "j",
+        () => {
+            setPeek(nextIssueId!);
+        },
+        { enabled: !!peek && !!nextIssueId },
+    );
 
     if (!peek || !issue) return null;
 
