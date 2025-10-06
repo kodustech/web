@@ -57,11 +57,10 @@ export const PaymentFailed = ({
                         </p>
 
                         <p className="text-text-secondary text-sm">
-                            <strong>{organizationAdminsCount}</strong>{" "}
-                            organization{" "}
+                            <strong>{organizationAdminsCount}</strong> workspace{" "}
                             {pluralize(organizationAdminsCount, {
-                                singular: "admin",
-                                plural: "admins",
+                                singular: "member",
+                                plural: "members",
                             })}
                         </p>
                     </div>
