@@ -125,6 +125,28 @@ export const useGetAllCodeReviewLabels = () => {
     };
 };
 
+export type CodeReviewV2Defaults = {
+    categories: {
+        bug: string;
+        performance: string;
+        security: string;
+    };
+    severity: {
+        critical: string;
+        high: string;
+        medium: string;
+        low: string;
+    };
+};
+
+export const useSuspenseGetCodeReviewV2Defaults = () => {
+    // This endpoint returns an envelope { statusCode, data }, and our
+    // useSuspenseFetch returns the inner `data`, so we type it directly.
+    return useSuspenseFetch<CodeReviewV2Defaults>(
+        PARAMETERS_PATHS.LIST_CODE_REVIEW_V2_DEFAULTS,
+    );
+};
+
 export const useSuspenseGetParameterByKey = <T>(
     key: string,
     teamId: string,

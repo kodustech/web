@@ -176,6 +176,8 @@ export const codeReviewConfigRemovePropertiesNotInType = (
         "kodyRulesGeneratorEnabled",
         "runOnDraft",
         "codeReviewVersion",
+        // New v2 prompt overrides for categories/severity customization
+        "v2PromptOverrides",
     ];
 
     expectedKeys.forEach((key) => {
