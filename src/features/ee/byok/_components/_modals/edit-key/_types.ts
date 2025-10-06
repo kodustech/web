@@ -1,4 +1,4 @@
-import z from "zod";
+import { z } from "zod";
 
 export const editKeySchema = z.object({
     provider: z.string().trim().min(1),

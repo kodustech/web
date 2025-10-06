@@ -29,7 +29,7 @@ import { Controller, useForm } from "react-hook-form";
 import { publicDomainsSet } from "src/core/utils/email";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
-import z from "zod";
+import { z } from "zod";
 
 const timezoneOptions = [
     { value: Timezone.NEW_YORK, title: "New York" },

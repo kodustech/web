@@ -13,9 +13,8 @@ import { Input } from "src/core/components/ui/input";
 import { z } from "zod";
 
 const signInFormSchema = z.object({
-    email: z.email({
-            error: "Please use a valid email address"
-        }),
+    email: z.string().email({ message: "Please use a valid email address" }),
+
     password: z.string().min(1, {
         error: "Enter a password"
     }),
