@@ -21,8 +21,11 @@
         "build-analyze": "cross-env ANALYZE=true yarn build",
         "prettier": "prettier --write **/*.{js,jsx,ts,tsx}",
         "format": "prettier --write .",
-        "docker:build": "docker compose -f docker-compose.dev.yml build",
-        "docker:start": "docker compose -f docker-compose.dev.yml up"
+        "docker:build": "docker compose -f docker-compose.dev.yml down -v && docker volume rm kodus-web_node_modules_cache 2>/dev/null || true && docker compose -f docker-compose.dev.yml build",
+        "docker:start": "docker compose -f docker-compose.dev.yml up",
+        "docker:clean": "docker compose -f docker-compose.dev.yml down -v",
+        "docker:clean-cache": "docker volume rm kodus-web_node_modules_cache",
+        "docker:reset": "yarn docker:clean && yarn docker:start"
     },
     "dependencies": {
         "@hookform/resolvers": "^5.2.2",
