@@ -122,3 +122,19 @@ export const validateOrganizationLicense = async (params: {
         params: { organizationId, teamId: params.teamId },
     });
 };
+
+export const migrateToFree = async (params: {
+    organizationId: string;
+    teamId: string;
+}) => {
+    return billingFetch<{
+        success: boolean;
+        message?: string;
+    }>(`migrate-to-free`, {
+        method: "POST",
+        body: JSON.stringify({
+            organizationId: params.organizationId,
+            teamId: params.teamId,
+        }),
+    });
+};

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
 import {
     Card,
@@ -33,6 +34,7 @@ import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { createCheckoutSessionAction } from "../../../_actions/create-checkout-session";
 import type { getPlans } from "../../../_services/billing/fetch";
+import { migrateToFree } from "../../../_services/billing/fetch";
 import type { Plan } from "../../../_services/billing/types";
 
 export const NewPlanSelectionModal = ({
@@ -86,6 +88,61 @@ export const NewPlanSelectionModal = ({
 };
 
 const FreePlan = ({ plan }: { plan: Plan }) => {
+    const { teamId } = useSelectedTeamId();
+    const { organizationId } = useAuth();
+    const router = useRouter();
+    const [migrateToFreeAction, { loading }] = useAsyncAction(migrateToFree);
+
+    const handleMigrateToFree = async () => {
+        if (!teamId || !organizationId) {
+            toast({
+                title: "Error",
+                description: "Missing team or organization information",
+                variant: "danger",
+            });
+            return;
+        }
+
+        try {
+            const result = await migrateToFree({
+                organizationId,
+                teamId,
+            });
+
+            if (result?.success) {
+                toast({
+                    title: "Successfully migrated to free plan",
+                    description: (
+                        <span>
+                            <span className="text-primary-light mr-1 font-bold">
+                                {plan.label}
+                            </span>
+                            <span>plan is now active.</span>
+                        </span>
+                    ),
+                    variant: "success",
+                });
+
+                router.refresh();
+            } else {
+                toast({
+                    title: "Migration failed",
+                    description: result?.message || "Failed to migrate to free plan",
+                    variant: "danger",
+                });
+            }
+        } catch (error) {
+            toast({
+                title: "Error",
+                description: "An unexpected error occurred while migrating to free plan",
+                variant: "danger",
+            });
+            console.error("Migration error:", error);
+        } finally {
+            magicModal.hide();
+        }
+    };
+
     return (
         <Card className="flex-1">
             <CardHeader>
@@ -115,22 +172,8 @@ const FreePlan = ({ plan }: { plan: Plan }) => {
                     variant="primary"
                     className="w-full"
                     leftIcon={<BadgeDollarSignIcon />}
-                    onClick={() => {
-                        toast({
-                            title: "Updated subscription plan",
-                            description: (
-                                <span>
-                                    <span className="text-primary-light mr-1 font-bold">
-                                        {plan.label}
-                                    </span>
-                                    <span>plan is being used from now on.</span>
-                                </span>
-                            ),
-                            variant: "success",
-                        });
-
-                        magicModal.hide();
-                    }}>
+                    loading={loading}
+                    onClick={handleMigrateToFree}>
                     Choose this plan
                 </Button>
             </CardContent>
@@ -144,7 +187,9 @@ const TeamsPlan = ({ plan }: { plan: Plan }) => {
     const [isAddonActive, setIsAddonActive] = useState(false);
 
     const planPricing = plan.pricing.find((p) => p.interval === "month");
-    if (!planPricing) return null;
+    if (!planPricing) {
+        return null;
+    }
 
     const addon = plan.addons.at(0);
     const addonPricing = addon?.pricing.find((p) => p.interval === "month");
