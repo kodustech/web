@@ -25,7 +25,6 @@ export const ByokPageClient = ({
             await createOrUpdateOrganizationParameter(
                 OrganizationParametersConfigKey.BYOK_CONFIG,
                 {
-                    ...config,
                     main: newConfig,
                 },
                 organizationId,
@@ -50,7 +49,6 @@ export const ByokPageClient = ({
             await createOrUpdateOrganizationParameter(
                 OrganizationParametersConfigKey.BYOK_CONFIG,
                 {
-                    ...config,
                     fallback: newConfig,
                 },
                 organizationId,
