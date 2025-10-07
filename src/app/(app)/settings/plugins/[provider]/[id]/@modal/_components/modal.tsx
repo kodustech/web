@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { MCPPluginsLimitPopover } from "@components/system/mcp-plugins-limit-popover";
 import { Avatar, AvatarImage } from "@components/ui/avatar";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
@@ -17,6 +18,7 @@ import {
 } from "@components/ui/dialog";
 import { Label } from "@components/ui/label";
 import { MagicModalContext } from "@components/ui/magic-modal";
+import { PopoverTrigger } from "@components/ui/popover";
 import { useToast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
 import {
@@ -24,6 +26,7 @@ import {
     installMCPPlugin,
     updateMCPAllowedTools,
     type getMCPPluginById,
+    type getMCPPlugins,
     type getMCPPluginTools,
 } from "@services/mcp-manager/fetch";
 import { usePermission } from "@services/permissions/hooks";
@@ -31,6 +34,7 @@ import { Action, ResourceType } from "@services/permissions/types";
 import { EditIcon, PlugIcon, RefreshCwIcon } from "lucide-react";
 import type { AwaitedReturnType } from "src/core/types";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
+import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
 
 import { RequiredConfiguration } from "./required-configuration";
 import { SelectTools } from "./select-tools";
@@ -38,12 +42,38 @@ import { SelectTools } from "./select-tools";
 export const PluginModal = ({
     plugin,
     tools,
+    installedPlugins,
 }: {
     plugin: AwaitedReturnType<typeof getMCPPluginById>;
     tools: AwaitedReturnType<typeof getMCPPluginTools>;
+    installedPlugins: AwaitedReturnType<typeof getMCPPlugins>;
 }) => {
     const router = useRouter();
     const { toast } = useToast();
+    const subscription = useSubscriptionStatus();
+
+    const mcpPluginsLimits = useMemo(() => {
+        const total = installedPlugins.length;
+
+        if (!subscription.valid)
+            return {
+                total,
+                canAddMoreRules: false,
+                limit: Number.POSITIVE_INFINITY,
+            };
+
+        if (
+            subscription.status === "free" ||
+            subscription.status === "self-hosted"
+        )
+            return { canAddMoreRules: total < 3, total, limit: 3 };
+
+        return {
+            canAddMoreRules: true,
+            total,
+            limit: Number.POSITIVE_INFINITY,
+        };
+    }, [subscription, installedPlugins]);
 
     const isConnected = plugin.isConnected;
     const isDefault = plugin.isDefault;
@@ -65,8 +95,7 @@ export const PluginModal = ({
     );
 
     // Para integrações padrão, usar todos os tools disponíveis
-    const effectiveSelectedTools =
-        selectedTools;
+    const effectiveSelectedTools = selectedTools;
 
     const [isResettingAuth, setIsResettingAuth] = useState(false);
 
@@ -79,11 +108,9 @@ export const PluginModal = ({
     );
 
     const areRequiredParametersValid =
-        (Object.keys(requiredParamsValues).length ===
+        Object.keys(requiredParamsValues).length ===
             (plugin.requiredParams?.length || 0) &&
-            Object.values(requiredParamsValues).every(
-                (v) => v.trim().length > 0,
-            ));
+        Object.values(requiredParamsValues).every((v) => v.trim().length > 0);
 
     const [installPlugin, { loading: isInstallPluginLoading }] = useAsyncAction(
         async () => {
@@ -266,26 +293,52 @@ export const PluginModal = ({
                                 </DialogClose>
 
                                 {!isConnected ? (
-                                    <Button
-                                        size="md"
-                                        variant="primary"
-                                        leftIcon={<PlugIcon />}
-                                        loading={isInstallPluginLoading}
-                                        onClick={() => installPlugin()}
-                                        disabled={
-                                            !canEdit ||
-                                            isDefault ||
-                                            !areRequiredParametersValid ||
-                                            selectedTools.length === 0 ||
-                                            (hasToolsWithWarningSelected &&
-                                                !confirmInstallationOfToolsWithWarnings)
-                                        }>
-                                        Install plugin
-                                    </Button>
+                                    <>
+                                        {mcpPluginsLimits.canAddMoreRules ? (
+                                            <Button
+                                                size="md"
+                                                variant="primary"
+                                                leftIcon={<PlugIcon />}
+                                                loading={isInstallPluginLoading}
+                                                onClick={() => installPlugin()}
+                                                disabled={
+                                                    !canEdit ||
+                                                    isDefault ||
+                                                    !areRequiredParametersValid ||
+                                                    selectedTools.length ===
+                                                        0 ||
+                                                    (hasToolsWithWarningSelected &&
+                                                        !confirmInstallationOfToolsWithWarnings)
+                                                }>
+                                                Install plugin
+                                            </Button>
+                                        ) : (
+                                            <MCPPluginsLimitPopover
+                                                limit={mcpPluginsLimits.limit}>
+                                                <PopoverTrigger asChild>
+                                                    <Button
+                                                        size="md"
+                                                        variant="primary"
+                                                        leftIcon={<PlugIcon />}
+                                                        disabled={
+                                                            !canEdit ||
+                                                            isDefault ||
+                                                            !areRequiredParametersValid ||
+                                                            selectedTools.length ===
+                                                                0 ||
+                                                            (hasToolsWithWarningSelected &&
+                                                                !confirmInstallationOfToolsWithWarnings)
+                                                        }>
+                                                        Install plugin
+                                                    </Button>
+                                                </PopoverTrigger>
+                                            </MCPPluginsLimitPopover>
+                                        )}
+                                    </>
                                 ) : (
                                     <>
-                                        {
-                                            isDefault ? null : <Button
+                                        {isDefault ? null : (
+                                            <Button
                                                 size="md"
                                                 variant="tertiary"
                                                 leftIcon={<RefreshCwIcon />}
@@ -299,7 +352,7 @@ export const PluginModal = ({
                                                 }>
                                                 Reset Authentication
                                             </Button>
-                                        }
+                                        )}
                                         <Button
                                             size="md"
                                             variant="primary"

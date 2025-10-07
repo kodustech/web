@@ -1,9 +1,7 @@
 "use client";
 
-import { createContext, use, useMemo } from "react";
+import { use, useMemo } from "react";
 import { DataTable } from "@components/ui/data-table";
-import { UserRole } from "@enums";
-import { Repository } from "@services/codeManagement/types";
 import { rolePriority } from "@services/permissions/types";
 import type { MembersSetup } from "@services/setup/types";
 import { useAuth } from "src/core/providers/auth.provider";
@@ -38,7 +36,7 @@ export const AdminsPageClient = ({ data }: { data: MembersSetup[] }) => {
             columns={columns}
             state={{ globalFilter: query }}
             onGlobalFilterChange={setQuery}
-            EmptyComponent="No organization admins found."
+            EmptyComponent="No workspace members found."
         />
     );
 };

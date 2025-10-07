@@ -5,7 +5,7 @@ import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-s
 
 import { Active } from "./active";
 import { Canceled } from "./canceled";
-import { FreeByok } from "./no-subscription";
+import { FreeByok } from "./free";
 import { PaymentFailed } from "./payment-failed";
 import { Trial } from "./trial";
 

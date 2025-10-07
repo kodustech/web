@@ -34,6 +34,7 @@ export const KodyRulesToolbar = ({
     return (
         <div className="flex items-center gap-2">
             <Input
+                size="md"
                 value={filterQuery}
                 leftIcon={<SearchIcon />}
                 onChange={(e) => onFilterQueryChange(e.target.value)}
@@ -87,7 +88,7 @@ export const FilterPopoverContent = ({
 }: FilterPopoverContentProps) => {
     if (isGlobalView) {
         return (
-            <p className="text-text-secondary p-4 text-sm">
+            <p className="text-text-secondary text-sm">
                 Global rules do not inherit from other scopes.
             </p>
         );
@@ -103,7 +104,7 @@ export const FilterPopoverContent = ({
     const isDirectoryView = !isRepoView && !isGlobalView;
 
     return (
-        <div className="grid gap-4 p-4">
+        <div className="grid gap-4 p-1">
             <div className="space-y-1">
                 <h4 className="text-sm leading-none font-medium">
                     View Options

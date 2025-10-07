@@ -72,7 +72,7 @@ export const ByokPageClient = ({
 
     const onDeleteMain = async () => {
         try {
-            await deleteBYOK({ organizationId, configType: "main" });
+            await deleteBYOK({ configType: "main" });
 
             toast({
                 variant: "success",
@@ -90,7 +90,7 @@ export const ByokPageClient = ({
 
     const onDeleteFallback = async () => {
         try {
-            await deleteBYOK({ organizationId, configType: "fallback" });
+            await deleteBYOK({ configType: "fallback" });
 
             toast({
                 variant: "success",

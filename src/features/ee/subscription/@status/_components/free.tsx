@@ -10,6 +10,7 @@ import type { TeamMembersResponse } from "@services/setup/types";
 import { ArrowUpCircle } from "lucide-react";
 import { pluralize } from "src/core/utils/string";
 
+import { useSubscriptionStatus } from "../../_hooks/use-subscription-status";
 import { getPlans } from "../../_services/billing/fetch";
 import { NewPlanSelectionModal } from "./_modals/select-new-plan";
 
@@ -18,8 +19,11 @@ export const FreeByok = ({
 }: {
     members: TeamMembersResponse["members"];
 }) => {
+    const subscription = useSubscriptionStatus();
+    if (subscription.status !== "free") return null;
+
     const organizationAdminsCount = members.length;
-    const licensesAvailableCount = 0;
+
     const canEdit = usePermission(Action.Update, ResourceType.Billing);
 
     const [_getPlans, { loading: isLoadingPlans }] = useAsyncAction(
@@ -40,20 +44,10 @@ export const FreeByok = ({
 
                     <div className="mt-4 flex gap-6">
                         <p className="text-text-secondary text-sm">
-                            <strong>{licensesAvailableCount}</strong>{" "}
-                            {pluralize(licensesAvailableCount, {
-                                singular: "license",
-                                plural: "licenses",
-                            })}{" "}
-                            available
-                        </p>
-
-                        <p className="text-text-secondary text-sm">
-                            <strong>{organizationAdminsCount}</strong>{" "}
-                            organization{" "}
+                            <strong>{organizationAdminsCount}</strong> workspace{" "}
                             {pluralize(organizationAdminsCount, {
-                                singular: "admin",
-                                plural: "admins",
+                                singular: "member",
+                                plural: "members",
                             })}
                         </p>
                     </div>
