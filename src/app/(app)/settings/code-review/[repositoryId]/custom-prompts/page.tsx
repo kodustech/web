@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Suspense, useEffect, useRef } from "react";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import {
@@ -12,6 +12,7 @@ import {
 } from "@components/ui/card";
 import { FormControl } from "@components/ui/form-control";
 import { Page } from "@components/ui/page";
+import { Spinner } from "@components/ui/spinner";
 import { Textarea } from "@components/ui/textarea";
 import { toast } from "@components/ui/toaster/use-toast";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
@@ -34,7 +35,7 @@ import { type CodeReviewFormType } from "../../_types";
 import { usePlatformConfig } from "../../../_components/context";
 import { useCodeReviewRouteParams } from "../../../_hooks";
 
-export default function CustomPrompts() {
+function CustomPromptsContent() {
     const platformConfig = usePlatformConfig();
     const form = useFormContext<CodeReviewFormType>();
     const { teamId } = useSelectedTeamId();
@@ -151,10 +152,10 @@ export default function CustomPrompts() {
     // Field-level helpers will compare and reset individually
 
     return (
-        <Page.Root>
-            <Page.Header>
-                <CodeReviewPagesBreadcrumb pageName="Custom Prompts" />
-            </Page.Header>
+            <Page.Root>
+                <Page.Header>
+                    <CodeReviewPagesBreadcrumb pageName="Custom Prompts" />
+                </Page.Header>
 
             <Page.Header>
                 <Page.Title>Custom Prompts</Page.Title>
@@ -668,6 +669,19 @@ export default function CustomPrompts() {
                     </CardContent>
                 </Card>
             </Page.Content>
-        </Page.Root>
+            </Page.Root>
+    );
+}
+
+export default function CustomPrompts() {
+    return (
+        <Suspense
+            fallback={
+                <div className="flex h-full w-full items-center justify-center py-10">
+                    <Spinner className="size-6" />
+                </div>
+            }>
+            <CustomPromptsContent />
+        </Suspense>
     );
 }
