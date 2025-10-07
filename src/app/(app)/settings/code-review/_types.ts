@@ -91,6 +91,23 @@ export type CodeReviewGlobalConfig = {
     kodyRulesGeneratorEnabled?: boolean;
     runOnDraft: boolean;
     codeReviewVersion?: "legacy" | "v2";
+    v2PromptOverrides?: {
+        categories?: {
+            descriptions?: {
+                bug?: string;
+                performance?: string;
+                security?: string;
+            };
+        };
+        severity?: {
+            flags?: {
+                critical?: string;
+                high?: string;
+                medium?: string;
+                low?: string;
+            };
+        };
+    };
 };
 
 type CodeReviewRepositoryConfigBase = CodeReviewGlobalConfig & {

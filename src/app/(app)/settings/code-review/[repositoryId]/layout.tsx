@@ -80,6 +80,35 @@ const getDefaultValues = (
     })(),
     codeReviewVersion: config?.codeReviewVersion ?? "v2",
     kodyRulesGeneratorEnabled: config?.kodyRulesGeneratorEnabled ?? true,
+    v2PromptOverrides: {
+        categories: {
+            descriptions: {
+                bug:
+                    config?.v2PromptOverrides?.categories?.descriptions?.bug ??
+                    "",
+                performance:
+                    config?.v2PromptOverrides?.categories?.descriptions
+                        ?.performance ?? "",
+                security:
+                    config?.v2PromptOverrides?.categories?.descriptions
+                        ?.security ?? "",
+            },
+        },
+        severity: {
+            flags: {
+                critical:
+                    config?.v2PromptOverrides?.severity?.flags?.critical ??
+                    "",
+                high:
+                    config?.v2PromptOverrides?.severity?.flags?.high ?? "",
+                medium:
+                    config?.v2PromptOverrides?.severity?.flags?.medium ??
+                    "",
+                low:
+                    config?.v2PromptOverrides?.severity?.flags?.low ?? "",
+            },
+        },
+    },
 });
 
 export default function Layout(props: React.PropsWithChildren) {
