@@ -97,7 +97,7 @@ export const assignOrDeassignUserLicense = async (params: {
     return billingFetch<{
         successful: any[];
         error: any[];
-    }>(`/assign-license`, {
+    }>(`assign-license`, {
         method: "POST",
         body: JSON.stringify({
             organizationId,
