@@ -11,21 +11,13 @@ import {
     useGetCodeReviewLabels,
 } from "@services/parameters/hooks";
 import { Controller, useFormContext } from "react-hook-form";
+import {
+    useCodeReviewRouteParams,
+    useCurrentConfigLevel,
+} from "src/app/(app)/settings/_hooks";
+import { OverrideIndicator } from "src/app/(app)/settings/code-review/_components/override";
 
-import type { CodeReviewFormType, CodeReviewOptions } from "../../../_types";
-
-// Dynamic mapping - no need for fixed keys anymore
-const mapReviewOptionsToValues = (
-    reviewOptions: CodeReviewOptions,
-): Record<string, boolean> => {
-    return { ...reviewOptions };
-};
-
-const mapToReviewOptions = (
-    values: Record<string, boolean> = {},
-): CodeReviewOptions => {
-    return { ...values };
-};
+import { FormattedConfigLevel, type CodeReviewFormType } from "../../../_types";
 
 interface CheckboxCardOption {
     value: string;
@@ -34,8 +26,9 @@ interface CheckboxCardOption {
 }
 
 export const AnalysisTypes = () => {
+    const currentLevel = useCurrentConfigLevel();
     const form = useFormContext<CodeReviewFormType>();
-    const codeReviewVersion = form.watch("codeReviewVersion") || "v2";
+    const codeReviewVersion = form.watch("codeReviewVersion.value") || "v2";
     const { data: labels = [], isLoading } =
         useGetCodeReviewLabels(codeReviewVersion);
     const {
@@ -54,13 +47,16 @@ export const AnalysisTypes = () => {
             !initializedRef.current
         ) {
             const currentOptions = form.getValues("reviewOptions") || {};
-            const mergedOptions: Record<string, boolean> = {};
+            const mergedOptions = { ...currentOptions };
 
             // Add all categories from both versions with their current values or false as default
             allLabels.forEach((label) => {
-                mergedOptions[label.type] = Boolean(
-                    currentOptions[label.type] ?? false,
-                );
+                if (!mergedOptions[label.type]) {
+                    mergedOptions[label.type] = {
+                        value: false,
+                        level: FormattedConfigLevel.DEFAULT,
+                    };
+                }
             });
 
             form.setValue("reviewOptions", mergedOptions);
@@ -96,37 +92,35 @@ export const AnalysisTypes = () => {
                             type="multiple"
                             disabled={field.disabled}
                             className="grid auto-rows-fr grid-cols-1 gap-2 @lg:grid-cols-2 @3xl:grid-cols-3"
-                            value={(() => {
-                                const validOptions = labels.map(
-                                    (label) => label.type,
-                                );
-                                const mappedValues = mapReviewOptionsToValues(
-                                    mapToReviewOptions(field.value),
-                                );
-
-                                return Object.entries(mappedValues)
-                                    .filter(
-                                        ([key, value]) =>
-                                            validOptions.includes(key) && value,
-                                    )
-                                    .map(([key]) => key);
-                            })()}
+                            value={Object.entries(field.value || {})
+                                .filter(([, prop]) => prop.value)
+                                .map(([key]) => key)}
                             onValueChange={(values) => {
-                                // Keep all existing categories from both versions, only update current version
                                 const currentOptions =
                                     form.getValues("reviewOptions") || {};
                                 const currentVersionOptions = labels.map(
                                     (label) => label.type,
                                 );
 
-                                // Start with all existing options
-                                const updatedOptions: Record<string, boolean> =
-                                    { ...currentOptions };
+                                const updatedOptions = { ...currentOptions };
 
-                                // Update only the current version's categories
                                 currentVersionOptions.forEach((option) => {
-                                    updatedOptions[option] =
-                                        values.includes(option);
+                                    const isSelected = values.includes(option);
+                                    const existingOption =
+                                        updatedOptions[option];
+
+                                    if (existingOption) {
+                                        updatedOptions[option] = {
+                                            ...existingOption,
+                                            value: isSelected,
+                                            level: currentLevel,
+                                        };
+                                    } else {
+                                        updatedOptions[option] = {
+                                            value: isSelected,
+                                            level: currentLevel,
+                                        };
+                                    }
                                 });
 
                                 field.onChange(updatedOptions);
@@ -156,9 +150,8 @@ export const AnalysisTypes = () => {
                                             <Checkbox
                                                 decorative
                                                 checked={
-                                                    field.value?.[
-                                                    option.value
-                                                    ] || false
+                                                    field.value?.[option.value]
+                                                        ?.value || false
                                                 }
                                             />
                                         </div>

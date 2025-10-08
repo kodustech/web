@@ -25,4 +25,10 @@ export const PARAMETERS_PATHS = {
         "/parameters/delete-repository-code-review-parameter",
     ),
     PREVIEW_PR_SUMMARY: pathToApiUrl("/parameters/preview-pr-summary"),
+    DEFAULT_CODE_REVIEW_PARAMETER: pathToApiUrl(
+        "/parameters/default-code-review-parameter",
+    ),
+    GET_CODE_REVIEW_PARAMETER: pathToApiUrl(
+        "/parameters/code-review-parameter",
+    ),
 } as const;

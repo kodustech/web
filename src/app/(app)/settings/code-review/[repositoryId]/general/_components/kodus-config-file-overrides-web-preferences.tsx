@@ -6,6 +6,7 @@ import { Heading } from "@components/ui/heading";
 import { Link } from "@components/ui/link";
 import { Switch } from "@components/ui/switch";
 import { Controller, useFormContext } from "react-hook-form";
+import { OverrideIndicator } from "src/app/(app)/settings/code-review/_components/override";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import type { CodeReviewFormType } from "../../../_types";
@@ -20,10 +21,14 @@ export const KodusConfigFileOverridesWebPreferences = () => {
         { directoryId },
     );
 
+    if (repositoryId === "global") return null;
+
+    if (directoryId) return null;
+
     return (
         <div className="flex flex-col gap-2">
             <Controller
-                name="kodusConfigFileOverridesWebPreferences"
+                name="kodusConfigFileOverridesWebPreferences.value"
                 control={form.control}
                 render={({ field }) => (
                     <Button
@@ -37,6 +42,8 @@ export const KodusConfigFileOverridesWebPreferences = () => {
                                 <Heading variant="h3">
                                     kodus Config File Overrides Web Preferences
                                 </Heading>
+
+                                <OverrideIndicator fieldName="kodusConfigFileOverridesWebPreferences" />
 
                                 <p className="text-text-secondary text-sm">
                                     When the <strong>kodus-config.yml </strong>{" "}

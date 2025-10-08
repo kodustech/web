@@ -1,6 +1,11 @@
+import { CustomMessageConfig } from "@services/pull-request-messages/types";
 import { UseMutationResult } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import type { AutomationCodeReviewConfigType } from "src/app/(app)/settings/code-review/_types";
+import type {
+    AutomationCodeReviewConfigType,
+    CodeReviewGlobalConfig,
+    FormattedGlobalCodeReviewConfig,
+} from "src/app/(app)/settings/code-review/_types";
 import { useFetch, usePost, useSuspenseFetch } from "src/core/utils/reactQuery";
 
 import { PARAMETERS_PATHS } from ".";
@@ -52,6 +57,37 @@ export const useSuspenseGetCodeReviewParameter = (teamId: string) => {
             },
         },
     );
+};
+
+export const useSuspenseGetFormattedCodeReviewParameter = (teamId: string) => {
+    return useSuspenseFetch<{
+        uuid: string;
+        configKey: ParametersConfigKey.CODE_REVIEW_CONFIG;
+        configValue: FormattedGlobalCodeReviewConfig;
+    }>(
+        PARAMETERS_PATHS.GET_CODE_REVIEW_PARAMETER,
+        {
+            params: {
+                teamId,
+            },
+        },
+        {
+            fallbackData: {
+                uuid: "",
+                configKey: ParametersConfigKey.CODE_REVIEW_CONFIG,
+                configValue: {
+                    repositories: [],
+                } as unknown as FormattedGlobalCodeReviewConfig,
+            },
+        },
+    );
+};
+
+export const useSuspenseGetDefaultCodeReviewParameter = () => {
+    return useSuspenseFetch<
+        CodeReviewGlobalConfig &
+            Omit<CustomMessageConfig, "uuid" | "repositoryId" | "directoryId">
+    >(PARAMETERS_PATHS.DEFAULT_CODE_REVIEW_PARAMETER);
 };
 
 export const useSuspenseGetCodeReviewLabels = (codeReviewVersion?: string) => {

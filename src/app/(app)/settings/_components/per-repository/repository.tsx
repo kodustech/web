@@ -26,7 +26,7 @@ import { Action, ResourceType } from "@services/permissions/types";
 import { Plus } from "lucide-react";
 
 import { useCodeReviewRouteParams } from "../../_hooks";
-import type { AutomationCodeReviewConfigType } from "../../code-review/_types";
+import type { FormattedGlobalCodeReviewConfig } from "../../code-review/_types";
 import { AddRepoModal } from "../copy-settings-modal";
 import { PerDirectory } from "./directory";
 import { SidebarRepositoryOrDirectoryDropdown } from "./options-dropdown";
@@ -36,7 +36,7 @@ export const PerRepository = ({
     routes,
     platformConfig,
 }: {
-    configValue: AutomationCodeReviewConfigType;
+    configValue: FormattedGlobalCodeReviewConfig;
     platformConfig: ReturnType<typeof useSuspenseGetParameterPlatformConfigs>;
     routes: Array<{ label: string; href: string }>;
 }) => {
@@ -80,7 +80,7 @@ export const PerRepository = ({
 
             <div className="flex flex-col gap-1">
                 {configValue?.repositories
-                    ?.filter((r) => r.isSelected || r.directories)
+                    ?.filter((r) => r.isSelected || r.directories?.length > 0)
                     .map((r) => {
                         const hasRepositoryConfig = r.isSelected;
 

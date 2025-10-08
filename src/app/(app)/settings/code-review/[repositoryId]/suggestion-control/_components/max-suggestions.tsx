@@ -15,7 +15,7 @@ const validateNumberInput = (value: string) => {
 export const MaxSuggestions = () => {
     const form = useFormContext<CodeReviewFormType>();
     const config = useCodeReviewConfig();
-    const limitationType = form.watch("suggestionControl.limitationType");
+    const limitationType = form.watch("suggestionControl.limitationType.value");
 
     const MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE =
         Object.values(config?.reviewOptions ?? {}).filter((option) => option)
@@ -32,26 +32,22 @@ export const MaxSuggestions = () => {
 
     return (
         <Controller
-            name="suggestionControl.maxSuggestions"
+            name="suggestionControl.maxSuggestions.value"
             control={form.control}
             rules={{
                 validate: (value) => {
-                    if (value === 0) return;
+                    const limitationType = form.getValues(
+                        "suggestionControl.limitationType.value",
+                    );
 
-                    if (
-                        form.getValues("suggestionControl.limitationType") ===
-                        "file"
-                    ) {
+                    if (limitationType === "file") {
                         if (value <= MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE)
                             return;
 
                         return `Maximum limit is ${MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE}`;
                     }
 
-                    if (
-                        form.getValues("suggestionControl.limitationType") ===
-                        "pr"
-                    ) {
+                    if (limitationType === "pr") {
                         if (value >= MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE)
                             return;
 

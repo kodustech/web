@@ -27,14 +27,7 @@ import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { SettingsIcon } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { SeverityLevel } from "src/core/types";
 
-import {
-    CodeReviewSummaryOptions,
-    GroupingModeSuggestions,
-    LimitationType,
-    type CodeReviewGlobalConfig,
-} from "../../_types";
 import { useCodeReviewConfig } from "../../../_components/context";
 import { useCodeReviewRouteParams } from "../../../_hooks";
 import { GenerateFromPastReviewsFirstTimeModal } from "./generate-from-past-reviews-modal";
@@ -55,66 +48,15 @@ export const GenerateRulesOptions = () => {
         ResourceType.CodeReviewSettings,
     );
 
-    const newConfig: CodeReviewGlobalConfig = {
-        ...config,
-        automatedReviewActive: config?.automatedReviewActive ?? false,
-        ignorePaths: config?.ignorePaths ?? [],
-        ignoredTitleKeywords: config?.ignoredTitleKeywords ?? [],
-        baseBranches: config?.baseBranches ?? [],
-        kodusConfigFileOverridesWebPreferences:
-            config?.kodusConfigFileOverridesWebPreferences ?? false,
-        pullRequestApprovalActive: config?.pullRequestApprovalActive ?? false,
-        isRequestChangesActive: config?.isRequestChangesActive ?? false,
-        reviewOptions: {
-            ...config?.reviewOptions,
-            code_style: config?.reviewOptions?.code_style ?? false,
-            documentation_and_comments:
-                config?.reviewOptions?.documentation_and_comments ?? false,
-            error_handling: config?.reviewOptions?.error_handling ?? false,
-            maintainability: config?.reviewOptions?.maintainability ?? false,
-            performance_and_optimization:
-                config?.reviewOptions?.performance_and_optimization ?? false,
-            potential_issues: config?.reviewOptions?.potential_issues ?? false,
-            refactoring: config?.reviewOptions?.refactoring ?? false,
-            security: config?.reviewOptions?.security ?? false,
-            kody_rules: config?.reviewOptions?.kody_rules ?? false,
-            breaking_changes: config?.reviewOptions?.breaking_changes ?? false,
-        },
-        kodyRulesGeneratorEnabled: config?.kodyRulesGeneratorEnabled ?? true,
-        summary: {
-            ...config?.summary,
-            behaviourForExistingDescription:
-                config?.summary?.behaviourForExistingDescription ??
-                CodeReviewSummaryOptions.REPLACE,
-            customInstructions: config?.summary?.customInstructions ?? "",
-            generatePRSummary: config?.summary?.generatePRSummary ?? false,
-        },
-        suggestionControl: {
-            ...config?.suggestionControl,
-            applyFiltersToKodyRules: false,
-            groupingMode:
-                config?.suggestionControl?.groupingMode ??
-                GroupingModeSuggestions.FULL,
-            limitationType:
-                config?.suggestionControl?.limitationType ?? LimitationType.PR,
-            maxSuggestions: config?.suggestionControl?.maxSuggestions ?? 10,
-            severityLevelFilter:
-                config?.suggestionControl?.severityLevelFilter ??
-                SeverityLevel.HIGH,
-        },
-        runOnDraft: config?.runOnDraft ?? true,
-    };
-
     const [
         handleGenerateFromPastReviewsToggle,
         { loading: isLoadingGenerateFromPastReviewsToggle },
     ] = useAsyncAction(async () => {
         try {
-            const newValue = !config?.kodyRulesGeneratorEnabled;
+            const newValue = !config?.kodyRulesGeneratorEnabled?.value;
 
             await createOrUpdateCodeReviewParameter(
                 {
-                    ...newConfig,
                     kodyRulesGeneratorEnabled: newValue,
                 },
                 teamId,
@@ -174,11 +116,10 @@ export const GenerateRulesOptions = () => {
     const [handleIDESyncToggle, { loading: isLoadingIDESyncToggle }] =
         useAsyncAction(async () => {
             try {
-                const newValue = !config?.ideRulesSyncEnabled;
+                const newValue = !config?.ideRulesSyncEnabled?.value;
 
                 await createOrUpdateCodeReviewParameter(
                     {
-                        ...newConfig,
                         ideRulesSyncEnabled: newValue,
                     },
                     teamId,
@@ -222,9 +163,14 @@ export const GenerateRulesOptions = () => {
             }
         });
 
+    console.log({
+        kodyRulesGeneratorEnabled: config?.kodyRulesGeneratorEnabled,
+        ideRulesSyncEnabled: config?.ideRulesSyncEnabled,
+    });
+
     const enabledCount = [
-        config?.kodyRulesGeneratorEnabled,
-        config?.ideRulesSyncEnabled,
+        config?.kodyRulesGeneratorEnabled?.value,
+        config?.ideRulesSyncEnabled?.value,
     ].filter(Boolean).length;
 
     return (
@@ -284,7 +230,9 @@ export const GenerateRulesOptions = () => {
                                     <Switch
                                         decorative
                                         loading={isLoadingIDESyncToggle}
-                                        checked={config?.ideRulesSyncEnabled}
+                                        checked={
+                                            config?.ideRulesSyncEnabled?.value
+                                        }
                                     />
                                 </div>
                             </CardHeader>
@@ -331,6 +279,7 @@ export const GenerateRulesOptions = () => {
                                         }
                                         checked={
                                             config?.kodyRulesGeneratorEnabled
+                                                ?.value
                                         }
                                     />
                                 </div>

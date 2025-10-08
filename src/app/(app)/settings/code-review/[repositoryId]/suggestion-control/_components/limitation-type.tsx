@@ -29,7 +29,7 @@ export const LimitationTypeField = () => {
 
     return (
         <Controller
-            name="suggestionControl.limitationType"
+            name="suggestionControl.limitationType.value"
             control={form.control}
             render={({ field }) => (
                 <FormControl.Root className="space-y-1">

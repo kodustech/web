@@ -5,6 +5,7 @@ import { CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { Switch } from "@components/ui/switch";
 import { Controller, useFormContext } from "react-hook-form";
+import { OverrideIndicator } from "src/app/(app)/settings/code-review/_components/override";
 
 import type { CodeReviewFormType } from "../../../_types";
 
@@ -13,7 +14,7 @@ export const PullRequestApprovalActive = () => {
 
     return (
         <Controller
-            name="pullRequestApprovalActive"
+            name="pullRequestApprovalActive.value"
             control={form.control}
             render={({ field }) => (
                 <Button
@@ -27,6 +28,8 @@ export const PullRequestApprovalActive = () => {
                             <Heading variant="h3">
                                 Enable Pull Request Approval
                             </Heading>
+
+                            <OverrideIndicator fieldName="pullRequestApprovalActive" />
 
                             <p className="text-text-secondary text-sm">
                                 When Kody completes an automated code review and

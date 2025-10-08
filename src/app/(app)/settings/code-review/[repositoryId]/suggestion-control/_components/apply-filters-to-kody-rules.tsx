@@ -10,7 +10,7 @@ export const ApplyFiltersToKodyRules = () => {
 
     return (
         <Controller
-            name="suggestionControl.applyFiltersToKodyRules"
+            name="suggestionControl.applyFiltersToKodyRules.value"
             control={form.control}
             render={({ field }) => (
                 <Button

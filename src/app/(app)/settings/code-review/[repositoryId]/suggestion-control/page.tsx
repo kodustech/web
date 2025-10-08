@@ -40,7 +40,7 @@ export default function SuggestionControl(
     const { teamId } = useSelectedTeamId();
     const platformConfig = usePlatformConfig();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
-    const limitationType = form.watch("suggestionControl.limitationType");
+    const limitationType = form.watch("suggestionControl.limitationType.value");
 
     const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
 

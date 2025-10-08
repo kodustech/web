@@ -1,6 +1,7 @@
 import { FormControl } from "@components/ui/form-control";
 import { Textarea } from "@components/ui/textarea";
 import { Controller, useFormContext } from "react-hook-form";
+import { OverrideIndicator } from "src/app/(app)/settings/code-review/_components/override";
 
 import type { CodeReviewFormType } from "../../../_types";
 
@@ -9,7 +10,7 @@ export const IgnorePaths = () => {
 
     return (
         <Controller
-            name="ignorePaths"
+            name="ignorePaths.value"
             control={form.control}
             render={({ field }) => (
                 <FormControl.Root>
@@ -17,11 +18,17 @@ export const IgnorePaths = () => {
                         Ignored files
                     </FormControl.Label>
 
+                    <OverrideIndicator fieldName="ignorePaths" />
+
                     <FormControl.Input>
                         <Textarea
                             id={field.name}
                             disabled={field.disabled}
-                            defaultValue={field.value?.join("\n")}
+                            value={
+                                Array.isArray(field.value)
+                                    ? field.value.join("\n")
+                                    : ""
+                            }
                             onChange={(ev) => {
                                 const text = ev.target.value;
                                 const ignorePaths = text

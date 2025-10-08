@@ -24,7 +24,7 @@ export const MinimumSeverityLevel = () => {
     return (
         <div className="flex flex-col gap-3">
             <Controller
-                name="suggestionControl.severityLevelFilter"
+                name="suggestionControl.severityLevelFilter.value"
                 control={form.control}
                 render={({ field, fieldState }) => {
                     const labels = Object.values(

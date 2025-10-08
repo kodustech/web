@@ -41,7 +41,7 @@ export const SuggestionGroupingMode = () => {
 
             <div className="mt-3 flex flex-row gap-6">
                 <Controller
-                    name="suggestionControl.groupingMode"
+                    name="suggestionControl.groupingMode.value"
                     control={form.control}
                     render={({ field }) => (
                         <FormControl.Root className="flex-1">
@@ -98,7 +98,9 @@ export const SuggestionGroupingMode = () => {
                 />
 
                 <div className="flex-2">
-                    <CodeGroupingExampleCard groupingType={groupingType} />
+                    <CodeGroupingExampleCard
+                        groupingType={groupingType.value}
+                    />
                 </div>
             </div>
         </>
