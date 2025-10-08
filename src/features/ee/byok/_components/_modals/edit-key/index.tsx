@@ -21,7 +21,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import type { BYOKConfig } from "../../../_types";
 import { ByokBaseURLInput } from "./_components/baseurl-input";
 import { ByokKeyInput } from "./_components/key-input";
-import { ByokModelSelect } from "./_components/models";
+import { ByokModelSelect, ByokManualModelInput } from "./_components/models";
 import { ByokProviderSelect } from "./_components/provider";
 import { editKeySchema, type EditKeyForm } from "./_types";
 
@@ -125,24 +125,30 @@ export const BYOKEditKeyModal = ({
                                         fallbackRender={({
                                             resetErrorBoundary,
                                         }) => (
-                                            <Alert
-                                                variant="danger"
-                                                className="flex items-start justify-between gap-6">
-                                                <span className="text-sm">
-                                                    There was an error when
-                                                    loading models. Please, try
-                                                    again later or try another
-                                                    provider.
-                                                </span>
-                                                <Button
-                                                    variant="tertiary"
-                                                    size="xs"
-                                                    onClick={() =>
-                                                        resetErrorBoundary()
-                                                    }>
-                                                    Try again
-                                                </Button>
-                                            </Alert>
+                                            <div className="flex flex-col gap-4">
+                                                <Alert
+                                                    variant="danger"
+                                                    className="flex items-start justify-between gap-6">
+                                                    <span className="text-sm">
+                                                        There was an error when
+                                                        loading models. You can
+                                                        still type a model
+                                                        manually below, or try
+                                                        again later / switch
+                                                        provider.
+                                                    </span>
+                                                    <Button
+                                                        variant="tertiary"
+                                                        size="xs"
+                                                        onClick={() =>
+                                                            resetErrorBoundary()
+                                                        }>
+                                                        Try again
+                                                    </Button>
+                                                </Alert>
+
+                                                <ByokManualModelInput />
+                                            </div>
                                         )}>
                                         <Suspense
                                             fallback={
