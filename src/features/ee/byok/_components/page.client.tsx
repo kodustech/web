@@ -124,11 +124,6 @@ export const ByokPageClient = ({
                         tooltip={
                             <div>
                                 <p>This key will be the first to be used.</p>
-
-                                <p>
-                                    If an error occurs, Fallback key will be
-                                    used instead.
-                                </p>
                             </div>
                         }
                     />
@@ -140,7 +135,7 @@ export const ByokPageClient = ({
                         tooltip={
                             <p>
                                 Optional. This key will be used if Main key
-                                couldn't.
+                                fails.
                             </p>
                         }
                     />

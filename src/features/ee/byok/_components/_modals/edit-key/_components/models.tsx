@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@components/ui/button";
 import {
     Command,
@@ -33,10 +33,38 @@ export const ByokModelSelect = () => {
     const { providers } = useSuspenseGetLLMProviders();
     const foundProvider = providers.find((p) => p.id === provider);
 
-    return foundProvider?.requiresBaseUrl ? <ModelInput /> : <ModelSelect />;
+    const [manual, setManual] = useState<boolean>(
+        Boolean(foundProvider?.requiresBaseUrl),
+    );
+
+    useEffect(() => {
+        // Providers that require base URL force manual input
+        setManual(Boolean(foundProvider?.requiresBaseUrl));
+    }, [foundProvider?.requiresBaseUrl]);
+
+    if (manual) {
+        return (
+            <ModelInput
+                onBackToSelect={
+                    !foundProvider?.requiresBaseUrl
+                        ? () => setManual(false)
+                        : undefined
+                }
+            />
+        );
+    }
+
+    return <ModelSelect onUseManual={() => setManual(true)} />;
 };
 
-const ModelInput = () => {
+// Exported lightweight manual input for external fallbacks
+export const ByokManualModelInput = () => <ModelInput />;
+
+const ModelInput = ({
+    onBackToSelect,
+}: {
+    onBackToSelect?: () => void;
+}) => {
     const form = useFormContext<EditKeyForm>();
     const provider = form.watch("provider");
     const baseURL = form.watch("baseURL");
@@ -68,13 +96,27 @@ const ModelInput = () => {
                             }}
                         />
                     </FormControl.Input>
+
+                    {onBackToSelect && (
+                        <Button
+                            variant="tertiary"
+                            size="xs"
+                            className="mt-2"
+                            onClick={onBackToSelect}>
+                            Select from list
+                        </Button>
+                    )}
                 </FormControl.Root>
             )}
         />
     );
 };
 
-const ModelSelect = () => {
+const ModelSelect = ({
+    onUseManual,
+}: {
+    onUseManual?: () => void;
+}) => {
     const form = useFormContext<EditKeyForm>();
     const [open, setOpen] = useState(false);
     const provider = form.watch("provider");
@@ -83,6 +125,7 @@ const ModelSelect = () => {
 
     const { providers } = useSuspenseGetLLMProviders();
     const foundProvider = providers.find((p) => p.id === provider);
+    const [search, setSearch] = useState("");
 
     return (
         <Popover modal open={open} onOpenChange={setOpen}>
@@ -138,7 +181,11 @@ const ModelSelect = () => {
 
                         return 0;
                     }}>
-                    <CommandInput placeholder="Search models..." />
+                    <CommandInput
+                        placeholder="Search models..."
+                        value={search}
+                        onValueChange={setSearch}
+                    />
 
                     <CommandList className="max-h-56 overflow-y-auto p-1">
                         <CommandEmpty>No model found.</CommandEmpty>
@@ -163,6 +210,21 @@ const ModelSelect = () => {
                                 </CommandItem>
                             ),
                         )}
+
+                        {/* Allow user to switch to manual input */}
+                        <CommandItem
+                            key="__manual__"
+                            value="__manual__"
+                            onSelect={() => {
+                                onUseManual?.();
+                                setOpen(false);
+                            }}>
+                            <span>
+                                {search?.trim().length
+                                    ? `Type manually: "${search.trim()}"`
+                                    : "Type model manually"}
+                            </span>
+                        </CommandItem>
                     </CommandList>
                 </Command>
             </PopoverContent>
