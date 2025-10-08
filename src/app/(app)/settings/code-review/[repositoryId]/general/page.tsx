@@ -23,9 +23,12 @@ import { unformatCodeReviewConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import GeneratingConfig from "../../_components/generating-config";
-import { type CodeReviewFormType } from "../../_types";
+import { FormattedConfigLevel, type CodeReviewFormType } from "../../_types";
 import { usePlatformConfig } from "../../../_components/context";
-import { useCodeReviewRouteParams } from "../../../_hooks";
+import {
+    useCodeReviewRouteParams,
+    useCurrentConfigLevel,
+} from "../../../_hooks";
 import { AutomatedReviewActive } from "./_components/automated-review-active";
 import { BaseBranches } from "./_components/base-branches";
 import { IgnorePaths } from "./_components/ignore-paths";
@@ -42,6 +45,7 @@ export default function General() {
     const { teamId } = useSelectedTeamId();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
+    const currentLevel = useCurrentConfigLevel();
 
     const canEdit = usePermission(
         Action.Update,
@@ -115,6 +119,7 @@ export default function General() {
             const downloadFile = await getGenerateKodusConfigFile(
                 teamId,
                 repositoryId,
+                directoryId,
             );
 
             const blob = new Blob([downloadFile], { type: "text/yaml" });
@@ -160,6 +165,13 @@ export default function General() {
         return <GeneratingConfig />;
     }
 
+    const downloadFileText =
+        currentLevel === FormattedConfigLevel.GLOBAL
+            ? "default"
+            : currentLevel === FormattedConfigLevel.REPOSITORY
+              ? "repository"
+              : "directory";
+
     return (
         <Page.Root>
             <Page.Header>
@@ -175,9 +187,7 @@ export default function General() {
                         onClick={async () => await handleFileDownload()}
                         variant="secondary"
                         loading={formIsSubmitting}>
-                        Download{" "}
-                        {repositoryId === "global" ? "Default" : "repository"}{" "}
-                        YML configuration file
+                        Download {downloadFileText} YML configuration file
                     </Button>
 
                     <Button

@@ -98,11 +98,12 @@ export const updateCodeReviewParameterRepositories = async (teamId: string) => {
 export const getGenerateKodusConfigFile = async (
     teamId: string,
     repositoryId?: string,
+    directoryId?: string,
 ) => {
     try {
         const response = await axiosAuthorized.fetcher<any>(
             PARAMETERS_PATHS.GENERATE_KODUS_CONFIG_FILE,
-            { params: { teamId, repositoryId } },
+            { params: { teamId, repositoryId, directoryId } },
         );
 
         return response;

@@ -9,21 +9,25 @@ import { Controller, useFormContext } from "react-hook-form";
 import { OverrideIndicator } from "src/app/(app)/settings/code-review/_components/override";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 
-import type { CodeReviewFormType } from "../../../_types";
-import { useCodeReviewRouteParams } from "../../../../_hooks";
+import { CodeReviewFormType, FormattedConfigLevel } from "../../../_types";
+import {
+    useCodeReviewRouteParams,
+    useCurrentConfigLevel,
+} from "../../../../_hooks";
 
 export const KodusConfigFileOverridesWebPreferences = () => {
     const form = useFormContext<CodeReviewFormType>();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
+    const currentLevel = useCurrentConfigLevel();
 
     const kodyRulesUrl = addSearchParamsToUrl(
         `/settings/code-review/${repositoryId}/kody-rules`,
         { directoryId },
     );
 
-    if (repositoryId === "global") return null;
-
-    if (directoryId) return null;
+    if (currentLevel === FormattedConfigLevel.GLOBAL) {
+        return null;
+    }
 
     return (
         <div className="flex flex-col gap-2">
@@ -47,11 +51,15 @@ export const KodusConfigFileOverridesWebPreferences = () => {
 
                                 <p className="text-text-secondary text-sm">
                                     When the <strong>kodus-config.yml </strong>{" "}
-                                    is present in your repo, this property
-                                    prioritizes settings in the kodusConfig file
-                                    over web preferences. (this configuration
-                                    can only be configured through the web
-                                    interface and is not present in the
+                                    is present in your{" "}
+                                    {currentLevel ===
+                                    FormattedConfigLevel.REPOSITORY
+                                        ? "repo"
+                                        : "directory"}
+                                    , this property prioritizes settings in the
+                                    kodusConfig file over web preferences. (this
+                                    configuration can only be configured through
+                                    the web interface and is not present in the
                                     configuration file)
                                 </p>
                             </div>
