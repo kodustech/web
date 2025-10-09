@@ -9,8 +9,9 @@ import {
 } from "@components/ui/tooltip";
 import { useFormContext } from "react-hook-form";
 
-import { CodeReviewFormType, IFormattedConfigProperty } from "../_types";
+import { CodeReviewFormType, FormattedConfigLevel, IFormattedConfigProperty } from "../_types";
 import { useCodeReviewConfig } from "../../_components/context";
+import { useCurrentConfigLevel } from "../../_hooks";
 
 function getNestedProperty<T>(
     obj: T,
@@ -29,9 +30,14 @@ export const OverrideIndicatorForm = ({
 }: OverrideIndicatorFormProps) => {
     const form = useFormContext<CodeReviewFormType>();
     const config = useCodeReviewConfig();
+    const currentLevel = useCurrentConfigLevel();
 
     const initialState = getNestedProperty(config, fieldName);
     const currentValue = form.watch(`${fieldName}.value` as any);
+
+    if (currentLevel === FormattedConfigLevel.GLOBAL) {
+        return null;
+    }
 
     return (
         <OverrideIndicator
