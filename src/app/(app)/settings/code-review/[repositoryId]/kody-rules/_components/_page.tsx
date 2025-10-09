@@ -16,7 +16,11 @@ import {
     useSuspenseGetInheritedKodyRules,
     useSuspenseKodyRulesByRepositoryId,
 } from "@services/kodyRules/hooks";
-import { KodyRulesStatus, type KodyRule } from "@services/kodyRules/types";
+import {
+    KodyRulesStatus,
+    KodyRuleWithInheritanceDetails,
+    type KodyRule,
+} from "@services/kodyRules/types";
 import { KodyLearningStatus } from "@services/parameters/types";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
