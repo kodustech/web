@@ -15,6 +15,7 @@ import { Save } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { SeverityLevel } from "src/core/types";
+import { unformatConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import GeneratingConfig from "../../_components/generating-config";
@@ -46,38 +47,10 @@ export default function SuggestionControl(
 
     const handleSubmit = form.handleSubmit(async (config) => {
         try {
-            // lidando com configs legadas
-            const {
-                limitationType: legacyLimitationType,
-                maxSuggestions: legacyMaxSuggestions,
-                severityLevelFilter: legacySeverityLevelFilter,
-                suggestionControl,
-                ...rest
-            } = config as any;
-
-            // Se já existir suggestionControl, usamos ele; se não, usamos os valores legados
-            const normalizedSuggestionControl = suggestionControl || {
-                groupingMode: GroupingModeSuggestions.FULL, // ou outro valor padrão
-                limitationType: legacyLimitationType || LimitationType.PR,
-                maxSuggestions: legacyMaxSuggestions || 9,
-                severityLevelFilter:
-                    legacySeverityLevelFilter || SeverityLevel.MEDIUM,
-                applyFiltersToKodyRules: false,
-                severityLimits: {
-                    low: 0,
-                    medium: 0,
-                    high: 0,
-                    critical: 0,
-                },
-            };
-
-            const finalConfig = {
-                ...rest,
-                suggestionControl: normalizedSuggestionControl,
-            };
+            const unformattedConfig = unformatConfig(config);
 
             await createOrUpdateCodeReviewParameter(
-                finalConfig,
+                unformattedConfig,
                 teamId,
                 repositoryId,
                 directoryId,
@@ -92,7 +65,7 @@ export default function SuggestionControl(
                 }),
             });
 
-            form.reset(finalConfig);
+            form.reset();
 
             toast({
                 description: "Settings saved",
