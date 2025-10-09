@@ -21,7 +21,10 @@ import { Spinner } from "@components/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { PARAMETERS_PATHS } from "@services/parameters";
-import { copyCodeReviewParameter } from "@services/parameters/fetch";
+import {
+    copyCodeReviewParameter,
+    createOrUpdateCodeReviewParameter,
+} from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { ArrowDownIcon, CopyPlusIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
@@ -78,15 +81,12 @@ export const AddRepoModal = ({
     const handleSubmit = form.handleSubmit(async (values) => {
         magicModal.lock();
 
-        await copyCodeReviewParameter({
+        await createOrUpdateCodeReviewParameter(
+            {},
             teamId,
-            sourceRepositoryId: values.originRepositoryId,
-            targetRepositoryId: values.targetRepositoryId,
-            targetDirectoryPath:
-                values.targetDirectoryPath === "/"
-                    ? undefined
-                    : values.targetDirectoryPath,
-        });
+            values.targetRepositoryId,
+            values.targetDirectoryPath,
+        );
 
         await resetQueries({
             queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
