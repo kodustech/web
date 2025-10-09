@@ -26,16 +26,18 @@ export const GlobalSettings = (props: {
                 }>
                 <CardHeader className="flex flex-row items-center justify-between gap-6 p-4">
                     <div>
-                        <Heading variant="h3">
-                            Post as hidden comment
-                            <span className="ml-1.5 inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset">
-                                GitHub only
-                            </span>
-                        </Heading>
-                        <OverrideIndicator
-                            currentValue={props.hideComments.value}
-                            initialState={props.initialState}
-                        />
+                        <div className="mb-2 flex flex-row items-center gap-2">
+                            <Heading variant="h3">
+                                Post as hidden comment
+                                <span className="ml-1.5 inline-flex items-center rounded-md bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 ring-1 ring-blue-700/10 ring-inset">
+                                    GitHub only
+                                </span>
+                            </Heading>
+                            <OverrideIndicator
+                                currentValue={props.hideComments.value}
+                                initialState={props.initialState}
+                            />
+                        </div>
                         <p className="text-text-secondary">
                             When enabled, all review messages will be posted as
                             hidden/minimized comments.

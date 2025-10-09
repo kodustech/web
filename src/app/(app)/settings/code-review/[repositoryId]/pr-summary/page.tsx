@@ -210,11 +210,13 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                     control={form.control}
                     render={({ field }) => (
                         <FormControl.Root>
-                            <FormControl.Label className="mb-0">
-                                Behavior for commits after PR is opened
-                            </FormControl.Label>
+                            <div className="mb-2 flex flex-row items-center gap-2">
+                                <FormControl.Label className="mb-0">
+                                    Behavior for commits after PR is opened
+                                </FormControl.Label>
 
-                            <OverrideIndicatorForm fieldName="summary.behaviourForNewCommits" />
+                                <OverrideIndicatorForm fieldName="summary.behaviourForNewCommits" />
+                            </div>
 
                             <FormControl.Helper className="mb-3">
                                 You can define Kody's behavior in relation to
@@ -288,11 +290,13 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                     control={form.control}
                     render={({ field }) => (
                         <FormControl.Root>
-                            <FormControl.Label className="mb-0">
-                                Behavior for Existing Description
-                            </FormControl.Label>
+                            <div className="mb-2 flex flex-row items-center gap-2">
+                                <FormControl.Label className="mb-0">
+                                    Behavior for Existing Description
+                                </FormControl.Label>
 
-                            <OverrideIndicatorForm fieldName="summary.behaviourForExistingDescription" />
+                                <OverrideIndicatorForm fieldName="summary.behaviourForExistingDescription" />
+                            </div>
 
                             <FormControl.Helper className="mb-3">
                                 You can define Kody's behavior in relation to
@@ -364,13 +368,15 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                     control={form.control}
                     render={({ field }) => (
                         <FormControl.Root>
-                            <FormControl.Label
-                                className="mb-0"
-                                htmlFor={field.name}>
-                                Custom Instructions
-                            </FormControl.Label>
+                            <div className="mb-2 flex flex-row items-center gap-2">
+                                <FormControl.Label
+                                    className="mb-0"
+                                    htmlFor={field.name}>
+                                    Custom Instructions
+                                </FormControl.Label>
 
-                            <OverrideIndicatorForm fieldName="summary.customInstructions" />
+                                <OverrideIndicatorForm fieldName="summary.customInstructions" />
+                            </div>
 
                             <FormControl.Helper className="mb-3">
                                 You can customize how Kody generates your

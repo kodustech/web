@@ -32,6 +32,7 @@ import { unformatConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import GeneratingConfig from "../../_components/generating-config";
+import { OverrideIndicatorForm } from "../../_components/override";
 import { type CodeReviewFormType } from "../../_types";
 import {
     useDefaultCodeReviewConfig,
@@ -202,11 +203,14 @@ function CustomPromptsContent() {
                         <div className="grid grid-cols-1 gap-6">
                             <FormControl.Root>
                                 <div className="flex items-center justify-between gap-3">
-                                    <FormControl.Label
-                                        className="mb-0"
-                                        htmlFor="v2PromptOverrides.categories.descriptions.bug.value">
-                                        Bug
-                                    </FormControl.Label>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.categories.descriptions.bug.value">
+                                            Bug
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.categories.descriptions.bug" />
+                                    </div>
                                     <Controller
                                         name="v2PromptOverrides.categories.descriptions.bug.value"
                                         control={form.control}
@@ -276,11 +280,14 @@ function CustomPromptsContent() {
 
                             <FormControl.Root>
                                 <div className="flex items-center justify-between gap-3">
-                                    <FormControl.Label
-                                        className="mb-0"
-                                        htmlFor="v2PromptOverrides.categories.descriptions.performance.value">
-                                        Performance
-                                    </FormControl.Label>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.categories.descriptions.performance.value">
+                                            Performance
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.categories.descriptions.performance" />
+                                    </div>
                                     <Controller
                                         name="v2PromptOverrides.categories.descriptions.performance.value"
                                         control={form.control}
@@ -351,11 +358,14 @@ function CustomPromptsContent() {
 
                             <FormControl.Root>
                                 <div className="flex items-center justify-between gap-3">
-                                    <FormControl.Label
-                                        className="mb-0"
-                                        htmlFor="v2PromptOverrides.categories.descriptions.security.value">
-                                        Security
-                                    </FormControl.Label>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.categories.descriptions.security.value">
+                                            Security
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.categories.descriptions.security" />
+                                    </div>
                                     <Controller
                                         name="v2PromptOverrides.categories.descriptions.security.value"
                                         control={form.control}
@@ -438,11 +448,14 @@ function CustomPromptsContent() {
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <FormControl.Root>
                                 <div className="flex items-center justify-between gap-3">
-                                    <FormControl.Label
-                                        className="mb-0"
-                                        htmlFor="v2PromptOverrides.severity.flags.critical.value">
-                                        Critical
-                                    </FormControl.Label>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.severity.flags.critical.value">
+                                            Critical
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.severity.flags.critical" />
+                                    </div>
                                     <Controller
                                         name="v2PromptOverrides.severity.flags.critical.value"
                                         control={form.control}
@@ -513,11 +526,14 @@ function CustomPromptsContent() {
 
                             <FormControl.Root>
                                 <div className="flex items-center justify-between gap-3">
-                                    <FormControl.Label
-                                        className="mb-0"
-                                        htmlFor="v2PromptOverrides.severity.flags.high.value">
-                                        High
-                                    </FormControl.Label>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.severity.flags.high.value">
+                                            High
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.severity.flags.high" />
+                                    </div>
                                     <Controller
                                         name="v2PromptOverrides.severity.flags.high.value"
                                         control={form.control}
@@ -587,11 +603,14 @@ function CustomPromptsContent() {
 
                             <FormControl.Root>
                                 <div className="flex items-center justify-between gap-3">
-                                    <FormControl.Label
-                                        className="mb-0"
-                                        htmlFor="v2PromptOverrides.severity.flags.medium.value">
-                                        Medium
-                                    </FormControl.Label>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.severity.flags.medium.value">
+                                            Medium
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.severity.flags.medium" />
+                                    </div>
                                     <Controller
                                         name="v2PromptOverrides.severity.flags.medium.value"
                                         control={form.control}
@@ -661,11 +680,14 @@ function CustomPromptsContent() {
 
                             <FormControl.Root>
                                 <div className="flex items-center justify-between gap-3">
-                                    <FormControl.Label
-                                        className="mb-0"
-                                        htmlFor="v2PromptOverrides.severity.flags.low.value">
-                                        Low
-                                    </FormControl.Label>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.severity.flags.low.value">
+                                            Low
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.severity.flags.low" />
+                                    </div>
                                     <Controller
                                         name="v2PromptOverrides.severity.flags.low.value"
                                         control={form.control}
