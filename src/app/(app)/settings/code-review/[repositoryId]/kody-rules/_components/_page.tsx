@@ -1,23 +1,28 @@
 "use client";
 
 import { Suspense, useMemo, useState } from "react";
+import { KodyRulesLimitPopover } from "@components/system/kody-rules-limit-popover";
 import { Button } from "@components/ui/button";
 import { SvgKodyRulesDiscovery } from "@components/ui/icons/SvgKodyRulesDiscovery";
 import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
+import { PopoverTrigger } from "@components/ui/popover";
 import { Separator } from "@components/ui/separator";
 import { Skeleton } from "@components/ui/skeleton";
 import { KODY_RULES_PATHS } from "@services/kodyRules";
 import {
-    KodyRuleWithInheritanceDetails,
-    type KodyRule,
-} from "@services/kodyRules/types";
+    useKodyRulesLimits,
+    useSuspenseGetInheritedKodyRules,
+    useSuspenseKodyRulesByRepositoryId,
+} from "@services/kodyRules/hooks";
+import { KodyRulesStatus, type KodyRule } from "@services/kodyRules/types";
 import { KodyLearningStatus } from "@services/parameters/types";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { useQueryClient } from "@tanstack/react-query";
-import { BellRing, Plus } from "lucide-react";
+import { BellRing, PlusIcon } from "lucide-react";
+import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 
 import { CodeReviewPagesBreadcrumb } from "../../../_components/breadcrumb";
 import { GenerateRulesOptions } from "../../../_components/generate-rules-options";
@@ -33,27 +38,51 @@ import { KodyRulesEmptyState } from "./empty";
 import { KodyRulesList } from "./list";
 import { KodyRulesToolbar, type VisibleScopes } from "./toolbar";
 
-export const KodyRulesPage = ({
-    kodyRules,
-    pendingRules,
-    inheritedGlobalRules,
-    inheritedRepoRules,
-    inheritedDirectoryRules,
-}: {
-    kodyRules: KodyRule[];
-    inheritedGlobalRules: KodyRuleWithInheritanceDetails[];
-    inheritedRepoRules: KodyRuleWithInheritanceDetails[];
-    inheritedDirectoryRules: KodyRuleWithInheritanceDetails[];
-    pendingRules: KodyRule[];
-}) => {
+export const KodyRulesPage = () => {
     const platformConfig = usePlatformConfig();
     const config = useFullCodeReviewConfig();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const queryClient = useQueryClient();
+    const { teamId } = useSelectedTeamId();
+    const kodyRulesLimits = useKodyRulesLimits();
     const canEdit = usePermission(
         Action.Update,
         ResourceType.KodyRules,
         repositoryId,
+    );
+
+    const scopeKodyRules = useSuspenseKodyRulesByRepositoryId(
+        repositoryId,
+        directoryId,
+    );
+
+    const {
+        directoryRules: inheritedDirectoryRules = [],
+        globalRules: inheritedGlobalRules = [],
+        repoRules: inheritedRepoRules = [],
+        excludedRules = [],
+    } = useSuspenseGetInheritedKodyRules({
+        teamId,
+        repositoryId,
+        directoryId,
+    });
+
+    const { activeRules: kodyRules, pendingRules } = scopeKodyRules.reduce<{
+        activeRules: KodyRule[];
+        pendingRules: KodyRule[];
+    }>(
+        (result, rule) => {
+            switch (rule.status) {
+                case KodyRulesStatus.ACTIVE:
+                    result.activeRules.push(rule);
+                    break;
+                case KodyRulesStatus.PENDING:
+                    result.pendingRules.push(rule);
+                    break;
+            }
+            return result;
+        },
+        { activeRules: [], pendingRules: [] },
     );
 
     const repositoryOnlyRules = useMemo(() => {
@@ -147,6 +176,12 @@ export const KodyRulesPage = ({
                 query.queryKey[0] ===
                 KODY_RULES_PATHS.FIND_BY_ORGANIZATION_ID_AND_FILTER,
         });
+
+        await queryClient.resetQueries({
+            predicate: (query) =>
+                query.queryKey[0] ===
+                KODY_RULES_PATHS.GET_KODY_RULES_TOTAL_QUANTITY,
+        });
     };
 
     const addNewEmptyRule = async () => {
@@ -209,15 +244,32 @@ export const KodyRulesPage = ({
                                 Discovery
                             </Button>
                         </Link>
-                        <Button
-                            size="md"
-                            type="button"
-                            variant="primary"
-                            leftIcon={<Plus />}
-                            disabled={!canEdit}
-                            onClick={addNewEmptyRule}>
-                            New rule
-                        </Button>
+
+                        {kodyRulesLimits.canAddMoreRules ? (
+                            <Button
+                                size="md"
+                                type="button"
+                                variant="primary"
+                                leftIcon={<PlusIcon />}
+                                disabled={!canEdit}
+                                onClick={addNewEmptyRule}>
+                                New rule
+                            </Button>
+                        ) : (
+                            <KodyRulesLimitPopover
+                                limit={kodyRulesLimits.limit}>
+                                <PopoverTrigger asChild>
+                                    <Button
+                                        size="md"
+                                        type="button"
+                                        variant="primary"
+                                        leftIcon={<PlusIcon />}
+                                        disabled={!canEdit}>
+                                        New rule
+                                    </Button>
+                                </PopoverTrigger>
+                            </KodyRulesLimitPopover>
+                        )}
                     </Page.HeaderActions>
                     {pendingRules.length > 0 && (
                         <div className="flex justify-end">

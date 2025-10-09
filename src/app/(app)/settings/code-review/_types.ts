@@ -92,6 +92,23 @@ export type CodeReviewGlobalConfig = {
     runOnDraft: boolean;
     codeReviewVersion?: "legacy" | "v2";
     ideRulesSyncEnabled: boolean;
+    v2PromptOverrides?: {
+        categories?: {
+            descriptions?: {
+                bug?: string;
+                performance?: string;
+                security?: string;
+            };
+        };
+        severity?: {
+            flags?: {
+                critical?: string;
+                high?: string;
+                medium?: string;
+                low?: string;
+            };
+        };
+    };
 };
 
 export type CodeReviewBaseConfig = {

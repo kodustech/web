@@ -13,8 +13,8 @@ import { ExpandableCardsLayout } from "./_components/expandable-cards-layout";
 import { CockpitNoDataBanner } from "./_components/no-data-banner";
 import { RepositoryPicker } from "./_components/repository-picker";
 import { tabs, type TabValue } from "./_constants";
-import { getAnalyticsStatus } from "./_services/analytics/fetch";
 import { extractApiData } from "./_helpers/api-data-extractor";
+import { getAnalyticsStatus } from "./_services/analytics/fetch";
 import { AnalyticsNotAvailable } from "./not-available";
 
 export default async function Layout({
@@ -60,7 +60,13 @@ export default async function Layout({
     const organizationLicense = await validateOrganizationLicense({
         teamId: selectedTeamId,
     });
-    if (!organizationLicense.valid) redirect("/settings/git");
+    if (
+        !organizationLicense.valid ||
+        organizationLicense.subscriptionStatus === "self-hosted" ||
+        (organizationLicense.subscriptionStatus === "active" &&
+            organizationLicense.planType === "free_byok")
+    )
+        redirect("/settings/git");
 
     const [connections, analyticsResult] = await Promise.all([
         getConnections(selectedTeamId),
@@ -77,14 +83,6 @@ export default async function Layout({
     const repositoryCookieValue = cookieStore.get(
         "cockpit-selected-repository" satisfies CookieName,
     )?.value;
-
-    const hasJIRAConnected =
-        connections?.find(
-            (c) =>
-                c.platformName === "JIRA" &&
-                c.hasConnection &&
-                c.isSetupComplete,
-        ) !== undefined;
 
     const entries = Object.entries(tabs);
 
@@ -114,16 +112,14 @@ export default async function Layout({
                 <div className="mt-10">
                     <Tabs
                         defaultValue={
-                            (hasJIRAConnected
-                                ? "flow-metrics"
-                                : "productivity") satisfies TabValue
+                            ("productivity") satisfies TabValue
                         }>
                         <TabsList>
+                            {/* TODO: add JIRA tab */}
                             {entries.map(([value, name]) => {
                                 if (
                                     value ===
-                                    ("flow-metrics" satisfies TabValue) &&
-                                    !hasJIRAConnected
+                                    ("flow-metrics" satisfies TabValue)
                                 ) {
                                     return;
                                 }

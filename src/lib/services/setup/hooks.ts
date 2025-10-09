@@ -64,12 +64,6 @@ export function useSuspenseGetOrganizationId() {
     return useSuspenseFetch<string>(ORGANIZATIONS_PATHS.ORGANIZATION_ID);
 }
 
-export function useGetTeamsStoryUrlId() {
-    return useFetch<any>(SETUP_PATHS.MSTEAMS_STORY_URL, {});
-}
-
 export function useVerifyConnectionCommunication() {
     return useFetch<any>(SETUP_PATHS.VERIFY_CONNECTION_COMMUNICATION);
 }
-
-

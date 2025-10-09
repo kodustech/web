@@ -81,8 +81,8 @@ export const PRSummaryPreviewModal = ({
                     customInstructions,
                     repository: isGlobalConfig
                         ? {
-                              id: selectedPR.repository,
-                              name: selectedPR.repository,
+                              id: selectedPR.repositoryId,
+                              name: selectedPR.repository.split("/")[1],
                           }
                         : {
                               id: repositoryId,

@@ -2,6 +2,7 @@
 
 import { Button } from "@components/ui/button";
 import { Card, CardHeader, CardTitle } from "@components/ui/card";
+import { magicModal } from "@components/ui/magic-modal";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
@@ -11,7 +12,8 @@ import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { pluralize } from "src/core/utils/string";
 import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
 
-import { createCheckoutSessionAction } from "../../_actions/create-checkout-session";
+import { getPlans } from "../../_services/billing/fetch";
+import { NewPlanSelectionModal } from "./_modals/select-new-plan";
 
 export const PaymentFailed = ({
     members,
@@ -28,11 +30,12 @@ export const PaymentFailed = ({
     const assignedLicenses = subscription.usersWithAssignedLicense.length;
     const organizationAdminsCount = members.length;
 
-    const [createLinkToCheckout, { loading: isCreatingLinkToCheckout }] =
-        useAsyncAction(async () => {
-            const { url } = await createCheckoutSessionAction({ teamId });
-            window.location.href = url;
-        });
+    const [_getPlans, { loading: isLoadingPlans }] = useAsyncAction(
+        async () => {
+            const plans = await getPlans();
+            magicModal.show(() => <NewPlanSelectionModal plans={plans} />);
+        },
+    );
 
     return (
         <Card className="w-full">
@@ -54,11 +57,10 @@ export const PaymentFailed = ({
                         </p>
 
                         <p className="text-text-secondary text-sm">
-                            <strong>{organizationAdminsCount}</strong>{" "}
-                            organization{" "}
+                            <strong>{organizationAdminsCount}</strong> workspace{" "}
                             {pluralize(organizationAdminsCount, {
-                                singular: "admin",
-                                plural: "admins",
+                                singular: "member",
+                                plural: "members",
                             })}
                         </p>
                     </div>
@@ -68,12 +70,9 @@ export const PaymentFailed = ({
                     size="lg"
                     variant="primary"
                     className="h-fit"
+                    loading={isLoadingPlans}
                     leftIcon={<CircleDollarSign />}
-                    loading={isCreatingLinkToCheckout}
-                    disabled={!canEdit}
-                    onClick={() => {
-                        createLinkToCheckout();
-                    }}>
+                    onClick={() => _getPlans()}>
                     Subscribe again
                 </Button>
             </CardHeader>

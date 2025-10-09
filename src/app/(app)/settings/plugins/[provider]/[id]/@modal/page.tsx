@@ -1,6 +1,7 @@
 import {
     getMCPConnections,
     getMCPPluginById,
+    getMCPPlugins,
     getMCPPluginTools,
 } from "@services/mcp-manager/fetch";
 import type { AwaitedReturnType } from "src/core/types";
@@ -13,10 +14,13 @@ export default async function PluginModalPage({
     params: Promise<{ provider: string; id: string }>;
 }) {
     const { id, provider } = await params;
+    let installedPlugins: AwaitedReturnType<typeof getMCPPlugins> = [];
 
     let plugin;
     try {
         plugin = await getMCPPluginById({ id, provider });
+        const allPlugins = await getMCPPlugins();
+        installedPlugins = allPlugins.filter((p) => p.isConnected);
     } catch (error) {
         console.error("Error fetching plugin data:", error);
         return null;
@@ -49,7 +53,11 @@ export default async function PluginModalPage({
                 };
 
                 return (
-                    <PluginModal plugin={pluginWithConnection} tools={tools} />
+                    <PluginModal
+                        tools={tools}
+                        plugin={pluginWithConnection}
+                        installedPlugins={installedPlugins}
+                    />
                 );
             }
         } catch (connectionError) {
@@ -61,5 +69,11 @@ export default async function PluginModalPage({
         }
     }
 
-    return <PluginModal plugin={plugin} tools={tools} />;
+    return (
+        <PluginModal
+            tools={tools}
+            plugin={plugin}
+            installedPlugins={installedPlugins}
+        />
+    );
 }

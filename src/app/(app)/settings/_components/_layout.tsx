@@ -48,6 +48,7 @@ import { PerRepository } from "./per-repository/repository";
 const routes = [
     { label: "General", href: "general" },
     { label: "Review Categories", href: "review-categories" },
+    { label: "Custom Prompts", href: "custom-prompts" },
     { label: "Suggestion Control", href: "suggestion-control" },
     { label: "PR Summary", href: "pr-summary" },
     { label: "Kody Rules", href: "kody-rules" },

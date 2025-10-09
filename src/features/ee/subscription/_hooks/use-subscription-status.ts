@@ -3,9 +3,9 @@
 import { differenceInDays } from "date-fns";
 
 import { useSubscriptionContext } from "../_providers/subscription-context";
+import type { PlanType } from "../_services/billing/types";
 
-// Definição dos tipos de licença
-type License =
+type SubscriptionContextLicense =
     | {
           valid: false;
           subscriptionStatus: "payment_failed" | "canceled" | "expired";
@@ -20,6 +20,7 @@ type License =
           valid: true;
           subscriptionStatus: "active";
           numberOfLicenses: number;
+          planType: PlanType;
       };
 
 type TrialSubscriptionStatus = {
@@ -36,11 +37,20 @@ type InvalidSubscriptionStatus = {
     status: "payment-failed" | "canceled" | "expired";
 };
 
+type FreeSubscriptionStatus = {
+    valid: true;
+    byok: true;
+    status: "free";
+    planType: "free_byok";
+};
+
 type ActiveSubscriptionStatus = {
     valid: true;
     status: "active";
     numberOfLicenses: number;
+    byok: boolean;
     usersWithAssignedLicense: { git_id: string }[];
+    planType: PlanType;
 };
 
 type SelfHostedSubscriptionStatus = {
@@ -52,11 +62,12 @@ type SubscriptionStatus =
     | ActiveSubscriptionStatus
     | TrialSubscriptionStatus
     | InvalidSubscriptionStatus
-    | SelfHostedSubscriptionStatus;
+    | SelfHostedSubscriptionStatus
+    | FreeSubscriptionStatus;
 
 export const useSubscriptionStatus = (): SubscriptionStatus => {
     const subscription = useSubscriptionContext();
-    const license = subscription.license as License;
+    const license = subscription.license as SubscriptionContextLicense;
 
     if (license.valid) {
         if (subscription.license.subscriptionStatus === "self-hosted") {
@@ -68,9 +79,22 @@ export const useSubscriptionStatus = (): SubscriptionStatus => {
 
         // Active subscription
         if (license.subscriptionStatus === "active") {
+            const byok = license.planType.toLowerCase().includes("byok");
+
+            if (license.planType === "free_byok") {
+                return {
+                    valid: true,
+                    byok: true,
+                    planType: license.planType,
+                    status: "free",
+                };
+            }
+
             return {
+                byok,
                 valid: true,
                 status: "active",
+                planType: license.planType,
                 numberOfLicenses: license.numberOfLicenses,
                 usersWithAssignedLicense: subscription.usersWithAssignedLicense,
             };

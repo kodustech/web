@@ -29,7 +29,7 @@ import { Controller, useForm } from "react-hook-form";
 import { publicDomainsSet } from "src/core/utils/email";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
-import z from "zod";
+import { z } from "zod";
 
 const timezoneOptions = [
     { value: Timezone.NEW_YORK, title: "New York" },
@@ -39,7 +39,7 @@ const timezoneOptions = [
 const createSettingsSchema = (userDomain: string) =>
     z
         .object({
-            timezone: z.nativeEnum(Timezone),
+            timezone: z.enum(Timezone),
             autoJoinConfig: z.object({
                 enabled: z.boolean(),
                 domains: z.array(z.string()),
@@ -52,7 +52,7 @@ const createSettingsSchema = (userDomain: string) =>
 
                 if (validDomains.length === 0) {
                     ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
+                        code: "custom",
                         message: "At least one domain is required.",
                         path: ["autoJoinConfig", "domains"],
                     });
@@ -68,7 +68,7 @@ const createSettingsSchema = (userDomain: string) =>
 
                 if (isPublicDomain) {
                     ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
+                        code: "custom",
                         message: "Public domains are not allowed.",
                         path: ["autoJoinConfig", "domains"],
                     });
@@ -76,7 +76,7 @@ const createSettingsSchema = (userDomain: string) =>
 
                 if (validDomains.some((domain) => domain !== userDomain)) {
                     ctx.addIssue({
-                        code: z.ZodIssueCode.custom,
+                        code: "custom",
                         message: "You can only add your own domain.",
                         path: ["autoJoinConfig", "domains"],
                     });

@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { getBYOK } from "@services/organizationParameters/fetch";
 import {
     getOrganizationId,
     getOrganizationName,
@@ -12,6 +13,8 @@ import { NavMenu } from "src/core/layout/navbar";
 import { TEAM_STATUS } from "src/core/types";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
+import { BYOKMissingKeyTopbar } from "src/features/ee/byok/_components/missing-key-topbar";
+import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { FinishedTrialModal } from "src/features/ee/subscription/_components/finished-trial-modal";
 import { SubscriptionStatusTopbar } from "src/features/ee/subscription/_components/subscription-status-topbar";
 import { SubscriptionProvider } from "src/features/ee/subscription/_providers/subscription-context";
@@ -24,7 +27,9 @@ import { Providers } from "./providers";
 
 export default async function Layout({ children }: React.PropsWithChildren) {
     const session = await auth();
-    if (!session) redirect("/sign-out");
+    if (!session) {
+        redirect("/sign-out");
+    }
 
     const userStatus = session.user?.status
         ? String(session.user.status).toLowerCase()
@@ -49,26 +54,30 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         teamId,
     });
 
-    if (!platformConfigs?.configValue?.finishOnboard) redirect("/setup");
+    if (!platformConfigs?.configValue?.finishOnboard) {
+        redirect("/setup");
+    }
+
+    const organizationId = await getOrganizationId();
 
     const [
         permissions,
-        organizationId,
         organizationName,
         organizationLicense,
         usersWithAssignedLicense,
         issuesPageFeatureFlag,
         logsPagesFeatureFlag,
         pullRequestsPageFeatureFlag,
+        byokConfig,
     ] = await Promise.all([
         getPermissions(),
-        getOrganizationId(),
         getOrganizationName(),
         validateOrganizationLicense({ teamId }),
         getUsersWithLicense({ teamId }),
         getFeatureFlagWithPayload({ feature: "issues-page" }),
         getFeatureFlagWithPayload({ feature: "logs-pages" }),
         getFeatureFlagWithPayload({ feature: "pull-requests-pages" }),
+        getBYOK(),
     ]);
 
     return (
@@ -90,6 +99,10 @@ export default async function Layout({ children }: React.PropsWithChildren) {
                 />
                 <FinishedTrialModal />
                 <SubscriptionStatusTopbar />
+
+                {isBYOKSubscriptionPlan(organizationLicense) &&
+                    !byokConfig?.main && <BYOKMissingKeyTopbar />}
+
                 {children}
             </SubscriptionProvider>
         </Providers>

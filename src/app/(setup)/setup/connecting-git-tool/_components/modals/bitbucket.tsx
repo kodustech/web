@@ -24,9 +24,15 @@ import { captureSegmentEvent } from "src/core/utils/segment";
 import { z } from "zod";
 
 const tokenFormSchema = z.object({
-    token: z.string().min(1, { message: "Enter a Token" }),
-    username: z.string().min(1, { message: "Enter a Username" }),
-    email: z.string().email({ message: "Enter a valid email" }),
+    token: z.string().min(1, {
+        error: "Enter a Token"
+    }),
+    username: z.string().min(1, {
+        error: "Enter a Username"
+    }),
+    email: z.email({
+            error: "Enter a valid email"
+        }),
 });
 
 export const BitbucketTokenModal = (props: {

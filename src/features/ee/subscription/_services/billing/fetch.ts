@@ -3,7 +3,7 @@ import { getOrganizationId } from "@services/organizations/fetch";
 import { pathToApiUrl } from "src/core/utils/helpers";
 import { isSelfHosted } from "src/core/utils/self-hosted";
 
-import type { OrganizationLicense } from "./types";
+import type { OrganizationLicense, Plan } from "./types";
 import { billingFetch } from "./utils";
 
 export const getPullRequestAuthors = async () => {
@@ -29,7 +29,7 @@ export const startTeamTrial = async (params: {
         assignedLicenses: number;
         createdAt: Date;
         updatedAt: Date;
-    }>(`/trial`, {
+    }>(`trial`, {
         method: "POST",
         body: JSON.stringify({
             organizationId: params.organizationId,
@@ -41,15 +41,17 @@ export const startTeamTrial = async (params: {
 export const createCheckoutSession = async (params: {
     teamId: string;
     quantity: number;
+    planId: string;
 }) => {
     const organizationId = await getOrganizationId();
 
-    return billingFetch<{ url: string }>(`/create-checkout-session`, {
+    return billingFetch<{ url: string }>(`create-checkout-session`, {
         method: "POST",
         body: JSON.stringify({
             organizationId,
             teamId: params.teamId,
             quantity: params.quantity,
+            planType: params.planId,
         }),
     });
 };
@@ -58,7 +60,7 @@ export const createManageBillingLink = async (params: { teamId: string }) => {
     const organizationId = await getOrganizationId();
 
     return billingFetch<{ url: string }>(
-        `/portal/${organizationId}/${params.teamId}`,
+        `portal/${organizationId}/${params.teamId}`,
         { method: "GET" },
     );
 };
@@ -67,10 +69,15 @@ export const getUsersWithLicense = async (params: { teamId: string }) => {
     if (isSelfHosted) return [];
 
     const organizationId = await getOrganizationId();
-    return billingFetch<Array<{ git_id: string }>>(`/users-with-license`, {
+    return billingFetch<Array<{ git_id: string }>>(`users-with-license`, {
         params: { organizationId, teamId: params.teamId },
     });
 };
+
+export const getPlans = () =>
+    billingFetch<{
+        plans: Array<Plan>;
+    }>(`plans`);
 
 export const assignOrDeassignUserLicense = async (params: {
     teamId: string;
@@ -90,7 +97,7 @@ export const assignOrDeassignUserLicense = async (params: {
     return billingFetch<{
         successful: any[];
         error: any[];
-    }>(`/assign-license`, {
+    }>(`assign-license`, {
         method: "POST",
         body: JSON.stringify({
             organizationId,
@@ -110,8 +117,24 @@ export const validateOrganizationLicense = async (params: {
     }
 
     const organizationId = await getOrganizationId();
-    return billingFetch(`/validate-org-license`, {
+    return billingFetch(`validate-org-license`, {
         method: "GET",
         params: { organizationId, teamId: params.teamId },
+    });
+};
+
+export const migrateToFree = async (params: {
+    organizationId: string;
+    teamId: string;
+}) => {
+    return billingFetch<{
+        success: boolean;
+        message?: string;
+    }>(`migrate-to-free`, {
+        method: "POST",
+        body: JSON.stringify({
+            organizationId: params.organizationId,
+            teamId: params.teamId,
+        }),
     });
 };

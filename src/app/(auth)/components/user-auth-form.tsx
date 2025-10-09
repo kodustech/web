@@ -14,7 +14,10 @@ import { z } from "zod";
 
 const signInFormSchema = z.object({
     email: z.string().email({ message: "Please use a valid email address" }),
-    password: z.string().min(1, { message: "Enter a password" }),
+
+    password: z.string().min(1, {
+        error: "Enter a password"
+    }),
 });
 
 type SignInFormSchema = z.infer<typeof signInFormSchema>;

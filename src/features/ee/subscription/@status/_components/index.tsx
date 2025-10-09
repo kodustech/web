@@ -5,7 +5,7 @@ import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-s
 
 import { Active } from "./active";
 import { Canceled } from "./canceled";
-import { TrialExpired } from "./no-subscription";
+import { FreeByok } from "./free";
 import { PaymentFailed } from "./payment-failed";
 import { Trial } from "./trial";
 
@@ -18,7 +18,7 @@ const components: Partial<
     "active": Active,
     "trial-active": Trial,
     "trial-expiring": Trial,
-    "expired": TrialExpired,
+    "free": FreeByok,
     "canceled": Canceled,
     "payment-failed": PaymentFailed,
 };

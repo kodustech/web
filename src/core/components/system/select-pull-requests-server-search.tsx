@@ -23,6 +23,7 @@ type PullRequest = {
     id: string;
     pull_number: number;
     repository: string;
+    repositoryId: string;
     title: string;
     url: string;
 };
@@ -48,15 +49,11 @@ export const SelectPullRequestWithServerSearch = (props: {
         value,
     } = props;
 
-    const {
-        searchInput,
-        setSearchInput,
-        pullRequests,
-        isSearching,
-    } = useDebouncedPRSearch({
-        teamId,
-        repositoryId,
-    });
+    const { searchInput, setSearchInput, pullRequests, isSearching } =
+        useDebouncedPRSearch({
+            teamId,
+            repositoryId,
+        });
 
     console.log("🎨 SelectPullRequestWithServerSearch - Debug:");
     console.log("  📊 Pull Requests:", pullRequests);
@@ -111,11 +108,11 @@ export const SelectPullRequestWithServerSearch = (props: {
             <PopoverContent
                 align="start"
                 className="w-[var(--radix-popover-trigger-width)] p-0">
-                <Command 
+                <Command
                     className="w-full"
                     shouldFilter={false} // Disable internal filtering - API handles it
                 >
-                    <CommandInput 
+                    <CommandInput
                         placeholder="Search by title or number (e.g., 'fix bug' or '#123')"
                         value={searchInput}
                         onValueChange={setSearchInput}
@@ -125,17 +122,16 @@ export const SelectPullRequestWithServerSearch = (props: {
                         {isSearching ? (
                             <div className="flex items-center justify-center p-4">
                                 <Spinner className="mr-2 size-4" />
-                                <span className="text-sm text-muted-foreground">
+                                <span className="text-muted-foreground text-sm">
                                     Searching...
                                 </span>
                             </div>
                         ) : (
                             <>
                                 <CommandEmpty className="flex h-full items-center justify-center">
-                                    {searchInput.trim() 
+                                    {searchInput.trim()
                                         ? "No pull request found with current search query"
-                                        : "Start typing to search pull requests"
-                                    }
+                                        : "Start typing to search pull requests"}
                                 </CommandEmpty>
 
                                 <div className="max-h-72">
@@ -155,7 +151,8 @@ export const SelectPullRequestWithServerSearch = (props: {
                                                         className="flex items-center justify-start">
                                                         <span className="text-text-secondary line-clamp-2">
                                                             <strong className="mr-2 font-mono">
-                                                                #{pr.pull_number}
+                                                                #
+                                                                {pr.pull_number}
                                                             </strong>
 
                                                             {pr.title}

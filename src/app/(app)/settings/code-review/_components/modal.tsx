@@ -139,9 +139,9 @@ export const KodyRuleAddOrUpdateItemModal = ({
                 initialScope === "pull-request"
                     ? ""
                     : rule
-                      ? !directory
-                          ? rule.path
-                          : (() => {
+                        ? !directory
+                            ? rule.path
+                            : (() => {
                                 const pathWithoutDirectory =
                                     getKodyRulePathWithoutDirectoryPath({
                                         directory,
@@ -152,9 +152,9 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                     DEFAULT_PATH_FOR_DIRECTORIES
                                 );
                             })()
-                      : directory
-                        ? DEFAULT_PATH_FOR_DIRECTORIES
-                        : "",
+                        : directory
+                            ? DEFAULT_PATH_FOR_DIRECTORIES
+                            : "",
             rule: rule?.rule ?? "",
             title: rule?.title ?? "",
             severity: rule?.severity ?? "high",
@@ -638,14 +638,14 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                 error={fieldState.error}
                                                 className={cn(
                                                     directory &&
-                                                        !isInherited &&
-                                                        watchScope === "file" &&
-                                                        "rounded-l-none",
+                                                    !isInherited &&
+                                                    watchScope === "file" &&
+                                                    "rounded-l-none",
                                                 )}
                                                 disabled={
                                                     field.disabled ||
                                                     watchScope ===
-                                                        "pull-request"
+                                                    "pull-request"
                                                 }
                                                 onChange={(e) =>
                                                     field.onChange(

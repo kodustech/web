@@ -2,31 +2,33 @@
 
 import { Button } from "@components/ui/button";
 import { Card, CardHeader, CardTitle } from "@components/ui/card";
+import { magicModal } from "@components/ui/magic-modal";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import type { TeamMembersResponse } from "@services/setup/types";
 import { ArrowUpCircle } from "lucide-react";
-import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { pluralize } from "src/core/utils/string";
 
-import { createCheckoutSessionAction } from "../../_actions/create-checkout-session";
 import { useSubscriptionStatus } from "../../_hooks/use-subscription-status";
+import { getPlans } from "../../_services/billing/fetch";
+import { NewPlanSelectionModal } from "./_modals/select-new-plan";
 
 export const Trial = ({
     members,
 }: {
     members: TeamMembersResponse["members"];
 }) => {
-    const { teamId } = useSelectedTeamId();
     const organizationAdminsCount = members.length;
     const canEdit = usePermission(Action.Update, ResourceType.Billing);
 
-    const [createLinkToCheckout, { loading: isCreatingLinkToCheckout }] =
-        useAsyncAction(async () => {
-            const { url } = await createCheckoutSessionAction({ teamId });
-            window.location.href = url;
-        });
+    const [_getPlans, { loading: isLoadingPlans }] = useAsyncAction(
+        async () => {
+            const plans = await getPlans();
+
+            magicModal.show(() => <NewPlanSelectionModal plans={plans} />);
+        },
+    );
 
     const subscriptionStatus = useSubscriptionStatus();
     if (
@@ -52,11 +54,10 @@ export const Trial = ({
                         </p> */}
 
                         <p className="text-text-secondary text-sm">
-                            <strong>{organizationAdminsCount}</strong>{" "}
-                            organization{" "}
+                            <strong>{organizationAdminsCount}</strong> workspace{" "}
                             {pluralize(organizationAdminsCount, {
-                                singular: "admin",
-                                plural: "admins",
+                                singular: "member",
+                                plural: "members",
                             })}
                         </p>
                     </div>
@@ -66,10 +67,9 @@ export const Trial = ({
                     size="lg"
                     variant="primary"
                     className="h-fit"
+                    loading={isLoadingPlans}
                     leftIcon={<ArrowUpCircle />}
-                    loading={isCreatingLinkToCheckout}
-                    disabled={!canEdit}
-                    onClick={() => createLinkToCheckout()}>
+                    onClick={() => _getPlans()}>
                     Upgrade
                 </Button>
             </CardHeader>

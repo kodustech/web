@@ -36,14 +36,21 @@ export const Active = ({
         window.location.href = url;
     });
 
+    const formattedPlanName = subscription.planType
+        .replace("_byok", "")
+        .replaceAll("_", " ");
+
     return (
         <Card className="w-full">
             <CardHeader className="flex flex-row justify-between gap-2">
                 <div className="flex flex-col gap-2">
                     <p className="text-text-secondary text-sm">
-                        Monthly subscription
+                        Paid subscription {subscription.byok && "(BYOK)"}
                     </p>
-                    <CardTitle className="text-2xl">PRO plan</CardTitle>
+                    <CardTitle className="text-2xl">
+                        <span className="capitalize">{formattedPlanName}</span>{" "}
+                        plan
+                    </CardTitle>
 
                     <div className="mt-4 flex gap-6">
                         <p className="text-text-secondary text-sm">
@@ -52,11 +59,10 @@ export const Active = ({
                         </p>
 
                         <p className="text-text-secondary text-sm">
-                            <strong>{organizationAdminsCount}</strong>{" "}
-                            organization{" "}
+                            <strong>{organizationAdminsCount}</strong> workspace{" "}
                             {pluralize(organizationAdminsCount, {
-                                singular: "admin",
-                                plural: "admins",
+                                singular: "member",
+                                plural: "members",
                             })}
                         </p>
                     </div>

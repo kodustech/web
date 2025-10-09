@@ -19,21 +19,6 @@ export const getRepositories = async (
     return data;
 };
 
-// TODO: remove, unused
-export const reviewOnboardingPullRequest = async (
-    teamId: string,
-    payload: {
-        id: string;
-        pull_number: number;
-        repository: string;
-    },
-) => {
-    return await axiosAuthorized.post(
-        CODE_MANAGEMENT_API_PATHS.REVIEW_ONBOARDING_PULL_REQUEST,
-        { teamId, payload },
-    );
-};
-
 export const createOrUpdateRepositories = (
     repositories: Repository[],
     teamId: string,
@@ -94,20 +79,6 @@ export const createCodeManagementIntegration = ({
         email,
         orgName,
     });
-};
-
-// TODO: remove, unused
-export const saveCodeManagementConfigs = (
-    organizationSelected: any,
-    teamId: string,
-) => {
-    return axiosAuthorized.post(
-        CODE_MANAGEMENT_API_PATHS.CODE_MANAGEMENT_CONFIG_UPDATE,
-        {
-            organizationSelected,
-            teamId,
-        },
-    );
 };
 
 export const finishOnboarding = (params: {

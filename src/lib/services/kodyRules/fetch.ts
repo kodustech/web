@@ -4,7 +4,6 @@ import { axiosAuthorized } from "src/core/utils/axios";
 
 import { KODY_RULES_PATHS } from ".";
 import type {
-    FindLibraryKodyRulesFilters,
     KodyRule,
     KodyRuleBucket,
     KodyRulesStatus,

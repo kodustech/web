@@ -31,4 +31,7 @@ export const PARAMETERS_PATHS = {
     GET_CODE_REVIEW_PARAMETER: pathToApiUrl(
         "/parameters/code-review-parameter",
     ),
+    LIST_CODE_REVIEW_V2_DEFAULTS: pathToApiUrl(
+        "/parameters/list-code-review-v2-defaults",
+    ),
 } as const;

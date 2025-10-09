@@ -31,7 +31,6 @@ jobs:
 
                   echo WEB_HOSTNAME_BILLING=$(aws ssm get-parameter --name /qa/kodus-web/WEB_HOSTNAME_BILLING --query 'Parameter.Value' --output text) >> .env
 
-                  echo WEB_JWT_SECRET_KEY=$(aws ssm get-parameter --name /qa/kodus-web/WEB_JWT_SECRET_KEY --query 'Parameter.Value' --output text) >> .env
                   echo WEB_NEXTAUTH_SECRET=$(aws ssm get-parameter --name /qa/kodus-web/WEB_NEXTAUTH_SECRET --query 'Parameter.Value' --output text) >> .env
                   echo NEXTAUTH_URL=$(aws ssm get-parameter --name /qa/kodus-web/NEXTAUTH_URL --query 'Parameter.Value' --output text) >> .env
 
@@ -41,8 +40,6 @@ jobs:
                   echo GLOBAL_JIRA_REDIRECT_URL=$(aws ssm get-parameter --name /qa/kodus-web/GLOBAL_JIRA_REDIRECT_URL --query 'Parameter.Value' --output text) >> .env
                   echo WEB_JIRA_SCOPES=$(aws ssm get-parameter --name /qa/kodus-web/WEB_JIRA_SCOPES --query 'Parameter.Value' --output text) >> .env
 
-                  echo GLOBAL_GITHUB_CLIENT_ID=$(aws ssm get-parameter --name /qa/kodus-web/GLOBAL_GITHUB_CLIENT_ID --query 'Parameter.Value' --output text) >> .env
-                  echo GLOBAL_GITHUB_REDIRECT_URL=$(aws ssm get-parameter --name /qa/kodus-web/GLOBAL_GITHUB_REDIRECT_URL --query 'Parameter.Value' --output text) >> .env
                   echo WEB_GITHUB_INSTALL_URL=$(aws ssm get-parameter --name /qa/kodus-web/WEB_GITHUB_INSTALL_URL --query 'Parameter.Value' --output text) >> .env
                   echo GITHUB_CLIENT_SECRET=$(aws ssm get-parameter --name /qa/kodus-web/GITHUB_CLIENT_SECRET --query 'Parameter.Value' --output text) >> .env
 
@@ -50,7 +47,6 @@ jobs:
                   echo GLOBAL_GITLAB_REDIRECT_URL=$(aws ssm get-parameter --name /qa/kodus-web/GLOBAL_GITLAB_REDIRECT_URL --query 'Parameter.Value' --output text) >> .env
                   echo WEB_GITLAB_SCOPES=$(aws ssm get-parameter --name /qa/kodus-web/WEB_GITLAB_SCOPES --query 'Parameter.Value' --output text) >> .env
                   echo WEB_GITLAB_OAUTH_URL=$(aws ssm get-parameter --name /qa/kodus-web/WEB_GITLAB_OAUTH_URL --query 'Parameter.Value' --output text) >> .env
-                  echo GLOBAL_GITLAB_CLIENT_SECRET=$(aws ssm get-parameter --name /qa/kodus-web/GLOBAL_GITLAB_CLIENT_SECRET --query 'Parameter.Value' --output text) >> .env
 
                   echo WEB_TERMS_AND_CONDITIONS=$(aws ssm get-parameter --name /qa/kodus-web/WEB_TERMS_AND_CONDITIONS --query 'Parameter.Value' --output text) >> .env
 

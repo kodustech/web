@@ -252,10 +252,10 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                                                 {option.name}
                                                                 {"default" in
                                                                     option && (
-                                                                    <small className="text-text-secondary ml-1">
-                                                                        (default)
-                                                                    </small>
-                                                                )}
+                                                                        <small className="text-text-secondary ml-1">
+                                                                            (default)
+                                                                        </small>
+                                                                    )}
                                                             </Heading>
 
                                                             <p className="text-text-secondary text-xs">
@@ -331,10 +331,10 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
 
                                                             {"default" in
                                                                 option && (
-                                                                <small className="text-text-secondary ml-1">
-                                                                    (default)
-                                                                </small>
-                                                            )}
+                                                                    <small className="text-text-secondary ml-1">
+                                                                        (default)
+                                                                    </small>
+                                                                )}
                                                         </Heading>
 
                                                         <p className="text-text-secondary text-xs">
@@ -379,31 +379,32 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
 
                             <Alert className="mb-3">
                                 <AlertTitle>Examples</AlertTitle>
-                                <AlertDescription className="space-y-2">
-                                    {examples.map((example) => (
-                                        <li key={example}>
-                                            <Link
-                                                href=""
-                                                disabled={
-                                                    field.disabled ||
-                                                    !generatePRSummary
-                                                }
-                                                onClick={(e) => {
-                                                    e.preventDefault();
+                                <AlertDescription>
+                                    <ul className="list-inside list-disc space-y-2">
+                                        {examples.map((example) => (
+                                            <li key={example}>
+                                                <Link
+                                                    href=""
+                                                    disabled={
+                                                        !generatePRSummary
+                                                    }
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
 
-                                                    const newInstructions =
-                                                        field.value
-                                                            ? `${field.value}\n${example}`
-                                                            : example;
+                                                        const newInstructions =
+                                                            field.value
+                                                                ? `${field.value}\n${example}`
+                                                                : example;
 
-                                                    field.onChange(
-                                                        newInstructions,
-                                                    );
-                                                }}>
-                                                {example}
-                                            </Link>
-                                        </li>
-                                    ))}
+                                                        field.onChange(
+                                                            newInstructions,
+                                                        );
+                                                    }}>
+                                                    {example}
+                                                </Link>
+                                            </li>
+                                        ))}
+                                    </ul>
                                 </AlertDescription>
                             </Alert>
 
@@ -443,7 +444,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
 
                             magicModal.show(() => (
                                 <PRSummaryPreviewModal
-                                    repositoryId={props.repositoryId}
+                                    repositoryId={repositoryId}
                                     customInstructions={customInstructions!}
                                     repositoryName={config?.name!}
                                     behaviourForExistingDescription={

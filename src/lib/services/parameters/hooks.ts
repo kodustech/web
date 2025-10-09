@@ -94,15 +94,15 @@ export const useSuspenseGetCodeReviewLabels = (codeReviewVersion?: string) => {
     // Always send the parameter, even for legacy to be explicit
     const params = { codeReviewVersion: codeReviewVersion || "v2" };
 
-    return useSuspenseFetch<
-        Array<{
-            type: string;
-            name: string;
-            description: string;
-        }>
-    >(PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS, {
-        params,
-    });
+    type Label = { type: string; name: string; description: string };
+
+    // The endpoint returns { statusCode, data: { labels: Label[] } }
+    const raw = useSuspenseFetch<{ labels?: Label[] }>(
+        PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS,
+        { params },
+    );
+
+    return raw?.labels ?? [];
 };
 
 export const useGetCodeReviewLabels = (codeReviewVersion?: string) => {
@@ -111,22 +111,32 @@ export const useGetCodeReviewLabels = (codeReviewVersion?: string) => {
         params: { codeReviewVersion: codeReviewVersion || "v2" },
     };
 
-    return useFetch<
-        Array<{
-            type: string;
-            name: string;
-            description: string;
-        }>
-    >(PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS, params, true);
+    type Label = { type: string; name: string; description: string };
+
+    return useFetch<Array<Label>>(
+        PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS,
+        params,
+        true,
+        {
+            // Some endpoints return raw arrays; others return { statusCode, data }
+            // and now may return { statusCode, data: { labels: [] } }
+            select: (value: any): Label[] => {
+                if (Array.isArray(value)) return value as Label[];
+                const data = value?.data;
+                if (Array.isArray(data)) return data as Label[];
+                if (Array.isArray(data?.labels)) return data.labels as Label[];
+                if (Array.isArray(value?.labels)) return value.labels as Label[];
+                return [] as Label[];
+            },
+        },
+    );
 };
 
 export const useGetAllCodeReviewLabels = () => {
+    type Label = { type: string; name: string; description: string };
+
     const v1Labels = useFetch<
-        Array<{
-            type: string;
-            name: string;
-            description: string;
-        }>
+        Array<Label>
     >(
         PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS,
         { params: { codeReviewVersion: "legacy" } },
@@ -134,11 +144,7 @@ export const useGetAllCodeReviewLabels = () => {
     );
 
     const v2Labels = useFetch<
-        Array<{
-            type: string;
-            name: string;
-            description: string;
-        }>
+        Array<Label>
     >(
         PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS,
         { params: { codeReviewVersion: "v2" } },
@@ -146,11 +152,23 @@ export const useGetAllCodeReviewLabels = () => {
     );
 
     // Remove duplicates based on type
-    const uniqueLabels = new Map();
-    [...(v1Labels.data || []), ...(v2Labels.data || [])].forEach((label) => {
-        if (!uniqueLabels.has(label.type)) {
-            uniqueLabels.set(label.type, label);
-        }
+    const uniqueLabels = new Map<string, Label>();
+
+    const normalizeToArray = (value: unknown): Label[] => {
+        if (Array.isArray(value)) return value as Label[];
+        const data = (value as any)?.data;
+        if (Array.isArray(data)) return data as Label[];
+        if (Array.isArray(data?.labels)) return data.labels as Label[];
+        if (Array.isArray((value as any)?.labels)) return (value as any)
+            .labels as Label[];
+        return [];
+    };
+
+    const v1Data = normalizeToArray(v1Labels.data as unknown);
+    const v2Data = normalizeToArray(v2Labels.data as unknown);
+
+    [...v1Data, ...v2Data].forEach((label) => {
+        if (!uniqueLabels.has(label.type)) uniqueLabels.set(label.type, label);
     });
 
     return {
@@ -159,6 +177,28 @@ export const useGetAllCodeReviewLabels = () => {
         isLoading: v1Labels.isLoading || v2Labels.isLoading,
         allLabels: Array.from(uniqueLabels.values()),
     };
+};
+
+export type CodeReviewV2Defaults = {
+    categories: {
+        bug: string;
+        performance: string;
+        security: string;
+    };
+    severity: {
+        critical: string;
+        high: string;
+        medium: string;
+        low: string;
+    };
+};
+
+export const useSuspenseGetCodeReviewV2Defaults = () => {
+    // This endpoint returns an envelope { statusCode, data }, and our
+    // useSuspenseFetch returns the inner `data`, so we type it directly.
+    return useSuspenseFetch<CodeReviewV2Defaults>(
+        PARAMETERS_PATHS.LIST_CODE_REVIEW_V2_DEFAULTS,
+    );
 };
 
 export const useSuspenseGetParameterByKey = <T>(
