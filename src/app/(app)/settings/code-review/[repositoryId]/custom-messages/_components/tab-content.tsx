@@ -11,6 +11,7 @@ import { CustomMessageConfig } from "@services/pull-request-messages/types";
 import { RuleType } from "markdown-to-jsx";
 import { useDefaultCodeReviewConfig } from "src/app/(app)/settings/_components/context";
 
+import { OverrideIndicator } from "../../../_components/override";
 import { FormattedConfig } from "../../../_types";
 import { CustomMessagesOptionsDropdown } from "./dropdown";
 import { dropdownItems, VARIABLE_REGEX } from "./options";
@@ -18,6 +19,7 @@ import { dropdownItems, VARIABLE_REGEX } from "./options";
 export const TabContent = (props: {
     type: "startReviewMessage" | "endReviewMessage";
     value: FormattedConfig<CustomMessageConfig["startReviewMessage"]>;
+    initialState: FormattedConfig<CustomMessageConfig["startReviewMessage"]>;
     onChangeAction: (value: CustomMessageConfig["startReviewMessage"]) => void;
     canEdit: boolean;
 }) => {
@@ -48,8 +50,12 @@ export const TabContent = (props: {
                                 : "End"}{" "}
                             Review message
                         </Heading>
+                        <OverrideIndicator
+                            currentValue={props.value.status.value}
+                            initialState={props.initialState.status}
+                        />
                         <p className="text-text-secondary">
-                            If disabled, Kody won’t send any message at the{" "}
+                            If disabled, Kody won't send any message at the{" "}
                             {props.type === "startReviewMessage"
                                 ? "start"
                                 : "end"}{" "}
@@ -72,6 +78,11 @@ export const TabContent = (props: {
                             value={props.value}
                             onChange={props.onChangeAction}
                             canEdit={props.canEdit}
+                        />
+
+                        <OverrideIndicator
+                            currentValue={props.value.content.value}
+                            initialState={props.initialState.content}
                         />
                     </div>
 

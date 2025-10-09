@@ -23,6 +23,7 @@ export default function CustomMessages() {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const pullRequestMessages = useSuspensePullRequestMessages();
     const queryClient = useQueryClient();
+    const initialState = { ...pullRequestMessages };
 
     const canEdit = usePermission(
         Action.Update,
@@ -163,6 +164,7 @@ export default function CustomMessages() {
                         <TabContent
                             type="startReviewMessage"
                             value={messages.startReviewMessage}
+                            initialState={initialState.startReviewMessage}
                             onChangeAction={(startReviewMessage) => {
                                 setMessages((prev) => ({
                                     ...prev,
@@ -189,6 +191,7 @@ export default function CustomMessages() {
                         <TabContent
                             type="endReviewMessage"
                             value={messages.endReviewMessage}
+                            initialState={initialState.endReviewMessage}
                             onChangeAction={(endReviewMessage) => {
                                 setMessages((prev) => ({
                                     ...prev,
@@ -214,6 +217,9 @@ export default function CustomMessages() {
                         value="global-settings">
                         <GlobalSettings
                             hideComments={globalSettings.hideComments}
+                            initialState={
+                                initialState.globalSettings.hideComments
+                            }
                             onHideCommentsChangeAction={(value) => {
                                 setGlobalSettings((prev) => ({
                                     ...prev,

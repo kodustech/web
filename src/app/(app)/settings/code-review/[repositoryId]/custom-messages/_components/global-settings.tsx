@@ -5,10 +5,12 @@ import { Card, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { Switch } from "@components/ui/switch";
 
+import { OverrideIndicator } from "../../../_components/override";
 import { IFormattedConfigProperty } from "../../../_types";
 
 export const GlobalSettings = (props: {
     hideComments: IFormattedConfigProperty<boolean>;
+    initialState: IFormattedConfigProperty<boolean>;
     onHideCommentsChangeAction: (value: boolean) => void;
     canEdit: boolean;
 }) => {
@@ -30,6 +32,10 @@ export const GlobalSettings = (props: {
                                 GitHub only
                             </span>
                         </Heading>
+                        <OverrideIndicator
+                            currentValue={props.hideComments.value}
+                            initialState={props.initialState}
+                        />
                         <p className="text-text-secondary">
                             When enabled, all review messages will be posted as
                             hidden/minimized comments.
