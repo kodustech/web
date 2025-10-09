@@ -243,33 +243,34 @@ export const BaseBranches = () => {
 
                 return (
                     <FormControl.Root>
-                          <div className="flex flex-row items-center gap-2">
-                        <div className="flex items-center gap-0.5">
-                            <FormControl.Label htmlFor={field.name}>
-                                Base Branches
-                            </FormControl.Label>
+                        <div className="flex flex-row items-center gap-2">
+                            <div className="flex items-center gap-0.5">
+                                <FormControl.Label htmlFor={field.name}>
+                                    Base Branches
+                                </FormControl.Label>
 
-                            <OverrideIndicatorForm fieldName="baseBranches" />
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            size="icon-xs"
+                                            variant="cancel"
+                                            className="text-primary-light mb-1 flex cursor-pointer items-center"
+                                            onClick={() => {
+                                                magicModal.show(() => (
+                                                    <HelpModal />
+                                                ));
+                                            }}>
+                                            <HelpCircleIcon />
+                                        </Button>
+                                    </TooltipTrigger>
 
-                            <Tooltip>   
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        size="icon-xs"
-                                        variant="cancel"
-                                        className="text-primary-light mb-1 flex cursor-pointer items-center"
-                                        onClick={() => {
-                                            magicModal.show(() => (
-                                                <HelpModal />
-                                            ));
-                                        }}>
-                                        <HelpCircleIcon />
-                                    </Button>
-                                </TooltipTrigger>
+                                    <TooltipContent side="right" sideOffset={0}>
+                                        Do you need help?
+                                    </TooltipContent>
+                                </Tooltip>
+                            </div>
 
-                                <TooltipContent side="right" sideOffset={0}>
-                                    Do you need help?
-                                </TooltipContent>
-                            </Tooltip>
+                            <OverrideIndicatorForm fieldName="baseBranches" className="mb-2" />
                         </div>
 
                         <FormControl.Input>

@@ -27,9 +27,9 @@ import { Action, ResourceType } from "@services/permissions/types";
 import { Plus } from "lucide-react";
 
 import { useCodeReviewRouteParams } from "../../_hooks";
+import { countConfigOverrides } from "../../_utils/count-overrides";
 import type { FormattedGlobalCodeReviewConfig } from "../../code-review/_types";
 import { FormattedConfigLevel } from "../../code-review/_types";
-import { countConfigOverrides } from "../../_utils/count-overrides";
 import { AddRepoModal } from "../copy-settings-modal";
 import { PerDirectory } from "./directory";
 import { SidebarRepositoryOrDirectoryDropdown } from "./options-dropdown";
@@ -86,8 +86,11 @@ export const PerRepository = ({
                     ?.filter((r) => r.isSelected || r.directories?.length > 0)
                     .map((r) => {
                         const hasRepositoryConfig = r.isSelected;
-                        const overrideCount = hasRepositoryConfig 
-                            ? countConfigOverrides(r.configs, FormattedConfigLevel.REPOSITORY)
+                        const overrideCount = hasRepositoryConfig
+                            ? countConfigOverrides(
+                                  r.configs,
+                                  FormattedConfigLevel.REPOSITORY,
+                              )
                             : 0;
 
                         return (
@@ -109,7 +112,7 @@ export const PerRepository = ({
                                                         overrideCount > 0 && (
                                                             <Badge
                                                                 variant="primary-dark"
-                                                                className="min-w-5 h-5 rounded-full px-1.5 text-[10px] font-medium">
+                                                                className="h-5 min-w-5 rounded-full px-1.5 text-[10px] font-medium">
                                                                 {overrideCount}
                                                             </Badge>
                                                         )
@@ -127,7 +130,11 @@ export const PerRepository = ({
                                             {r.name}
                                             {overrideCount > 0 && (
                                                 <div className="text-text-tertiary mt-1 text-xs">
-                                                    {overrideCount} config{overrideCount !== 1 ? "s" : ""} overridden
+                                                    {overrideCount} config
+                                                    {overrideCount !== 1
+                                                        ? "s"
+                                                        : ""}{" "}
+                                                    overridden
                                                 </div>
                                             )}
                                         </TooltipContent>
@@ -170,9 +177,16 @@ export const PerRepository = ({
                                             })}
 
                                         {r.directories?.map((d) => {
-                                            const directoryWithConfigs = configValue.repositories
-                                                .find((repo) => repo.id === r.id)
-                                                ?.directories?.find((dir) => dir.id === d.id);
+                                            const directoryWithConfigs =
+                                                configValue.repositories
+                                                    .find(
+                                                        (repo) =>
+                                                            repo.id === r.id,
+                                                    )
+                                                    ?.directories?.find(
+                                                        (dir) =>
+                                                            dir.id === d.id,
+                                                    );
 
                                             return (
                                                 <PerDirectory
@@ -180,7 +194,9 @@ export const PerRepository = ({
                                                     directory={d}
                                                     repository={r}
                                                     routes={routes}
-                                                    configs={directoryWithConfigs?.configs}
+                                                    configs={
+                                                        directoryWithConfigs?.configs
+                                                    }
                                                 />
                                             );
                                         })}

@@ -6,6 +6,7 @@ import { ToggleGroup } from "@components/ui/toggle-group";
 import { Controller, useFormContext } from "react-hook-form";
 import { cn } from "src/core/utils/components";
 
+import { OverrideIndicatorForm } from "../../../_components/override";
 import { LimitationType, type CodeReviewFormType } from "../../../_types";
 
 const limitationTypeOptions = [
@@ -33,9 +34,15 @@ export const LimitationTypeField = () => {
             control={form.control}
             render={({ field }) => (
                 <FormControl.Root className="space-y-1">
-                    <FormControl.Label htmlFor={field.name}>
-                        Limitation type
-                    </FormControl.Label>
+                    <div className="mb-2 flex flex-row items-center gap-2">
+                        <FormControl.Label htmlFor={field.name}>
+                            Limitation type
+                        </FormControl.Label>
+
+                        <OverrideIndicatorForm
+                            fieldName="suggestionControl.limitationType"
+                        />
+                    </div>
 
                     <FormControl.Input>
                         <ToggleGroup.Root

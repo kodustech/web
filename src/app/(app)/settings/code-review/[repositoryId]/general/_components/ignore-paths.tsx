@@ -14,12 +14,13 @@ export const IgnorePaths = () => {
             control={form.control}
             render={({ field }) => (
                 <FormControl.Root>
-                    <div className="flex flex-row items-center gap-2 mb-2">
+                    <div className="mb-2 flex flex-row items-center gap-2">
                         <FormControl.Label htmlFor={field.name}>
                             Ignored files
                         </FormControl.Label>
 
-                    <OverrideIndicatorForm fieldName="ignorePaths" />
+                        <OverrideIndicatorForm fieldName="ignorePaths" />
+                    </div>
 
                     <FormControl.Input>
                         <Textarea

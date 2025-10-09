@@ -2,6 +2,7 @@ import { FormControl } from "@components/ui/form-control";
 import { NumberInput } from "@components/ui/number-input";
 import { Controller, useFormContext } from "react-hook-form";
 
+import { OverrideIndicatorForm } from "../../../_components/override";
 import { LimitationType, type CodeReviewFormType } from "../../../_types";
 import { useCodeReviewConfig } from "../../../../_components/context";
 
@@ -46,20 +47,20 @@ export const MaxSuggestions = () => {
 
                         return `Maximum limit is ${MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE}`;
                     }
-
-                    if (limitationType === "pr") {
-                        if (value! >= MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE)
-                            return;
-
-                        return `The configured limit is too low. Please increase it to at least ${MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE} based on the selected categories.`;
-                    }
                 },
             }}
             render={({ field, fieldState }) => (
                 <FormControl.Root>
-                    <FormControl.Label htmlFor={field.name}>
-                        Maximum number of suggestions
-                    </FormControl.Label>
+                    <div className="mb-2 flex flex-row items-center gap-2">
+                        <FormControl.Label htmlFor={field.name}>
+                            Maximum number of suggestions
+                        </FormControl.Label>
+
+                        <OverrideIndicatorForm
+                            fieldName="suggestionControl.maxSuggestions"
+                            className="mb-2"
+                        />
+                    </div>
 
                     <FormControl.Input>
                         <NumberInput.Root

@@ -92,7 +92,7 @@ export const OverrideIndicator = <T,>({
             <TooltipProvider>
                 <Tooltip>
                     <TooltipTrigger asChild>
-                        <Badge variant="primary" className="cursor-default">
+                        <Badge variant="primary-dark" className="cursor-default text-[10px] px-2 py-1">
                             Overridden
                         </Badge>
                     </TooltipTrigger>

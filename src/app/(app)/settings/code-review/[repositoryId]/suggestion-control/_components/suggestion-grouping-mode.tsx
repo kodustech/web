@@ -12,6 +12,7 @@ import {
     type CodeReviewFormType,
 } from "../../../_types";
 import { CodeGroupingExampleCard } from "./code-grouping-example-card";
+import { OverrideIndicatorForm } from "../../../_components/override";
 
 const GroupingModeOptions = [
     {
@@ -91,6 +92,11 @@ export const SuggestionGroupingMode = () => {
                                             </Button>
                                         </ToggleGroup.ToggleGroupItem>
                                     ))}
+
+                                    <OverrideIndicatorForm
+                                        fieldName="suggestionControl.groupingMode"
+                                        className="mb-2"
+                                    />
                                 </ToggleGroup.Root>
                             </FormControl.Input>
                         </FormControl.Root>

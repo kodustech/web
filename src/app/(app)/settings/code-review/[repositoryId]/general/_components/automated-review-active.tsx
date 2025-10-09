@@ -97,15 +97,15 @@ export const AutomatedReviewActive = () => {
                                     control={form.control}
                                     render={({ field }) => (
                                         <FormControl.Root>
-                                          <div className="flex flex-row items-center gap-2 mb-2">
-                                            <FormControl.Label
-                                                htmlFor={field.name}
-                                                className="mb-0">
-                                                Review Cadence
-                                            </FormControl.Label>
+                                            <div className="mb-2 flex flex-row items-center gap-2">
+                                                <FormControl.Label
+                                                    htmlFor={field.name}
+                                                    className="mb-0">
+                                                    Review Cadence
+                                                </FormControl.Label>
 
-                                            <OverrideIndicatorForm fieldName="reviewCadence.type" />
-
+                                                <OverrideIndicatorForm fieldName="reviewCadence.type" />
+                                            </div>
                                             <FormControl.Helper className="text-text-secondary mt-0 mb-2 text-xs">
                                                 Decide how Kody should run
                                                 follow-up reviews after the
@@ -185,12 +185,17 @@ export const AutomatedReviewActive = () => {
                                             control={form.control}
                                             render={({ field, fieldState }) => (
                                                 <FormControl.Root>
-                                                    <FormControl.Label
-                                                        htmlFor={field.name}>
-                                                        Pushes to trigger pause
-                                                    </FormControl.Label>
+                                                    <div className="flex flex-row items-center gap-2">
+                                                        <FormControl.Label
+                                                            htmlFor={
+                                                                field.name
+                                                            }>
+                                                            Pushes to trigger
+                                                            pause
+                                                        </FormControl.Label>
 
-                                                    <OverrideIndicatorForm fieldName="reviewCadence.pushesToTrigger" />
+                                                        <OverrideIndicatorForm fieldName="reviewCadence.pushesToTrigger" />
+                                                    </div>
 
                                                     <FormControl.Input>
                                                         <NumberInput.Root
@@ -227,12 +232,17 @@ export const AutomatedReviewActive = () => {
                                             control={form.control}
                                             render={({ field, fieldState }) => (
                                                 <FormControl.Root>
-                                                    <FormControl.Label
-                                                        htmlFor={field.name}>
-                                                        Time window (minutes)
-                                                    </FormControl.Label>
+                                                    <div className="flex flex-row items-center gap-2">
+                                                        <FormControl.Label
+                                                            htmlFor={
+                                                                field.name
+                                                            }>
+                                                            Time window
+                                                            (minutes)
+                                                        </FormControl.Label>
 
-                                                    <OverrideIndicatorForm fieldName="reviewCadence.timeWindow" />
+                                                        <OverrideIndicatorForm fieldName="reviewCadence.timeWindow" />
+                                                    </div>
 
                                                     <FormControl.Input>
                                                         <NumberInput.Root

@@ -25,12 +25,13 @@ export const PullRequestApprovalActive = () => {
                     className="w-full">
                     <CardHeader className="flex flex-row items-center justify-between gap-6">
                         <div className="flex flex-col gap-1">
-                          <div className="flex flex-row items-center gap-2">
+                            <div className="flex flex-row items-center gap-2">
                                 <Heading variant="h3">
                                     Enable Pull Request Approval
                                 </Heading>
 
-                            <OverrideIndicatorForm fieldName="pullRequestApprovalActive" />
+                                <OverrideIndicatorForm fieldName="pullRequestApprovalActive" />
+                            </div>
 
                             <p className="text-text-secondary text-sm">
                                 When Kody completes an automated code review and
