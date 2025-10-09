@@ -194,7 +194,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                             Enable Automatic Summary Generation
                                         </FormControl.Label>
 
-                                        <OverrideIndicatorForm fieldName="summary.behaviourForNewCommits" />
+                                        <OverrideIndicatorForm fieldName="summary.generatePRSummary" />
                                     </div>
                                 </div>
 
