@@ -38,6 +38,8 @@ import { hasPermission } from "src/core/utils/permissions";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
 import { useCodeReviewRouteParams } from "../_hooks";
+import { FormattedConfigLevel } from "../code-review/_types";
+import { countConfigOverrides } from "../_utils/count-overrides";
 import {
     AutomationCodeReviewConfigProvider,
     DefaultCodeReviewConfigProvider,
@@ -69,6 +71,8 @@ export const SettingsLayout = ({
     const defaultConfig = useSuspenseGetDefaultCodeReviewParameter();
     const platformConfig = useSuspenseGetParameterPlatformConfigs(teamId);
     const { repositoryId, pageName, directoryId } = useCodeReviewRouteParams();
+
+    const globalOverrideCount = countConfigOverrides(configValue.configs, FormattedConfigLevel.GLOBAL);
 
     const canReadGitSettings = usePermission(
         Action.Read,
@@ -184,6 +188,15 @@ export const SettingsLayout = ({
                                             className="h-fit w-full justify-start py-2"
                                             leftIcon={
                                                 <CollapsibleIndicator className="-ml-1 group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
+                                            }
+                                            rightIcon={
+                                                globalOverrideCount > 0 && (
+                                                    <Badge
+                                                        variant="primary-dark"
+                                                        className="min-w-5 h-5 rounded-full px-1.5 text-[10px] font-medium">
+                                                        {globalOverrideCount}
+                                                    </Badge>
+                                                )
                                             }>
                                             Global
                                         </Button>

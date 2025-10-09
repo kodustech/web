@@ -95,18 +95,9 @@ export function useDebouncedPRSearch({
 
     // Always return API results (no fallback to initial data)
     const pullRequests = useMemo(() => {
-        console.log("🔍 useDebouncedPRSearch - Debug:");
-        console.log("  📝 Search Input:", debouncedSearchInput);
-        console.log("  🔧 API Search Params:", apiSearchParams);
-        console.log("  📡 Raw API Response:", searchResults);
-        console.log("  🔄 Transformed Results:", transformedSearchResults);
-        console.log("  ⚡ Is Searching:", isSearching);
+
         if (error) console.log("  ❌ Error:", error);
 
-        console.log(
-            "🎯 Always returning API results:",
-            transformedSearchResults,
-        );
         return transformedSearchResults;
     }, [
         debouncedSearchInput,

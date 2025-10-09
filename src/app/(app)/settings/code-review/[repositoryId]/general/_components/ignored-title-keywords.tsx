@@ -14,9 +14,10 @@ export const IgnoredTitleKeywords = () => {
             control={form.control}
             render={({ field }) => (
                 <FormControl.Root>
-                    <FormControl.Label htmlFor={field.name}>
-                        Ignore title keywords
-                    </FormControl.Label>
+                   <div className="flex flex-row items-center gap-2 mb-2">
+                        <FormControl.Label htmlFor={field.name}>
+                            Ignore title keywords
+                        </FormControl.Label>
 
                     <OverrideIndicatorForm fieldName="ignoredTitleKeywords" />
 

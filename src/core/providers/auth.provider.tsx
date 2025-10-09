@@ -49,10 +49,6 @@ export const useAuth = () => {
 
             const updatedToken = await update(newTokens);
 
-            console.log(refreshToken?.slice(-4));
-            console.log(newTokens.refreshToken.slice(-4));
-            console.log(updatedToken?.user.refreshToken?.slice(-4));
-
             return updatedToken;
         },
     } satisfies Partial<JWT>;

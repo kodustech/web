@@ -97,6 +97,7 @@ export const AutomatedReviewActive = () => {
                                     control={form.control}
                                     render={({ field }) => (
                                         <FormControl.Root>
+                                          <div className="flex flex-row items-center gap-2 mb-2">
                                             <FormControl.Label
                                                 htmlFor={field.name}
                                                 className="mb-0">

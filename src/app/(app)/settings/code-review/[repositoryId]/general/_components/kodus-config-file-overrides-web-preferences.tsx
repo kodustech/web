@@ -43,6 +43,7 @@ export const KodusConfigFileOverridesWebPreferences = () => {
                         className="w-full">
                         <CardHeader className="flex flex-row items-center justify-between gap-6">
                             <div className="flex flex-col gap-1">
+                              <div className="flex flex-row items-center gap-2">
                                 <Heading variant="h3">
                                     kodus Config File Overrides Web Preferences
                                 </Heading>

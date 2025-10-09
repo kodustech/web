@@ -70,13 +70,6 @@ export function useSearchPullRequests(
         repositoryId?: string;
     } = {},
 ) {
-    console.log("🌐 useSearchPullRequests - Debug:");
-    console.log("  📋 Search Params:", searchParams);
-    console.log("  👥 Team ID:", teamId);
-    console.log(
-        "  🌍 URL:",
-        CODE_MANAGEMENT_API_PATHS.GET_ONBOARDING_PULL_REQUESTS,
-    );
 
     return useFetch<
         {

@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import {
     Collapsible,
@@ -27,6 +28,8 @@ import { Plus } from "lucide-react";
 
 import { useCodeReviewRouteParams } from "../../_hooks";
 import type { FormattedGlobalCodeReviewConfig } from "../../code-review/_types";
+import { FormattedConfigLevel } from "../../code-review/_types";
+import { countConfigOverrides } from "../../_utils/count-overrides";
 import { AddRepoModal } from "../copy-settings-modal";
 import { PerDirectory } from "./directory";
 import { SidebarRepositoryOrDirectoryDropdown } from "./options-dropdown";
@@ -83,6 +86,9 @@ export const PerRepository = ({
                     ?.filter((r) => r.isSelected || r.directories?.length > 0)
                     .map((r) => {
                         const hasRepositoryConfig = r.isSelected;
+                        const overrideCount = hasRepositoryConfig 
+                            ? countConfigOverrides(r.configs, FormattedConfigLevel.REPOSITORY)
+                            : 0;
 
                         return (
                             <Collapsible
@@ -98,6 +104,15 @@ export const PerRepository = ({
                                                     className="h-fit flex-1 justify-start py-2"
                                                     leftIcon={
                                                         <CollapsibleIndicator className="-ml-1 group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
+                                                    }
+                                                    rightIcon={
+                                                        overrideCount > 0 && (
+                                                            <Badge
+                                                                variant="primary-dark"
+                                                                className="min-w-5 h-5 rounded-full px-1.5 text-[10px] font-medium">
+                                                                {overrideCount}
+                                                            </Badge>
+                                                        )
                                                     }>
                                                     <span className="line-clamp-1 truncate text-ellipsis">
                                                         {r.name}
@@ -110,6 +125,11 @@ export const PerRepository = ({
                                             side="right"
                                             className="text-sm">
                                             {r.name}
+                                            {overrideCount > 0 && (
+                                                <div className="text-text-tertiary mt-1 text-xs">
+                                                    {overrideCount} config{overrideCount !== 1 ? "s" : ""} overridden
+                                                </div>
+                                            )}
                                         </TooltipContent>
                                     </Tooltip>
 
@@ -149,14 +169,21 @@ export const PerRepository = ({
                                                 );
                                             })}
 
-                                        {r.directories?.map((d) => (
-                                            <PerDirectory
-                                                key={d.id}
-                                                directory={d}
-                                                repository={r}
-                                                routes={routes}
-                                            />
-                                        ))}
+                                        {r.directories?.map((d) => {
+                                            const directoryWithConfigs = configValue.repositories
+                                                .find((repo) => repo.id === r.id)
+                                                ?.directories?.find((dir) => dir.id === d.id);
+
+                                            return (
+                                                <PerDirectory
+                                                    key={d.id}
+                                                    directory={d}
+                                                    repository={r}
+                                                    routes={routes}
+                                                    configs={directoryWithConfigs?.configs}
+                                                />
+                                            );
+                                        })}
                                     </SidebarMenuSub>
                                 </CollapsibleContent>
                             </Collapsible>

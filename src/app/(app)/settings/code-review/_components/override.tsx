@@ -21,6 +21,7 @@ function getNestedProperty<T>(
 
 type OverrideIndicatorFormProps = {
     fieldName: string;
+    className?: string;
 };
 
 export const OverrideIndicatorForm = ({

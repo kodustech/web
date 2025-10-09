@@ -163,11 +163,6 @@ export const GenerateRulesOptions = () => {
             }
         });
 
-    console.log({
-        kodyRulesGeneratorEnabled: config?.kodyRulesGeneratorEnabled,
-        ideRulesSyncEnabled: config?.ideRulesSyncEnabled,
-    });
-
     const enabledCount = [
         config?.kodyRulesGeneratorEnabled?.value,
         config?.ideRulesSyncEnabled?.value,

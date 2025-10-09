@@ -26,6 +26,9 @@ export default function Layout(props: React.PropsWithChildren) {
             },
         },
     );
+
+    console.log("config", config);
+
     const params = useParams();
 
     const canEdit = usePermission(

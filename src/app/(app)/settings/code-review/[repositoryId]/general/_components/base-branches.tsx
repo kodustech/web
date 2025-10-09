@@ -243,6 +243,7 @@ export const BaseBranches = () => {
 
                 return (
                     <FormControl.Root>
+                          <div className="flex flex-row items-center gap-2">
                         <div className="flex items-center gap-0.5">
                             <FormControl.Label htmlFor={field.name}>
                                 Base Branches
@@ -250,7 +251,7 @@ export const BaseBranches = () => {
 
                             <OverrideIndicatorForm fieldName="baseBranches" />
 
-                            <Tooltip>
+                            <Tooltip>   
                                 <TooltipTrigger asChild>
                                     <Button
                                         size="icon-xs"
