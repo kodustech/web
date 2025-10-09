@@ -4,6 +4,7 @@ import {
     CodeReviewGlobalConfig,
     CodeReviewRepositoryConfig,
     FormattedCodeReviewConfig,
+    FormattedConfig,
     FormattedGlobalCodeReviewConfig,
     IFormattedConfigProperty,
 } from "src/app/(app)/settings/code-review/_types";
@@ -200,12 +201,10 @@ export const codeReviewConfigRemovePropertiesNotInType = (
 export const waitFor = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
 
-export const unformatCodeReviewConfig = (
-    node: FormattedCodeReviewConfig,
-): CodeReviewGlobalConfig => {
-    const unformattedConfig: Partial<CodeReviewGlobalConfig> = {};
+export const unformatConfig = <T>(node: FormattedConfig<T>): T => {
+    const unformattedConfig: Partial<T> = {};
 
-    (Object.keys(node) as (keyof CodeReviewGlobalConfig)[]).forEach((key) => {
+    (Object.keys(node) as (keyof T)[]).forEach((key) => {
         const property = node[key] as IFormattedConfigProperty<any>;
 
         if (property && typeof property === "object" && "value" in property) {
@@ -213,7 +212,5 @@ export const unformatCodeReviewConfig = (
         }
     });
 
-    return codeReviewConfigRemovePropertiesNotInType(
-        unformattedConfig as CodeReviewGlobalConfig,
-    ) as CodeReviewGlobalConfig;
+    return unformattedConfig as T;
 };

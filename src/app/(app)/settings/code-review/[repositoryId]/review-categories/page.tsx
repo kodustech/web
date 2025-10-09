@@ -13,7 +13,7 @@ import {
 import { SaveIcon } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { unformatCodeReviewConfig } from "src/core/utils/helpers";
+import { unformatConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import GeneratingConfig from "../../_components/generating-config";
@@ -33,7 +33,7 @@ export default function ReviewCategories() {
     const handleSubmit = form.handleSubmit(async (formData) => {
         const { language, ...config } = formData;
 
-        const unformattedConfig = unformatCodeReviewConfig(config);
+        const unformattedConfig = unformatConfig(config);
 
         try {
             const result = await createOrUpdateCodeReviewParameter(

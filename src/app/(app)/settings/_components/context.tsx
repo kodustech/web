@@ -7,7 +7,6 @@ import { CustomMessageConfig } from "@services/pull-request-messages/types";
 import { useCodeReviewRouteParams } from "../_hooks";
 import type {
     CodeReviewGlobalConfig,
-    CodeReviewRepositoryConfig,
     FormattedCodeReviewConfig,
     FormattedGlobalCodeReviewConfig,
 } from "../code-review/_types";
@@ -107,11 +106,13 @@ export const PlatformConfigProvider = (
 );
 
 const DefaultCodeReviewConfigContext = createContext<
-    CodeReviewGlobalConfig &
-        Omit<CustomMessageConfig, "uuid" | "repositoryId" | "directoryId">
+    CodeReviewGlobalConfig & {
+        customMessages: CustomMessageConfig;
+    }
 >(
-    {} as CodeReviewGlobalConfig &
-        Omit<CustomMessageConfig, "uuid" | "repositoryId" | "directoryId">,
+    {} as CodeReviewGlobalConfig & {
+        customMessages: CustomMessageConfig;
+    },
 );
 
 export const useDefaultCodeReviewConfig = () => {
@@ -120,8 +121,9 @@ export const useDefaultCodeReviewConfig = () => {
 
 export const DefaultCodeReviewConfigProvider = (
     props: React.PropsWithChildren & {
-        config: CodeReviewGlobalConfig &
-            Omit<CustomMessageConfig, "uuid" | "repositoryId" | "directoryId">;
+        config: CodeReviewGlobalConfig & {
+            customMessages: CustomMessageConfig;
+        };
     },
 ) => (
     <DefaultCodeReviewConfigContext.Provider value={props.config}>

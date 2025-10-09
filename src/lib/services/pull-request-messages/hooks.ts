@@ -1,35 +1,19 @@
+import { useDefaultCodeReviewConfig } from "src/app/(app)/settings/_components/context";
 import { useCodeReviewRouteParams } from "src/app/(app)/settings/_hooks";
-import {
-    DEFAULT_END_REVIEW_MESSAGE,
-    DEFAULT_START_REVIEW_MESSAGE,
-} from "src/app/(app)/settings/code-review/[repositoryId]/custom-messages/_components/options";
+import { FormattedConfigLevel } from "src/app/(app)/settings/code-review/_types";
 import { pathToApiUrl } from "src/core/utils/helpers";
 import { useSuspenseFetch } from "src/core/utils/reactQuery";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
+import { CustomMessageEntity, FormattedCustomMessageEntity } from "./types";
+
 export const useSuspensePullRequestMessages = () => {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const { organizationId } = useOrganizationContext();
+    const defaults = useDefaultCodeReviewConfig()?.customMessages;
 
-    return useSuspenseFetch<{
-        uuid: string;
-        repositoryId: string | null;
-        directoryId?: string;
-        startReviewMessage: {
-            content: string;
-            status: "active" | "inactive";
-        };
-        endReviewMessage: {
-            content: string;
-            status: "active" | "inactive";
-        };
-        globalSettings?: {
-            hideComments: boolean;
-        };
-    }>(
-        directoryId
-            ? pathToApiUrl("/pull-request-messages/find-by-directory-id")
-            : pathToApiUrl("/pull-request-messages/find-by-organization-id"),
+    return useSuspenseFetch<FormattedCustomMessageEntity>(
+        pathToApiUrl("/pull-request-messages/find-by-repository-or-directory"),
         {
             params: {
                 organizationId,
@@ -43,15 +27,30 @@ export const useSuspensePullRequestMessages = () => {
                 repositoryId,
                 directoryId,
                 startReviewMessage: {
-                    content: DEFAULT_START_REVIEW_MESSAGE,
-                    status: "active",
+                    content: {
+                        level: FormattedConfigLevel.DEFAULT,
+                        value: defaults?.startReviewMessage?.content ?? "",
+                    },
+                    status: {
+                        level: FormattedConfigLevel.DEFAULT,
+                        value: defaults?.startReviewMessage.status ?? "active",
+                    },
                 },
                 endReviewMessage: {
-                    content: DEFAULT_END_REVIEW_MESSAGE,
-                    status: "active",
+                    content: {
+                        level: FormattedConfigLevel.DEFAULT,
+                        value: defaults?.endReviewMessage?.content ?? "",
+                    },
+                    status: {
+                        level: FormattedConfigLevel.DEFAULT,
+                        value: defaults?.endReviewMessage?.status ?? "active",
+                    },
                 },
                 globalSettings: {
-                    hideComments: false,
+                    hideComments: {
+                        level: FormattedConfigLevel.DEFAULT,
+                        value: defaults?.globalSettings?.hideComments ?? false,
+                    },
                 },
             },
         },

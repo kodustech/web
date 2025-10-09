@@ -25,7 +25,7 @@ import { Action, ResourceType } from "@services/permissions/types";
 import { EyeIcon, Save } from "lucide-react";
 import { Controller, useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { unformatCodeReviewConfig } from "src/core/utils/helpers";
+import { unformatConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import GeneratingConfig from "../../_components/generating-config";
@@ -104,7 +104,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
     const handleSubmit = form.handleSubmit(async (formData) => {
         const { language, ...config } = formData;
 
-        const unformattedConfig = unformatCodeReviewConfig(config);
+        const unformattedConfig = unformatConfig(config);
 
         try {
             await createOrUpdateCodeReviewParameter(
@@ -252,10 +252,10 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                                                 {option.name}
                                                                 {"default" in
                                                                     option && (
-                                                                        <small className="text-text-secondary ml-1">
-                                                                            (default)
-                                                                        </small>
-                                                                    )}
+                                                                    <small className="text-text-secondary ml-1">
+                                                                        (default)
+                                                                    </small>
+                                                                )}
                                                             </Heading>
 
                                                             <p className="text-text-secondary text-xs">
@@ -331,10 +331,10 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
 
                                                             {"default" in
                                                                 option && (
-                                                                    <small className="text-text-secondary ml-1">
-                                                                        (default)
-                                                                    </small>
-                                                                )}
+                                                                <small className="text-text-secondary ml-1">
+                                                                    (default)
+                                                                </small>
+                                                            )}
                                                         </Heading>
 
                                                         <p className="text-text-secondary text-xs">

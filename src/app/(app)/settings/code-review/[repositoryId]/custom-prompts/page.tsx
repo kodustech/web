@@ -18,7 +18,7 @@ import { toast } from "@components/ui/toaster/use-toast";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { PARAMETERS_PATHS } from "@services/parameters";
 import { createOrUpdateCodeReviewParameter } from "@services/parameters/fetch";
-import { useSuspenseGetCodeReviewV2Defaults } from "@services/parameters/hooks";
+import { CodeReviewV2Defaults } from "@services/parameters/hooks";
 import {
     KodyLearningStatus,
     ParametersConfigKey,
@@ -28,12 +28,15 @@ import { Action, ResourceType } from "@services/permissions/types";
 import { SaveIcon } from "lucide-react";
 import { Controller, Path, useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { unformatCodeReviewConfig } from "src/core/utils/helpers";
+import { unformatConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import GeneratingConfig from "../../_components/generating-config";
 import { type CodeReviewFormType } from "../../_types";
-import { usePlatformConfig } from "../../../_components/context";
+import {
+    useDefaultCodeReviewConfig,
+    usePlatformConfig,
+} from "../../../_components/context";
 import { useCodeReviewRouteParams } from "../../../_hooks";
 
 function CustomPromptsContent() {
@@ -42,8 +45,13 @@ function CustomPromptsContent() {
     const { teamId } = useSelectedTeamId();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
-    const defaults = useSuspenseGetCodeReviewV2Defaults();
+    const defaults = useDefaultCodeReviewConfig()
+        ?.v2PromptOverrides as CodeReviewV2Defaults;
     const initialized = useRef(false);
+
+    if (!defaults) {
+        return null;
+    }
 
     const canEdit = usePermission(
         Action.Update,
@@ -53,7 +61,7 @@ function CustomPromptsContent() {
 
     const handleSubmit = form.handleSubmit(async (formData) => {
         try {
-            const unformattedConfig = unformatCodeReviewConfig(formData);
+            const unformattedConfig = unformatConfig(formData);
 
             const result = await createOrUpdateCodeReviewParameter(
                 unformattedConfig,

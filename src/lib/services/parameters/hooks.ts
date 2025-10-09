@@ -85,8 +85,9 @@ export const useSuspenseGetFormattedCodeReviewParameter = (teamId: string) => {
 
 export const useSuspenseGetDefaultCodeReviewParameter = () => {
     return useSuspenseFetch<
-        CodeReviewGlobalConfig &
-            Omit<CustomMessageConfig, "uuid" | "repositoryId" | "directoryId">
+        CodeReviewGlobalConfig & {
+            customMessages: CustomMessageConfig;
+        }
     >(PARAMETERS_PATHS.DEFAULT_CODE_REVIEW_PARAMETER);
 };
 
@@ -125,7 +126,8 @@ export const useGetCodeReviewLabels = (codeReviewVersion?: string) => {
                 const data = value?.data;
                 if (Array.isArray(data)) return data as Label[];
                 if (Array.isArray(data?.labels)) return data.labels as Label[];
-                if (Array.isArray(value?.labels)) return value.labels as Label[];
+                if (Array.isArray(value?.labels))
+                    return value.labels as Label[];
                 return [] as Label[];
             },
         },
@@ -135,17 +137,13 @@ export const useGetCodeReviewLabels = (codeReviewVersion?: string) => {
 export const useGetAllCodeReviewLabels = () => {
     type Label = { type: string; name: string; description: string };
 
-    const v1Labels = useFetch<
-        Array<Label>
-    >(
+    const v1Labels = useFetch<Array<Label>>(
         PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS,
         { params: { codeReviewVersion: "legacy" } },
         true,
     );
 
-    const v2Labels = useFetch<
-        Array<Label>
-    >(
+    const v2Labels = useFetch<Array<Label>>(
         PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS,
         { params: { codeReviewVersion: "v2" } },
         true,
@@ -159,8 +157,8 @@ export const useGetAllCodeReviewLabels = () => {
         const data = (value as any)?.data;
         if (Array.isArray(data)) return data as Label[];
         if (Array.isArray(data?.labels)) return data.labels as Label[];
-        if (Array.isArray((value as any)?.labels)) return (value as any)
-            .labels as Label[];
+        if (Array.isArray((value as any)?.labels))
+            return (value as any).labels as Label[];
         return [];
     };
 

@@ -19,7 +19,7 @@ import { Action, ResourceType } from "@services/permissions/types";
 import { DownloadIcon, SaveIcon } from "lucide-react";
 import { FormProvider, useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { unformatCodeReviewConfig } from "src/core/utils/helpers";
+import { unformatConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import GeneratingConfig from "../../_components/generating-config";
@@ -59,7 +59,7 @@ export default function General() {
         // Remove reviewCadence when automation is disabled
         if (!formData.automatedReviewActive) delete config.reviewCadence;
 
-        const unformattedConfig = unformatCodeReviewConfig(config);
+        const unformattedConfig = unformatConfig(config);
 
         try {
             const [languageResult, reviewResult] = await Promise.all([
