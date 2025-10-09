@@ -6,7 +6,7 @@ import { Heading } from "@components/ui/heading";
 import { Switch } from "@components/ui/switch";
 import { Controller, useFormContext } from "react-hook-form";
 import { useCodeReviewConfig } from "src/app/(app)/settings/_components/context";
-import { OverrideIndicator } from "src/app/(app)/settings/code-review/_components/override";
+import { OverrideIndicatorForm } from "src/app/(app)/settings/code-review/_components/override";
 
 import type { CodeReviewFormType } from "../../../_types";
 
@@ -32,7 +32,7 @@ export const RunOnDraft = () => {
                                 Enable Running on Draft Pull Requests
                             </Heading>
 
-                            <OverrideIndicator fieldName="runOnDraft" />
+                            <OverrideIndicatorForm fieldName="runOnDraft" />
 
                             <p className="text-text-secondary text-sm">
                                 If enabled, Kody will run automated code reviews

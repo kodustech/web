@@ -15,7 +15,6 @@ import {
     useCodeReviewRouteParams,
     useCurrentConfigLevel,
 } from "src/app/(app)/settings/_hooks";
-import { OverrideIndicator } from "src/app/(app)/settings/code-review/_components/override";
 
 import { FormattedConfigLevel, type CodeReviewFormType } from "../../../_types";
 

@@ -17,7 +17,7 @@ import {
 import { Separator } from "@components/ui/separator";
 import { Switch } from "@components/ui/switch";
 import { Controller, useFormContext } from "react-hook-form";
-import { OverrideIndicator } from "src/app/(app)/settings/code-review/_components/override";
+import { OverrideIndicatorForm } from "src/app/(app)/settings/code-review/_components/override";
 
 import { ReviewCadenceType, type CodeReviewFormType } from "../../../_types";
 
@@ -68,7 +68,7 @@ export const AutomatedReviewActive = () => {
                                             Enable Automated Code Review
                                         </Heading>
 
-                                        <OverrideIndicator fieldName="automatedReviewActive" />
+                                        <OverrideIndicatorForm fieldName="automatedReviewActive" />
                                     </div>
                                     <p className="text-text-secondary text-sm">
                                         Whenever a Pull Request is opened, Kody
@@ -103,7 +103,7 @@ export const AutomatedReviewActive = () => {
                                                 Review Cadence
                                             </FormControl.Label>
 
-                                            <OverrideIndicator fieldName="reviewCadence.type" />
+                                            <OverrideIndicatorForm fieldName="reviewCadence.type" />
 
                                             <FormControl.Helper className="text-text-secondary mt-0 mb-2 text-xs">
                                                 Decide how Kody should run
@@ -189,7 +189,7 @@ export const AutomatedReviewActive = () => {
                                                         Pushes to trigger pause
                                                     </FormControl.Label>
 
-                                                    <OverrideIndicator fieldName="reviewCadence.pushesToTrigger" />
+                                                    <OverrideIndicatorForm fieldName="reviewCadence.pushesToTrigger" />
 
                                                     <FormControl.Input>
                                                         <NumberInput.Root
@@ -231,7 +231,7 @@ export const AutomatedReviewActive = () => {
                                                         Time window (minutes)
                                                     </FormControl.Label>
 
-                                                    <OverrideIndicator fieldName="reviewCadence.timeWindow" />
+                                                    <OverrideIndicatorForm fieldName="reviewCadence.timeWindow" />
 
                                                     <FormControl.Input>
                                                         <NumberInput.Root

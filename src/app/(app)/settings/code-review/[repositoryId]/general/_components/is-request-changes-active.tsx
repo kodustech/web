@@ -6,7 +6,7 @@ import { Heading } from "@components/ui/heading";
 import { Switch } from "@components/ui/switch";
 import { useSuspenseGetConnections } from "@services/setup/hooks";
 import { Controller, useFormContext } from "react-hook-form";
-import { OverrideIndicator } from "src/app/(app)/settings/code-review/_components/override";
+import { OverrideIndicatorForm } from "src/app/(app)/settings/code-review/_components/override";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { PlatformType } from "src/core/types";
 
@@ -46,7 +46,7 @@ export const IsRequestChangesActive = () => {
                                     Changes'
                                 </Heading>
 
-                                <OverrideIndicator fieldName="isRequestChangesActive" />
+                                <OverrideIndicatorForm fieldName="isRequestChangesActive" />
 
                                 <p className="text-text-secondary text-sm">
                                     When Kody completes an automated code review

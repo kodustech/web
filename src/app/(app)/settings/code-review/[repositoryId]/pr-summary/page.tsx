@@ -29,7 +29,7 @@ import { unformatConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import GeneratingConfig from "../../_components/generating-config";
-import { OverrideIndicator } from "../../_components/override";
+import { OverrideIndicatorForm } from "../../_components/override";
 import { PRSummaryPreviewModal } from "../../_components/pr-summary-preview-modal/modal";
 import {
     BehaviourForNewCommits,
@@ -193,7 +193,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                         Enable Automatic Summary Generation
                                     </Heading>
 
-                                    <OverrideIndicator fieldName="summary.generatePRSummary" />
+                                    <OverrideIndicatorForm fieldName="summary.generatePRSummary" />
                                 </div>
 
                                 <Switch
@@ -214,7 +214,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                 Behavior for commits after PR is opened
                             </FormControl.Label>
 
-                            <OverrideIndicator fieldName="summary.behaviourForNewCommits" />
+                            <OverrideIndicatorForm fieldName="summary.behaviourForNewCommits" />
 
                             <FormControl.Helper className="mb-3">
                                 You can define Kody's behavior in relation to
@@ -292,7 +292,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                 Behavior for Existing Description
                             </FormControl.Label>
 
-                            <OverrideIndicator fieldName="summary.behaviourForExistingDescription" />
+                            <OverrideIndicatorForm fieldName="summary.behaviourForExistingDescription" />
 
                             <FormControl.Helper className="mb-3">
                                 You can define Kody's behavior in relation to
@@ -370,7 +370,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                 Custom Instructions
                             </FormControl.Label>
 
-                            <OverrideIndicator fieldName="summary.customInstructions" />
+                            <OverrideIndicatorForm fieldName="summary.customInstructions" />
 
                             <FormControl.Helper className="mb-3">
                                 You can customize how Kody generates your

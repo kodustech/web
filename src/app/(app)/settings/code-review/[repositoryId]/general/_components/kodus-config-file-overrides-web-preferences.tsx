@@ -6,7 +6,7 @@ import { Heading } from "@components/ui/heading";
 import { Link } from "@components/ui/link";
 import { Switch } from "@components/ui/switch";
 import { Controller, useFormContext } from "react-hook-form";
-import { OverrideIndicator } from "src/app/(app)/settings/code-review/_components/override";
+import { OverrideIndicatorForm } from "src/app/(app)/settings/code-review/_components/override";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { CodeReviewFormType, FormattedConfigLevel } from "../../../_types";
@@ -47,7 +47,7 @@ export const KodusConfigFileOverridesWebPreferences = () => {
                                     kodus Config File Overrides Web Preferences
                                 </Heading>
 
-                                <OverrideIndicator fieldName="kodusConfigFileOverridesWebPreferences" />
+                                <OverrideIndicatorForm fieldName="kodusConfigFileOverridesWebPreferences" />
 
                                 <p className="text-text-secondary text-sm">
                                     When the <strong>kodus-config.yml </strong>{" "}

@@ -5,7 +5,7 @@ import { CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { Switch } from "@components/ui/switch";
 import { Controller, useFormContext } from "react-hook-form";
-import { OverrideIndicator } from "src/app/(app)/settings/code-review/_components/override";
+import { OverrideIndicatorForm } from "src/app/(app)/settings/code-review/_components/override";
 
 import type { CodeReviewFormType } from "../../../_types";
 import {
@@ -49,7 +49,7 @@ export const CodeReviewVersionSelector = () => {
                                     Enable New Review Engine
                                 </Heading>
 
-                                <OverrideIndicator fieldName="codeReviewVersion" />
+                                <OverrideIndicatorForm fieldName="codeReviewVersion" />
 
                                 <p className="text-text-secondary text-sm">
                                     When enabled, reviews highlight only

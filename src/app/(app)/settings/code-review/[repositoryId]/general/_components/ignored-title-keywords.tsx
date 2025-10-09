@@ -1,7 +1,7 @@
 import { FormControl } from "@components/ui/form-control";
 import TagInput from "@components/ui/tag-input";
 import { Controller, useFormContext } from "react-hook-form";
-import { OverrideIndicator } from "src/app/(app)/settings/code-review/_components/override";
+import { OverrideIndicatorForm } from "src/app/(app)/settings/code-review/_components/override";
 
 import type { CodeReviewFormType } from "../../../_types";
 
@@ -18,7 +18,7 @@ export const IgnoredTitleKeywords = () => {
                         Ignore title keywords
                     </FormControl.Label>
 
-                    <OverrideIndicator fieldName="ignoredTitleKeywords" />
+                    <OverrideIndicatorForm fieldName="ignoredTitleKeywords" />
 
                     <FormControl.Input>
                         <TagInput

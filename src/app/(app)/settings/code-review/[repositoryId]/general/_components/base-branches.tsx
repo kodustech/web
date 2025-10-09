@@ -38,7 +38,7 @@ import {
     XIcon,
 } from "lucide-react";
 import { Controller, useFormContext } from "react-hook-form";
-import { OverrideIndicator } from "src/app/(app)/settings/code-review/_components/override";
+import { OverrideIndicatorForm } from "src/app/(app)/settings/code-review/_components/override";
 
 import type { CodeReviewFormType } from "../../../_types";
 
@@ -248,7 +248,7 @@ export const BaseBranches = () => {
                                 Base Branches
                             </FormControl.Label>
 
-                            <OverrideIndicator fieldName="baseBranches" />
+                            <OverrideIndicatorForm fieldName="baseBranches" />
 
                             <Tooltip>
                                 <TooltipTrigger asChild>
