@@ -17,6 +17,7 @@ import {
 } from "src/app/(app)/settings/_hooks";
 
 import { FormattedConfigLevel, type CodeReviewFormType } from "../../../_types";
+import { OverrideIndicatorForm } from "../../../_components/override";
 
 interface CheckboxCardOption {
     value: string;
@@ -135,11 +136,16 @@ export const AnalysisTypes = () => {
                                         className="w-full items-start py-5">
                                         <div className="flex w-full flex-row justify-between gap-6">
                                             <div className="flex flex-col gap-2">
-                                                <Heading
-                                                    variant="h3"
-                                                    className="truncate">
-                                                    {option.name}
-                                                </Heading>
+                                                <div className="flex items-center gap-2">
+                                                    <Heading
+                                                        variant="h3"
+                                                        className="truncate">
+                                                        {option.name}
+                                                    </Heading>
+                                                    <OverrideIndicatorForm 
+                                                        fieldName={`reviewOptions.${option.value}`} 
+                                                    />
+                                                </div>
 
                                                 <p className="text-text-secondary text-xs">
                                                     {option.description}

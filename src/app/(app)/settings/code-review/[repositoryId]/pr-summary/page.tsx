@@ -189,11 +189,13 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                             className="w-full">
                             <CardHeader className="flex flex-row items-center justify-between">
                                 <div className="flex flex-col gap-1">
-                                    <Heading variant="h3">
-                                        Enable Automatic Summary Generation
-                                    </Heading>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label className="mb-0">
+                                            Enable Automatic Summary Generation
+                                        </FormControl.Label>
 
-                                    <OverrideIndicatorForm fieldName="summary.generatePRSummary" />
+                                        <OverrideIndicatorForm fieldName="summary.behaviourForNewCommits" />
+                                    </div>
                                 </div>
 
                                 <Switch
