@@ -165,8 +165,6 @@ export const codeReviewConfigRemovePropertiesNotInType = (
 ) => {
     const newConfig: Partial<CodeReviewGlobalConfig> = {};
     const expectedKeys: LiteralUnion<keyof CodeReviewGlobalConfig>[] = [
-        "id",
-        "name",
         "path",
         "automatedReviewActive",
         "reviewCadence",
@@ -205,10 +203,18 @@ export const unformatConfig = <T>(node: FormattedConfig<T>): T => {
     const unformattedConfig: Partial<T> = {};
 
     (Object.keys(node) as (keyof T)[]).forEach((key) => {
-        const property = node[key] as IFormattedConfigProperty<any>;
+        const property = node[key];
 
         if (property && typeof property === "object" && "value" in property) {
             unformattedConfig[key] = property.value;
+        } else if (property && typeof property === "object") {
+            // Nested object, recurse
+            unformattedConfig[key] = unformatConfig(
+                property as unknown as FormattedConfig<any>,
+            ) as any;
+        } else {
+            // Primitive value, assign directly
+            (unformattedConfig as any)[key] = property;
         }
     });
 
