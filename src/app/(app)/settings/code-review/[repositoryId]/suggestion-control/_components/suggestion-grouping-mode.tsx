@@ -99,7 +99,7 @@ export const SuggestionGroupingMode = () => {
 
                 <div className="flex-2">
                     <CodeGroupingExampleCard
-                        groupingType={groupingType.value}
+                        groupingType={groupingType?.value!}
                     />
                 </div>
             </div>

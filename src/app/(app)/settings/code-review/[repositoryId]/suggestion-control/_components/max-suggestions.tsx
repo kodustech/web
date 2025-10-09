@@ -41,14 +41,14 @@ export const MaxSuggestions = () => {
                     );
 
                     if (limitationType === "file") {
-                        if (value <= MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE)
+                        if (value! <= MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE)
                             return;
 
                         return `Maximum limit is ${MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE}`;
                     }
 
                     if (limitationType === "pr") {
-                        if (value >= MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE)
+                        if (value! >= MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE)
                             return;
 
                         return `The configured limit is too low. Please increase it to at least ${MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE} based on the selected categories.`;

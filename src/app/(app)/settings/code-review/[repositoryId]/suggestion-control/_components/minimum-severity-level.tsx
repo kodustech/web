@@ -31,7 +31,7 @@ export const MinimumSeverityLevel = () => {
                         severityLevelFilterOptions,
                     ).map((option) => option.label);
                     const severityLevel =
-                        severityLevelFilterOptions[field.value];
+                        severityLevelFilterOptions[field.value!];
                     const numberValue = severityLevel?.value;
 
                     return (
