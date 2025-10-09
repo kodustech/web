@@ -35,7 +35,21 @@ export const OverrideIndicatorForm = ({
     const initialState = getNestedProperty(config, fieldName);
     const currentValue = form.watch(`${fieldName}.value` as any);
 
+    // Debug para detectar o problema
+    if (fieldName === "pullRequestApprovalActive") {
+        console.log("🚨 OverrideIndicatorForm Debug:", {
+            fieldName,
+            currentLevel,
+            isBlocked: currentLevel === FormattedConfigLevel.GLOBAL,
+            FormattedConfigLevel_GLOBAL: FormattedConfigLevel.GLOBAL,
+            currentValue,
+            initialState,
+            willCallOverrideIndicator: currentLevel !== FormattedConfigLevel.GLOBAL
+        });
+    }
+
     if (currentLevel === FormattedConfigLevel.GLOBAL) {
+        console.log("❌ BLOCKED: Current level is GLOBAL, not showing badge");
         return null;
     }
 
@@ -43,6 +57,7 @@ export const OverrideIndicatorForm = ({
         <OverrideIndicator
             currentValue={currentValue}
             initialState={initialState}
+            currentLevel={currentLevel}
         />
     );
 };
@@ -50,37 +65,67 @@ export const OverrideIndicatorForm = ({
 type OverrideIndicatorProps<T> = {
     currentValue: T;
     initialState: IFormattedConfigProperty<T>;
+    currentLevel?: FormattedConfigLevel;
 };
 
 export const OverrideIndicator = <T,>({
     currentValue,
     initialState,
+    currentLevel,
 }: OverrideIndicatorProps<T>) => {
-    const inheritedValue = initialState?.overriddenValue ?? initialState?.value;
     const inheritedLevel = initialState?.overriddenLevel ?? initialState?.level;
 
-    const showIndicator = (() => {
-        if (Array.isArray(currentValue) && Array.isArray(inheritedValue)) {
-            return (
-                JSON.stringify(currentValue) !== JSON.stringify(inheritedValue)
-            );
+    // Verifica se existe um override estrutural na config
+    const hasStructuralOverride = initialState?.overriddenValue !== undefined || initialState?.overriddenLevel !== undefined;
+
+    // Verifica se o valor atual do form é diferente do valor inicial salvo
+    const hasFormChange = (() => {
+        const initialValue = initialState?.value;
+        
+        if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
+            return JSON.stringify(currentValue) !== JSON.stringify(initialValue);
         }
         if (
             typeof currentValue === "object" &&
-            typeof inheritedValue === "object" &&
+            typeof initialValue === "object" &&
             currentValue !== null &&
-            inheritedValue !== null
+            initialValue !== null
         ) {
-            return (
-                JSON.stringify(currentValue) !== JSON.stringify(inheritedValue)
-            );
+            return JSON.stringify(currentValue) !== JSON.stringify(initialValue);
         }
-        return currentValue !== inheritedValue;
+        return currentValue !== initialValue;
     })();
+
+    // Verifica se é um override relevante para o nível atual
+    const isRelevantOverride = (() => {
+        if (!hasStructuralOverride) return false;
+        
+        // Se é o nível atual fazendo override, sempre mostra
+        if (initialState?.level === currentLevel) return true;
+        
+        // Se não é o nível atual, só mostra se há mudança no form
+        return hasFormChange;
+    })();
+
+    const showIndicator = hasFormChange || isRelevantOverride;
+
+    // Debug SEMPRE (sem condições)
+    console.log("🎯 OverrideIndicator RUNNING:", {
+        currentValue,
+        initialValue: initialState?.value,
+        hasStructuralOverride,
+        hasFormChange,
+        isRelevantOverride,
+        showIndicator,
+        willRenderBadge: showIndicator ? "✅ YES" : "❌ NO"
+    });
 
     if (!showIndicator) {
         return null;
     }
+
+    // Debug final - SEMPRE
+    console.log("🏆 RENDERING BADGE! Badge should be visible now!");
 
     // const handleRevert = () => {
     //     form.setValue(`${fieldName}.value` as any, inheritedValue, {
