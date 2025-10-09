@@ -85,6 +85,7 @@ export const AddRepoModal = ({
             {},
             teamId,
             values.targetRepositoryId,
+            undefined,
             values.targetDirectoryPath,
         );
 

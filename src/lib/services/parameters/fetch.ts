@@ -60,6 +60,7 @@ export const createOrUpdateCodeReviewParameter = async (
     teamId: string,
     repositoryId: LiteralUnion<"global"> | undefined,
     directoryId?: string,
+    directoryPath?: string,
 ) => {
     try {
         const trimmedCodeReviewConfigValue =
@@ -73,6 +74,7 @@ export const createOrUpdateCodeReviewParameter = async (
                 repositoryId:
                     repositoryId === "global" ? undefined : repositoryId,
                 directoryId,
+                directoryPath,
             },
         );
 
