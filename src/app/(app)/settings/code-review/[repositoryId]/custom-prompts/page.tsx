@@ -46,8 +46,7 @@ function CustomPromptsContent() {
     const { teamId } = useSelectedTeamId();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
-    const defaults = useDefaultCodeReviewConfig()
-        ?.v2PromptOverrides as CodeReviewV2Defaults;
+    const defaults = useDefaultCodeReviewConfig()?.v2PromptOverrides;
     const initialized = useRef(false);
 
     if (!defaults) {
@@ -137,31 +136,35 @@ function CustomPromptsContent() {
         const map: Array<[Path<CodeReviewFormType>, string | undefined]> = [
             [
                 "v2PromptOverrides.categories.descriptions.bug.value",
-                defaults.categories.bug,
+                defaults.categories?.descriptions?.bug,
             ],
             [
                 "v2PromptOverrides.categories.descriptions.performance.value",
-                defaults.categories.performance,
+                defaults.categories?.descriptions?.performance,
             ],
             [
                 "v2PromptOverrides.categories.descriptions.security.value",
-                defaults.categories.security,
+                defaults.categories?.descriptions?.security,
             ],
             [
                 "v2PromptOverrides.severity.flags.critical.value",
-                defaults.severity.critical,
+                defaults.severity?.flags?.critical,
             ],
             [
                 "v2PromptOverrides.severity.flags.high.value",
-                defaults.severity.high,
+                defaults.severity?.flags?.high,
             ],
             [
                 "v2PromptOverrides.severity.flags.medium.value",
-                defaults.severity.medium,
+                defaults.severity?.flags?.medium,
             ],
             [
                 "v2PromptOverrides.severity.flags.low.value",
-                defaults.severity.low,
+                defaults.severity?.flags?.low,
+            ],
+            [
+                "v2PromptOverrides.generation.main.value",
+                defaults.generation?.main,
             ],
         ];
 
@@ -206,6 +209,97 @@ function CustomPromptsContent() {
             <Page.Content className="gap-8">
                 <Card>
                     <CardHeader>
+                        <CardTitle>Generation Prompts</CardTitle>
+                        <CardDescription>
+                            Customize the style in which Kody describes issues.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 gap-6">
+                            <FormControl.Root>
+                                <div className="flex items-center justify-between gap-3">
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.generation.main.value">
+                                            Main Prompt
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.generation.main" />
+                                    </div>
+                                    <Controller
+                                        name="v2PromptOverrides.generation.main.value"
+                                        control={form.control}
+                                        render={({ field }) => {
+                                            const def =
+                                                defaults?.generation?.main ??
+                                                "";
+                                            const isDefault =
+                                                (field.value || "").trim() ===
+                                                def.trim();
+                                            return (
+                                                <div className="flex items-center gap-2">
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className="h-6 min-h-auto px-2.5">
+                                                        {isDefault
+                                                            ? "Default"
+                                                            : "Custom"}
+                                                    </Badge>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="helper"
+                                                        onClick={() =>
+                                                            field.onChange(def)
+                                                        }
+                                                        disabled={
+                                                            !canEdit ||
+                                                            isDefault
+                                                        }>
+                                                        Reset to default
+                                                    </Button>
+                                                </div>
+                                            );
+                                        }}
+                                    />
+                                </div>
+                                <FormControl.Helper className="mb-3">
+                                    Main prompt used for code generation (max
+                                    2000).
+                                </FormControl.Helper>
+                                <FormControl.Input>
+                                    <Controller
+                                        name="v2PromptOverrides.generation.main.value"
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <div>
+                                                <Textarea
+                                                    id={field.name}
+                                                    value={field.value}
+                                                    onChange={(e) =>
+                                                        field.onChange(
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    placeholder="Type the main prompt for code generation"
+                                                    className="min-h-32"
+                                                    maxLength={2000}
+                                                    disabled={field.disabled}
+                                                />
+                                                <FormControl.Helper className="mt-2 block text-right text-xs">
+                                                    {field.value?.length || 0} /
+                                                    2000
+                                                </FormControl.Helper>
+                                            </div>
+                                        )}
+                                    />
+                                </FormControl.Input>
+                            </FormControl.Root>
+                        </div>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader>
                         <CardTitle>Category Prompts</CardTitle>
                         <CardDescription>
                             Set the prompt Kody uses for each category.
@@ -228,7 +322,8 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => {
                                             const def =
-                                                defaults?.categories.bug ?? "";
+                                                defaults?.categories
+                                                    ?.descriptions?.bug ?? "";
                                             const isDefault =
                                                 (field.value || "").trim() ===
                                                 def.trim();
@@ -306,7 +401,8 @@ function CustomPromptsContent() {
                                         render={({ field }) => {
                                             const def =
                                                 defaults?.categories
-                                                    .performance ?? "";
+                                                    ?.descriptions
+                                                    ?.performance ?? "";
                                             const isDefault =
                                                 (field.value || "").trim() ===
                                                 def.trim();
@@ -383,7 +479,8 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => {
                                             const def =
-                                                defaults?.categories.security ??
+                                                defaults?.categories
+                                                    ?.descriptions?.security ??
                                                 "";
                                             const isDefault =
                                                 (field.value || "").trim() ===
@@ -473,8 +570,8 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => {
                                             const def =
-                                                defaults?.severity.critical ??
-                                                "";
+                                                defaults?.severity?.flags
+                                                    ?.critical ?? "";
                                             const isDefault =
                                                 (field.value || "").trim() ===
                                                 def.trim();
@@ -551,7 +648,8 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => {
                                             const def =
-                                                defaults?.severity.high ?? "";
+                                                defaults?.severity?.flags
+                                                    ?.high ?? "";
                                             const isDefault =
                                                 (field.value || "").trim() ===
                                                 def.trim();
@@ -628,7 +726,8 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => {
                                             const def =
-                                                defaults?.severity.medium ?? "";
+                                                defaults?.severity?.flags
+                                                    ?.medium ?? "";
                                             const isDefault =
                                                 (field.value || "").trim() ===
                                                 def.trim();
@@ -705,7 +804,8 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => {
                                             const def =
-                                                defaults?.severity.low ?? "";
+                                                defaults?.severity?.flags
+                                                    ?.low ?? "";
                                             const isDefault =
                                                 (field.value || "").trim() ===
                                                 def.trim();

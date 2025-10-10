@@ -108,6 +108,9 @@ export type CodeReviewGlobalConfig = {
                 low?: string;
             };
         };
+        generation?: {
+            main?: string;
+        };
     };
 };
 
