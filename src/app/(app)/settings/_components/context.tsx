@@ -56,7 +56,7 @@ export const useCodeReviewConfig = ():
         };
     }
 
-    const { configs, ...rest } = repository;
+    const { configs, ...rest } = directory;
 
     return {
         ...configs,
