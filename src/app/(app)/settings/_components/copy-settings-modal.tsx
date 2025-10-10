@@ -210,7 +210,7 @@ export const AddRepoModal = ({
                                                     </span>
                                                 </CardHeader>
                                             }>
-                                            <CardHeader className="h-full overflow-y-auto py-4">
+                                            <CardHeader className="max-h-64 overflow-y-auto py-4">
                                                 <GitDirectorySelector
                                                     value={field.value}
                                                     repositoryId={repositoryId}
