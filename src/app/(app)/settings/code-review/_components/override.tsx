@@ -61,17 +61,8 @@ export const OverrideIndicator = <T,>({
         return null;
     }
 
-    const inheritedLevel =
-        initialState?.overriddenLevel && currentLevel === initialState?.level
-            ? initialState.overriddenLevel
-            : initialState?.level || initialState?.overriddenLevel;
+    const isExistingOverride = initialState?.level === currentLevel;
 
-    // Verifica se existe um override estrutural na config
-    const hasStructuralOverride =
-        initialState?.overriddenValue !== undefined ||
-        initialState?.overriddenLevel !== undefined;
-
-    // Verifica se o valor atual do form é diferente do valor inicial salvo
     const hasFormChange = (() => {
         const initialValue = initialState?.value;
 
@@ -80,6 +71,7 @@ export const OverrideIndicator = <T,>({
                 JSON.stringify(currentValue) !== JSON.stringify(initialValue)
             );
         }
+
         if (
             typeof currentValue === "object" &&
             typeof initialValue === "object" &&
@@ -90,21 +82,22 @@ export const OverrideIndicator = <T,>({
                 JSON.stringify(currentValue) !== JSON.stringify(initialValue)
             );
         }
+
         return currentValue !== initialValue;
     })();
 
-    // Verifica se é um override relevante para o nível atual
-    const isRelevantOverride = (() => {
-        if (!hasStructuralOverride) return false;
+    const overriddenLevelText =
+        (() => {
+            if (isExistingOverride) {
+                // If viewing an override saved AT this level, it overrides the 'overriddenLevel' from the initial state.
+                return initialState?.overriddenLevel;
+            } else {
+                // If creating a NEW override, you're overriding the level you inherited FROM.
+                return initialState?.level;
+            }
+        })() || FormattedConfigLevel.DEFAULT;
 
-        // Se é o nível atual fazendo override, sempre mostra
-        if (initialState?.level === currentLevel) return true;
-
-        // Se não é o nível atual, só mostra se há mudança no form
-        return hasFormChange;
-    })();
-
-    const showIndicator = hasFormChange || isRelevantOverride;
+    const showIndicator = isExistingOverride || hasFormChange;
 
     if (!showIndicator) {
         return null;
@@ -135,8 +128,7 @@ export const OverrideIndicator = <T,>({
                     <TooltipContent>
                         <p>
                             This overrides the setting from the{" "}
-                            {inheritedLevel ?? FormattedConfigLevel.DEFAULT}{" "}
-                            level.
+                            {overriddenLevelText} level.
                         </p>
                     </TooltipContent>
                 </Tooltip>
