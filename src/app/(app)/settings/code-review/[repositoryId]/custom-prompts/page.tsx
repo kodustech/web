@@ -162,6 +162,10 @@ function CustomPromptsContent() {
                 "v2PromptOverrides.severity.flags.low.value",
                 defaults.severity?.flags?.low,
             ],
+            [
+                "v2PromptOverrides.generation.main.value",
+                defaults.generation?.main,
+            ],
         ];
 
         let changed = false;
@@ -203,6 +207,96 @@ function CustomPromptsContent() {
             </Page.Header>
 
             <Page.Content className="gap-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Suggestion Prompts</CardTitle>
+                        <CardDescription>
+                            Define how kody writes suggestions comments.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="grid grid-cols-1 gap-6">
+                            <FormControl.Root>
+                                <div className="flex items-center justify-between gap-3">
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.generation.main.value">
+                                            Base instruction
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.generation.main" />
+                                    </div>
+                                    <Controller
+                                        name="v2PromptOverrides.generation.main.value"
+                                        control={form.control}
+                                        render={({ field }) => {
+                                            const def =
+                                                defaults?.generation?.main ??
+                                                "";
+                                            const isDefault =
+                                                (field.value || "").trim() ===
+                                                def.trim();
+                                            return (
+                                                <div className="flex items-center gap-2">
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className="h-6 min-h-auto px-2.5">
+                                                        {isDefault
+                                                            ? "Default"
+                                                            : "Custom"}
+                                                    </Badge>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="helper"
+                                                        onClick={() =>
+                                                            field.onChange(def)
+                                                        }
+                                                        disabled={
+                                                            !canEdit ||
+                                                            isDefault
+                                                        }>
+                                                        Reset to default
+                                                    </Button>
+                                                </div>
+                                            );
+                                        }}
+                                    />
+                                </div>
+                                <FormControl.Helper className="mb-3">
+                                    Used for all suggestions (max 2000).
+                                </FormControl.Helper>
+                                <FormControl.Input>
+                                    <Controller
+                                        name="v2PromptOverrides.generation.main.value"
+                                        control={form.control}
+                                        render={({ field }) => (
+                                            <div>
+                                                <Textarea
+                                                    id={field.name}
+                                                    value={field.value}
+                                                    onChange={(e) =>
+                                                        field.onChange(
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    placeholder="Type the main prompt for code generation"
+                                                    className="min-h-32"
+                                                    maxLength={2000}
+                                                    disabled={field.disabled}
+                                                />
+                                                <FormControl.Helper className="mt-2 block text-right text-xs">
+                                                    {field.value?.length || 0} /
+                                                    2000
+                                                </FormControl.Helper>
+                                            </div>
+                                        )}
+                                    />
+                                </FormControl.Input>
+                            </FormControl.Root>
+                        </div>
+                    </CardContent>
+                </Card>
+
                 <Card>
                     <CardHeader>
                         <CardTitle>Category Prompts</CardTitle>
