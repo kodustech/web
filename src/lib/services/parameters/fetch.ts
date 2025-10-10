@@ -1,5 +1,8 @@
 import { authorizedFetch } from "@services/fetch";
-import type { CodeReviewRepositoryConfig } from "src/app/(app)/settings/code-review/_types";
+import type {
+    CodeReviewGlobalConfig,
+    CodeReviewRepositoryConfig,
+} from "src/app/(app)/settings/code-review/_types";
 import type { LiteralUnion } from "src/core/types";
 import { axiosAuthorized } from "src/core/utils/axios";
 import { codeReviewConfigRemovePropertiesNotInType } from "src/core/utils/helpers";
@@ -53,10 +56,11 @@ export const createOrUpdateParameter = async (
 };
 
 export const createOrUpdateCodeReviewParameter = async (
-    configValue: Partial<CodeReviewRepositoryConfig>,
+    configValue: Partial<CodeReviewGlobalConfig>,
     teamId: string,
     repositoryId: LiteralUnion<"global"> | undefined,
     directoryId?: string,
+    directoryPath?: string,
 ) => {
     try {
         const trimmedCodeReviewConfigValue =
@@ -70,6 +74,7 @@ export const createOrUpdateCodeReviewParameter = async (
                 repositoryId:
                     repositoryId === "global" ? undefined : repositoryId,
                 directoryId,
+                directoryPath,
             },
         );
 
@@ -95,11 +100,12 @@ export const updateCodeReviewParameterRepositories = async (teamId: string) => {
 export const getGenerateKodusConfigFile = async (
     teamId: string,
     repositoryId?: string,
+    directoryId?: string,
 ) => {
     try {
         const response = await axiosAuthorized.fetcher<any>(
             PARAMETERS_PATHS.GENERATE_KODUS_CONFIG_FILE,
-            { params: { teamId, repositoryId } },
+            { params: { teamId, repositoryId, directoryId } },
         );
 
         return response;

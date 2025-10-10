@@ -25,6 +25,8 @@ import {
 import { UserRole } from "@enums";
 import {
     useSuspenseGetCodeReviewParameter,
+    useSuspenseGetDefaultCodeReviewParameter,
+    useSuspenseGetFormattedCodeReviewParameter,
     useSuspenseGetParameterPlatformConfigs,
 } from "@services/parameters/hooks";
 import { usePermission } from "@services/permissions/hooks";
@@ -36,8 +38,11 @@ import { hasPermission } from "src/core/utils/permissions";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
 import { useCodeReviewRouteParams } from "../_hooks";
+import { FormattedConfigLevel } from "../code-review/_types";
+import { countConfigOverrides } from "../_utils/count-overrides";
 import {
     AutomationCodeReviewConfigProvider,
+    DefaultCodeReviewConfigProvider,
     PlatformConfigProvider,
 } from "./context";
 import { PerRepository } from "./per-repository/repository";
@@ -62,26 +67,12 @@ export const SettingsLayout = ({
 }) => {
     const pathname = usePathname();
     const { teamId } = useSelectedTeamId();
-    const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
+    const { configValue } = useSuspenseGetFormattedCodeReviewParameter(teamId);
+    const defaultConfig = useSuspenseGetDefaultCodeReviewParameter();
     const platformConfig = useSuspenseGetParameterPlatformConfigs(teamId);
     const { repositoryId, pageName, directoryId } = useCodeReviewRouteParams();
-    const permissions = usePermissions();
-    const { organizationId } = useAuth();
 
-    // TODO: refactor this, ideally backend should return only the repos the user has access to
-    const filteredConfigValue = useMemo(() => {
-        const repos = configValue?.repositories.filter((repo) =>
-            hasPermission({
-                permissions,
-                organizationId: organizationId!,
-                action: Action.Read,
-                resource: ResourceType.CodeReviewSettings,
-                repoId: repo.id,
-            }),
-        );
-
-        return { ...configValue, repositories: repos };
-    }, [configValue, permissions, organizationId]);
+    const globalOverrideCount = countConfigOverrides(configValue.configs, FormattedConfigLevel.GLOBAL);
 
     const canReadGitSettings = usePermission(
         Action.Read,
@@ -132,7 +123,7 @@ export const SettingsLayout = ({
     }, [pluginsPageFeatureFlag?.value]);
 
     if (repositoryId && repositoryId !== "global") {
-        const repository = filteredConfigValue?.repositories.find(
+        const repository = configValue?.repositories.find(
             (r) => r.id === repositoryId,
         );
 
@@ -197,6 +188,15 @@ export const SettingsLayout = ({
                                             className="h-fit w-full justify-start py-2"
                                             leftIcon={
                                                 <CollapsibleIndicator className="-ml-1 group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
+                                            }
+                                            rightIcon={
+                                                globalOverrideCount > 0 && (
+                                                    <Badge
+                                                        variant="primary-dark"
+                                                        className="min-w-5 h-5 rounded-full px-1.5 text-[10px] font-medium">
+                                                        {globalOverrideCount}
+                                                    </Badge>
+                                                )
                                             }>
                                             Global
                                         </Button>
@@ -240,7 +240,7 @@ export const SettingsLayout = ({
 
                                 <PerRepository
                                     routes={routes}
-                                    configValue={filteredConfigValue}
+                                    configValue={configValue}
                                     platformConfig={platformConfig}
                                 />
                             </SidebarMenu>
@@ -250,13 +250,14 @@ export const SettingsLayout = ({
             </Sidebar>
 
             <Page.WithSidebar>
-                <AutomationCodeReviewConfigProvider
-                    key={teamId}
-                    config={filteredConfigValue}>
-                    <PlatformConfigProvider config={platformConfig.configValue}>
-                        {children}
-                    </PlatformConfigProvider>
-                </AutomationCodeReviewConfigProvider>
+                <DefaultCodeReviewConfigProvider config={defaultConfig}>
+                    <AutomationCodeReviewConfigProvider config={configValue}>
+                        <PlatformConfigProvider
+                            config={platformConfig.configValue}>
+                            {children}
+                        </PlatformConfigProvider>
+                    </AutomationCodeReviewConfigProvider>
+                </DefaultCodeReviewConfigProvider>
             </Page.WithSidebar>
         </div>
     );

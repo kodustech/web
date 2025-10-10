@@ -41,7 +41,7 @@ export const SelectRepositoriesDropdown = ({
     global?: boolean;
 }) => {
     const repositories: Array<
-        Omit<CodeReviewRepositoryConfig, keyof CodeReviewGlobalConfig> & {
+        Omit<CodeReviewRepositoryConfig, "configs"> & {
             id: LiteralUnion<"global">;
         }
     > = global

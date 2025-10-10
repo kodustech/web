@@ -30,6 +30,7 @@ import {
     KodyRuleInheritanceOrigin,
     KodyRulesOrigin,
     KodyRulesStatus,
+    KodyRuleWithInheritanceDetails,
     type KodyRule,
 } from "@services/kodyRules/types";
 import {
@@ -43,7 +44,12 @@ import {
 import { Controller, useForm } from "react-hook-form";
 import { cn } from "src/core/utils/components";
 
-import type { CodeReviewDirectoryConfig } from "../_types";
+import type {
+    CodeReviewDirectoryConfig,
+    FormattedCodeReviewBaseConfig,
+    FormattedCodeReviewConfig,
+    FormattedDirectoryCodeReviewConfig,
+} from "../_types";
 
 const severityLevelFilterOptions = {
     low: { label: "Low", value: 0 },
@@ -78,14 +84,15 @@ const GOOD_EXAMPLE_PLACEHOLDER = `for (var i = 1; i <= 10; i += 2)  // Compliant
   //...
 }`;
 
-const getDirectoryPathForReplace = (directory: CodeReviewDirectoryConfig) =>
-    `${directory.path.slice(1)}/`;
+const getDirectoryPathForReplace = (
+    directory: FormattedDirectoryCodeReviewConfig,
+) => `${directory.path.slice(1)}/`;
 const getKodyRulePathWithoutDirectoryPath = ({
     directory,
     rule,
 }: {
     rule: KodyRule;
-    directory: CodeReviewDirectoryConfig;
+    directory: FormattedDirectoryCodeReviewConfig;
 }) => rule.path.replace(getDirectoryPathForReplace(directory), "");
 
 const DEFAULT_PATH_FOR_DIRECTORIES = "**";
@@ -97,8 +104,8 @@ export const KodyRuleAddOrUpdateItemModal = ({
     onClose,
     canEdit,
 }: {
-    rule?: KodyRule;
-    directory?: CodeReviewDirectoryConfig;
+    rule?: KodyRuleWithInheritanceDetails;
+    directory?: FormattedDirectoryCodeReviewConfig;
     repositoryId: string;
     onClose?: () => void;
     canEdit: boolean;

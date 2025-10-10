@@ -68,11 +68,5 @@ export function buildSearchParams(
         }
     }
 
-    console.log("🔧 buildSearchParams - Debug:");
-    console.log("  📝 Input:", input);
-    console.log("  🎯 Detected Type:", searchParams.type);
-    console.log("  💎 Detected Value:", searchParams.value);
-    console.log("  📦 Final Params:", params);
-
     return params;
 }

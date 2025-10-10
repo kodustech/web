@@ -38,6 +38,7 @@ import {
     XIcon,
 } from "lucide-react";
 import { Controller, useFormContext } from "react-hook-form";
+import { OverrideIndicatorForm } from "src/app/(app)/settings/code-review/_components/override";
 
 import type { CodeReviewFormType } from "../../../_types";
 
@@ -171,7 +172,7 @@ export const BaseBranches = () => {
 
     return (
         <Controller
-            name="baseBranches"
+            name="baseBranches.value"
             control={form.control}
             render={({ field }) => {
                 const [inputValue, setInputValue] = useState("");
@@ -242,30 +243,34 @@ export const BaseBranches = () => {
 
                 return (
                     <FormControl.Root>
-                        <div className="flex items-center gap-0.5">
-                            <FormControl.Label htmlFor={field.name}>
-                                Base Branches
-                            </FormControl.Label>
+                        <div className="flex flex-row items-center gap-2">
+                            <div className="flex items-center gap-0.5">
+                                <FormControl.Label htmlFor={field.name}>
+                                    Base Branches
+                                </FormControl.Label>
 
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        size="icon-xs"
-                                        variant="cancel"
-                                        className="text-primary-light mb-1 flex cursor-pointer items-center"
-                                        onClick={() => {
-                                            magicModal.show(() => (
-                                                <HelpModal />
-                                            ));
-                                        }}>
-                                        <HelpCircleIcon />
-                                    </Button>
-                                </TooltipTrigger>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button
+                                            size="icon-xs"
+                                            variant="cancel"
+                                            className="text-primary-light mb-1 flex cursor-pointer items-center"
+                                            onClick={() => {
+                                                magicModal.show(() => (
+                                                    <HelpModal />
+                                                ));
+                                            }}>
+                                            <HelpCircleIcon />
+                                        </Button>
+                                    </TooltipTrigger>
 
-                                <TooltipContent side="right" sideOffset={0}>
-                                    Do you need help?
-                                </TooltipContent>
-                            </Tooltip>
+                                    <TooltipContent side="right" sideOffset={0}>
+                                        Do you need help?
+                                    </TooltipContent>
+                                </Tooltip>
+                            </div>
+
+                            <OverrideIndicatorForm fieldName="baseBranches" className="mb-2" />
                         </div>
 
                         <FormControl.Input>
@@ -393,7 +398,8 @@ const HelpModal = () => (
                                 </TableCell>
                                 <TableCell>
                                     <span className="text-sm">
-                                        Allow PRs TO branches containing text (e.g.,{" "}
+                                        Allow PRs TO branches containing text
+                                        (e.g.,{" "}
                                         <InlineCode>contains:hotfix</InlineCode>
                                         )
                                     </span>
@@ -409,7 +415,8 @@ const HelpModal = () => (
                                 </TableCell>
                                 <TableCell>
                                     <span className="text-sm">
-                                        Universal wildcard - allow PRs TO ALL branches
+                                        Universal wildcard - allow PRs TO ALL
+                                        branches
                                     </span>
                                 </TableCell>
                             </TableRow>
@@ -424,7 +431,8 @@ const HelpModal = () => (
                     <AlertDescription>
                         <p className="text-muted-foreground mb-2 text-sm">
                             <strong>
-                                All configurations define TARGET branches (where PRs are allowed to go):
+                                All configurations define TARGET branches (where
+                                PRs are allowed to go):
                             </strong>
                         </p>
                         <ul className="list-inside list-disc space-y-2 text-sm">
@@ -524,7 +532,8 @@ const HelpModal = () => (
                                                     GitFlow with Exclusions
                                                 </strong>
                                                 <InlineCode>
-                                                    ["develop", "feature/*", "main", "!release/*"]
+                                                    ["develop", "feature/*",
+                                                    "main", "!release/*"]
                                                 </InlineCode>
                                             </div>
                                         </TableHead>
@@ -611,7 +620,9 @@ const HelpModal = () => (
                                 <TableBody>
                                     <TableRow>
                                         <TableCell className="w-1/2">
-                                            <InlineCode>feature/xyz → develop</InlineCode>
+                                            <InlineCode>
+                                                feature/xyz → develop
+                                            </InlineCode>
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-2 font-semibold">
@@ -658,10 +669,13 @@ const HelpModal = () => (
                                         <TableHead colSpan={2}>
                                             <div>
                                                 <strong className="mr-1 text-sm">
-                                                    Client Flow (Aggregation Branch)
+                                                    Client Flow (Aggregation
+                                                    Branch)
                                                 </strong>
                                                 <InlineCode>
-                                                    ["feature/aggregation", "!develop", "!main", "!release"]
+                                                    ["feature/aggregation",
+                                                    "!develop", "!main",
+                                                    "!release"]
                                                 </InlineCode>
                                             </div>
                                         </TableHead>
@@ -672,7 +686,8 @@ const HelpModal = () => (
                                     <TableRow>
                                         <TableCell className="w-1/2">
                                             <InlineCode>
-                                                feature/xyz → feature/aggregation
+                                                feature/xyz →
+                                                feature/aggregation
                                             </InlineCode>
                                         </TableCell>
                                         <TableCell>
@@ -685,7 +700,8 @@ const HelpModal = () => (
                                     <TableRow>
                                         <TableCell className="w-1/2">
                                             <InlineCode>
-                                                hotfix/urgent → feature/aggregation
+                                                hotfix/urgent →
+                                                feature/aggregation
                                             </InlineCode>
                                         </TableCell>
                                         <TableCell>

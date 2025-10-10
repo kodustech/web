@@ -55,12 +55,6 @@ export const SelectPullRequestWithServerSearch = (props: {
             repositoryId,
         });
 
-    console.log("🎨 SelectPullRequestWithServerSearch - Debug:");
-    console.log("  📊 Pull Requests:", pullRequests);
-    console.log("  📏 PR Count:", pullRequests?.length);
-    console.log("  🔍 Search Input:", searchInput);
-    console.log("  ⚡ Is Searching:", isSearching);
-
     const PRsGroupedByRepository = pullRequests.reduce(
         (acc, current) => {
             if (!acc[current.repository]) acc[current.repository] = [];
@@ -69,8 +63,6 @@ export const SelectPullRequestWithServerSearch = (props: {
         },
         {} as Record<string, typeof pullRequests>,
     );
-
-    console.log("📊 Grouped by Repository:", PRsGroupedByRepository);
 
     return (
         <Popover open={open} onOpenChange={onOpenChange}>

@@ -2,32 +2,42 @@
 
 import { createContext, useContext } from "react";
 import { PlatformConfigValue } from "@services/parameters/types";
+import { CustomMessageConfig } from "@services/pull-request-messages/types";
 
 import { useCodeReviewRouteParams } from "../_hooks";
 import type {
-    AutomationCodeReviewConfigType,
-    CodeReviewRepositoryConfig,
+    CodeReviewGlobalConfig,
+    FormattedCodeReviewConfig,
+    FormattedGlobalCodeReviewConfig,
 } from "../code-review/_types";
 
 const AutomationCodeReviewConfigContext =
-    createContext<AutomationCodeReviewConfigType>(
-        {} as AutomationCodeReviewConfigType,
+    createContext<FormattedGlobalCodeReviewConfig>(
+        {} as FormattedGlobalCodeReviewConfig,
     );
 
 export const useCodeReviewConfig = ():
-    | (CodeReviewRepositoryConfig & { displayName: string })
+    | (FormattedCodeReviewConfig & {
+          id: string;
+          name: string;
+          isSelected: boolean;
+          displayName: string;
+      })
     | undefined => {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const context = useFullCodeReviewConfig();
 
-    if (repositoryId === "global")
+    if (repositoryId === "global") {
+        const { configs } = context;
+
         return {
-            ...context.global,
+            ...configs,
             id: "global",
             name: "Global",
             isSelected: true,
             displayName: "Global",
         };
+    }
 
     const repository = context.repositories.find((r) => r.id === repositoryId);
     if (!repository) return;
@@ -36,15 +46,26 @@ export const useCodeReviewConfig = ():
         (d) => d.id === directoryId,
     );
 
-    if (!directory) return { ...repository, displayName: repository.name };
+    if (!directory) {
+        const { configs, ...rest } = repository;
+
+        return {
+            ...configs,
+            ...rest,
+            displayName: repository.name,
+        };
+    }
+
+    const { configs, ...rest } = directory;
 
     return {
-        ...directory,
+        ...configs,
+        ...rest,
         displayName: `${repository?.name}${directory?.path}`,
     };
 };
 
-export const useFullCodeReviewConfig = (): AutomationCodeReviewConfigType => {
+export const useFullCodeReviewConfig = (): FormattedGlobalCodeReviewConfig => {
     const context = useContext(AutomationCodeReviewConfigContext);
 
     if (!context) {
@@ -58,7 +79,7 @@ export const useFullCodeReviewConfig = (): AutomationCodeReviewConfigType => {
 
 export const AutomationCodeReviewConfigProvider = (
     props: React.PropsWithChildren & {
-        config: AutomationCodeReviewConfigType;
+        config: FormattedGlobalCodeReviewConfig;
     },
 ) => (
     <AutomationCodeReviewConfigContext.Provider value={props.config}>
@@ -82,4 +103,30 @@ export const PlatformConfigProvider = (
     <PlatformConfigContext.Provider value={props.config}>
         {props.children}
     </PlatformConfigContext.Provider>
+);
+
+const DefaultCodeReviewConfigContext = createContext<
+    CodeReviewGlobalConfig & {
+        customMessages: CustomMessageConfig;
+    }
+>(
+    {} as CodeReviewGlobalConfig & {
+        customMessages: CustomMessageConfig;
+    },
+);
+
+export const useDefaultCodeReviewConfig = () => {
+    return useContext(DefaultCodeReviewConfigContext);
+};
+
+export const DefaultCodeReviewConfigProvider = (
+    props: React.PropsWithChildren & {
+        config: CodeReviewGlobalConfig & {
+            customMessages: CustomMessageConfig;
+        };
+    },
+) => (
+    <DefaultCodeReviewConfigContext.Provider value={props.config}>
+        {props.children}
+    </DefaultCodeReviewConfigContext.Provider>
 );

@@ -12,17 +12,18 @@ import { savePullRequestMessages } from "@services/pull-request-messages/fetch";
 import { useSuspensePullRequestMessages } from "@services/pull-request-messages/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { SaveIcon } from "lucide-react";
-import { pathToApiUrl } from "src/core/utils/helpers";
+import { pathToApiUrl, unformatConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import { useCodeReviewRouteParams } from "../../../_hooks";
-import { TabContent } from "./_components/tab-content";
 import { GlobalSettings } from "./_components/global-settings";
+import { TabContent } from "./_components/tab-content";
 
 export default function CustomMessages() {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const pullRequestMessages = useSuspensePullRequestMessages();
     const queryClient = useQueryClient();
+    const initialState = { ...pullRequestMessages };
 
     const canEdit = usePermission(
         Action.Update,
@@ -41,7 +42,7 @@ export default function CustomMessages() {
     });
 
     const [globalSettings, setGlobalSettings] = useState({
-        hideComments: pullRequestMessages.globalSettings?.hideComments ?? false,
+        hideComments: pullRequestMessages.globalSettings?.hideComments,
     });
 
     useEffect(() => {
@@ -50,34 +51,38 @@ export default function CustomMessages() {
             endReviewMessage: pullRequestMessages.endReviewMessage,
         });
         setGlobalSettings({
-            hideComments: pullRequestMessages.globalSettings?.hideComments ?? false,
+            hideComments: pullRequestMessages.globalSettings?.hideComments,
         });
     }, [pullRequestMessages]);
 
     const wasStartReviewMessageChanged =
-        messages.startReviewMessage.status !==
-        pullRequestMessages.startReviewMessage.status ||
-        messages.startReviewMessage.content !==
-        pullRequestMessages.startReviewMessage.content;
+        messages.startReviewMessage.status.value !==
+            pullRequestMessages.startReviewMessage.status.value ||
+        messages.startReviewMessage.content.value !==
+            pullRequestMessages.startReviewMessage.content.value;
 
     const wasEndReviewMessageChanged =
-        messages.endReviewMessage.status !==
-        pullRequestMessages.endReviewMessage.status ||
-        messages.endReviewMessage.content !==
-        pullRequestMessages.endReviewMessage.content;
+        messages.endReviewMessage.status.value !==
+            pullRequestMessages.endReviewMessage.status.value ||
+        messages.endReviewMessage.content.value !==
+            pullRequestMessages.endReviewMessage.content.value;
 
     const wasGlobalSettingsChanged =
-        globalSettings.hideComments !== (pullRequestMessages.globalSettings?.hideComments ?? false);
+        globalSettings.hideComments.value !==
+        (pullRequestMessages.globalSettings?.hideComments.value ?? false);
 
     const [action, { loading: isSaving }] = useAsyncAction(async () => {
         try {
+            const unformattedMessages = unformatConfig(messages);
+            const unformattedGlobalSettings = unformatConfig(globalSettings);
+
             await savePullRequestMessages({
                 uuid: pullRequestMessages.uuid,
                 repositoryId,
                 directoryId,
-                startReviewMessage: messages.startReviewMessage,
-                endReviewMessage: messages.endReviewMessage,
-                globalSettings: globalSettings,
+                startReviewMessage: unformattedMessages.startReviewMessage,
+                endReviewMessage: unformattedMessages.endReviewMessage,
+                globalSettings: unformattedGlobalSettings,
             });
 
             await queryClient.invalidateQueries({
@@ -159,10 +164,20 @@ export default function CustomMessages() {
                         <TabContent
                             type="startReviewMessage"
                             value={messages.startReviewMessage}
+                            initialState={initialState.startReviewMessage}
                             onChangeAction={(startReviewMessage) => {
                                 setMessages((prev) => ({
                                     ...prev,
-                                    startReviewMessage,
+                                    startReviewMessage: {
+                                        content: {
+                                            ...prev.startReviewMessage.content,
+                                            value: startReviewMessage.content,
+                                        },
+                                        status: {
+                                            ...prev.startReviewMessage.status,
+                                            value: startReviewMessage.status,
+                                        },
+                                    },
                                 }));
                             }}
                             canEdit={canEdit}
@@ -176,10 +191,20 @@ export default function CustomMessages() {
                         <TabContent
                             type="endReviewMessage"
                             value={messages.endReviewMessage}
+                            initialState={initialState.endReviewMessage}
                             onChangeAction={(endReviewMessage) => {
                                 setMessages((prev) => ({
                                     ...prev,
-                                    endReviewMessage,
+                                    endReviewMessage: {
+                                        content: {
+                                            ...prev.endReviewMessage.content,
+                                            value: endReviewMessage.content,
+                                        },
+                                        status: {
+                                            ...prev.endReviewMessage.status,
+                                            value: endReviewMessage.status,
+                                        },
+                                    },
                                 }));
                             }}
                             canEdit={canEdit}
@@ -192,10 +217,16 @@ export default function CustomMessages() {
                         value="global-settings">
                         <GlobalSettings
                             hideComments={globalSettings.hideComments}
+                            initialState={
+                                initialState.globalSettings.hideComments
+                            }
                             onHideCommentsChangeAction={(value) => {
                                 setGlobalSettings((prev) => ({
                                     ...prev,
-                                    hideComments: value,
+                                    hideComments: {
+                                        ...prev.hideComments,
+                                        value,
+                                    },
                                 }));
                             }}
                             canEdit={canEdit}

@@ -49,7 +49,7 @@ export const SuggestionsPerSeverityLevel = () => {
                 {levels.map((l) => (
                     <Controller
                         key={l.severity}
-                        name={`suggestionControl.severityLimits.${l.severity}`}
+                        name={`suggestionControl.severityLimits.${l.severity}.value`}
                         control={form.control}
                         render={({ field, fieldState }) => (
                             <Card className="transition-shadow hover:shadow-md">

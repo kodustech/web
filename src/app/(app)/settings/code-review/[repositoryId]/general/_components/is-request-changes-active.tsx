@@ -6,6 +6,7 @@ import { Heading } from "@components/ui/heading";
 import { Switch } from "@components/ui/switch";
 import { useSuspenseGetConnections } from "@services/setup/hooks";
 import { Controller, useFormContext } from "react-hook-form";
+import { OverrideIndicatorForm } from "src/app/(app)/settings/code-review/_components/override";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { PlatformType } from "src/core/types";
 
@@ -28,7 +29,7 @@ export const IsRequestChangesActive = () => {
     return (
         <div className="flex flex-col gap-2">
             <Controller
-                name="isRequestChangesActive"
+                name="isRequestChangesActive.value"
                 disabled={isCodeManagementGitlab}
                 control={form.control}
                 render={({ field }) => (
@@ -40,10 +41,14 @@ export const IsRequestChangesActive = () => {
                         className="w-full">
                         <CardHeader className="flex flex-row items-center justify-between gap-6">
                             <div className="flex flex-col gap-1">
-                                <Heading variant="h3">
-                                    Enable changing status of Review to 'Request
-                                    Changes'
-                                </Heading>
+                                <div className="flex flex-row items-center gap-2">
+                                    <Heading variant="h3">
+                                        Enable changing status of Review to 'Request
+                                        Changes'
+                                    </Heading>
+
+                                    <OverrideIndicatorForm fieldName="isRequestChangesActive" />
+                                </div>
 
                                 <p className="text-text-secondary text-sm">
                                     When Kody completes an automated code review

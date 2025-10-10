@@ -13,46 +13,6 @@ import { cn } from "src/core/utils/components";
 /* Match @variable-name, @variable_name, @variableName */
 export const VARIABLE_REGEX = /\@((?:\w(?:[-_]?))+)/g;
 
-export const DEFAULT_START_REVIEW_MESSAGE = `# PR Summary (Comment created by [Kody](https://kodus.io) 🤖)
-
-## Code Review Started! 🚀
-
-✋ Hi, team! I'm already looking at the changed files and starting the review to ensure everything is in order. If you need more details, I'm here! [Kody](https://kodus.io)
-
-@changedFiles
-
-@changeSummary`;
-
-export const DEFAULT_END_REVIEW_MESSAGE = `## Code Review Completed! 🔥
-
-The code review was successfully completed based on your current configurations.
-
-
-
-<details>
-<summary>Kody Guide: Usage and Configuration</summary>
-
-<details>
-<summary>Interacting with Kody</summary>
-
-- **Request a Review:** Ask Kody to review your PR manually by adding a comment with the \`@kody start-review\` command at the root of your PR.
-
-- **Provide Feedback:** Help Kody learn and improve by reacting to its comments with a 👍 for helpful suggestions or a 👎 if improvements are needed.
-
-</details>
-
-<details>
-<summary>Current Kody Configuration</summary>
-
-@reviewOptions
-
-</details>
-
-**[Access your configuration settings here.](https://app.kodus.io/settings/code-review/global/general)**
-
-</details>
-`;
-
 const miniTableCellClassName = "h-8 px-3 py-1";
 
 const SimpleCollapsible = (

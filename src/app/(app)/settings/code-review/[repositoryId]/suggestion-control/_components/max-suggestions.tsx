@@ -2,6 +2,7 @@ import { FormControl } from "@components/ui/form-control";
 import { NumberInput } from "@components/ui/number-input";
 import { Controller, useFormContext } from "react-hook-form";
 
+import { OverrideIndicatorForm } from "../../../_components/override";
 import { LimitationType, type CodeReviewFormType } from "../../../_types";
 import { useCodeReviewConfig } from "../../../../_components/context";
 
@@ -15,7 +16,7 @@ const validateNumberInput = (value: string) => {
 export const MaxSuggestions = () => {
     const form = useFormContext<CodeReviewFormType>();
     const config = useCodeReviewConfig();
-    const limitationType = form.watch("suggestionControl.limitationType");
+    const limitationType = form.watch("suggestionControl.limitationType.value");
 
     const MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE =
         Object.values(config?.reviewOptions ?? {}).filter((option) => option)
@@ -32,38 +33,34 @@ export const MaxSuggestions = () => {
 
     return (
         <Controller
-            name="suggestionControl.maxSuggestions"
+            name="suggestionControl.maxSuggestions.value"
             control={form.control}
             rules={{
                 validate: (value) => {
-                    if (value === 0) return;
+                    const limitationType = form.getValues(
+                        "suggestionControl.limitationType.value",
+                    );
 
-                    if (
-                        form.getValues("suggestionControl.limitationType") ===
-                        "file"
-                    ) {
-                        if (value <= MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE)
+                    if (limitationType === "file") {
+                        if (value! <= MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE)
                             return;
 
                         return `Maximum limit is ${MAX_SUGGESTIONS_FOR_FILE_LIMITATION_TYPE}`;
-                    }
-
-                    if (
-                        form.getValues("suggestionControl.limitationType") ===
-                        "pr"
-                    ) {
-                        if (value >= MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE)
-                            return;
-
-                        return `The configured limit is too low. Please increase it to at least ${MIN_SUGGESTIONS_FOR_PR_LIMITATION_TYPE} based on the selected categories.`;
                     }
                 },
             }}
             render={({ field, fieldState }) => (
                 <FormControl.Root>
-                    <FormControl.Label htmlFor={field.name}>
-                        Maximum number of suggestions
-                    </FormControl.Label>
+                    <div className="mb-2 flex flex-row items-center gap-2">
+                        <FormControl.Label htmlFor={field.name}>
+                            Maximum number of suggestions
+                        </FormControl.Label>
+
+                        <OverrideIndicatorForm
+                            fieldName="suggestionControl.maxSuggestions"
+                            className="mb-2"
+                        />
+                    </div>
 
                     <FormControl.Input>
                         <NumberInput.Root

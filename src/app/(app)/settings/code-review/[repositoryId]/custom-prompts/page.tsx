@@ -18,7 +18,7 @@ import { toast } from "@components/ui/toaster/use-toast";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { PARAMETERS_PATHS } from "@services/parameters";
 import { createOrUpdateCodeReviewParameter } from "@services/parameters/fetch";
-import { useSuspenseGetCodeReviewV2Defaults } from "@services/parameters/hooks";
+import { CodeReviewV2Defaults } from "@services/parameters/hooks";
 import {
     KodyLearningStatus,
     ParametersConfigKey,
@@ -28,11 +28,16 @@ import { Action, ResourceType } from "@services/permissions/types";
 import { SaveIcon } from "lucide-react";
 import { Controller, Path, useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { unformatConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import GeneratingConfig from "../../_components/generating-config";
+import { OverrideIndicatorForm } from "../../_components/override";
 import { type CodeReviewFormType } from "../../_types";
-import { usePlatformConfig } from "../../../_components/context";
+import {
+    useDefaultCodeReviewConfig,
+    usePlatformConfig,
+} from "../../../_components/context";
 import { useCodeReviewRouteParams } from "../../../_hooks";
 
 function CustomPromptsContent() {
@@ -41,8 +46,13 @@ function CustomPromptsContent() {
     const { teamId } = useSelectedTeamId();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
-    const defaults = useSuspenseGetCodeReviewV2Defaults();
+    const defaults = useDefaultCodeReviewConfig()
+        ?.v2PromptOverrides as CodeReviewV2Defaults;
     const initialized = useRef(false);
+
+    if (!defaults) {
+        return null;
+    }
 
     const canEdit = usePermission(
         Action.Update,
@@ -52,8 +62,10 @@ function CustomPromptsContent() {
 
     const handleSubmit = form.handleSubmit(async (formData) => {
         try {
+            const unformattedConfig = unformatConfig(formData);
+
             const result = await createOrUpdateCodeReviewParameter(
-                formData,
+                unformattedConfig,
                 teamId,
                 repositoryId,
                 directoryId,
@@ -63,14 +75,26 @@ function CustomPromptsContent() {
                 throw new Error(`Failed to save settings: ${result.error}`);
             }
 
-            await resetQueries({
-                queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
-                    params: {
-                        key: ParametersConfigKey.CODE_REVIEW_CONFIG,
-                        teamId,
-                    },
+            await Promise.all([
+                resetQueries({
+                    queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
+                        params: {
+                            key: ParametersConfigKey.CODE_REVIEW_CONFIG,
+                            teamId,
+                        },
+                    }),
                 }),
-            });
+                resetQueries({
+                    queryKey: generateQueryKey(
+                        PARAMETERS_PATHS.GET_CODE_REVIEW_PARAMETER,
+                        {
+                            params: {
+                                teamId,
+                            },
+                        },
+                    ),
+                }),
+            ]);
 
             form.reset(formData);
 
@@ -112,27 +136,33 @@ function CustomPromptsContent() {
 
         const map: Array<[Path<CodeReviewFormType>, string | undefined]> = [
             [
-                "v2PromptOverrides.categories.descriptions.bug",
+                "v2PromptOverrides.categories.descriptions.bug.value",
                 defaults.categories.bug,
             ],
             [
-                "v2PromptOverrides.categories.descriptions.performance",
+                "v2PromptOverrides.categories.descriptions.performance.value",
                 defaults.categories.performance,
             ],
             [
-                "v2PromptOverrides.categories.descriptions.security",
+                "v2PromptOverrides.categories.descriptions.security.value",
                 defaults.categories.security,
             ],
             [
-                "v2PromptOverrides.severity.flags.critical",
+                "v2PromptOverrides.severity.flags.critical.value",
                 defaults.severity.critical,
             ],
-            ["v2PromptOverrides.severity.flags.high", defaults.severity.high],
             [
-                "v2PromptOverrides.severity.flags.medium",
+                "v2PromptOverrides.severity.flags.high.value",
+                defaults.severity.high,
+            ],
+            [
+                "v2PromptOverrides.severity.flags.medium.value",
                 defaults.severity.medium,
             ],
-            ["v2PromptOverrides.severity.flags.low", defaults.severity.low],
+            [
+                "v2PromptOverrides.severity.flags.low.value",
+                defaults.severity.low,
+            ],
         ];
 
         let changed = false;
@@ -152,10 +182,10 @@ function CustomPromptsContent() {
     // Field-level helpers will compare and reset individually
 
     return (
-            <Page.Root>
-                <Page.Header>
-                    <CodeReviewPagesBreadcrumb pageName="Custom Prompts" />
-                </Page.Header>
+        <Page.Root>
+            <Page.Header>
+                <CodeReviewPagesBreadcrumb pageName="Custom Prompts" />
+            </Page.Header>
 
             <Page.Header>
                 <Page.Title>Custom Prompts</Page.Title>
@@ -185,13 +215,16 @@ function CustomPromptsContent() {
                         <div className="grid grid-cols-1 gap-6">
                             <FormControl.Root>
                                 <div className="flex items-center justify-between gap-3">
-                                    <FormControl.Label
-                                        className="mb-0"
-                                        htmlFor="v2PromptOverrides.categories.descriptions.bug">
-                                        Bug
-                                    </FormControl.Label>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.categories.descriptions.bug.value">
+                                            Bug
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.categories.descriptions.bug" />
+                                    </div>
                                     <Controller
-                                        name="v2PromptOverrides.categories.descriptions.bug"
+                                        name="v2PromptOverrides.categories.descriptions.bug.value"
                                         control={form.control}
                                         render={({ field }) => {
                                             const def =
@@ -204,7 +237,9 @@ function CustomPromptsContent() {
                                                     <Badge
                                                         variant="secondary"
                                                         className="h-6 min-h-auto px-2.5">
-                                                        {isDefault ? "Default" : "Custom"}
+                                                        {isDefault
+                                                            ? "Default"
+                                                            : "Custom"}
                                                     </Badge>
                                                     <Button
                                                         size="sm"
@@ -228,7 +263,7 @@ function CustomPromptsContent() {
                                 </FormControl.Helper>
                                 <FormControl.Input>
                                     <Controller
-                                        name="v2PromptOverrides.categories.descriptions.bug"
+                                        name="v2PromptOverrides.categories.descriptions.bug.value"
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
@@ -257,13 +292,16 @@ function CustomPromptsContent() {
 
                             <FormControl.Root>
                                 <div className="flex items-center justify-between gap-3">
-                                    <FormControl.Label
-                                        className="mb-0"
-                                        htmlFor="v2PromptOverrides.categories.descriptions.performance">
-                                        Performance
-                                    </FormControl.Label>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.categories.descriptions.performance.value">
+                                            Performance
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.categories.descriptions.performance" />
+                                    </div>
                                     <Controller
-                                        name="v2PromptOverrides.categories.descriptions.performance"
+                                        name="v2PromptOverrides.categories.descriptions.performance.value"
                                         control={form.control}
                                         render={({ field }) => {
                                             const def =
@@ -277,9 +315,20 @@ function CustomPromptsContent() {
                                                     <Badge
                                                         variant="secondary"
                                                         className="h-6 min-h-auto px-2.5">
-                                                        {isDefault ? "Default" : "Custom"}
+                                                        {isDefault
+                                                            ? "Default"
+                                                            : "Custom"}
                                                     </Badge>
-                                                    <Button size="sm" variant="helper" onClick={() => field.onChange(def)} disabled={!canEdit || isDefault}>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="helper"
+                                                        onClick={() =>
+                                                            field.onChange(def)
+                                                        }
+                                                        disabled={
+                                                            !canEdit ||
+                                                            isDefault
+                                                        }>
                                                         Reset to default
                                                     </Button>
                                                 </div>
@@ -292,7 +341,7 @@ function CustomPromptsContent() {
                                 </FormControl.Helper>
                                 <FormControl.Input>
                                     <Controller
-                                        name="v2PromptOverrides.categories.descriptions.performance"
+                                        name="v2PromptOverrides.categories.descriptions.performance.value"
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
@@ -321,13 +370,16 @@ function CustomPromptsContent() {
 
                             <FormControl.Root>
                                 <div className="flex items-center justify-between gap-3">
-                                    <FormControl.Label
-                                        className="mb-0"
-                                        htmlFor="v2PromptOverrides.categories.descriptions.security">
-                                        Security
-                                    </FormControl.Label>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.categories.descriptions.security.value">
+                                            Security
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.categories.descriptions.security" />
+                                    </div>
                                     <Controller
-                                        name="v2PromptOverrides.categories.descriptions.security"
+                                        name="v2PromptOverrides.categories.descriptions.security.value"
                                         control={form.control}
                                         render={({ field }) => {
                                             const def =
@@ -341,9 +393,20 @@ function CustomPromptsContent() {
                                                     <Badge
                                                         variant="secondary"
                                                         className="h-6 min-h-auto px-2.5">
-                                                        {isDefault ? "Default" : "Custom"}
+                                                        {isDefault
+                                                            ? "Default"
+                                                            : "Custom"}
                                                     </Badge>
-                                                    <Button size="sm" variant="helper" onClick={() => field.onChange(def)} disabled={!canEdit || isDefault}>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="helper"
+                                                        onClick={() =>
+                                                            field.onChange(def)
+                                                        }
+                                                        disabled={
+                                                            !canEdit ||
+                                                            isDefault
+                                                        }>
                                                         Reset to default
                                                     </Button>
                                                 </div>
@@ -356,7 +419,7 @@ function CustomPromptsContent() {
                                 </FormControl.Helper>
                                 <FormControl.Input>
                                     <Controller
-                                        name="v2PromptOverrides.categories.descriptions.security"
+                                        name="v2PromptOverrides.categories.descriptions.security.value"
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
@@ -397,13 +460,16 @@ function CustomPromptsContent() {
                         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                             <FormControl.Root>
                                 <div className="flex items-center justify-between gap-3">
-                                    <FormControl.Label
-                                        className="mb-0"
-                                        htmlFor="v2PromptOverrides.severity.flags.critical">
-                                        Critical
-                                    </FormControl.Label>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.severity.flags.critical.value">
+                                            Critical
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.severity.flags.critical" />
+                                    </div>
                                     <Controller
-                                        name="v2PromptOverrides.severity.flags.critical"
+                                        name="v2PromptOverrides.severity.flags.critical.value"
                                         control={form.control}
                                         render={({ field }) => {
                                             const def =
@@ -417,9 +483,20 @@ function CustomPromptsContent() {
                                                     <Badge
                                                         variant="secondary"
                                                         className="h-6 min-h-auto px-2.5">
-                                                        {isDefault ? "Default" : "Custom"}
+                                                        {isDefault
+                                                            ? "Default"
+                                                            : "Custom"}
                                                     </Badge>
-                                                    <Button size="sm" variant="helper" onClick={() => field.onChange(def)} disabled={!canEdit || isDefault}>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="helper"
+                                                        onClick={() =>
+                                                            field.onChange(def)
+                                                        }
+                                                        disabled={
+                                                            !canEdit ||
+                                                            isDefault
+                                                        }>
                                                         Reset to default
                                                     </Button>
                                                 </div>
@@ -432,7 +509,7 @@ function CustomPromptsContent() {
                                 </FormControl.Helper>
                                 <FormControl.Input>
                                     <Controller
-                                        name="v2PromptOverrides.severity.flags.critical"
+                                        name="v2PromptOverrides.severity.flags.critical.value"
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
@@ -461,13 +538,16 @@ function CustomPromptsContent() {
 
                             <FormControl.Root>
                                 <div className="flex items-center justify-between gap-3">
-                                    <FormControl.Label
-                                        className="mb-0"
-                                        htmlFor="v2PromptOverrides.severity.flags.high">
-                                        High
-                                    </FormControl.Label>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.severity.flags.high.value">
+                                            High
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.severity.flags.high" />
+                                    </div>
                                     <Controller
-                                        name="v2PromptOverrides.severity.flags.high"
+                                        name="v2PromptOverrides.severity.flags.high.value"
                                         control={form.control}
                                         render={({ field }) => {
                                             const def =
@@ -480,9 +560,20 @@ function CustomPromptsContent() {
                                                     <Badge
                                                         variant="secondary"
                                                         className="h-6 min-h-auto px-2.5">
-                                                        {isDefault ? "Default" : "Custom"}
+                                                        {isDefault
+                                                            ? "Default"
+                                                            : "Custom"}
                                                     </Badge>
-                                                    <Button size="sm" variant="helper" onClick={() => field.onChange(def)} disabled={!canEdit || isDefault}>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="helper"
+                                                        onClick={() =>
+                                                            field.onChange(def)
+                                                        }
+                                                        disabled={
+                                                            !canEdit ||
+                                                            isDefault
+                                                        }>
                                                         Reset to default
                                                     </Button>
                                                 </div>
@@ -495,7 +586,7 @@ function CustomPromptsContent() {
                                 </FormControl.Helper>
                                 <FormControl.Input>
                                     <Controller
-                                        name="v2PromptOverrides.severity.flags.high"
+                                        name="v2PromptOverrides.severity.flags.high.value"
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
@@ -524,13 +615,16 @@ function CustomPromptsContent() {
 
                             <FormControl.Root>
                                 <div className="flex items-center justify-between gap-3">
-                                    <FormControl.Label
-                                        className="mb-0"
-                                        htmlFor="v2PromptOverrides.severity.flags.medium">
-                                        Medium
-                                    </FormControl.Label>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.severity.flags.medium.value">
+                                            Medium
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.severity.flags.medium" />
+                                    </div>
                                     <Controller
-                                        name="v2PromptOverrides.severity.flags.medium"
+                                        name="v2PromptOverrides.severity.flags.medium.value"
                                         control={form.control}
                                         render={({ field }) => {
                                             const def =
@@ -543,7 +637,9 @@ function CustomPromptsContent() {
                                                     <Badge
                                                         variant="secondary"
                                                         className="h-6 min-h-auto px-2.5">
-                                                        {isDefault ? "Default" : "Custom"}
+                                                        {isDefault
+                                                            ? "Default"
+                                                            : "Custom"}
                                                     </Badge>
                                                     <Button
                                                         size="sm"
@@ -567,7 +663,7 @@ function CustomPromptsContent() {
                                 </FormControl.Helper>
                                 <FormControl.Input>
                                     <Controller
-                                        name="v2PromptOverrides.severity.flags.medium"
+                                        name="v2PromptOverrides.severity.flags.medium.value"
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
@@ -596,13 +692,16 @@ function CustomPromptsContent() {
 
                             <FormControl.Root>
                                 <div className="flex items-center justify-between gap-3">
-                                    <FormControl.Label
-                                        className="mb-0"
-                                        htmlFor="v2PromptOverrides.severity.flags.low">
-                                        Low
-                                    </FormControl.Label>
+                                    <div className="mb-2 flex flex-row items-center gap-2">
+                                        <FormControl.Label
+                                            className="mb-0"
+                                            htmlFor="v2PromptOverrides.severity.flags.low.value">
+                                            Low
+                                        </FormControl.Label>
+                                        <OverrideIndicatorForm fieldName="v2PromptOverrides.severity.flags.low" />
+                                    </div>
                                     <Controller
-                                        name="v2PromptOverrides.severity.flags.low"
+                                        name="v2PromptOverrides.severity.flags.low.value"
                                         control={form.control}
                                         render={({ field }) => {
                                             const def =
@@ -615,7 +714,9 @@ function CustomPromptsContent() {
                                                     <Badge
                                                         variant="secondary"
                                                         className="h-6 min-h-auto px-2.5">
-                                                        {isDefault ? "Default" : "Custom"}
+                                                        {isDefault
+                                                            ? "Default"
+                                                            : "Custom"}
                                                     </Badge>
                                                     <Button
                                                         size="sm"
@@ -639,7 +740,7 @@ function CustomPromptsContent() {
                                 </FormControl.Helper>
                                 <FormControl.Input>
                                     <Controller
-                                        name="v2PromptOverrides.severity.flags.low"
+                                        name="v2PromptOverrides.severity.flags.low.value"
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
@@ -669,7 +770,7 @@ function CustomPromptsContent() {
                     </CardContent>
                 </Card>
             </Page.Content>
-            </Page.Root>
+        </Page.Root>
     );
 }
 

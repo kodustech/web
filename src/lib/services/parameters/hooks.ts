@@ -1,6 +1,11 @@
+import { CustomMessageConfig } from "@services/pull-request-messages/types";
 import { UseMutationResult } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import type { AutomationCodeReviewConfigType } from "src/app/(app)/settings/code-review/_types";
+import type {
+    AutomationCodeReviewConfigType,
+    CodeReviewGlobalConfig,
+    FormattedGlobalCodeReviewConfig,
+} from "src/app/(app)/settings/code-review/_types";
 import { useFetch, usePost, useSuspenseFetch } from "src/core/utils/reactQuery";
 
 import { PARAMETERS_PATHS } from ".";
@@ -54,6 +59,38 @@ export const useSuspenseGetCodeReviewParameter = (teamId: string) => {
     );
 };
 
+export const useSuspenseGetFormattedCodeReviewParameter = (teamId: string) => {
+    return useSuspenseFetch<{
+        uuid: string;
+        configKey: ParametersConfigKey.CODE_REVIEW_CONFIG;
+        configValue: FormattedGlobalCodeReviewConfig;
+    }>(
+        PARAMETERS_PATHS.GET_CODE_REVIEW_PARAMETER,
+        {
+            params: {
+                teamId,
+            },
+        },
+        {
+            fallbackData: {
+                uuid: "",
+                configKey: ParametersConfigKey.CODE_REVIEW_CONFIG,
+                configValue: {
+                    repositories: [],
+                } as unknown as FormattedGlobalCodeReviewConfig,
+            },
+        },
+    );
+};
+
+export const useSuspenseGetDefaultCodeReviewParameter = () => {
+    return useSuspenseFetch<
+        CodeReviewGlobalConfig & {
+            customMessages: CustomMessageConfig;
+        }
+    >(PARAMETERS_PATHS.DEFAULT_CODE_REVIEW_PARAMETER);
+};
+
 export const useSuspenseGetCodeReviewLabels = (codeReviewVersion?: string) => {
     // Always send the parameter, even for legacy to be explicit
     const params = { codeReviewVersion: codeReviewVersion || "v2" };
@@ -89,7 +126,8 @@ export const useGetCodeReviewLabels = (codeReviewVersion?: string) => {
                 const data = value?.data;
                 if (Array.isArray(data)) return data as Label[];
                 if (Array.isArray(data?.labels)) return data.labels as Label[];
-                if (Array.isArray(value?.labels)) return value.labels as Label[];
+                if (Array.isArray(value?.labels))
+                    return value.labels as Label[];
                 return [] as Label[];
             },
         },
@@ -99,17 +137,13 @@ export const useGetCodeReviewLabels = (codeReviewVersion?: string) => {
 export const useGetAllCodeReviewLabels = () => {
     type Label = { type: string; name: string; description: string };
 
-    const v1Labels = useFetch<
-        Array<Label>
-    >(
+    const v1Labels = useFetch<Array<Label>>(
         PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS,
         { params: { codeReviewVersion: "legacy" } },
         true,
     );
 
-    const v2Labels = useFetch<
-        Array<Label>
-    >(
+    const v2Labels = useFetch<Array<Label>>(
         PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS,
         { params: { codeReviewVersion: "v2" } },
         true,
@@ -123,8 +157,8 @@ export const useGetAllCodeReviewLabels = () => {
         const data = (value as any)?.data;
         if (Array.isArray(data)) return data as Label[];
         if (Array.isArray(data?.labels)) return data.labels as Label[];
-        if (Array.isArray((value as any)?.labels)) return (value as any)
-            .labels as Label[];
+        if (Array.isArray((value as any)?.labels))
+            return (value as any).labels as Label[];
         return [];
     };
 

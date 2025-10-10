@@ -1,6 +1,13 @@
 import { decodeJwt, decodeProtectedHeader } from "jose";
 import type { JWT } from "next-auth/jwt";
-import { CodeReviewRepositoryConfig } from "src/app/(app)/settings/code-review/_types";
+import {
+    CodeReviewGlobalConfig,
+    CodeReviewRepositoryConfig,
+    FormattedCodeReviewConfig,
+    FormattedConfig,
+    FormattedGlobalCodeReviewConfig,
+    IFormattedConfigProperty,
+} from "src/app/(app)/settings/code-review/_types";
 import invariant from "tiny-invariant";
 
 import { type ApiRoute } from "../config/constants";
@@ -154,12 +161,10 @@ export const formatPeriodLabel = (period: string): string => {
 };
 
 export const codeReviewConfigRemovePropertiesNotInType = (
-    config: Partial<CodeReviewRepositoryConfig>,
+    config: Partial<CodeReviewGlobalConfig>,
 ) => {
-    const newConfig: Partial<CodeReviewRepositoryConfig> = {};
-    const expectedKeys: LiteralUnion<keyof CodeReviewRepositoryConfig>[] = [
-        "id",
-        "name",
+    const newConfig: Partial<CodeReviewGlobalConfig> = {};
+    const expectedKeys: LiteralUnion<keyof CodeReviewGlobalConfig>[] = [
         "path",
         "automatedReviewActive",
         "reviewCadence",
@@ -193,3 +198,25 @@ export const codeReviewConfigRemovePropertiesNotInType = (
 // Used for tests, it simulates waiting for an specified amount of milliseconds
 export const waitFor = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
+
+export const unformatConfig = <T>(node: FormattedConfig<T>): T => {
+    const unformattedConfig: Partial<T> = {};
+
+    (Object.keys(node) as (keyof T)[]).forEach((key) => {
+        const property = node[key];
+
+        if (property && typeof property === "object" && "value" in property) {
+            unformattedConfig[key] = property.value;
+        } else if (property && typeof property === "object") {
+            // Nested object, recurse
+            unformattedConfig[key] = unformatConfig(
+                property as unknown as FormattedConfig<any>,
+            ) as any;
+        } else {
+            // Primitive value, assign directly
+            (unformattedConfig as any)[key] = property;
+        }
+    });
+
+    return unformattedConfig as T;
+};

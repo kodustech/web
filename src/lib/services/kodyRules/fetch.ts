@@ -135,11 +135,9 @@ export const getInheritedKodyRules = async (params: {
     directoryId?: string;
 }) => {
     const rules = await authorizedFetch<{
-        allRules: KodyRule[];
         globalRules: KodyRule[];
         repoRules: KodyRule[];
         directoryRules: KodyRule[];
-        excludedRules: KodyRule[];
     }>(KODY_RULES_PATHS.GET_INHERITED_RULES, { params });
     return rules;
 };

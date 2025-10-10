@@ -8,6 +8,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import type { SeverityLevel } from "src/core/types";
 import { cn } from "src/core/utils/components";
 
+import { OverrideIndicatorForm } from "../../../_components/override";
 import type { CodeReviewFormType } from "../../../_types";
 import { SeverityLevelsExplanationModal } from "./security-levels-explanation-modal";
 
@@ -24,21 +25,27 @@ export const MinimumSeverityLevel = () => {
     return (
         <div className="flex flex-col gap-3">
             <Controller
-                name="suggestionControl.severityLevelFilter"
+                name="suggestionControl.severityLevelFilter.value"
                 control={form.control}
                 render={({ field, fieldState }) => {
                     const labels = Object.values(
                         severityLevelFilterOptions,
                     ).map((option) => option.label);
                     const severityLevel =
-                        severityLevelFilterOptions[field.value];
+                        severityLevelFilterOptions[field.value!];
                     const numberValue = severityLevel?.value;
 
                     return (
                         <div className="mt-6">
-                            <Heading variant="h2">
-                                Minimum severity level
-                            </Heading>
+                            <div className="mb-2 flex flex-row items-center gap-2">
+                                <Heading variant="h2">
+                                    Minimum severity level
+                                </Heading>
+                                <OverrideIndicatorForm
+                                    fieldName="suggestionControl.severityLevelFilter"
+                                    className="mb-2"
+                                />
+                            </div>
                             <small className="text-text-secondary text-sm">
                                 Select the minimum severity level for Kody to
                                 post code review suggestions
@@ -93,14 +100,6 @@ export const MinimumSeverityLevel = () => {
                 }}
             />
 
-            <Button
-                size="sm"
-                variant="secondary"
-                leftIcon={<InfoIcon />}
-                className="mt-4"
-                onClick={() => magicModal.show(SeverityLevelsExplanationModal)}>
-                Learn about severity levels
-            </Button>
         </div>
     );
 };

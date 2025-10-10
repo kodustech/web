@@ -5,6 +5,7 @@ import { CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { Switch } from "@components/ui/switch";
 import { Controller, useFormContext } from "react-hook-form";
+import { OverrideIndicatorForm } from "src/app/(app)/settings/code-review/_components/override";
 
 import type { CodeReviewFormType } from "../../../_types";
 import {
@@ -19,13 +20,13 @@ export const CodeReviewVersionSelector = () => {
 
     return (
         <Controller
-            name="codeReviewVersion"
+            name="codeReviewVersion.value"
             control={form.control}
-            defaultValue={config?.codeReviewVersion ?? "legacy"}
+            defaultValue={config?.codeReviewVersion?.value}
             render={({ field }) => {
                 const shouldHideToggle =
-                    fullConfig?.showToggleCodeReviewVersion === false &&
-                    config?.codeReviewVersion === "v2";
+                    fullConfig.configs?.showToggleCodeReviewVersion === false && // TODO: remove this flag when we launch v2
+                    config?.codeReviewVersion?.value === "v2";
 
                 if (shouldHideToggle) {
                     return <></>;
@@ -47,6 +48,8 @@ export const CodeReviewVersionSelector = () => {
                                 <Heading variant="h3">
                                     Enable New Review Engine
                                 </Heading>
+
+                                <OverrideIndicatorForm fieldName="codeReviewVersion" />
 
                                 <p className="text-text-secondary text-sm">
                                     When enabled, reviews highlight only

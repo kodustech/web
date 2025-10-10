@@ -15,6 +15,7 @@ import { Save } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { SeverityLevel } from "src/core/types";
+import { unformatConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import GeneratingConfig from "../../_components/generating-config";
@@ -40,59 +41,43 @@ export default function SuggestionControl(
     const { teamId } = useSelectedTeamId();
     const platformConfig = usePlatformConfig();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
-    const limitationType = form.watch("suggestionControl.limitationType");
+    const limitationType = form.watch("suggestionControl.limitationType.value");
 
     const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
 
     const handleSubmit = form.handleSubmit(async (config) => {
         try {
-            // lidando com configs legadas
-            const {
-                limitationType: legacyLimitationType,
-                maxSuggestions: legacyMaxSuggestions,
-                severityLevelFilter: legacySeverityLevelFilter,
-                suggestionControl,
-                ...rest
-            } = config as any;
-
-            // Se já existir suggestionControl, usamos ele; se não, usamos os valores legados
-            const normalizedSuggestionControl = suggestionControl || {
-                groupingMode: GroupingModeSuggestions.FULL, // ou outro valor padrão
-                limitationType: legacyLimitationType || LimitationType.PR,
-                maxSuggestions: legacyMaxSuggestions || 9,
-                severityLevelFilter:
-                    legacySeverityLevelFilter || SeverityLevel.MEDIUM,
-                applyFiltersToKodyRules: false,
-                severityLimits: {
-                    low: 0,
-                    medium: 0,
-                    high: 0,
-                    critical: 0,
-                },
-            };
-
-            const finalConfig = {
-                ...rest,
-                suggestionControl: normalizedSuggestionControl,
-            };
+            const unformattedConfig = unformatConfig(config);
 
             await createOrUpdateCodeReviewParameter(
-                finalConfig,
+                unformattedConfig,
                 teamId,
                 repositoryId,
                 directoryId,
             );
 
-            await resetQueries({
-                queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
-                    params: {
-                        key: ParametersConfigKey.CODE_REVIEW_CONFIG,
-                        teamId,
-                    },
+            await Promise.all([
+                resetQueries({
+                    queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
+                        params: {
+                            key: ParametersConfigKey.CODE_REVIEW_CONFIG,
+                            teamId,
+                        },
+                    }),
                 }),
-            });
+                resetQueries({
+                    queryKey: generateQueryKey(
+                        PARAMETERS_PATHS.GET_CODE_REVIEW_PARAMETER,
+                        {
+                            params: {
+                                teamId,
+                            },
+                        },
+                    ),
+                }),
+            ]);
 
-            form.reset(finalConfig);
+            form.reset();
 
             toast({
                 description: "Settings saved",

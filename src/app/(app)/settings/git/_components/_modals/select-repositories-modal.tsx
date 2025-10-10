@@ -116,7 +116,16 @@ export const SelectRepositoriesModal = (props: {
                     },
                 }),
             }),
-
+            resetQueries({
+                queryKey: generateQueryKey(
+                    PARAMETERS_PATHS.GET_CODE_REVIEW_PARAMETER,
+                    {
+                        params: {
+                            teamId,
+                        },
+                    },
+                ),
+            }),
             invalidateQueries({
                 type: "all",
                 queryKey: generateQueryKey(

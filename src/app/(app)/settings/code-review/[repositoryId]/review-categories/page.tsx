@@ -13,6 +13,7 @@ import {
 import { SaveIcon } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { unformatConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import GeneratingConfig from "../../_components/generating-config";
@@ -30,9 +31,13 @@ export default function ReviewCategories() {
     const { resetQueries, generateQueryKey } = useReactQueryInvalidateQueries();
 
     const handleSubmit = form.handleSubmit(async (formData) => {
+        const { language, ...config } = formData;
+
+        const unformattedConfig = unformatConfig(config);
+
         try {
             const result = await createOrUpdateCodeReviewParameter(
-                formData,
+                unformattedConfig,
                 teamId,
                 repositoryId,
                 directoryId,
@@ -42,14 +47,26 @@ export default function ReviewCategories() {
                 throw new Error(`Failed to save settings: ${result.error}`);
             }
 
-            await resetQueries({
-                queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
-                    params: {
-                        key: ParametersConfigKey.CODE_REVIEW_CONFIG,
-                        teamId,
-                    },
+            await Promise.all([
+                resetQueries({
+                    queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
+                        params: {
+                            key: ParametersConfigKey.CODE_REVIEW_CONFIG,
+                            teamId,
+                        },
+                    }),
                 }),
-            });
+                resetQueries({
+                    queryKey: generateQueryKey(
+                        PARAMETERS_PATHS.GET_CODE_REVIEW_PARAMETER,
+                        {
+                            params: {
+                                teamId,
+                            },
+                        },
+                    ),
+                }),
+            ]);
 
             form.reset(formData);
 

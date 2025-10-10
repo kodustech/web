@@ -8,23 +8,19 @@ import {
     DropdownMenuContent,
     DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
+import { CustomMessageConfig } from "@services/pull-request-messages/types";
 import { ChevronDownIcon } from "lucide-react";
 
+import { FormattedConfig } from "../../../_types";
 import { dropdownItems, VARIABLE_REGEX } from "./options";
 
 export const CustomMessagesOptionsDropdown = (props: {
-    value: {
-        content: string;
-        status: "active" | "inactive";
-    };
-    onChange: (value: {
-        content: string;
-        status: "active" | "inactive";
-    }) => void;
+    value: FormattedConfig<CustomMessageConfig["startReviewMessage"]>;
+    onChange: (value: CustomMessageConfig["startReviewMessage"]) => void;
     canEdit: boolean;
 }) => {
     const allVariablesRegexSearch = useMemo(
-        () => [...props.value.content.matchAll(VARIABLE_REGEX)],
+        () => [...props.value.content.value.matchAll(VARIABLE_REGEX)],
         [props.value.content],
     );
 
@@ -32,7 +28,9 @@ export const CustomMessagesOptionsDropdown = (props: {
         <DropdownMenu>
             <DropdownMenuTrigger
                 asChild
-                disabled={!props.canEdit || props.value.status === "inactive"}>
+                disabled={
+                    !props.canEdit || props.value.status.value === "inactive"
+                }>
                 <Button
                     size="xs"
                     variant="helper"
@@ -52,15 +50,15 @@ export const CustomMessagesOptionsDropdown = (props: {
                         onCheckedChange={(checked) => {
                             if (checked) {
                                 props.onChange({
-                                    status: props.value.status,
-                                    content: props.value.content
+                                    status: props.value.status.value,
+                                    content: props.value.content.value
                                         .concat(`\n\n\@${key}`)
                                         .trim(),
                                 });
                             } else {
                                 props.onChange({
-                                    status: props.value.status,
-                                    content: props.value.content
+                                    status: props.value.status.value,
+                                    content: props.value.content.value
                                         .replace(VARIABLE_REGEX, (match, p1) =>
                                             p1 === key ? "" : match,
                                         )

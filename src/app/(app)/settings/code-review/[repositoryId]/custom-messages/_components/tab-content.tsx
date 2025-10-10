@@ -7,28 +7,24 @@ import { Label } from "@components/ui/label";
 import { Markdown } from "@components/ui/markdown";
 import { Switch } from "@components/ui/switch";
 import { Textarea } from "@components/ui/textarea";
+import { CustomMessageConfig } from "@services/pull-request-messages/types";
 import { RuleType } from "markdown-to-jsx";
+import { useDefaultCodeReviewConfig } from "src/app/(app)/settings/_components/context";
 
+import { OverrideIndicator } from "../../../_components/override";
+import { FormattedConfig } from "../../../_types";
 import { CustomMessagesOptionsDropdown } from "./dropdown";
-import {
-    DEFAULT_END_REVIEW_MESSAGE,
-    DEFAULT_START_REVIEW_MESSAGE,
-    dropdownItems,
-    VARIABLE_REGEX,
-} from "./options";
+import { dropdownItems, VARIABLE_REGEX } from "./options";
 
 export const TabContent = (props: {
     type: "startReviewMessage" | "endReviewMessage";
-    value: {
-        content: string;
-        status: "active" | "inactive";
-    };
-    onChangeAction: (value: {
-        content: string;
-        status: "active" | "inactive";
-    }) => void;
+    value: FormattedConfig<CustomMessageConfig["startReviewMessage"]>;
+    initialState: FormattedConfig<CustomMessageConfig["startReviewMessage"]>;
+    onChangeAction: (value: CustomMessageConfig["startReviewMessage"]) => void;
     canEdit: boolean;
 }) => {
+    const defaults = useDefaultCodeReviewConfig()?.customMessages;
+
     return (
         <div className="flex flex-1 flex-col gap-4">
             <Button
@@ -38,9 +34,9 @@ export const TabContent = (props: {
                 disabled={!props.canEdit}
                 onClick={() =>
                     props.onChangeAction({
-                        content: props.value.content,
+                        content: props.value.content.value,
                         status:
-                            props.value.status === "active"
+                            props.value.status.value === "active"
                                 ? "inactive"
                                 : "active",
                     })
@@ -54,8 +50,12 @@ export const TabContent = (props: {
                                 : "End"}{" "}
                             Review message
                         </Heading>
+                        <OverrideIndicator
+                            currentValue={props.value.status.value}
+                            initialState={props.initialState.status}
+                        />
                         <p className="text-text-secondary">
-                            If disabled, Kody won’t send any message at the{" "}
+                            If disabled, Kody won't send any message at the{" "}
                             {props.type === "startReviewMessage"
                                 ? "start"
                                 : "end"}{" "}
@@ -64,7 +64,7 @@ export const TabContent = (props: {
                     </div>
                     <Switch
                         decorative
-                        checked={props.value.status === "active"}
+                        checked={props.value.status.value === "active"}
                     />
                 </CardHeader>
             </Button>
@@ -79,23 +79,28 @@ export const TabContent = (props: {
                             onChange={props.onChangeAction}
                             canEdit={props.canEdit}
                         />
+
+                        <OverrideIndicator
+                            currentValue={props.value.content.value}
+                            initialState={props.initialState.content}
+                        />
                     </div>
 
                     <Card color="lv3" className="flex-1 rounded-r-none">
                         <CardHeader className="h-full p-0 *:h-full">
                             <Textarea
-                                value={props.value.content}
+                                value={props.value.content.value}
                                 id="custom-message"
                                 placeholder="Write your custom message here..."
                                 className="h-full resize-none rounded-none bg-transparent p-6"
                                 disabled={
                                     !props.canEdit ||
-                                    props.value.status === "inactive"
+                                    props.value.status.value === "inactive"
                                 }
                                 onChange={(ev) =>
                                     props.onChangeAction({
                                         content: ev.target.value,
-                                        status: props.value.status,
+                                        status: props.value.status.value,
                                     })
                                 }
                             />
@@ -114,11 +119,13 @@ export const TabContent = (props: {
                             disabled={!props.canEdit}
                             onClick={() => {
                                 props.onChangeAction({
-                                    status: props.value.status,
+                                    status: props.value.status.value,
                                     content:
                                         props.type === "startReviewMessage"
-                                            ? DEFAULT_START_REVIEW_MESSAGE
-                                            : DEFAULT_END_REVIEW_MESSAGE,
+                                            ? defaults?.startReviewMessage
+                                                  ?.content || ""
+                                            : defaults?.endReviewMessage
+                                                  ?.content || "",
                                 });
                             }}>
                             Reset to default message
@@ -158,11 +165,12 @@ export const TabContent = (props: {
                                         return next();
                                     },
                                 }}>
-                                {props.value.content}
+                                {props.value.content.value}
                             </Markdown>
 
                             <div className="flex h-full items-center justify-center">
-                                {props.value.content.trim().length === 0 && (
+                                {props.value.content.value.trim().length ===
+                                    0 && (
                                     <p className="text-text-secondary text-sm">
                                         No content to preview
                                     </p>
