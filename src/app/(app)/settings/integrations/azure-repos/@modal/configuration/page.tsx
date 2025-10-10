@@ -122,6 +122,27 @@ export default function AzureRepos() {
 
         await updateCodeReviewParameterRepositories(teamId);
 
+        await Promise.all([
+            invalidateQueries({
+                queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
+                    params: {
+                        key: ParametersConfigKey.CODE_REVIEW_CONFIG,
+                        teamId,
+                    },
+                }),
+            }),
+            invalidateQueries({
+                queryKey: generateQueryKey(
+                    PARAMETERS_PATHS.GET_CODE_REVIEW_PARAMETER,
+                    {
+                        params: {
+                            teamId,
+                        },
+                    },
+                ),
+            }),
+        ]);
+
         toast({
             variant: "success",
             title: "Repositories saved",

@@ -32,6 +32,7 @@ import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { IntegrationCategory } from "src/core/types";
 import { captureSegmentEvent } from "src/core/utils/segment";
+import { PARAMETERS_PATHS } from "@services/parameters";
 
 export default function Github() {
     const router = useRouter();
@@ -121,6 +122,27 @@ export default function Github() {
         }
 
         await updateCodeReviewParameterRepositories(teamId);
+
+        await Promise.all([
+            invalidateQueries({
+                queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
+                    params: {
+                        key: ParametersConfigKey.CODE_REVIEW_CONFIG,
+                        teamId,
+                    },
+                }),
+            }),
+            invalidateQueries({
+                queryKey: generateQueryKey(
+                    PARAMETERS_PATHS.GET_CODE_REVIEW_PARAMETER,
+                    {
+                        params: {
+                            teamId,
+                        },
+                    },
+                ),
+            }),
+        ]);
 
         toast({
             variant: "success",

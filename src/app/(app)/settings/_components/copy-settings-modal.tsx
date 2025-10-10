@@ -89,14 +89,26 @@ export const AddRepoModal = ({
             values.targetDirectoryPath,
         );
 
-        await resetQueries({
-            queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
-                params: {
-                    key: ParametersConfigKey.CODE_REVIEW_CONFIG,
-                    teamId,
-                },
+        await Promise.all([
+            resetQueries({
+                queryKey: generateQueryKey(PARAMETERS_PATHS.GET_BY_KEY, {
+                    params: {
+                        key: ParametersConfigKey.CODE_REVIEW_CONFIG,
+                        teamId,
+                    },
+                }),
             }),
-        });
+            resetQueries({
+                queryKey: generateQueryKey(
+                    PARAMETERS_PATHS.GET_CODE_REVIEW_PARAMETER,
+                    {
+                        params: {
+                            teamId,
+                        },
+                    },
+                ),
+            }),
+        ]);
 
         magicModal.hide(true);
     });
@@ -105,7 +117,7 @@ export const AddRepoModal = ({
         <Dialog open onOpenChange={() => magicModal.hide()}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Copy repository settings</DialogTitle>
+                    <DialogTitle>Create repository settings</DialogTitle>
                 </DialogHeader>
 
                 <Controller
@@ -232,7 +244,7 @@ export const AddRepoModal = ({
                         leftIcon={<CopyPlusIcon />}
                         disabled={!formState.isValid}
                         loading={formState.isSubmitting}>
-                        Copy settings
+                        Create settings
                     </Button>
                 </DialogFooter>
             </DialogContent>
