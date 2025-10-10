@@ -209,9 +209,9 @@ function CustomPromptsContent() {
             <Page.Content className="gap-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Generation Prompts</CardTitle>
+                        <CardTitle>Suggestion Prompts</CardTitle>
                         <CardDescription>
-                            Customize the style in which Kody describes issues.
+                            Define how kody writes suggestions comments.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -222,7 +222,7 @@ function CustomPromptsContent() {
                                         <FormControl.Label
                                             className="mb-0"
                                             htmlFor="v2PromptOverrides.generation.main.value">
-                                            Main Prompt
+                                            Base instruction
                                         </FormControl.Label>
                                         <OverrideIndicatorForm fieldName="v2PromptOverrides.generation.main" />
                                     </div>
@@ -263,8 +263,7 @@ function CustomPromptsContent() {
                                     />
                                 </div>
                                 <FormControl.Helper className="mb-3">
-                                    Main prompt used for code generation (max
-                                    2000).
+                                    Used for all suggestions (max 2000).
                                 </FormControl.Helper>
                                 <FormControl.Input>
                                     <Controller
