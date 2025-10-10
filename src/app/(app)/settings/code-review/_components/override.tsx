@@ -61,7 +61,10 @@ export const OverrideIndicator = <T,>({
         return null;
     }
 
-    const inheritedLevel = initialState?.overriddenLevel ?? initialState?.level;
+    const inheritedLevel =
+        initialState?.overriddenLevel && currentLevel === initialState?.level
+            ? initialState.overriddenLevel
+            : initialState?.level || initialState?.overriddenLevel;
 
     // Verifica se existe um override estrutural na config
     const hasStructuralOverride =
