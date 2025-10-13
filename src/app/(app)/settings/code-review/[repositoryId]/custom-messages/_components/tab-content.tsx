@@ -1,6 +1,12 @@
 "use client";
 
 import { Button } from "@components/ui/button";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@components/ui/dropdown-menu";
 import { Card, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { Label } from "@components/ui/label";
@@ -10,10 +16,13 @@ import { Textarea } from "@components/ui/textarea";
 import { CustomMessageConfig } from "@services/pull-request-messages/types";
 import { RuleType } from "markdown-to-jsx";
 import { useDefaultCodeReviewConfig } from "src/app/(app)/settings/_components/context";
+import { useCurrentConfigLevel } from "src/app/(app)/settings/_hooks";
+import { FormattedConfigLevel } from "../../../_types";
 
 import { OverrideIndicator } from "../../../_components/override";
 import { FormattedConfig } from "../../../_types";
 import { CustomMessagesOptionsDropdown } from "./dropdown";
+import { ChevronDownIcon } from "lucide-react";
 import { dropdownItems, VARIABLE_REGEX } from "./options";
 
 export const TabContent = (props: {
@@ -24,6 +33,17 @@ export const TabContent = (props: {
     canEdit: boolean;
 }) => {
     const defaults = useDefaultCodeReviewConfig()?.customMessages;
+    const currentLevel = useCurrentConfigLevel();
+    const hasParent = currentLevel !== FormattedConfigLevel.GLOBAL;
+
+    const inheritedContentTarget = hasParent
+        ? props.initialState.content.overriddenValue
+        : undefined;
+
+    const defaultContentTarget =
+        props.type === "startReviewMessage"
+            ? defaults?.startReviewMessage?.content ?? ""
+            : defaults?.endReviewMessage?.content ?? "";
 
     return (
         <div className="flex flex-1 flex-col gap-4">
@@ -112,24 +132,65 @@ export const TabContent = (props: {
                     <div className="flex h-7 items-center justify-between">
                         <Label>Preview</Label>
 
-                        <Button
-                            size="xs"
-                            variant="cancel"
-                            className="text-tertiary-light min-h-auto self-end"
-                            disabled={!props.canEdit}
-                            onClick={() => {
-                                props.onChangeAction({
-                                    status: props.value.status.value,
-                                    content:
-                                        props.type === "startReviewMessage"
-                                            ? defaults?.startReviewMessage
-                                                  ?.content || ""
-                                            : defaults?.endReviewMessage
-                                                  ?.content || "",
-                                });
-                            }}>
-                            Reset to default message
-                        </Button>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    size="xs"
+                                    variant="cancel"
+                                    rightIcon={<ChevronDownIcon className="-mr-1" />}
+                                    className="text-tertiary-light min-h-auto self-end"
+                                    disabled={!props.canEdit}>
+                                    Reset to…
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem
+                                    disabled={
+                                        !props.canEdit ||
+                                        !hasParent ||
+                                        inheritedContentTarget === undefined ||
+                                        props.value.content.value ===
+                                            inheritedContentTarget
+                                    }
+                                    onClick={() => {
+                                        if (
+                                            !hasParent ||
+                                            inheritedContentTarget === undefined
+                                        )
+                                            return;
+                                        props.onChangeAction({
+                                            status: props.value.status.value,
+                                            content: inheritedContentTarget,
+                                        });
+                                    }}>
+                                    <div>
+                                        Inherited message
+                                        <p className="text-text-tertiary text-xs">
+                                            Restore content from parent scope
+                                        </p>
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem
+                                    disabled={
+                                        !props.canEdit ||
+                                        props.value.content.value ===
+                                            defaultContentTarget
+                                    }
+                                    onClick={() => {
+                                        props.onChangeAction({
+                                            status: props.value.status.value,
+                                            content: defaultContentTarget,
+                                        });
+                                    }}>
+                                    <div>
+                                        Default message
+                                        <p className="text-text-tertiary text-xs">
+                                            Restore platform default content
+                                        </p>
+                                    </div>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </div>
 
                     <Card className="flex-1 rounded-l-none">
