@@ -18,6 +18,7 @@ import { RuleType } from "markdown-to-jsx";
 import { useDefaultCodeReviewConfig } from "src/app/(app)/settings/_components/context";
 import { useCurrentConfigLevel } from "src/app/(app)/settings/_hooks";
 import { FormattedConfigLevel } from "../../../_types";
+import { useSuspenseParentPullRequestMessages } from "@services/pull-request-messages/hooks";
 
 import { OverrideIndicator } from "../../../_components/override";
 import { FormattedConfig } from "../../../_types";
@@ -35,15 +36,20 @@ export const TabContent = (props: {
     const defaults = useDefaultCodeReviewConfig()?.customMessages;
     const currentLevel = useCurrentConfigLevel();
     const hasParent = currentLevel !== FormattedConfigLevel.GLOBAL;
-
+    const isGlobalScope = currentLevel === FormattedConfigLevel.GLOBAL;
+    const parentMessages = useSuspenseParentPullRequestMessages();
     const inheritedContentTarget = hasParent
-        ? props.initialState.content.overriddenValue
+        ? (props.type === "startReviewMessage"
+              ? parentMessages.startReviewMessage.content.value
+              : parentMessages.endReviewMessage.content.value)
         : undefined;
 
     const defaultContentTarget =
         props.type === "startReviewMessage"
             ? defaults?.startReviewMessage?.content ?? ""
             : defaults?.endReviewMessage?.content ?? "";
+
+    const currentContent = props.value.content.value ?? "";
 
     return (
         <div className="flex flex-1 flex-col gap-4">
@@ -144,51 +150,53 @@ export const TabContent = (props: {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                    disabled={
-                                        !props.canEdit ||
-                                        !hasParent ||
-                                        inheritedContentTarget === undefined ||
-                                        props.value.content.value ===
-                                            inheritedContentTarget
-                                    }
-                                    onClick={() => {
-                                        if (
-                                            !hasParent ||
-                                            inheritedContentTarget === undefined
-                                        )
-                                            return;
-                                        props.onChangeAction({
-                                            status: props.value.status.value,
-                                            content: inheritedContentTarget,
-                                        });
-                                    }}>
-                                    <div>
-                                        Inherited message
-                                        <p className="text-text-tertiary text-xs">
-                                            Restore content from parent scope
-                                        </p>
-                                    </div>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem
-                                    disabled={
-                                        !props.canEdit ||
-                                        props.value.content.value ===
-                                            defaultContentTarget
-                                    }
-                                    onClick={() => {
-                                        props.onChangeAction({
-                                            status: props.value.status.value,
-                                            content: defaultContentTarget,
-                                        });
-                                    }}>
-                                    <div>
-                                        Default message
-                                        <p className="text-text-tertiary text-xs">
-                                            Restore platform default content
-                                        </p>
-                                    </div>
-                                </DropdownMenuItem>
+                                {hasParent && (
+                                    <DropdownMenuItem
+                                        disabled={
+                                            !props.canEdit ||
+                                            inheritedContentTarget === undefined ||
+                                            currentContent.trim() ===
+                                                (inheritedContentTarget || "")
+                                                    .trim()
+                                        }
+                                        onClick={() => {
+                                            if (inheritedContentTarget === undefined)
+                                                return;
+                                            props.onChangeAction({
+                                                status: props.value.status.value,
+                                                content: inheritedContentTarget,
+                                            });
+                                        }}>
+                                        <div>
+                                            Inherited message
+                                            <p className="text-text-tertiary text-xs">
+                                                Restore content from parent scope
+                                            </p>
+                                        </div>
+                                    </DropdownMenuItem>
+                                )}
+                                {isGlobalScope && (
+                                    <DropdownMenuItem
+                                        disabled={
+                                            !props.canEdit ||
+                                            currentContent.trim() ===
+                                                (defaultContentTarget || "")
+                                                    .trim()
+                                        }
+                                        onClick={() => {
+                                            props.onChangeAction({
+                                                status: props.value.status.value,
+                                                content: defaultContentTarget,
+                                            });
+                                        }}>
+                                        <div>
+                                            Default message
+                                            <p className="text-text-tertiary text-xs">
+                                                Restore platform default content
+                                            </p>
+                                        </div>
+                                    </DropdownMenuItem>
+                                )}
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
