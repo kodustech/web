@@ -34,7 +34,7 @@ export const useSuspensePullRequestMessages = () => {
                     },
                     status: {
                         level: FormattedConfigLevel.DEFAULT,
-                        value: defaults?.startReviewMessage.status ?? "active",
+                        value: defaults?.startReviewMessage?.status ?? "active",
                     },
                 },
                 endReviewMessage: {
