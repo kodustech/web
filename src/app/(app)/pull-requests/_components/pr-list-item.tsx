@@ -75,6 +75,19 @@ const getTimelineStatusColor = (status: string) => {
 export const PrListItem = ({ pr }: PrListItemProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const prUrl = buildPullRequestUrl(pr);
+    const automationOrigin = pr.automationExecution?.origin || "";
+
+    const getOriginLabel = (origin: string) => {
+        const o = origin?.toLowerCase?.() || "";
+        if (o === "system") return "Automatic";
+        if (o === "command") return "User Command";
+        return origin;
+    };
+
+    const isAutomationStartMessage = (message: string) => {
+        const m = message?.toLowerCase?.() || "";
+        return m.includes("automation") && m.includes("start");
+    };
 
     return (
         <Fragment>
@@ -189,6 +202,26 @@ export const PrListItem = ({ pr }: PrListItemProps) => {
                                                     item.status,
                                                     false,
                                                 )}
+                                                {automationOrigin &&
+                                                    isAutomationStartMessage(
+                                                        item.message,
+                                                    ) && (
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <span className="text-text-secondary whitespace-nowrap text-xs">
+                                                                    · {getOriginLabel(
+                                                                        automationOrigin,
+                                                                    )}
+                                                                </span>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent className="text-xs">
+                                                                {automationOrigin?.toLowerCase?.() ===
+                                                                "system"
+                                                                    ? "Triggered automatically by system"
+                                                                    : "Triggered by user command"}
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                    )}
                                             </div>
                                             <span className="text-muted-foreground text-xs">
                                                 {formatTimeAgo(item.createdAt)}
