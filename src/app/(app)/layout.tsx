@@ -8,6 +8,7 @@ import { getTeamParameters } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { getPermissions } from "@services/permissions/fetch";
 import { getTeams } from "@services/teams/fetch";
+import { getDailyTokenUsage } from "@services/usage/fetch";
 import { auth } from "src/core/config/auth";
 import { NavMenu } from "src/core/layout/navbar";
 import { TEAM_STATUS } from "src/core/types";
@@ -80,6 +81,8 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         getBYOK(),
     ]);
 
+    const isBYOK = isBYOKSubscriptionPlan(organizationLicense);
+
     return (
         <Providers
             session={session}
@@ -88,7 +91,8 @@ export default async function Layout({ children }: React.PropsWithChildren) {
                 id: organizationId,
                 name: organizationName,
             }}
-            permissions={permissions}>
+            permissions={permissions}
+            isBYOK={isBYOK}>
             <SubscriptionProvider
                 license={organizationLicense}
                 usersWithAssignedLicense={usersWithAssignedLicense}>
@@ -100,8 +104,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
                 <FinishedTrialModal />
                 <SubscriptionStatusTopbar />
 
-                {isBYOKSubscriptionPlan(organizationLicense) &&
-                    !byokConfig?.main && <BYOKMissingKeyTopbar />}
+                {isBYOK && !byokConfig?.main && <BYOKMissingKeyTopbar />}
 
                 {children}
             </SubscriptionProvider>

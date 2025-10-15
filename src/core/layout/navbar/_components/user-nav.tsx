@@ -5,7 +5,13 @@ import { toast } from "@components/ui/toaster/use-toast";
 import { UserRole } from "@enums";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
-import { ActivityIcon, LogOutIcon, SettingsIcon, UserIcon } from "lucide-react";
+import {
+    ActivityIcon,
+    ChartColumn,
+    LogOutIcon,
+    SettingsIcon,
+    UserIcon,
+} from "lucide-react";
 import { Avatar, AvatarFallback } from "src/core/components/ui/avatar";
 import { Button } from "src/core/components/ui/button";
 import {
@@ -20,6 +26,7 @@ import {
 } from "src/core/components/ui/dropdown-menu";
 import { useAllTeams } from "src/core/providers/all-teams-context";
 import { useAuth } from "src/core/providers/auth.provider";
+import { useIsBYOK } from "src/core/providers/byok.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { TEAM_STATUS, type AwaitedReturnType } from "src/core/types";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
@@ -29,7 +36,7 @@ export function UserNav({
 }: {
     logsPagesFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
 }) {
-    const { email, role } = useAuth();
+    const { email } = useAuth();
     const { teams } = useAllTeams();
     const { teamId, setTeamId } = useSelectedTeamId();
     const canEditOrg = usePermission(
@@ -37,6 +44,7 @@ export function UserNav({
         ResourceType.OrganizationSettings,
     );
     const canReadLogs = usePermission(Action.Read, ResourceType.Logs);
+    const isByok = useIsBYOK();
 
     const handleChangeWorkspace = (teamId: string) => {
         setTeamId(teamId);
@@ -110,6 +118,14 @@ export function UserNav({
                     <Link href="/user-logs">
                         <DropdownMenuItem leftIcon={<ActivityIcon />}>
                             Activity Logs
+                        </DropdownMenuItem>
+                    </Link>
+                )}
+
+                {isByok && canReadLogs && (
+                    <Link href="/token-usage">
+                        <DropdownMenuItem leftIcon={<ChartColumn />}>
+                            Token Usage
                         </DropdownMenuItem>
                     </Link>
                 )}
