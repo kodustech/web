@@ -57,4 +57,10 @@ export const CODE_MANAGEMENT_API_PATHS = {
     ),
 } as const;
 
+export type RepositoryUploadResult = {
+    success: number;
+    failed: number;
+    errors: string[];
+};
+
 export const AZURE_REPOS_API_PATHS = {} as const;
