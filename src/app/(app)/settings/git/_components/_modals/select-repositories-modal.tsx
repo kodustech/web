@@ -18,7 +18,7 @@ import { MagicModalContext } from "@components/ui/magic-modal";
 import { toast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
-import { createOrUpdateRepositories } from "@services/codeManagement/fetch";
+import { createOrUpdateRepositoriesInChunks } from "@services/codeManagement/fetch";
 import type { Repository } from "@services/codeManagement/types";
 import { INTEGRATION_CONFIG } from "@services/integrations/integrationConfig";
 import { PARAMETERS_PATHS } from "@services/parameters";
@@ -46,6 +46,7 @@ export const SelectRepositoriesModal = (props: {
         useReactQueryInvalidateQueries();
 
     const [isLoadingRepositories, setIsLoadingRepositories] = useState(true);
+    const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
 
     const [open, setOpen] = useState(false);
     const [selectedRepositories, setSelectedRepositories] = useState<
@@ -56,7 +57,11 @@ export const SelectRepositoriesModal = (props: {
         saveSelectedRepositoriesAction,
         { loading: loadingSaveRepositories },
     ] = useAsyncAction(async () => {
-        await createOrUpdateRepositories(selectedRepositories, teamId);
+        const result = await createOrUpdateRepositoriesInChunks(
+            selectedRepositories,
+            teamId,
+            (current, total) => setUploadProgress({ current, total })
+        );
 
         const codeReview: {
             configKey: string;
@@ -102,10 +107,18 @@ export const SelectRepositoriesModal = (props: {
 
         await updateCodeReviewParameterRepositories(teamId);
 
-        toast({
-            variant: "success",
-            title: "Repositories saved",
-        });
+        if (result.failed > 0) {
+            toast({
+                variant: "warning",
+                title: `${result.success} repositories saved, ${result.failed} failed`,
+                description: "Some repositories could not be saved. Try again."
+            });
+        } else {
+            toast({
+                variant: "success",
+                title: "Repositories saved",
+            });
+        }
 
         await Promise.all([
             resetQueries({
@@ -150,6 +163,7 @@ export const SelectRepositoriesModal = (props: {
             },
         });
 
+        setUploadProgress({ current: 0, total: 0 });
         router.push("/settings/git");
     });
 
@@ -209,7 +223,10 @@ export const SelectRepositoriesModal = (props: {
                                 selectedRepositories.length === 0 ||
                                 isLoadingRepositories
                             }>
-                            Edit repositories
+                            {uploadProgress.total > 0 
+                                ? `Saving... ${uploadProgress.current}/${uploadProgress.total}`
+                                : "Edit repositories"
+                            }
                         </Button>
                     </DialogFooter>
                 </DialogContent>
