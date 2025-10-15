@@ -19,8 +19,6 @@ interface PrDataTableProps {
 }
 
 export const PrDataTable = ({ data, loading }: PrDataTableProps) => {
-    console.log(data);
-
     if (loading) {
         return (
             <div className="flex items-center justify-center py-12">
