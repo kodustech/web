@@ -24,6 +24,7 @@ export type KodyRule = {
         exclude?: string[];
         include?: string[];
     };
+    syncError?: string;
 };
 
 export type KodyRuleWithInheritanceDetails = KodyRule & {

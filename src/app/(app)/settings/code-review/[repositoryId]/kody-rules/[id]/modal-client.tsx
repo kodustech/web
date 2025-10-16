@@ -1,7 +1,9 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { KODY_RULES_PATHS } from "@services/kodyRules";
+import { useSuspenseKodyRulesByRepositoryId } from "@services/kodyRules/hooks";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { useQueryClient } from "@tanstack/react-query";
@@ -23,6 +25,24 @@ export function KodyRuleModalClient({
     const router = useRouter();
     const config = useFullCodeReviewConfig();
     const queryClient = useQueryClient();
+    const scopeRules = useSuspenseKodyRulesByRepositoryId(
+        repositoryId,
+        directoryId,
+    );
+    const [hydratedRule, setHydratedRule] = useState<KodyRule>(rule);
+
+    useEffect(() => {
+        setHydratedRule(rule);
+    }, [rule]);
+
+    useEffect(() => {
+        const match = scopeRules.find(
+            (currentRule) => currentRule.uuid === rule.uuid,
+        );
+        if (match) {
+            setHydratedRule(match);
+        }
+    }, [scopeRules, rule.uuid]);
     const canEdit = usePermission(
         Action.Update,
         ResourceType.CodeReviewSettings,
@@ -51,7 +71,7 @@ export function KodyRuleModalClient({
 
     return (
         <KodyRuleAddOrUpdateItemModal
-            rule={rule}
+            rule={hydratedRule}
             onClose={handleClose}
             directory={directory}
             repositoryId={repositoryId}
