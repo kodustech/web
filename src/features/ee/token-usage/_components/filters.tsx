@@ -12,11 +12,21 @@ import {
 } from "@components/ui/select";
 import { useDebounce } from "@hooks/use-debounce";
 
-export const Filters = () => {
+import { BYOKConfig } from "../../byok/_types";
+
+export const Filters = ({
+    byok,
+}: {
+    byok: {
+        main: BYOKConfig;
+        fallback?: BYOKConfig;
+    };
+}) => {
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const currentFilter = searchParams.get("filter") ?? "daily";
+    const currentModel = searchParams.get("model") ?? "all";
 
     const [prNumber, setPrNumber] = useState(
         searchParams.get("prNumber") ?? "",
@@ -31,12 +41,34 @@ export const Filters = () => {
     const handleFilterChange = (value: string) => {
         const params = new URLSearchParams(searchParams);
         params.set("filter", value);
-        if (value !== "by-pr" && value !== "daily-by-pr") {
+        if (value !== "by-pr") {
             params.delete("prNumber");
         }
-        if (value !== "by-developer" && value !== "daily-by-developer") {
+        if (value !== "by-developer") {
             params.delete("developer");
         }
+        router.replace(`${pathname}?${params.toString()}`);
+    };
+
+    const handleModelChange = (value: string) => {
+        const params = new URLSearchParams(searchParams);
+
+        switch (value) {
+            case "all":
+                params.delete("model");
+                break;
+            case "main":
+                params.set("model", byok.main.model);
+                break;
+            case "fallback":
+                if (byok.fallback) {
+                    params.set("model", byok.fallback.model);
+                }
+                break;
+            default:
+                params.set("model", value);
+        }
+
         router.replace(`${pathname}?${params.toString()}`);
     };
 
@@ -74,6 +106,25 @@ export const Filters = () => {
 
     return (
         <div className="flex gap-4">
+            {byok.fallback && (
+                <Select
+                    onValueChange={handleModelChange}
+                    defaultValue={currentModel}>
+                    <SelectTrigger className="w-[200px]">
+                        <SelectValue placeholder="Model" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All models</SelectItem>
+                        <SelectItem value="main">
+                            Main ({byok.main.model})
+                        </SelectItem>
+                        <SelectItem value="fallback">
+                            Fallback ({byok.fallback.model})
+                        </SelectItem>
+                    </SelectContent>
+                </Select>
+            )}
+
             <Select
                 onValueChange={handleFilterChange}
                 defaultValue={currentFilter}>
@@ -83,14 +134,10 @@ export const Filters = () => {
                 <SelectContent>
                     <SelectItem value="daily">Daily</SelectItem>
                     <SelectItem value="by-pr">By PR</SelectItem>
-                    <SelectItem value="daily-by-pr">Daily by PR</SelectItem>
                     <SelectItem value="by-developer">By Developer</SelectItem>
-                    <SelectItem value="daily-by-developer">
-                        Daily by Developer
-                    </SelectItem>
                 </SelectContent>
             </Select>
-            {currentFilter === "daily-by-pr" && (
+            {currentFilter === "by-pr" && (
                 <Input
                     type="number"
                     placeholder="PR Number"
@@ -99,7 +146,7 @@ export const Filters = () => {
                     className="w-[150px]"
                 />
             )}
-            {currentFilter === "daily-by-developer" && (
+            {currentFilter === "by-developer" && (
                 <Input
                     type="text"
                     placeholder="Developer"

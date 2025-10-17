@@ -7,4 +7,5 @@ export const TOKEN_USAGE_PATHS = {
     GET_DAILY_BY_PR: pathToApiUrl("/usage/tokens/daily-by-pr"),
     GET_BY_DEVELOPER: pathToApiUrl("/usage/tokens/by-developer"),
     GET_DAILY_BY_DEVELOPER: pathToApiUrl("/usage/tokens/daily-by-developer"),
+    GET_TOKEN_PRICING: pathToApiUrl("/usage/tokens/pricing"),
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useMemo } from "react";
 import useResizeObserver from "@hooks/use-resize-observer";
 import { DailyUsageResultContract } from "@services/usage/types";
 import { ExpandableContext } from "src/core/providers/expandable";
@@ -33,13 +33,10 @@ export const Chart = ({
 }) => {
     const [graphRef, boundingRect] = useResizeObserver();
     const { isExpanded } = use(ExpandableContext);
-    const isTiltedDate = data?.length > 6 && !isExpanded;
 
     const getXAccessor = () => {
         switch (filterType) {
             case "daily":
-            case "daily-by-pr":
-            case "daily-by-developer":
                 return "date";
             case "by-pr":
                 return "prNumber";
@@ -52,25 +49,46 @@ export const Chart = ({
 
     const xAccessor = getXAccessor();
 
+    const transformedData = useMemo(() => {
+        const merged: Record<string, any> = {};
+        data.forEach((d) => {
+            const key =
+                filterType === "by-pr"
+                    ? `#${d[xAccessor]}`
+                    : String(d[xAccessor]);
+
+            if (!merged[key]) {
+                merged[key] = {
+                    ...d,
+                    [xAccessor]: key,
+                    input: d.input || 0,
+                    output: d.output || 0,
+                    outputReasoning: d.outputReasoning || 0,
+                };
+            } else {
+                merged[key].input += d.input || 0;
+                merged[key].output += d.output || 0;
+                merged[key].outputReasoning += d.outputReasoning || 0;
+            }
+        });
+
+        return Object.values(merged);
+    }, [data, filterType, xAccessor]);
+
+    const isTiltedDate = transformedData?.length > 6 && !isExpanded;
+
     const getTickFormat = (x: any) => {
-        if (
-            ["daily", "daily-by-pr", "daily-by-developer"].includes(filterType)
-        ) {
+        if (filterType === "daily") {
             return new Date(x).toLocaleDateString();
         }
         return x;
     };
 
-    const getTickValues = () => {
-        if (data.length <= 7) {
-            return data.map((d) => d[xAccessor]);
-        }
-
-        // Show max 7 ticks
-        const interval = Math.ceil(data.length / 7);
-        return data
-            .filter((_, index) => index % interval === 0)
-            .map((d) => d[xAccessor]);
+    const formatTicks = (t: number) => {
+        if (t === 0) return "0";
+        if (t < 1000) return t.toString();
+        if (t < 1000000) return `${(t / 1000).toPrecision(3)}k`;
+        return `${(t / 1000000).toPrecision(3)}M`;
     };
 
     return (
@@ -89,7 +107,6 @@ export const Chart = ({
                 containerComponent={<VictoryContainer responsive={false} />}>
                 <VictoryAxis
                     tickFormat={getTickFormat}
-                    tickValues={getTickValues()}
                     style={{
                         tickLabels: {
                             fontSize: 10,
@@ -102,7 +119,7 @@ export const Chart = ({
                         },
                     }}
                 />
-                <VictoryAxis dependentAxis tickFormat={(t) => `${t / 1000}k`} />
+                <VictoryAxis dependentAxis tickFormat={formatTicks} />
                 <VictoryLegend
                     x={boundingRect.width / 2 - 150}
                     y={-5}
@@ -123,7 +140,7 @@ export const Chart = ({
                         },
                     }}>
                     <VictoryBar
-                        data={data.map((d) => ({
+                        data={transformedData.map((d) => ({
                             x: d[xAccessor],
                             y: d.input,
                         }))}
@@ -136,7 +153,7 @@ export const Chart = ({
                         labelComponent={<VictoryTooltip />}
                     />
                     <VictoryBar
-                        data={data.map((d) => ({
+                        data={transformedData.map((d) => ({
                             x: d[xAccessor],
                             y: d.output,
                         }))}
@@ -149,7 +166,7 @@ export const Chart = ({
                         labelComponent={<VictoryTooltip />}
                     />
                     <VictoryBar
-                        data={data.map((d) => ({
+                        data={transformedData.map((d) => ({
                             x: d[xAccessor],
                             y: d.outputReasoning,
                         }))}

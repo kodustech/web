@@ -6,6 +6,7 @@ import {
     DailyUsageByDeveloperResultContract,
     DailyUsageByPrResultContract,
     DailyUsageResultContract,
+    ModelPricingInfo,
     TokenUsageQueryContract,
     UsageByDeveloperResultContract,
     UsageByPrResultContract,
@@ -70,6 +71,15 @@ export const getDailyTokenUsageByDeveloper = async (
         TOKEN_USAGE_PATHS.GET_DAILY_BY_DEVELOPER,
         {
             params: { ...filters },
+        },
+    );
+};
+
+export const getTokenPricing = async (provider: string, model: string) => {
+    return await authorizedFetch<ModelPricingInfo>(
+        TOKEN_USAGE_PATHS.GET_TOKEN_PRICING,
+        {
+            params: { provider, model },
         },
     );
 };

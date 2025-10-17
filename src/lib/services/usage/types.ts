@@ -11,6 +11,7 @@ export interface BaseUsageContract {
     output: number;
     total: number;
     outputReasoning: number;
+    model: string;
 }
 
 export type UsageSummaryContract = BaseUsageContract;
@@ -35,3 +36,12 @@ export interface DailyUsageByDeveloperResultContract
     extends UsageByDeveloperResultContract {
     date: string; // YYYY-MM-DD
 }
+
+export type ModelPricingInfo = {
+    id: string;
+    pricing: {
+        prompt: number;
+        completion: number;
+        internal_reasoning: number;
+    };
+};

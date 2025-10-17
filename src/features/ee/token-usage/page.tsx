@@ -1,15 +1,22 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Page } from "@components/ui/page";
+import { getBYOK } from "@services/organizationParameters/fetch";
 import { getOrganizationId } from "@services/organizations/fetch";
 import {
     getDailyTokenUsage,
     getDailyTokenUsageByDeveloper,
     getDailyTokenUsageByPR,
+    getTokenPricing,
     getTokenUsageByDeveloper,
     getTokenUsageByPR,
 } from "@services/usage/fetch";
-import { DailyUsageResultContract } from "@services/usage/types";
+import {
+    DailyUsageByDeveloperResultContract,
+    DailyUsageResultContract,
+    UsageByDeveloperResultContract,
+    UsageByPrResultContract,
+} from "@services/usage/types";
 import { formatISO, subDays } from "date-fns";
 import { CookieName } from "src/core/utils/cookie";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
@@ -24,10 +31,15 @@ export default async function TokenUsagePage({
 }: {
     searchParams: { [key: string]: string | string[] | undefined };
 }) {
+    const params = await searchParams;
     const teamId = await getGlobalSelectedTeamId();
     const subscription = await validateOrganizationLicense({ teamId });
 
     if (!isBYOKSubscriptionPlan(subscription)) redirect("/settings");
+
+    const byok = await getBYOK();
+
+    if (!byok || !byok.main) redirect("/settings");
 
     const cookieStore = await cookies();
 
@@ -40,14 +52,13 @@ export default async function TokenUsagePage({
         organizationId,
         startDate: selectedDateRange.startDate,
         endDate: selectedDateRange.endDate,
-        prNumber: searchParams.prNumber
-            ? Number(searchParams.prNumber)
-            : undefined,
-        developer: searchParams.developer,
+        prNumber: params.prNumber ? Number(params.prNumber) : undefined,
+        developer: params.developer,
+        model: params.model,
     };
 
     let data: any[] = [];
-    const filterType = searchParams.filter ?? "daily";
+    const filterType = params.filter ?? "daily";
 
     switch (filterType) {
         case "daily":
@@ -56,18 +67,19 @@ export default async function TokenUsagePage({
         case "by-pr":
             data = await getTokenUsageByPR(filters);
             break;
-        case "daily-by-pr":
-            data = await getDailyTokenUsageByPR(filters);
-            break;
         case "by-developer":
             data = await getTokenUsageByDeveloper(filters);
-            break;
-        case "daily-by-developer":
-            data = await getDailyTokenUsageByDeveloper(filters);
             break;
         default:
             data = await getDailyTokenUsage(filters);
     }
+
+    const [mainPricing, fallbackPricing] = await Promise.all([
+        getTokenPricing(byok.main.provider, byok.main.model),
+        byok.fallback
+            ? getTokenPricing(byok.fallback.provider, byok.fallback.model)
+            : undefined,
+    ]);
 
     const dateRangeCookieValue = cookieStore.get(
         "cockpit-selected-date-range" satisfies CookieName,
@@ -82,6 +94,11 @@ export default async function TokenUsagePage({
                 <TokenUsagePageClient
                     data={data}
                     cookieValue={dateRangeCookieValue}
+                    byok={byok}
+                    pricing={{
+                        main: mainPricing,
+                        fallback: fallbackPricing,
+                    }}
                 />
             </Page.Content>
         </Page.Root>
