@@ -38,10 +38,6 @@ export const TokenPricingModal = ({
 }) => {
     const [localPrices, setLocalPrices] = useState(pricing);
 
-    useEffect(() => {
-        setLocalPrices(pricing);
-    }, [pricing]);
-
     const handleApplyChange = () => {
         if (!localPrices) return;
 
