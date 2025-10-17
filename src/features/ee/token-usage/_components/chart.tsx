@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useMemo } from "react";
+import { use, useEffect, useMemo, useState } from "react";
 import useResizeObserver from "@hooks/use-resize-observer";
 import { DailyUsageResultContract } from "@services/usage/types";
 import { ExpandableContext } from "src/core/providers/expandable";
@@ -33,6 +33,11 @@ export const Chart = ({
 }) => {
     const [graphRef, boundingRect] = useResizeObserver();
     const { isExpanded } = use(ExpandableContext);
+    const [isMounted, setIsMounted] = useState(false);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const getXAccessor = () => {
         switch (filterType) {
@@ -90,6 +95,10 @@ export const Chart = ({
         if (t < 1000000) return `${(t / 1000).toPrecision(3)}k`;
         return `${(t / 1000000).toPrecision(3)}M`;
     };
+
+    if (!isMounted) {
+        return <div ref={graphRef} className="h-full w-full" />;
+    }
 
     return (
         <div ref={graphRef} className="h-full w-full">
