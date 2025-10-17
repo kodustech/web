@@ -3,7 +3,7 @@
 import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level-badge";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
-import { Card, CardContent, CardHeader } from "@components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { Link } from "@components/ui/link";
 import { magicModal } from "@components/ui/magic-modal";
@@ -14,10 +14,11 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@components/ui/tooltip";
+import { Callout } from "@radix-ui/themes";
 import type { KodyRuleWithInheritanceDetails } from "@services/kodyRules/types";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
-import { EditIcon, EyeIcon, TrashIcon } from "lucide-react";
+import { EditIcon, EyeIcon, InfoIcon, TrashIcon } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
 import { addSearchParamsToUrl } from "src/core/utils/url";
@@ -47,6 +48,8 @@ export const KodyRuleItem = ({
 
     const isInherited = !!rule.inherited;
     const isExcluded = isInherited && !!rule.excluded;
+
+    console.log(rule);
 
     return (
         <Card>
@@ -222,6 +225,16 @@ export const KodyRuleItem = ({
                             </Section.Content>
                         </Section.Root>
                     </CardHeader>
+                    <CardFooter>
+                        {rule.syncError && (
+                            <div className="text-text-secondary flex w-full items-center gap-2 rounded-lg bg-red-500/10 p-2 text-sm">
+                                <InfoIcon className="size-4 flex-shrink-0" />
+                                <span className="text-text-secondary text-xs">
+                                    {rule.syncError}
+                                </span>
+                            </div>
+                        )}
+                    </CardFooter>
                 </Card>
             </CardContent>
         </Card>

@@ -37,6 +37,7 @@ import {
     CheckIcon,
     HelpCircle,
     Info,
+    InfoIcon,
     PlusIcon,
     SaveIcon,
     XIcon,
@@ -139,9 +140,9 @@ export const KodyRuleAddOrUpdateItemModal = ({
                 initialScope === "pull-request"
                     ? ""
                     : rule
-                        ? !directory
-                            ? rule.path
-                            : (() => {
+                      ? !directory
+                          ? rule.path
+                          : (() => {
                                 const pathWithoutDirectory =
                                     getKodyRulePathWithoutDirectoryPath({
                                         directory,
@@ -152,9 +153,9 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                     DEFAULT_PATH_FOR_DIRECTORIES
                                 );
                             })()
-                        : directory
-                            ? DEFAULT_PATH_FOR_DIRECTORIES
-                            : "",
+                      : directory
+                        ? DEFAULT_PATH_FOR_DIRECTORIES
+                        : "",
             rule: rule?.rule ?? "",
             title: rule?.title ?? "",
             severity: rule?.severity ?? "high",
@@ -286,6 +287,8 @@ export const KodyRuleAddOrUpdateItemModal = ({
             magicModal.unlock();
         }
     };
+
+    console.log(rule);
 
     let title = "Add new rule";
     if (isInherited) {
@@ -638,14 +641,14 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                 error={fieldState.error}
                                                 className={cn(
                                                     directory &&
-                                                    !isInherited &&
-                                                    watchScope === "file" &&
-                                                    "rounded-l-none",
+                                                        !isInherited &&
+                                                        watchScope === "file" &&
+                                                        "rounded-l-none",
                                                 )}
                                                 disabled={
                                                     field.disabled ||
                                                     watchScope ===
-                                                    "pull-request"
+                                                        "pull-request"
                                                 }
                                                 onChange={(e) =>
                                                     field.onChange(
@@ -758,6 +761,15 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                         <FormControl.Error>
                                             {fieldState.error?.message}
                                         </FormControl.Error>
+
+                                        {rule?.syncError && (
+                                            <div className="text-text-secondary mt-2 flex w-full items-center gap-2 rounded-lg bg-red-500/10 p-2 text-sm">
+                                                <InfoIcon className="size-4 flex-shrink-0" />
+                                                <span className="text-text-secondary text-xs">
+                                                    {rule.syncError}
+                                                </span>
+                                            </div>
+                                        )}
                                     </div>
                                 </FormControl.Input>
                             </div>
