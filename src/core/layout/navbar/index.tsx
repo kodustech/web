@@ -51,6 +51,7 @@ export const NavMenu = ({
     issuesPageFeatureFlag,
     logsPagesFeatureFlag,
     pullRequestsPageFeatureFlag,
+    tokenUsagePageFeatureFlag,
 }: {
     issuesPageFeatureFlag: Awaited<
         ReturnType<typeof getFeatureFlagWithPayload>
@@ -59,6 +60,7 @@ export const NavMenu = ({
     pullRequestsPageFeatureFlag: AwaitedReturnType<
         typeof getFeatureFlagWithPayload
     >;
+    tokenUsagePageFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
 }) => {
     const pathname = usePathname();
     const subscription = useSubscriptionStatus();
@@ -143,6 +145,7 @@ export const NavMenu = ({
         issuesPageFeatureFlag?.value,
         logsPagesFeatureFlag?.value,
         pullRequestsPageFeatureFlag?.value,
+        tokenUsagePageFeatureFlag?.value,
     ]);
 
     const isActive = (route: string) => pathname.startsWith(route);
@@ -194,7 +197,7 @@ export const NavMenu = ({
                 </div>
 
                 <Suspense>
-                    <UserNav logsPagesFeatureFlag={logsPagesFeatureFlag} />
+                    <UserNav logsPagesFeatureFlag={logsPagesFeatureFlag} tokenUsagePageFeatureFlag={tokenUsagePageFeatureFlag} />
                 </Suspense>
             </div>
         </div>

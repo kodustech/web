@@ -69,6 +69,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         issuesPageFeatureFlag,
         logsPagesFeatureFlag,
         pullRequestsPageFeatureFlag,
+        tokenUsagePageFeatureFlag,
         byokConfig,
     ] = await Promise.all([
         getPermissions(),
@@ -78,6 +79,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         getFeatureFlagWithPayload({ feature: "issues-page" }),
         getFeatureFlagWithPayload({ feature: "logs-pages" }),
         getFeatureFlagWithPayload({ feature: "pull-requests-pages" }),
+        getFeatureFlagWithPayload({ feature: "token-usage-page" }),
         getBYOK(),
     ]);
 
@@ -100,6 +102,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
                     issuesPageFeatureFlag={issuesPageFeatureFlag}
                     logsPagesFeatureFlag={logsPagesFeatureFlag}
                     pullRequestsPageFeatureFlag={pullRequestsPageFeatureFlag}
+                    tokenUsagePageFeatureFlag={tokenUsagePageFeatureFlag}
                 />
                 <FinishedTrialModal />
                 <SubscriptionStatusTopbar />

@@ -1,23 +1,14 @@
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Page } from "@components/ui/page";
 import { getBYOK } from "@services/organizationParameters/fetch";
 import { getOrganizationId } from "@services/organizations/fetch";
 import {
     getDailyTokenUsage,
-    getDailyTokenUsageByDeveloper,
-    getDailyTokenUsageByPR,
     getTokenPricing,
     getTokenUsageByDeveloper,
     getTokenUsageByPR,
 } from "@services/usage/fetch";
-import {
-    DailyUsageByDeveloperResultContract,
-    DailyUsageResultContract,
-    UsageByDeveloperResultContract,
-    UsageByPrResultContract,
-} from "@services/usage/types";
-import { formatISO, subDays } from "date-fns";
 import { CookieName } from "src/core/utils/cookie";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
@@ -25,21 +16,34 @@ import { getSelectedDateRange } from "src/features/ee/cockpit/_helpers/get-selec
 import { validateOrganizationLicense } from "src/features/ee/subscription/_services/billing/fetch";
 
 import { TokenUsagePageClient } from "./_components/page.client";
+import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
 export default async function TokenUsagePage({
     searchParams,
 }: {
     searchParams: { [key: string]: string | string[] | undefined };
 }) {
+    const logsPagesFeatureFlag = await getFeatureFlagWithPayload({
+        feature: "token-usage-page",
+    });
+
+    if (!logsPagesFeatureFlag?.value) {
+        notFound();
+    }
+
     const params = await searchParams;
     const teamId = await getGlobalSelectedTeamId();
     const subscription = await validateOrganizationLicense({ teamId });
 
-    if (!isBYOKSubscriptionPlan(subscription)) redirect("/settings");
+    if (!isBYOKSubscriptionPlan(subscription)) {
+        redirect("/settings");
+    }
 
     const byok = await getBYOK();
 
-    if (!byok || !byok.main) redirect("/settings");
+    if (!byok || !byok.main) {
+        redirect("/settings");
+    }
 
     const cookieStore = await cookies();
 

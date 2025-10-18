@@ -7,7 +7,10 @@ export default async function UserLogsPage() {
     const logsPagesFeatureFlag = await getFeatureFlagWithPayload({
         feature: "logs-pages",
     });
-    if (!logsPagesFeatureFlag?.value) notFound();
+
+    if (!logsPagesFeatureFlag?.value) {
+        notFound();
+    }
 
     return <UserLogsPageClient />;
 }
