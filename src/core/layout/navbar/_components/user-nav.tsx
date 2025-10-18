@@ -33,8 +33,10 @@ import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-si
 
 export function UserNav({
     logsPagesFeatureFlag,
+    tokenUsagePageFeatureFlag,
 }: {
     logsPagesFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
+    tokenUsagePageFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
 }) {
     const { email } = useAuth();
     const { teams } = useAllTeams();
@@ -122,7 +124,7 @@ export function UserNav({
                     </Link>
                 )}
 
-                {isByok && canReadLogs && (
+                {isByok && tokenUsagePageFeatureFlag?.value && canReadLogs && (
                     <Link href="/token-usage">
                         <DropdownMenuItem leftIcon={<ChartColumn />}>
                             Token Usage
