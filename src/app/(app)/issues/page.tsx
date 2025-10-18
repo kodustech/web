@@ -12,6 +12,7 @@ import { filterArray, type FilterValueGroup } from "src/core/utils/filtering";
 import { hasPermission } from "src/core/utils/permissions";
 
 import { IssuesDataTable } from "./_components/data-table";
+import { IssueCreationToggle } from "./_components/issue-creation-toggle";
 import { IssuesFilters } from "./_components/filters";
 import { IssueDetailsRightSheet } from "./_components/issue-details-right-sheet";
 import { DEFAULT_FILTERS, getFiltersInLocalStorage } from "./_constants";
@@ -129,6 +130,8 @@ export default function IssuesPage() {
                         )}
                     </div>
                 </div>
+
+                <IssueCreationToggle />
             </Page.Header>
 
             {/* 'overflow-auto' is required to virtualizing table */}
