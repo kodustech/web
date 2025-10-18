@@ -44,3 +44,9 @@ export type IssueItem = {
         name: string;
     };
 };
+
+export type IssueCreationConfigResponse = {
+    uuid: string;
+    configKey: string;
+    configValue: boolean | { enabled: boolean };
+};

@@ -3,6 +3,7 @@ export enum ParametersConfigKey {
     PLATFORM_CONFIGS = "platform_configs",
     LANGUAGE_CONFIG = "language_config",
     CODE_REVIEW_CONFIG = "code_review_config",
+    ISSUE_CREATION_CONFIG = "issue_creation_config",
 }
 
 export enum OrganizationParametersConfigKey {

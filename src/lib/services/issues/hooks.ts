@@ -1,8 +1,14 @@
+import { PARAMETERS_PATHS } from "@services/parameters";
+import { ParametersConfigKey } from "@services/parameters/types";
 import { pathToApiUrl } from "src/core/utils/helpers";
 import { useFetch, useSuspenseFetch } from "src/core/utils/reactQuery";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
-import type { IssueItem, IssueListItem } from "./types";
+import type {
+    IssueCreationConfigResponse,
+    IssueItem,
+    IssueListItem,
+} from "./types";
 
 export const useIssues = () => {
     const { organizationId } = useOrganizationContext();
@@ -42,3 +48,21 @@ export const useIssue = (
 
 export const useSuspenseIssuesCount = () =>
     useSuspenseFetch<number>(pathToApiUrl("/issues/count"));
+
+export const useIssueCreationConfig = (teamId: string | undefined) => {
+    return useFetch<IssueCreationConfigResponse>(
+        PARAMETERS_PATHS.GET_BY_KEY,
+        teamId
+            ? {
+                  params: {
+                      key: ParametersConfigKey.ISSUE_CREATION_CONFIG,
+                      teamId,
+                  },
+              }
+            : undefined,
+        Boolean(teamId),
+        {
+            retry: false,
+        },
+    );
+};
