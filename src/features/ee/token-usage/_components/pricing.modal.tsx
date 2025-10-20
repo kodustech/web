@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@components/ui/button";
 import {
     Card,
@@ -21,55 +21,40 @@ import { magicModal } from "@components/ui/magic-modal";
 import { ContinuousSlider } from "@components/ui/slider";
 import { ModelPricingInfo } from "@services/usage/types";
 
-const M = 1_000_000;
+import { M } from "../_lib/constants";
 
 export const TokenPricingModal = ({
     pricing,
     onPricingChange,
 }: {
-    pricing: {
-        main: ModelPricingInfo;
-        fallback?: ModelPricingInfo;
-    };
-    onPricingChange: (newPricing: {
-        main: ModelPricingInfo;
-        fallback?: ModelPricingInfo;
-    }) => void;
+    pricing: Record<string, ModelPricingInfo>;
+    onPricingChange: (newPricing: Record<string, ModelPricingInfo>) => void;
 }) => {
     const [localPrices, setLocalPrices] = useState(pricing);
 
     const handleApplyChange = () => {
-        if (!localPrices) return;
-
         onPricingChange(localPrices);
         magicModal.hide();
     };
 
     const handleSliderChange = (
+        model: string,
         type: keyof ModelPricingInfo["pricing"],
         value: number,
-        isFallback = false,
     ) => {
-        const modelKey = isFallback ? "fallback" : "main";
-        setLocalPrices((prev) => {
-            if (!prev) return prev;
-            const currentModel = prev[modelKey];
-            if (!currentModel) return prev;
-
-            return {
-                ...prev,
-                [modelKey]: {
-                    ...currentModel,
-                    pricing: {
-                        ...currentModel.pricing,
-                        [type]: value,
-                    },
+        setLocalPrices((prev) => ({
+            ...prev,
+            [model]: {
+                ...prev[model],
+                pricing: {
+                    ...prev[model].pricing,
+                    [type]: value,
                 },
-            };
-        });
+            },
+        }));
     };
 
-    if (!localPrices?.main?.pricing) {
+    if (!localPrices) {
         return null;
     }
 
@@ -83,270 +68,69 @@ export const TokenPricingModal = ({
                     </DialogDescription>
                 </DialogHeader>
                 <div className="max-h-[80vh] space-y-6 overflow-y-auto py-4">
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Main</CardTitle>
-                            <CardDescription>
-                                Model ID: {pricing.main.id}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid gap-4">
-                                <div className="grid gap-2">
-                                    <Label>Prompt Token Price ($/1M)</Label>
-                                    <div className="flex items-center gap-4">
-                                        <ContinuousSlider
-                                            min={0}
-                                            max={50}
-                                            step={0.01}
-                                            value={
-                                                localPrices.main.pricing
-                                                    .prompt * M
-                                            }
-                                            onValueChange={(val) =>
-                                                handleSliderChange(
-                                                    "prompt",
-                                                    val / M,
-                                                )
-                                            }
-                                        />
-                                        <Input
-                                            type="number"
-                                            className="w-24"
-                                            value={(
-                                                localPrices.main.pricing
-                                                    .prompt * M
-                                            ).toFixed(2)}
-                                            onChange={(e) =>
-                                                handleSliderChange(
-                                                    "prompt",
-                                                    parseFloat(e.target.value) /
-                                                        M || 0,
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                                <div className="grid gap-2">
-                                    <Label>Completion Token Price ($/1M)</Label>
-                                    <div className="flex items-center gap-4">
-                                        <ContinuousSlider
-                                            min={0}
-                                            max={50}
-                                            step={0.01}
-                                            value={
-                                                localPrices.main.pricing
-                                                    .completion * M
-                                            }
-                                            onValueChange={(val) =>
-                                                handleSliderChange(
-                                                    "completion",
-                                                    val / M,
-                                                )
-                                            }
-                                        />
-                                        <Input
-                                            type="number"
-                                            className="w-24"
-                                            value={(
-                                                localPrices.main.pricing
-                                                    .completion * M
-                                            ).toFixed(2)}
-                                            onChange={(e) =>
-                                                handleSliderChange(
-                                                    "completion",
-                                                    parseFloat(e.target.value) /
-                                                        M || 0,
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                </div>
+                    {Object.entries(localPrices).map(
+                        ([model, modelPricing]) => {
+                            if (!modelPricing || !modelPricing.pricing) {
+                                return null;
+                            }
 
-                                <div className="grid gap-2">
-                                    <Label>
-                                        Internal Reasoning Token Price ($/1M)
-                                    </Label>
-                                    <div className="flex items-center gap-4">
-                                        <ContinuousSlider
-                                            min={0}
-                                            max={50}
-                                            step={0.01}
-                                            value={
-                                                localPrices.main.pricing
-                                                    .internal_reasoning * M
-                                            }
-                                            onValueChange={(val) =>
-                                                handleSliderChange(
-                                                    "internal_reasoning",
-                                                    val / M,
-                                                )
-                                            }
-                                        />
-                                        <Input
-                                            type="number"
-                                            className="w-24"
-                                            value={(
-                                                localPrices.main.pricing
-                                                    .internal_reasoning * M
-                                            ).toFixed(2)}
-                                            onChange={(e) =>
-                                                handleSliderChange(
-                                                    "internal_reasoning",
-                                                    parseFloat(e.target.value) /
-                                                        M || 0,
-                                                )
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Fallback</CardTitle>
-                            <CardDescription>
-                                Model ID: {pricing.fallback?.id || "N/A"}
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent>
-                            {!pricing.fallback && (
-                                <p className="text-text-secondary">
-                                    No fallback model configured.
-                                </p>
-                            )}
-                            {pricing.fallback && !localPrices.fallback && (
-                                <p className="text-text-secondary">
-                                    Loading fallback pricing...
-                                </p>
-                            )}
-                            {pricing.fallback && localPrices.fallback && (
-                                <div className="grid gap-4">
-                                    <div className="grid gap-2">
-                                        <Label>Prompt Token Price ($/1M)</Label>
-                                        <div className="flex items-center gap-4">
-                                            <ContinuousSlider
-                                                min={0}
-                                                max={50}
-                                                step={0.01}
+                            return (
+                                <Card key={model}>
+                                    <CardHeader>
+                                        <CardTitle>{model}</CardTitle>
+                                        <CardDescription>
+                                            Model ID: {modelPricing.id}
+                                        </CardDescription>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <div className="grid gap-4">
+                                            <PricingInput
+                                                label="Prompt Token Price ($/1M)"
                                                 value={
-                                                    localPrices.fallback.pricing
-                                                        .prompt * M
+                                                    modelPricing.pricing.prompt
                                                 }
                                                 onValueChange={(val) =>
                                                     handleSliderChange(
+                                                        model,
                                                         "prompt",
-                                                        val / M,
-                                                        true,
+                                                        val,
                                                     )
                                                 }
                                             />
-                                            <Input
-                                                type="number"
-                                                className="w-24"
-                                                value={(
-                                                    localPrices.fallback.pricing
-                                                        .prompt * M
-                                                ).toFixed(2)}
-                                                onChange={(e) =>
-                                                    handleSliderChange(
-                                                        "prompt",
-                                                        parseFloat(
-                                                            e.target.value,
-                                                        ) / M || 0,
-                                                        true,
-                                                    )
-                                                }
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label>
-                                            Completion Token Price ($/1M)
-                                        </Label>
-                                        <div className="flex items-center gap-4">
-                                            <ContinuousSlider
-                                                min={0}
-                                                max={50}
-                                                step={0.01}
+                                            <PricingInput
+                                                label="Completion Token Price ($/1M)"
                                                 value={
-                                                    localPrices.fallback.pricing
-                                                        .completion * M
+                                                    modelPricing.pricing
+                                                        .completion
                                                 }
                                                 onValueChange={(val) =>
                                                     handleSliderChange(
+                                                        model,
                                                         "completion",
-                                                        val / M,
-                                                        true,
+                                                        val,
                                                     )
                                                 }
                                             />
-                                            <Input
-                                                type="number"
-                                                className="w-24"
-                                                value={(
-                                                    localPrices.fallback.pricing
-                                                        .completion * M
-                                                ).toFixed(2)}
-                                                onChange={(e) =>
-                                                    handleSliderChange(
-                                                        "completion",
-                                                        parseFloat(
-                                                            e.target.value,
-                                                        ) / M || 0,
-                                                        true,
-                                                    )
-                                                }
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className="grid gap-2">
-                                        <Label>
-                                            Internal Reasoning Token Price
-                                            ($/1M)
-                                        </Label>
-                                        <div className="flex items-center gap-4">
-                                            <ContinuousSlider
-                                                min={0}
-                                                max={50}
-                                                step={0.01}
+                                            <PricingInput
+                                                label="Internal Reasoning Token Price ($/1M)"
                                                 value={
-                                                    localPrices.fallback.pricing
-                                                        .internal_reasoning * M
+                                                    modelPricing.pricing
+                                                        .internal_reasoning
                                                 }
                                                 onValueChange={(val) =>
                                                     handleSliderChange(
+                                                        model,
                                                         "internal_reasoning",
-                                                        val / M,
-                                                        true,
-                                                    )
-                                                }
-                                            />
-                                            <Input
-                                                type="number"
-                                                className="w-24"
-                                                value={(
-                                                    localPrices.fallback.pricing
-                                                        .internal_reasoning * M
-                                                ).toFixed(2)}
-                                                onChange={(e) =>
-                                                    handleSliderChange(
-                                                        "internal_reasoning",
-                                                        parseFloat(
-                                                            e.target.value,
-                                                        ) / M || 0,
-                                                        true,
+                                                        val,
                                                     )
                                                 }
                                             />
                                         </div>
-                                    </div>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
+                                    </CardContent>
+                                </Card>
+                            );
+                        },
+                    )}
                 </div>
                 <DialogFooter>
                     <Button
@@ -366,3 +150,34 @@ export const TokenPricingModal = ({
         </Dialog>
     );
 };
+
+const PricingInput = ({
+    label,
+    value,
+    onValueChange,
+}: {
+    label: string;
+    value: number;
+    onValueChange: (value: number) => void;
+}) => (
+    <div className="grid gap-2">
+        <Label>{label}</Label>
+        <div className="flex items-center gap-4">
+            <ContinuousSlider
+                min={0}
+                max={50}
+                step={0.01}
+                value={value * M}
+                onValueChange={(val) => onValueChange(val / M)}
+            />
+            <Input
+                type="number"
+                className="w-24"
+                value={(value * M).toFixed(2)}
+                onChange={(e) =>
+                    onValueChange(parseFloat(e.target.value) / M || 0)
+                }
+            />
+        </div>
+    </div>
+);

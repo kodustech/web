@@ -2,7 +2,7 @@
 
 import { use, useEffect, useMemo, useState } from "react";
 import useResizeObserver from "@hooks/use-resize-observer";
-import { DailyUsageResultContract } from "@services/usage/types";
+import { BaseUsageContract } from "@services/usage/types";
 import { ExpandableContext } from "src/core/providers/expandable";
 import {
     VictoryAxis,
@@ -28,7 +28,13 @@ export const Chart = ({
     data,
     filterType,
 }: {
-    data: any[];
+    data: Array<
+        BaseUsageContract & {
+            prNumber?: number;
+            developer?: string;
+            date?: string;
+        }
+    >;
     filterType: string;
 }) => {
     const [graphRef, boundingRect] = useResizeObserver();

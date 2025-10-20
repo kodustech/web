@@ -9,14 +9,15 @@ import {
     getTokenUsageByDeveloper,
     getTokenUsageByPR,
 } from "@services/usage/fetch";
+import { BaseUsageContract } from "@services/usage/types";
 import { CookieName } from "src/core/utils/cookie";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
+import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { getSelectedDateRange } from "src/features/ee/cockpit/_helpers/get-selected-date-range";
 import { validateOrganizationLicense } from "src/features/ee/subscription/_services/billing/fetch";
 
 import { TokenUsagePageClient } from "./_components/page.client";
-import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
 export default async function TokenUsagePage({
     searchParams,
@@ -34,14 +35,10 @@ export default async function TokenUsagePage({
     const params = await searchParams;
     const teamId = await getGlobalSelectedTeamId();
     const subscription = await validateOrganizationLicense({ teamId });
+    const isBYOK = isBYOKSubscriptionPlan(subscription);
+    const isTrial = subscription.subscriptionStatus === "trial";
 
-    if (!isBYOKSubscriptionPlan(subscription)) {
-        redirect("/settings");
-    }
-
-    const byok = await getBYOK();
-
-    if (!byok || !byok.main) {
+    if (!isBYOK && !isTrial) {
         redirect("/settings");
     }
 
@@ -58,32 +55,46 @@ export default async function TokenUsagePage({
         endDate: selectedDateRange.endDate,
         prNumber: params.prNumber ? Number(params.prNumber) : undefined,
         developer: params.developer,
-        model: params.model,
+        byok: isBYOK,
     };
 
-    let data: any[] = [];
+    let data: BaseUsageContract[] = [];
     const filterType = params.filter ?? "daily";
 
-    switch (filterType) {
-        case "daily":
-            data = await getDailyTokenUsage(filters);
-            break;
-        case "by-pr":
-            data = await getTokenUsageByPR(filters);
-            break;
-        case "by-developer":
-            data = await getTokenUsageByDeveloper(filters);
-            break;
-        default:
-            data = await getDailyTokenUsage(filters);
+    try {
+        switch (filterType) {
+            case "daily":
+                data = await getDailyTokenUsage(filters);
+                break;
+            case "by-pr":
+                data = await getTokenUsageByPR(filters);
+                break;
+            case "by-developer":
+                data = await getTokenUsageByDeveloper(filters);
+                break;
+            default:
+                data = await getDailyTokenUsage(filters);
+        }
+    } catch (error) {
+        console.error("Failed to fetch token usage data:", error);
     }
 
-    const [mainPricing, fallbackPricing] = await Promise.all([
-        getTokenPricing(byok.main.provider, byok.main.model),
-        byok.fallback
-            ? getTokenPricing(byok.fallback.provider, byok.fallback.model)
-            : undefined,
-    ]);
+    const uniqueModels: string[] = Array.from(
+        new Set(data.map((d) => d.model)),
+    );
+
+    let pricing = {};
+    try {
+        const pricingPromises = uniqueModels.map(async (model) => {
+            const pricingInfo = await getTokenPricing(model);
+            return { [model]: pricingInfo };
+        });
+
+        const pricingArray = await Promise.all(pricingPromises);
+        pricing = Object.assign({}, ...pricingArray);
+    } catch (error) {
+        console.error("Failed to fetch pricing data:", error);
+    }
 
     const dateRangeCookieValue = cookieStore.get(
         "cockpit-selected-date-range" satisfies CookieName,
@@ -98,11 +109,8 @@ export default async function TokenUsagePage({
                 <TokenUsagePageClient
                     data={data}
                     cookieValue={dateRangeCookieValue}
-                    byok={byok}
-                    pricing={{
-                        main: mainPricing,
-                        fallback: fallbackPricing,
-                    }}
+                    models={uniqueModels}
+                    pricing={pricing}
                 />
             </Page.Content>
         </Page.Root>
