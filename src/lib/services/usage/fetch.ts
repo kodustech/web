@@ -75,7 +75,7 @@ export const getDailyTokenUsageByDeveloper = async (
     );
 };
 
-export const getTokenPricing = async (provider: string, model: string) => {
+export const getTokenPricing = async (model: string, provider?: string) => {
     return await authorizedFetch<ModelPricingInfo>(
         TOKEN_USAGE_PATHS.GET_TOKEN_PRICING,
         {
