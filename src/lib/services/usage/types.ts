@@ -4,6 +4,7 @@ export type TokenUsageQueryContract = {
     endDate: string;
     prNumber?: number;
     timezone?: string; // for day bucketing
+    byok: boolean;
 };
 
 export interface BaseUsageContract {

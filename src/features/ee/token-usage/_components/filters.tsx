@@ -1,7 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Button } from "@components/ui/button";
+import { Checkbox } from "@components/ui/checkbox";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@components/ui/dropdown-menu";
 import { Input } from "@components/ui/input";
 import {
     Select,
@@ -10,120 +18,81 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@components/ui/select";
-import { useDebounce } from "@hooks/use-debounce";
 
-import { BYOKConfig } from "../../byok/_types";
+import { useTokenUsageFilters } from "../_hooks/filter.hook";
 
 export const Filters = ({
-    byok,
+    models,
+    filters,
 }: {
-    byok: {
-        main: BYOKConfig;
-        fallback?: BYOKConfig;
-    };
+    models: string[];
+    filters: ReturnType<typeof useTokenUsageFilters>;
 }) => {
-    const router = useRouter();
-    const pathname = usePathname();
-    const searchParams = useSearchParams();
-    const currentFilter = searchParams.get("filter") ?? "daily";
-    const currentModel = searchParams.get("model") ?? "all";
-
-    const [prNumber, setPrNumber] = useState(
-        searchParams.get("prNumber") ?? "",
-    );
-    const debouncedPrNumber = useDebounce(prNumber, 500);
-
-    const [developer, setDeveloper] = useState(
-        searchParams.get("developer") ?? "",
-    );
-    const debouncedDeveloper = useDebounce(developer, 500);
-
-    const handleFilterChange = (value: string) => {
-        const params = new URLSearchParams(searchParams);
-        params.set("filter", value);
-        if (value !== "by-pr") {
-            params.delete("prNumber");
-        }
-        if (value !== "by-developer") {
-            params.delete("developer");
-        }
-        router.replace(`${pathname}?${params.toString()}`);
-    };
-
-    const handleModelChange = (value: string) => {
-        const params = new URLSearchParams(searchParams);
-
-        switch (value) {
-            case "all":
-                params.delete("model");
-                break;
-            case "main":
-                params.set("model", byok.main.model);
-                break;
-            case "fallback":
-                if (byok.fallback) {
-                    params.set("model", byok.fallback.model);
-                }
-                break;
-            default:
-                params.set("model", value);
-        }
-
-        router.replace(`${pathname}?${params.toString()}`);
-    };
-
-    useEffect(() => {
-        const params = new URLSearchParams(searchParams);
-
-        if (debouncedPrNumber) {
-            params.set("prNumber", debouncedPrNumber);
-        } else {
-            params.delete("prNumber");
-        }
-
-        router.replace(`${pathname}?${params.toString()}`);
-    }, [debouncedPrNumber, router, pathname, searchParams]);
-
-    useEffect(() => {
-        const params = new URLSearchParams(searchParams);
-
-        if (debouncedDeveloper) {
-            params.set("developer", debouncedDeveloper);
-        } else {
-            params.delete("developer");
-        }
-
-        router.replace(`${pathname}?${params.toString()}`);
-    }, [debouncedDeveloper, router, pathname, searchParams]);
-
-    const handlePrNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setPrNumber(e.target.value);
-    };
-
-    const handleDeveloperChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setDeveloper(e.target.value);
-    };
+    const {
+        currentFilter,
+        selectedModels,
+        prNumber,
+        developer,
+        handleFilterChange,
+        handleModelChange,
+        handlePrNumberChange,
+        handleDeveloperChange,
+        setSelectedModels,
+        getModelSelectionText,
+    } = filters;
 
     return (
         <div className="flex gap-4">
-            {byok.fallback && (
-                <Select
-                    onValueChange={handleModelChange}
-                    defaultValue={currentModel}>
-                    <SelectTrigger className="w-[200px]">
-                        <SelectValue placeholder="Model" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="all">All models</SelectItem>
-                        <SelectItem value="main">
-                            Main ({byok.main.model})
-                        </SelectItem>
-                        <SelectItem value="fallback">
-                            Fallback ({byok.fallback.model})
-                        </SelectItem>
-                    </SelectContent>
-                </Select>
-            )}
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button
+                        size="md"
+                        variant="helper"
+                        className="w-[200px] justify-between">
+                        <span>{getModelSelectionText()}</span>
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                    className="w-[200px]"
+                    onCloseAutoFocus={(e) => e.preventDefault()}>
+                    <DropdownMenuLabel>Models</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                        onSelect={(e) => {
+                            e.preventDefault();
+
+                            if (selectedModels.length === models.length) {
+                                setSelectedModels([]);
+                            } else {
+                                setSelectedModels(models);
+                            }
+                        }}>
+                        <div className="flex items-center gap-2">
+                            <Checkbox
+                                checked={
+                                    selectedModels.length === models.length
+                                }
+                            />
+                            <span>All models</span>
+                        </div>
+                    </DropdownMenuItem>
+                    {models.map((model) => (
+                        <DropdownMenuItem
+                            key={model}
+                            onSelect={(e) => {
+                                e.preventDefault();
+                                handleModelChange(model);
+                            }}>
+                            <div className="flex items-center gap-2">
+                                <Checkbox
+                                    checked={selectedModels.includes(model)}
+                                />
+                                <span>{model}</span>
+                            </div>
+                        </DropdownMenuItem>
+                    ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
 
             <Select
                 onValueChange={handleFilterChange}
