@@ -288,8 +288,6 @@ export const KodyRuleAddOrUpdateItemModal = ({
         }
     };
 
-    console.log(rule);
-
     let title = "Add new rule";
     if (isInherited) {
         title = "View inherited rule";

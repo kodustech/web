@@ -49,8 +49,6 @@ export const KodyRuleItem = ({
     const isInherited = !!rule.inherited;
     const isExcluded = isInherited && !!rule.excluded;
 
-    console.log(rule);
-
     return (
         <Card>
             <CardHeader className="flex-row items-start justify-between gap-10">

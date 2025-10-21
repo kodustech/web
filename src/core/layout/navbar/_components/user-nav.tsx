@@ -26,7 +26,7 @@ import {
 } from "src/core/components/ui/dropdown-menu";
 import { useAllTeams } from "src/core/providers/all-teams-context";
 import { useAuth } from "src/core/providers/auth.provider";
-import { useIsBYOK } from "src/core/providers/byok.provider";
+import { useSubscriptionStatus } from "src/core/providers/byok.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { TEAM_STATUS, type AwaitedReturnType } from "src/core/types";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
@@ -36,7 +36,9 @@ export function UserNav({
     tokenUsagePageFeatureFlag,
 }: {
     logsPagesFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
-    tokenUsagePageFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
+    tokenUsagePageFeatureFlag: AwaitedReturnType<
+        typeof getFeatureFlagWithPayload
+    >;
 }) {
     const { email } = useAuth();
     const { teams } = useAllTeams();
@@ -46,7 +48,7 @@ export function UserNav({
         ResourceType.OrganizationSettings,
     );
     const canReadLogs = usePermission(Action.Read, ResourceType.Logs);
-    const isByok = useIsBYOK();
+    const { isBYOK, isTrial } = useSubscriptionStatus();
 
     const handleChangeWorkspace = (teamId: string) => {
         setTeamId(teamId);
@@ -124,13 +126,15 @@ export function UserNav({
                     </Link>
                 )}
 
-                {isByok && tokenUsagePageFeatureFlag?.value && canReadLogs && (
-                    <Link href="/token-usage">
-                        <DropdownMenuItem leftIcon={<ChartColumn />}>
-                            Token Usage
-                        </DropdownMenuItem>
-                    </Link>
-                )}
+                {(isBYOK || isTrial) &&
+                    tokenUsagePageFeatureFlag?.value &&
+                    canReadLogs && (
+                        <Link href="/token-usage">
+                            <DropdownMenuItem leftIcon={<ChartColumn />}>
+                                Token Usage
+                            </DropdownMenuItem>
+                        </Link>
+                    )}
 
                 <Link href="/sign-out" replace>
                     <DropdownMenuItem leftIcon={<LogOutIcon />}>

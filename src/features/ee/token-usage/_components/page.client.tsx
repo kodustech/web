@@ -95,6 +95,7 @@ export const TokenUsagePageClient = ({
                 outputReasoning: number;
             }
         > = {};
+
         selectedModels.forEach((model) => {
             usageByModel[model] = {
                 input: 0,
@@ -153,7 +154,7 @@ export const TokenUsagePageClient = ({
             case "daily":
                 return "date";
             case "by-pr":
-                return "PR";
+                return "prNumber";
             case "by-developer":
                 return "developer";
             default:
@@ -162,10 +163,19 @@ export const TokenUsagePageClient = ({
     };
 
     const xAccessor = getXAccessor();
-    const averageCost =
-        filteredData && filteredData.length > 0
-            ? totalUsage.totalCost / filteredData.length
-            : 0;
+
+    const averageCost = useMemo(() => {
+        if (!filteredData || filteredData.length === 0) return 0;
+
+        const uniqueItems = new Set(
+            filteredData.map((d) => d[xAccessor as keyof BaseUsageContract]),
+        );
+        const numberOfUniqueItems = uniqueItems.size;
+
+        if (numberOfUniqueItems === 0) return 0;
+
+        return totalUsage.totalCost / numberOfUniqueItems;
+    }, [filteredData, totalUsage.totalCost, xAccessor]);
 
     if (!isMounted) {
         return null;

@@ -18,7 +18,7 @@ export const CostCards = ({
         </Card>
         <Card className="p-4">
             <div className="text-sm text-gray-500">
-                Average cost per {xAccessor}
+                Average cost per {xAccessor === "prNumber" ? "PR" : xAccessor}
             </div>
             <div className="text-2xl font-bold">
                 ${averageCost.toFixed(2).toLocaleString()}
