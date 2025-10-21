@@ -174,13 +174,6 @@ export const TokenUsagePageClient = ({
 
         if (numberOfUniqueItems === 0) return 0;
 
-        console.log({
-            cost: totalUsage.totalCost,
-            numberOfUniqueItems,
-            xAccessor,
-            uniqueItems,
-            filteredData,
-        });
         return totalUsage.totalCost / numberOfUniqueItems;
     }, [filteredData, totalUsage.totalCost, xAccessor]);
 
