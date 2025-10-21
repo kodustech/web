@@ -1,20 +1,25 @@
 import { createContext, useContext } from "react";
 
-const isBYOKContext = createContext(false);
+const subscriptionStatusContext = createContext({
+    isBYOK: false,
+    isTrial: false,
+});
 
-export const IsBYOKProvider = ({
+export const SubsciptionStatusProvider = ({
     children,
     isBYOK = false,
+    isTrial = false,
 }: React.PropsWithChildren & {
-    isBYOK?: boolean;
+    isBYOK: boolean;
+    isTrial: boolean;
 }) => {
     return (
-        <isBYOKContext.Provider value={isBYOK}>
+        <subscriptionStatusContext.Provider value={{ isBYOK, isTrial }}>
             {children}
-        </isBYOKContext.Provider>
+        </subscriptionStatusContext.Provider>
     );
 };
 
-export const useIsBYOK = () => {
-    return useContext(isBYOKContext);
+export const useSubscriptionStatus = () => {
+    return useContext(subscriptionStatusContext);
 };

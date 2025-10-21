@@ -84,6 +84,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
     ]);
 
     const isBYOK = isBYOKSubscriptionPlan(organizationLicense);
+    const isTrial = organizationLicense?.subscriptionStatus === "trial";
 
     return (
         <Providers
@@ -94,7 +95,8 @@ export default async function Layout({ children }: React.PropsWithChildren) {
                 name: organizationName,
             }}
             permissions={permissions}
-            isBYOK={isBYOK}>
+            isBYOK={isBYOK}
+            isTrial={isTrial}>
             <SubscriptionProvider
                 license={organizationLicense}
                 usersWithAssignedLicense={usersWithAssignedLicense}>
