@@ -39,7 +39,7 @@ const timezoneOptions = [
 const createSettingsSchema = (userDomain: string) =>
     z
         .object({
-            timezone: z.enum(Timezone),
+            timezone: z.nativeEnum(Timezone),
             autoJoinConfig: z.object({
                 enabled: z.boolean(),
                 domains: z.array(z.string()),

@@ -76,6 +76,7 @@ export default async function OrganizationSettingsPage() {
             );
         }
     }
+
     return (
         <GeneralOrganizationSettingsPage
             email={email}

@@ -10,6 +10,7 @@ export enum OrganizationParametersConfigKey {
     TIMEZONE_CONFIG = "timezone_config",
     AUTO_JOIN_CONFIG = "auto_join_config",
     BYOK_CONFIG = "byok_config",
+    COCKPIT_METRICS_VISIBILITY = "cockpit_metrics_visibility",
 }
 
 export enum BoardPriorityType {
@@ -76,3 +77,20 @@ export type OrganizationParametersAutoJoinConfig = {
     enabled: boolean;
     domains: string[];
 };
+
+export interface CockpitMetricsVisibility {
+    summary: {
+        deployFrequency: boolean;
+        prCycleTime: boolean;
+        kodySuggestions: boolean;
+        bugRatio: boolean;
+        prSize: boolean;
+    };
+    details: {
+        leadTimeBreakdown: boolean;
+        prCycleTime: boolean;
+        prsOpenedVsClosed: boolean;
+        prsMergedByDeveloper: boolean;
+        teamActivity: boolean;
+    };
+}

@@ -1,6 +1,9 @@
 import { authorizedFetch } from "@services/fetch";
 import { getOrganizationId } from "@services/organizations/fetch";
-import { OrganizationParametersConfigKey } from "@services/parameters/types";
+import {
+    OrganizationParametersConfigKey,
+    type CockpitMetricsVisibility,
+} from "@services/parameters/types";
 import { axiosAuthorized } from "src/core/utils/axios";
 import type { BYOKConfig } from "src/features/ee/byok/_types";
 
@@ -52,3 +55,42 @@ export const getOrganizationParameterByKey = async <
     await authorizedFetch<T | null>(ORGANIZATION_PARAMETERS_PATHS.GET_BY_KEY, {
         params,
     });
+
+const DEFAULT_COCKPIT_METRICS_VISIBILITY: CockpitMetricsVisibility = {
+    summary: {
+        deployFrequency: true,
+        prCycleTime: true,
+        kodySuggestions: true,
+        bugRatio: true,
+        prSize: true,
+    },
+    details: {
+        leadTimeBreakdown: true,
+        prCycleTime: true,
+        prsOpenedVsClosed: true,
+        prsMergedByDeveloper: true,
+        teamActivity: true,
+    },
+};
+
+export const getCockpitMetricsVisibility = async (params: {
+    organizationId: string;
+}): Promise<CockpitMetricsVisibility> => {
+    const response = await authorizedFetch<CockpitMetricsVisibility>(
+        ORGANIZATION_PARAMETERS_PATHS.GET_COCKPIT_METRICS_VISIBILITY,
+        { params },
+    );
+
+    return response ?? DEFAULT_COCKPIT_METRICS_VISIBILITY;
+};
+
+export const updateCockpitMetricsVisibility = async (params: {
+    organizationId: string;
+    teamId?: string;
+    config: CockpitMetricsVisibility;
+}) => {
+    return await axiosAuthorized.post(
+        ORGANIZATION_PARAMETERS_PATHS.UPDATE_COCKPIT_METRICS_VISIBILITY,
+        params,
+    );
+};

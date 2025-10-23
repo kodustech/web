@@ -2,6 +2,8 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Page } from "@components/ui/page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
+import { getCockpitMetricsVisibility } from "@services/organizationParameters/fetch";
+import { getOrganizationId } from "@services/organizations/fetch";
 import { getConnections } from "@services/setup/fetch";
 import type { CookieName } from "src/core/utils/cookie";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
@@ -52,9 +54,10 @@ export default async function Layout({
         return <AnalyticsNotAvailable />;
     }
 
-    const [cookieStore, selectedTeamId] = await Promise.all([
+    const [cookieStore, selectedTeamId, organizationId] = await Promise.all([
         cookies(),
         getGlobalSelectedTeamId(),
+        getOrganizationId(),
     ]);
 
     const organizationLicense = await validateOrganizationLicense({
@@ -68,10 +71,13 @@ export default async function Layout({
     )
         redirect("/settings/git");
 
-    const [connections, analyticsResult] = await Promise.all([
-        getConnections(selectedTeamId),
-        getAnalyticsStatus().catch(() => ({ hasData: false })),
-    ]);
+    const [connections, analyticsResult, metricsVisibility] = await Promise.all(
+        [
+            getConnections(selectedTeamId),
+            getAnalyticsStatus().catch(() => ({ hasData: false })),
+            getCockpitMetricsVisibility({ organizationId }),
+        ],
+    );
 
     const data = extractApiData(analyticsResult);
     const hasAnalyticsData = data?.hasData;
@@ -102,11 +108,21 @@ export default async function Layout({
 
             <Page.Content className="max-w-(--breakpoint-xl)">
                 <div className="grid grid-cols-3 grid-rows-2 gap-2 *:h-56">
-                    <div>{deployFrequencyAnalytics}</div>
-                    <div>{prCycleTimeAnalytics}</div>
-                    <div>{kodySuggestionsAnalytics}</div>
-                    <div>{bugRatioAnalytics}</div>
-                    <div>{prSizeAnalytics}</div>
+                    {metricsVisibility.summary.deployFrequency && (
+                        <div>{deployFrequencyAnalytics}</div>
+                    )}
+                    {metricsVisibility.summary.prCycleTime && (
+                        <div>{prCycleTimeAnalytics}</div>
+                    )}
+                    {metricsVisibility.summary.kodySuggestions && (
+                        <div>{kodySuggestionsAnalytics}</div>
+                    )}
+                    {metricsVisibility.summary.bugRatio && (
+                        <div>{bugRatioAnalytics}</div>
+                    )}
+                    {metricsVisibility.summary.prSize && (
+                        <div>{prSizeAnalytics}</div>
+                    )}
                 </div>
 
                 <div className="mt-10">
@@ -146,15 +162,21 @@ export default async function Layout({
                             value={"productivity" satisfies TabValue}>
                             <div className="relative grid grid-cols-2 gap-2 *:h-[500px]">
                                 <ExpandableCardsLayout>
-                                    {leadTimeBreakdownChart}
-                                    {prCycleTimeChart}
-                                    {prsOpenedVsClosedChart}
-                                    {prsMergedByDeveloperChart}
+                                    {metricsVisibility.details.leadTimeBreakdown &&
+                                        leadTimeBreakdownChart}
+                                    {metricsVisibility.details.prCycleTime &&
+                                        prCycleTimeChart}
+                                    {metricsVisibility.details.prsOpenedVsClosed &&
+                                        prsOpenedVsClosedChart}
+                                    {metricsVisibility.details.prsMergedByDeveloper &&
+                                        prsMergedByDeveloperChart}
                                 </ExpandableCardsLayout>
 
-                                <div className="col-span-2 h-auto!">
-                                    {teamActivityChart}
-                                </div>
+                                {metricsVisibility.details.teamActivity && (
+                                    <div className="col-span-2 h-auto!">
+                                        {teamActivityChart}
+                                    </div>
+                                )}
                             </div>
                         </TabsContent>
 
