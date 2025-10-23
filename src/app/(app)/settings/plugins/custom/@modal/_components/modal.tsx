@@ -276,7 +276,7 @@ export const AddCustomPluginModal = ({
                     variant: "danger",
                     title: "Error creating custom plugin",
                     description:
-                        "Is this a valid MCP plugin endpoint? Please check the URL and try again.",
+                        "Are the protocol, URL, and authorization details correct? Please check and try again.",
                 });
             }
         });
@@ -306,7 +306,7 @@ export const AddCustomPluginModal = ({
                     variant: "danger",
                     title: "Error updating custom plugin",
                     description:
-                        "Is this a valid MCP plugin endpoint? Please check the URL and try again.",
+                        "Are the protocol, URL, and authorization details correct? Please check and try again.",
                 });
             }
         });
