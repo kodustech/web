@@ -41,29 +41,44 @@ export const useHighlightReferences = (
             return null;
         }
 
+        const allMatches: Array<{
+            start: number;
+            end: number;
+            ref: ExternalReferencesData["references"][0];
+        }> = [];
+
+        references.forEach((ref) => {
+            const patternText = ref.originalText || ref.filePath;
+            const escapedPatternText = patternText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const pattern = new RegExp(escapedPatternText, 'gi');
+            
+            let match;
+            while ((match = pattern.exec(text)) !== null) {
+                allMatches.push({
+                    start: match.index,
+                    end: pattern.lastIndex,
+                    ref: ref,
+                });
+            }
+        });
+
+        allMatches.sort((a, b) => a.start - b.start);
+
         const parts = [];
         let lastIndex = 0;
 
-        references.forEach((ref) => {
-            const pattern = new RegExp(
-                ref.originalText ? 
-                    ref.originalText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') :
-                    ref.filePath.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-                'gi'
-            );
-
-            let match;
-            while ((match = pattern.exec(text)) !== null) {
-                if (match.index > lastIndex) {
-                    parts.push({ type: 'text', content: text.slice(lastIndex, match.index) });
-                }
+        allMatches.forEach(match => {
+            if (match.start > lastIndex) {
+                parts.push({ type: 'text', content: text.slice(lastIndex, match.start) });
+            }
+            if (match.start >= lastIndex) {
                 parts.push({
                     type: 'reference',
-                    content: match[0],
-                    filePath: ref.filePath,
-                    repositoryName: ref.repositoryName,
+                    content: text.slice(match.start, match.end),
+                    filePath: match.ref.filePath,
+                    repositoryName: match.ref.repositoryName,
                 });
-                lastIndex = pattern.lastIndex;
+                lastIndex = match.end;
             }
         });
 
