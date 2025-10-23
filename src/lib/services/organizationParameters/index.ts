@@ -8,4 +8,10 @@ export const ORGANIZATION_PARAMETERS_PATHS = {
         "/organization-parameters/list-models",
     ),
     DELETE_BYOK: pathToApiUrl("/organization-parameters/delete-byok-config"),
+    GET_COCKPIT_METRICS_VISIBILITY: pathToApiUrl(
+        "/organization-parameters/cockpit-metrics-visibility",
+    ),
+    UPDATE_COCKPIT_METRICS_VISIBILITY: pathToApiUrl(
+        "/organization-parameters/cockpit-metrics-visibility",
+    ),
 };
