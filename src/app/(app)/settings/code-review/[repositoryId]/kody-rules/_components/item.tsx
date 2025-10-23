@@ -25,6 +25,7 @@ import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { DeleteKodyRuleConfirmationModal } from "../../../_components/delete-confirmation-modal";
 import { useCodeReviewRouteParams } from "../../../../_hooks";
+import { ExternalReferencesDisplay } from "../../pr-summary/_components/external-references-display";
 
 export const KodyRuleItem = ({
     rule,
@@ -221,18 +222,17 @@ export const KodyRuleItem = ({
                             <Section.Content className="line-clamp-3">
                                 {rule.rule}
                             </Section.Content>
+
+                            <ExternalReferencesDisplay 
+                                externalReferences={{
+                                    references: rule.externalReferences || [],
+                                    syncErrors: rule.syncErrors || [],
+                                    processingStatus: rule.referenceProcessingStatus || "completed"
+                                }}
+                                compact
+                            />
                         </Section.Root>
                     </CardHeader>
-                    <CardFooter>
-                        {rule.syncError && (
-                            <div className="text-text-secondary flex w-full items-center gap-2 rounded-lg bg-red-500/10 p-2 text-sm">
-                                <InfoIcon className="size-4 flex-shrink-0" />
-                                <span className="text-text-secondary text-xs">
-                                    {rule.syncError}
-                                </span>
-                            </div>
-                        )}
-                    </CardFooter>
                 </Card>
             </CardContent>
         </Card>

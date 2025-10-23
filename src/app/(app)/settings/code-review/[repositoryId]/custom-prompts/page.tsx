@@ -39,6 +39,7 @@ import {
     usePlatformConfig,
 } from "../../../_components/context";
 import { useCodeReviewRouteParams } from "../../../_hooks";
+import { ExternalReferencesDisplay } from "../pr-summary/_components/external-references-display";
 
 function CustomPromptsContent() {
     const platformConfig = usePlatformConfig();
@@ -288,6 +289,10 @@ function CustomPromptsContent() {
                                                     {field.value?.length || 0} /
                                                     2000
                                                 </FormControl.Helper>
+                                                <ExternalReferencesDisplay 
+                                                    externalReferences={(form.getValues("v2PromptOverrides.generation.main") as any)?.externalReferences}
+                                                    compact
+                                                />
                                             </div>
                                         )}
                                     />
@@ -378,6 +383,10 @@ function CustomPromptsContent() {
                                                     {field.value?.length || 0} /
                                                     2000
                                                 </FormControl.Helper>
+                                                <ExternalReferencesDisplay 
+                                                    externalReferences={(form.getValues("v2PromptOverrides.categories.descriptions.bug") as any)?.externalReferences}
+                                                    compact
+                                                />
                                             </div>
                                         )}
                                     />
@@ -457,6 +466,10 @@ function CustomPromptsContent() {
                                                     {field.value?.length || 0} /
                                                     2000
                                                 </FormControl.Helper>
+                                                <ExternalReferencesDisplay 
+                                                    externalReferences={(form.getValues("v2PromptOverrides.categories.descriptions.performance") as any)?.externalReferences}
+                                                    compact
+                                                />
                                             </div>
                                         )}
                                     />
@@ -536,6 +549,10 @@ function CustomPromptsContent() {
                                                     {field.value?.length || 0} /
                                                     2000
                                                 </FormControl.Helper>
+                                                <ExternalReferencesDisplay 
+                                                    externalReferences={(form.getValues("v2PromptOverrides.categories.descriptions.security") as any)?.externalReferences}
+                                                    compact
+                                                />
                                             </div>
                                         )}
                                     />
@@ -626,6 +643,10 @@ function CustomPromptsContent() {
                                                     {field.value?.length || 0} /
                                                     2000
                                                 </FormControl.Helper>
+                                                <ExternalReferencesDisplay 
+                                                    externalReferences={(form.getValues("v2PromptOverrides.severity.flags.critical") as any)?.externalReferences}
+                                                    compact
+                                                />
                                             </div>
                                         )}
                                     />
@@ -704,6 +725,10 @@ function CustomPromptsContent() {
                                                     {field.value?.length || 0} /
                                                     2000
                                                 </FormControl.Helper>
+                                                <ExternalReferencesDisplay 
+                                                    externalReferences={(form.getValues("v2PromptOverrides.severity.flags.high") as any)?.externalReferences}
+                                                    compact
+                                                />
                                             </div>
                                         )}
                                     />
@@ -782,6 +807,10 @@ function CustomPromptsContent() {
                                                     {field.value?.length || 0} /
                                                     2000
                                                 </FormControl.Helper>
+                                                <ExternalReferencesDisplay 
+                                                    externalReferences={(form.getValues("v2PromptOverrides.severity.flags.medium") as any)?.externalReferences}
+                                                    compact
+                                                />
                                             </div>
                                         )}
                                     />
@@ -860,6 +889,10 @@ function CustomPromptsContent() {
                                                     {field.value?.length || 0} /
                                                     2000
                                                 </FormControl.Helper>
+                                                <ExternalReferencesDisplay 
+                                                    externalReferences={(form.getValues("v2PromptOverrides.severity.flags.low") as any)?.externalReferences}
+                                                    compact
+                                                />
                                             </div>
                                         )}
                                     />

@@ -44,6 +44,7 @@ import {
 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { cn } from "src/core/utils/components";
+import { ExternalReferencesDisplay } from "../[repositoryId]/pr-summary/_components/external-references-display";
 
 import type {
     CodeReviewDirectoryConfig,
@@ -760,14 +761,14 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             {fieldState.error?.message}
                                         </FormControl.Error>
 
-                                        {rule?.syncError && (
-                                            <div className="text-text-secondary mt-2 flex w-full items-center gap-2 rounded-lg bg-red-500/10 p-2 text-sm">
-                                                <InfoIcon className="size-4 flex-shrink-0" />
-                                                <span className="text-text-secondary text-xs">
-                                                    {rule.syncError}
-                                                </span>
-                                            </div>
-                                        )}
+                                        <ExternalReferencesDisplay 
+                                            externalReferences={{
+                                                references: rule?.externalReferences || [],
+                                                syncErrors: rule?.syncErrors || (rule?.syncError ? [rule.syncError] : []),
+                                                processingStatus: rule?.referenceProcessingStatus || "completed"
+                                            }}
+                                            compact
+                                        />
                                     </div>
                                 </FormControl.Input>
                             </div>
