@@ -13,7 +13,7 @@ import {
     getMCPPlugins,
     MCP_CONNECTION_STATUS,
 } from "@services/mcp-manager/fetch";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon, ImageOff } from "lucide-react";
 
 export default async function PluginsPage() {
     let plugins: any[] = [];
@@ -77,11 +77,15 @@ export default async function PluginsPage() {
                                         <CardHeader className="gap-4">
                                             <div className="flex h-fit flex-row items-center gap-5">
                                                 <Avatar className="bg-card-lv3 group-disabled/link:bg-card-lv3/50 size-10 rounded-lg p-1">
-                                                    <AvatarImage
-                                                        src={item.logo}
-                                                        alt={`${item.appName} logo`}
-                                                        className="object-contain"
-                                                    />
+                                                    {(item.logo && (
+                                                        <AvatarImage
+                                                            src={item.logo}
+                                                            alt={`${item.appName} logo`}
+                                                            className="object-contain"
+                                                        />
+                                                    )) || (
+                                                        <ImageOff className="text-text-tertiary m-auto h-6 w-6" />
+                                                    )}
                                                 </Avatar>
 
                                                 <div className="flex-1">
@@ -131,7 +135,7 @@ export default async function PluginsPage() {
                             Create and configure your own plugin.
                         </CardDescription>
                     </CardHeader>
-                    <Link href="/settings/plugins/add">
+                    <Link href="/settings/plugins/custom">
                         <Button size="lg" variant="primary" className="mt-4">
                             Add Plugin
                         </Button>

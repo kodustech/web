@@ -23,6 +23,7 @@ import { useToast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
 import {
     deleteMCPConnection,
+    deleteMCPCustomPlugin,
     installMCPPlugin,
     updateMCPAllowedTools,
     type getMCPPluginById,
@@ -31,7 +32,7 @@ import {
 } from "@services/mcp-manager/fetch";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
-import { EditIcon, PlugIcon, RefreshCwIcon } from "lucide-react";
+import { EditIcon, PlugIcon, RefreshCwIcon, Trash } from "lucide-react";
 import type { AwaitedReturnType } from "src/core/types";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
@@ -78,6 +79,7 @@ export const PluginModal = ({
     const isConnected = plugin.isConnected;
     const isDefault = plugin.isDefault;
     const canEdit = usePermission(Action.Update, ResourceType.PluginSettings);
+    const canDelete = usePermission(Action.Delete, ResourceType.PluginSettings);
 
     const [requiredParamsValues, setRequiredParamsValues] = useState<
         Record<string, string>
@@ -123,7 +125,7 @@ export const PluginModal = ({
 
             const oAuthUrl = installationResponse.metadata.connection.authUrl;
 
-            if (oAuthUrl.length > 0) {
+            if (oAuthUrl?.length > 0) {
                 window.location.href = oAuthUrl;
                 return;
             }
@@ -175,8 +177,41 @@ export const PluginModal = ({
         },
     );
 
+    const [deletePlugin, { loading: isDeletePluginLoading }] = useAsyncAction(
+        async () => {
+            if (!plugin.id) {
+                throw new Error("Plugin ID not found");
+            }
+
+            if (plugin.provider !== "custom") {
+                throw new Error("Only custom plugins can be deleted");
+            }
+
+            if (isConnected && plugin.connectionId) {
+                await deleteMCPConnection({
+                    connectionId: plugin.connectionId,
+                });
+            }
+
+            await deleteMCPCustomPlugin(plugin.id);
+
+            await revalidateServerSidePath("/settings/plugins");
+
+            toast({
+                variant: "success",
+                title: "Plugin deleted successfully",
+                description: `${plugin.appName} plugin has been deleted`,
+            });
+
+            router.push("/settings/plugins");
+        },
+    );
+
     const isAnyLoading =
-        isInstallPluginLoading || isUpdateToolsLoading || isResetAuthLoading;
+        isInstallPluginLoading ||
+        isUpdateToolsLoading ||
+        isResetAuthLoading ||
+        isDeletePluginLoading;
 
     return (
         <MagicModalContext
@@ -291,6 +326,36 @@ export const PluginModal = ({
                                         {isConnected ? "Close" : "Go back"}
                                     </Button>
                                 </DialogClose>
+
+                                {plugin.provider === "custom" && (
+                                    <Button
+                                        size="md"
+                                        variant="secondary"
+                                        leftIcon={<EditIcon />}
+                                        onClick={() =>
+                                            router.push(
+                                                `/settings/plugins/custom?edit=true&id=${plugin.id}`,
+                                            )
+                                        }
+                                        disabled={isAnyLoading || !canEdit}>
+                                        Edit Plugin
+                                    </Button>
+                                )}
+
+                                {plugin.provider === "custom" && (
+                                    <Button
+                                        size="md"
+                                        variant="tertiary"
+                                        leftIcon={<Trash />}
+                                        onClick={() => deletePlugin()}
+                                        disabled={
+                                            isAnyLoading ||
+                                            isDefault ||
+                                            !canDelete
+                                        }>
+                                        Delete Plugin
+                                    </Button>
+                                )}
 
                                 {!isConnected ? (
                                     <>

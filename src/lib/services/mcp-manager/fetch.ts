@@ -19,6 +19,7 @@ export const getMCPPlugins = () =>
             isConnected: boolean;
             connectionStatus?: MCP_CONNECTION_STATUS;
             isDefault?: boolean;
+            baseUrl?: string;
         }>
     >("/mcp/integrations", { params: { page: 1, pageSize: 100 } });
 
@@ -49,6 +50,12 @@ export const getMCPPluginById = ({
             type: "string";
             required: boolean;
         }>;
+        baseUrl?: string;
+        protocol?: string;
+        authType?: string;
+        headers?: Record<string, string>;
+        apiKeyHeader?: string;
+        basicUser?: string;
     }>(`/mcp/${provider}/integrations/${id}`);
 
 export const getMCPPluginTools = ({
@@ -198,6 +205,89 @@ export const updateMCPAllowedTools = async ({
             allowedTools,
         }),
     });
+
+    return response;
+};
+
+export const createMCPCustomPlugin = async (data: {
+    baseUrl: string;
+    protocol: string;
+    name: string;
+    description?: string;
+    logoUrl?: string;
+    headers?: {
+        key: string;
+        value: string;
+    }[];
+    authType: string;
+    bearerToken?: string;
+    apiKey?: string;
+    apiKeyHeader?: string;
+    basicUser?: string;
+    basicPassword?: string;
+}) => {
+    const response = await mcpManagerFetch<{
+        id: string;
+        name: string;
+        description: string;
+        authScheme: PluginAuthScheme;
+        appName: string;
+        logo: string;
+        provider: string;
+        isConnected: boolean;
+    }>(`/mcp/integration/custom`, {
+        method: "POST",
+        body: JSON.stringify(data),
+    });
+
+    return response;
+};
+
+export const updateMCPCustomPlugin = async (
+    id: string,
+    data: {
+        baseUrl: string;
+        protocol: string;
+        name: string;
+        description?: string;
+        logoUrl?: string;
+        headers?: {
+            key: string;
+            value: string;
+        }[];
+        authType: string;
+        bearerToken?: string;
+        apiKey?: string;
+        apiKeyHeader?: string;
+        basicUser?: string;
+        basicPassword?: string;
+    },
+) => {
+    const response = await mcpManagerFetch<{
+        id: string;
+        name: string;
+        description: string;
+        authScheme: PluginAuthScheme;
+        appName: string;
+        logo: string;
+        provider: string;
+        isConnected: boolean;
+    }>(`/mcp/integration/custom/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+    });
+
+    return response;
+};
+
+export const deleteMCPCustomPlugin = async (id: string) => {
+    const response = await mcpManagerFetch<{}>(
+        `/mcp/integration/custom/${id}`,
+        {
+            method: "DELETE",
+            body: JSON.stringify({}),
+        },
+    );
 
     return response;
 };
