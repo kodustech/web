@@ -26,6 +26,11 @@ export default async function PluginModalPage({
         return null;
     }
 
+    if (!plugin) {
+        console.error("Plugin not found");
+        return null;
+    }
+
     let tools: AwaitedReturnType<typeof getMCPPluginTools> = [];
     try {
         const fetchedTools = await getMCPPluginTools({ id, provider });

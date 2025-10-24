@@ -9,8 +9,11 @@ import {
 } from "@components/ui/card";
 import { Link } from "@components/ui/link";
 import { Page } from "@components/ui/page";
-import { getMCPPlugins, MCP_CONNECTION_STATUS } from "@services/mcp-manager/fetch";
-import { CheckIcon } from "lucide-react";
+import {
+    getMCPPlugins,
+    MCP_CONNECTION_STATUS,
+} from "@services/mcp-manager/fetch";
+import { CheckIcon, ImageOff } from "lucide-react";
 
 export default async function PluginsPage() {
     let plugins: any[] = [];
@@ -21,15 +24,15 @@ export default async function PluginsPage() {
         plugins = await getMCPPlugins();
     } catch (error) {
         hasMCPError = true;
-        mcpErrorMessage = error instanceof Error
-            ? error.message
-            : "MCP Manager service is not available";
+        mcpErrorMessage =
+            error instanceof Error
+                ? error.message
+                : "MCP Manager service is not available";
     }
 
     const alphabeticallySortedPlugins = plugins.sort((a, b) =>
         a.name > b.name ? 1 : -1,
     );
-
 
     return (
         <Page.Root>
@@ -54,7 +57,7 @@ export default async function PluginsPage() {
             <Page.Content>
                 {hasMCPError ? (
                     <div className="flex flex-col items-center justify-center py-12">
-                        <p className="text-gray-600 text-center">
+                        <p className="text-center text-gray-600">
                             Could not load plugins
                         </p>
                     </div>
@@ -74,11 +77,15 @@ export default async function PluginsPage() {
                                         <CardHeader className="gap-4">
                                             <div className="flex h-fit flex-row items-center gap-5">
                                                 <Avatar className="bg-card-lv3 group-disabled/link:bg-card-lv3/50 size-10 rounded-lg p-1">
-                                                    <AvatarImage
-                                                        src={item.logo}
-                                                        alt={`${item.appName} logo`}
-                                                        className="object-contain"
-                                                    />
+                                                    {(item.logo && (
+                                                        <AvatarImage
+                                                            src={item.logo}
+                                                            alt={`${item.appName} logo`}
+                                                            className="object-contain"
+                                                        />
+                                                    )) || (
+                                                        <ImageOff className="text-text-tertiary m-auto h-6 w-6" />
+                                                    )}
                                                 </Avatar>
 
                                                 <div className="flex-1">
@@ -93,12 +100,16 @@ export default async function PluginsPage() {
 
                                                 {item.isConnected &&
                                                     item.connectionStatus ===
-                                                    MCP_CONNECTION_STATUS.ACTIVE && (
+                                                        MCP_CONNECTION_STATUS.ACTIVE && (
                                                         <Badge
                                                             variant="tertiary"
-                                                            leftIcon={<CheckIcon />}
+                                                            leftIcon={
+                                                                <CheckIcon />
+                                                            }
                                                             className="bg-success! text-card-lv2! pointer-events-none">
-                                                            {item.isDefault ? "Default" : "Installed"}
+                                                            {item.isDefault
+                                                                ? "Default"
+                                                                : "Installed"}
                                                         </Badge>
                                                     )}
                                             </div>
@@ -115,6 +126,21 @@ export default async function PluginsPage() {
                         ))}
                     </div>
                 )}
+                <Card className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 p-6">
+                    <CardHeader className="text-center">
+                        <CardTitle className="text-text-primary">
+                            Add Custom Plugin
+                        </CardTitle>
+                        <CardDescription className="text-text-secondary">
+                            Create and configure your own plugin.
+                        </CardDescription>
+                    </CardHeader>
+                    <Link href="/settings/plugins/custom">
+                        <Button size="lg" variant="primary" className="mt-4">
+                            Add Plugin
+                        </Button>
+                    </Link>
+                </Card>
             </Page.Content>
         </Page.Root>
     );
