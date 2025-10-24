@@ -23,6 +23,8 @@ export const ConfigsSidebar = () => {
     const { organizationName } = useOrganizationContext();
     const pathname = usePathname();
     const { license } = useSubscriptionContext();
+    const isTrial = license.subscriptionStatus === "trial";
+    const isBYOK = isBYOKSubscriptionPlan(license);
 
     const topItems = [
         {
@@ -41,7 +43,7 @@ export const ConfigsSidebar = () => {
             icon: LockKeyholeOpenIcon,
             label: "BYOK",
             href: `/organization/byok`,
-            visible: isBYOKSubscriptionPlan(license),
+            visible: isBYOK || isTrial,
         },
     ] satisfies Array<{
         icon: React.ComponentType;
