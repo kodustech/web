@@ -9,8 +9,10 @@ import { isBYOKSubscriptionPlan } from "./_utils";
 export default async function ByokPage() {
     const teamId = await getGlobalSelectedTeamId();
     const subscription = await validateOrganizationLicense({ teamId });
+    const isTrial = subscription.subscriptionStatus === "trial";
 
-    if (!isBYOKSubscriptionPlan(subscription)) redirect("/organization");
+    if (!isBYOKSubscriptionPlan(subscription) && !isTrial)
+        redirect("/organization");
 
     const byokConfig = await getBYOK();
 
