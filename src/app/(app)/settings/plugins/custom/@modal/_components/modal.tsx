@@ -51,9 +51,7 @@ type AuthMethodType = (typeof AUTH_METHODS)[keyof typeof AUTH_METHODS];
 
 const PROTOCOLS = {
     HTTP: "http",
-    STDIO: "stdio",
     SSE: "sse",
-    WEBSOCKET: "websocket",
 } as const;
 
 type ProtocolType = (typeof PROTOCOLS)[keyof typeof PROTOCOLS];
@@ -491,15 +489,8 @@ export const AddCustomPluginModal = ({
                                             <SelectItem value={PROTOCOLS.HTTP}>
                                                 HTTP
                                             </SelectItem>
-                                            <SelectItem value={PROTOCOLS.STDIO}>
-                                                STDIO
-                                            </SelectItem>
                                             <SelectItem value={PROTOCOLS.SSE}>
                                                 SSE
-                                            </SelectItem>
-                                            <SelectItem
-                                                value={PROTOCOLS.WEBSOCKET}>
-                                                WebSocket
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
