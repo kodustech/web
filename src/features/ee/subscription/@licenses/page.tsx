@@ -1,41 +1,52 @@
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 
 import {
-    getPullRequestAuthors,
+    getOrganizationMembers,
     getUsersWithLicense,
     validateOrganizationLicense,
 } from "../_services/billing/fetch";
 import { LicensesPageClient } from "./_components/page.client";
+import type { LicenseTableRow } from "./_components/columns";
 
 export default async function SubscriptionTabs() {
     const teamId = await getGlobalSelectedTeamId();
 
-    const [pullRequestAuthors, usersWithLicense, license] = await Promise.all([
-        getPullRequestAuthors().catch(() => []),
-        getUsersWithLicense({ teamId }),
-        validateOrganizationLicense({ teamId }),
-    ]);
+    const [organizationMembersRaw, usersWithLicense, license] =
+        await Promise.all([
+            getOrganizationMembers({ teamId }).catch(() => []),
+            getUsersWithLicense({ teamId }),
+            validateOrganizationLicense({ teamId }),
+        ]);
 
-    const pullRequestAuthorsWithLicense: {
-        id: number;
-        name: string;
-        licenseStatus: "active" | "inactive";
-    }[] = pullRequestAuthors.map((author) => {
-        const user = usersWithLicense.find(
-            (user) => user.git_id === author.id.toString(),
-        );
+    const organizationMembers = Array.isArray(organizationMembersRaw)
+        ? organizationMembersRaw
+        : [];
 
-        return {
-            id: author.id,
-            name: author.name,
-            licenseStatus:
-                license.valid && license.subscriptionStatus === "trial"
-                    ? "active"
-                    : user?.git_id
-                      ? "active"
-                      : "inactive",
-        };
-    });
+    const organizationMembersWithLicense: LicenseTableRow[] =
+        organizationMembers.map((member) => {
+            const normalizedName =
+                member.name?.trim() ||
+                member.displayName?.trim() ||
+                member.username?.trim() ||
+                member.login?.trim() ||
+                "Unknown member";
 
-    return <LicensesPageClient data={pullRequestAuthorsWithLicense} />;
+            const user = usersWithLicense.find(
+                (userWithLicense) =>
+                    userWithLicense.git_id === member.id.toString(),
+            );
+
+            return {
+                id: member.id,
+                name: normalizedName,
+                licenseStatus:
+                    license.valid && license.subscriptionStatus === "trial"
+                        ? "active"
+                        : user?.git_id
+                          ? "active"
+                          : "inactive",
+            };
+        });
+
+    return <LicensesPageClient data={organizationMembersWithLicense} />;
 }

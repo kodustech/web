@@ -13,13 +13,13 @@ import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-s
 import { assignOrDeassignUserLicenseAction } from "../../_actions/assign-or-deassign-license";
 import { NoMoreLicensesModal } from "./no-more-licenses-modal";
 
-type Type = {
-    id: number;
+export type LicenseTableRow = {
+    id: string | number;
     name: string;
     licenseStatus: "active" | "inactive";
 };
 
-export const columns: ColumnDef<Type>[] = [
+export const columns: ColumnDef<LicenseTableRow>[] = [
     {
         accessorKey: "name",
         header: "Username",
@@ -43,18 +43,20 @@ export const columns: ColumnDef<Type>[] = [
             const [
                 assignOrDeassignLicense,
                 { loading: isAssigningOrDeassigningLicense },
-            ] = useAsyncAction(async (licenseStatus: Type["licenseStatus"]) => {
-                await assignOrDeassignUserLicenseAction({
-                    teamId,
-                    user: {
-                        git_id: row.original.id.toString(),
-                        git_tool:
-                            codeManagementConnection?.platformName.toLowerCase()!,
-                        licenseStatus,
-                    },
-                    userName: row.original.name,
-                });
-            });
+            ] = useAsyncAction(
+                async (licenseStatus: LicenseTableRow["licenseStatus"]) => {
+                    await assignOrDeassignUserLicenseAction({
+                        teamId,
+                        user: {
+                            git_id: String(row.original.id),
+                            git_tool:
+                                codeManagementConnection?.platformName.toLowerCase()!,
+                            licenseStatus,
+                        },
+                        userName: row.original.name,
+                    });
+                },
+            );
 
             // const number = table.options.data.filter((item) => item.licenseStatus === "active").length;
 
