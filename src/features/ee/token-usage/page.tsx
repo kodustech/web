@@ -9,7 +9,7 @@ import {
     getTokenUsageByDeveloper,
     getTokenUsageByPR,
 } from "@services/usage/fetch";
-import { BaseUsageContract } from "@services/usage/types";
+import { BaseUsageContract, UsageByPrResultContract } from "@services/usage/types";
 import { CookieName } from "src/core/utils/cookie";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
@@ -79,21 +79,65 @@ export default async function TokenUsagePage({
         console.error("Failed to fetch token usage data:", error);
     }
 
+    const ENABLE_MOCK_DATA = false;
+    
+    if (ENABLE_MOCK_DATA && filterType === "by-pr") {
+        const mockData: UsageByPrResultContract[] = [];
+        
+        for (let i = 1; i <= 30; i++) {
+            const isOutlier = i === 15;
+            const isHighUsage = i === 5 || i === 22;
+            
+            const baseInput = isOutlier ? 15000000 : isHighUsage ? 50000 : Math.random() * 5000 + 1000;
+            const baseOutput = isOutlier ? 8000000 : isHighUsage ? 30000 : Math.random() * 3000 + 500;
+            const baseReasoning = isOutlier ? 2000000 : isHighUsage ? 10000 : Math.random() * 1000 + 200;
+            
+            const input = Math.floor(baseInput);
+            const output = Math.floor(baseOutput);
+            const outputReasoning = Math.floor(baseReasoning);
+            
+            mockData.push({
+                model: "claude-3-5-sonnet-20241022",
+                input,
+                output,
+                outputReasoning,
+                total: input + output + outputReasoning,
+                prNumber: i,
+            });
+        }
+        
+        data = mockData;
+    }
+
     const uniqueModels: string[] = Array.from(
         new Set(data.map((d) => d.model)),
     );
 
     let pricing = {};
-    try {
-        const pricingPromises = uniqueModels.map(async (model) => {
-            const pricingInfo = await getTokenPricing(model);
-            return { [model]: pricingInfo };
-        });
+    
+    if (ENABLE_MOCK_DATA && filterType === "by-pr") {
+        pricing = {
+            "claude-3-5-sonnet-20241022": {
+                id: "claude-3-5-sonnet-20241022",
+                pricing: {
+                    prompt: 3.0,
+                    completion: 15.0,
+                    internal_reasoning: 15.0,
+                },
+            },
+        };
+    } else {
+        try {
+            const pricingPromises = uniqueModels.map(async (model) => {
+                const pricingInfo = await getTokenPricing(model);
+                return { [model]: pricingInfo };
+            });
 
-        const pricingArray = await Promise.all(pricingPromises);
-        pricing = Object.assign({}, ...pricingArray);
-    } catch (error) {
-        console.error("Failed to fetch pricing data:", error);
+            const pricingArray = await Promise.all(pricingPromises);
+            pricing = Object.assign({}, ...pricingArray);
+        } catch (error) {
+            console.error("Failed to fetch pricing data:", error);
+        }
     }
 
     const dateRangeCookieValue = cookieStore.get(
