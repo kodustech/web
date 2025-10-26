@@ -6,10 +6,21 @@ import { isSelfHosted } from "src/core/utils/self-hosted";
 import type { OrganizationLicense, Plan } from "./types";
 import { billingFetch } from "./utils";
 
-export const getPullRequestAuthors = async () => {
-    return authorizedFetch<
-        Array<{ id: number; name: string; contributions: number }>
-    >(pathToApiUrl("/pull-requests/get-pull-request-authors"));
+type OrganizationMember = {
+    id: string | number;
+    name?: string | null;
+    login?: string | null;
+    username?: string | null;
+    displayName?: string | null;
+};
+
+export const getOrganizationMembers = async (params: { teamId: string }) => {
+    return authorizedFetch<Array<OrganizationMember>>(
+        pathToApiUrl("/code-management/organization-members"),
+        {
+            params: { teamId: params.teamId },
+        },
+    );
 };
 
 export const startTeamTrial = async (params: {
