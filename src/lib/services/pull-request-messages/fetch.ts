@@ -1,6 +1,7 @@
 import type { LiteralUnion } from "src/core/types";
 import { axiosAuthorized } from "src/core/utils/axios";
 import { pathToApiUrl } from "src/core/utils/helpers";
+import { PullRequestMessageStatus } from "./types";
 
 export const savePullRequestMessages = ({
     uuid,
@@ -15,11 +16,11 @@ export const savePullRequestMessages = ({
     directoryId?: string;
     startReviewMessage: {
         content: string;
-        status: "active" | "inactive";
+        status: PullRequestMessageStatus;
     };
     endReviewMessage?: {
         content: string;
-        status: "active" | "inactive";
+        status: PullRequestMessageStatus;
     };
     globalSettings?: {
         hideComments: boolean;

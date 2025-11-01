@@ -5,7 +5,11 @@ import { pathToApiUrl } from "src/core/utils/helpers";
 import { useSuspenseFetch } from "src/core/utils/reactQuery";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
-import { CustomMessageEntity, FormattedCustomMessageEntity } from "./types";
+import {
+    CustomMessageEntity,
+    FormattedCustomMessageEntity,
+    PullRequestMessageStatus,
+} from "./types";
 import type { LiteralUnion } from "src/core/types";
 
 export const useSuspensePullRequestMessages = () => {
@@ -34,7 +38,9 @@ export const useSuspensePullRequestMessages = () => {
                     },
                     status: {
                         level: FormattedConfigLevel.DEFAULT,
-                        value: defaults?.startReviewMessage?.status ?? "active",
+                        value:
+                            defaults?.startReviewMessage?.status ??
+                            PullRequestMessageStatus.EVERY_PUSH,
                     },
                 },
                 endReviewMessage: {
@@ -44,7 +50,9 @@ export const useSuspensePullRequestMessages = () => {
                     },
                     status: {
                         level: FormattedConfigLevel.DEFAULT,
-                        value: defaults?.endReviewMessage?.status ?? "active",
+                        value:
+                            defaults?.endReviewMessage?.status ??
+                            PullRequestMessageStatus.EVERY_PUSH,
                     },
                 },
                 globalSettings: {
@@ -87,7 +95,9 @@ export const useSuspensePullRequestMessagesFor = (
                     },
                     status: {
                         level: FormattedConfigLevel.DEFAULT,
-                        value: defaults?.startReviewMessage.status ?? "active",
+                        value:
+                            defaults?.startReviewMessage?.status ??
+                            PullRequestMessageStatus.EVERY_PUSH,
                     },
                 },
                 endReviewMessage: {
@@ -97,7 +107,9 @@ export const useSuspensePullRequestMessagesFor = (
                     },
                     status: {
                         level: FormattedConfigLevel.DEFAULT,
-                        value: defaults?.endReviewMessage?.status ?? "active",
+                        value:
+                            defaults?.endReviewMessage?.status ??
+                            PullRequestMessageStatus.EVERY_PUSH,
                     },
                 },
                 globalSettings: {
