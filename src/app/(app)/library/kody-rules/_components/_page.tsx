@@ -617,6 +617,7 @@ export const KodyRulesLibrary = ({
                                         key={rule.uuid}
                                         rule={rule}
                                         showLikeButton
+                                        showSuggestionsButton
                                     />
                                 ))}
                             </div>

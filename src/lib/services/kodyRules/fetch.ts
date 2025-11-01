@@ -7,6 +7,7 @@ import type {
     KodyRule,
     KodyRuleBucket,
     KodyRulesStatus,
+    KodyRuleSuggestion,
     LibraryRule,
     PaginatedResponse,
 } from "./types";
@@ -173,4 +174,10 @@ export const syncIDERules = (params: {
     repositoryId: string;
 }) => {
     axiosAuthorized.post(KODY_RULES_PATHS.SYNC_IDE_RULES, params);
+};
+
+export const getKodyRuleSuggestions = async (ruleId: string) => {
+    const url = `${KODY_RULES_PATHS.GET_KODY_RULE_SUGGESTIONS}?ruleId=${ruleId}`;
+    const suggestions = await authorizedFetch<KodyRuleSuggestion[]>(url);
+    return suggestions || [];
 };
