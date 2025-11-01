@@ -19,17 +19,20 @@ import { HoverCard, HoverCardContent, HoverCardTrigger } from "../hover-card";
 import { Link } from "../link";
 import { Separator } from "../separator";
 import { Spinner } from "../spinner";
+import { SuggestionsModal } from "src/app/(app)/library/kody-rules/_components/suggestions-modal";
 
 export const KodyRuleLibraryItem = ({
     rule,
     repositoryId,
     directoryId,
     showLikeButton,
+    showSuggestionsButton,
 }: {
     rule: LibraryRule;
     repositoryId?: string;
     directoryId?: string;
     showLikeButton?: boolean;
+    showSuggestionsButton?: boolean;
 }) => {
     const { userId } = useAuth();
     const [positiveCount, setPositiveCount] = useState(rule.positiveCount ?? 0);
@@ -199,47 +202,53 @@ export const KodyRuleLibraryItem = ({
                     )}
                 </div>
 
-                {showLikeButton && (
-                    <div className="flex items-center gap-1">
-                        <Button
-                            size="sm"
-                            variant="cancel"
-                            onClick={() => sendFeedback("positive")}
-                            disabled={isFeedbackActionInProgress}
-                            className={cn(
-                                "-my-2 gap-1 px-2 transition-colors",
-                                userFeedback === "positive" && "bg-green-500/10 text-green-500 border-green-500/20"
-                            )}
-                            rightIcon={
-                                isFeedbackActionInProgress ? (
-                                    <Spinner className="size-2.5" />
-                                ) : (
-                                    <ThumbsUp className="size-3" />
-                                )
-                            }>
-                            {positiveCount > 0 ? positiveCount : null}
-                        </Button>
-                        
-                        <Button
-                            size="sm"
-                            variant="cancel"
-                            onClick={() => sendFeedback("negative")}
-                            disabled={isFeedbackActionInProgress}
-                            className={cn(
-                                "-my-2 gap-1 px-2 transition-colors",
-                                userFeedback === "negative" && "bg-red-500/10 text-red-500 border-red-500/20"
-                            )}
-                            rightIcon={
-                                isFeedbackActionInProgress ? (
-                                    <Spinner className="size-2.5" />
-                                ) : (
-                                    <ThumbsDown className="size-3" />
-                                )
-                            }>
-                            {negativeCount > 0 ? negativeCount : null}
-                        </Button>
-                    </div>
-                )}
+                <div className="flex items-center gap-2">
+                    {showSuggestionsButton && (
+                        <SuggestionsModal ruleId={rule.uuid} ruleTitle={rule.title} />
+                    )}
+
+                    {showLikeButton && (
+                        <div className="flex items-center gap-1">
+                            <Button
+                                size="sm"
+                                variant="cancel"
+                                onClick={() => sendFeedback("positive")}
+                                disabled={isFeedbackActionInProgress}
+                                className={cn(
+                                    "-my-2 gap-1 px-2 transition-colors",
+                                    userFeedback === "positive" && "bg-green-500/10 text-green-500 border-green-500/20"
+                                )}
+                                rightIcon={
+                                    isFeedbackActionInProgress ? (
+                                        <Spinner className="size-2.5" />
+                                    ) : (
+                                        <ThumbsUp className="size-3" />
+                                    )
+                                }>
+                                {positiveCount > 0 ? positiveCount : null}
+                            </Button>
+                            
+                            <Button
+                                size="sm"
+                                variant="cancel"
+                                onClick={() => sendFeedback("negative")}
+                                disabled={isFeedbackActionInProgress}
+                                className={cn(
+                                    "-my-2 gap-1 px-2 transition-colors",
+                                    userFeedback === "negative" && "bg-red-500/10 text-red-500 border-red-500/20"
+                                )}
+                                rightIcon={
+                                    isFeedbackActionInProgress ? (
+                                        <Spinner className="size-2.5" />
+                                    ) : (
+                                        <ThumbsDown className="size-3" />
+                                    )
+                                }>
+                                {negativeCount > 0 ? negativeCount : null}
+                            </Button>
+                        </div>
+                    )}
+                </div>
             </CardFooter>
         </Card>
     );

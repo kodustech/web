@@ -26,6 +26,7 @@ import { addSearchParamsToUrl } from "src/core/utils/url";
 import { DeleteKodyRuleConfirmationModal } from "../../../_components/delete-confirmation-modal";
 import { useCodeReviewRouteParams } from "../../../../_hooks";
 import { ExternalReferencesDisplay } from "../../pr-summary/_components/external-references-display";
+import { SuggestionsModal } from "src/app/(app)/library/kody-rules/_components/suggestions-modal";
 
 export const KodyRuleItem = ({
     rule,
@@ -121,6 +122,10 @@ export const KodyRuleItem = ({
                 </div>
 
                 <div className="flex items-center gap-2">
+                    {rule.uuid && (
+                        <SuggestionsModal ruleId={rule.uuid} ruleTitle={rule.title} variant="icon" />
+                    )}
+
                     <Link
                         href={addSearchParamsToUrl(
                             `/settings/code-review/${repositoryId}/kody-rules/${rule.uuid}`,

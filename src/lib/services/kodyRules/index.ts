@@ -29,4 +29,5 @@ export const KODY_RULES_PATHS = {
     CHECK_SYNC_STATUS: pathToApiUrl("/kody-rules/check-sync-status"),
     GET_INHERITED_RULES: pathToApiUrl("/kody-rules/inherited-rules"),
     GET_KODY_RULES_TOTAL_QUANTITY: pathToApiUrl("/kody-rules/limits"),
+    GET_KODY_RULE_SUGGESTIONS: pathToApiUrl("/kody-rules/suggestions"),
 } as const;
