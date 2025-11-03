@@ -11,9 +11,18 @@ import { Card, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { Label } from "@components/ui/label";
 import { Markdown } from "@components/ui/markdown";
-import { Switch } from "@components/ui/switch";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@components/ui/select";
 import { Textarea } from "@components/ui/textarea";
-import { CustomMessageConfig } from "@services/pull-request-messages/types";
+import {
+    CustomMessageConfig,
+    PullRequestMessageStatus,
+} from "@services/pull-request-messages/types";
 import { RuleType } from "markdown-to-jsx";
 import { useDefaultCodeReviewConfig } from "src/app/(app)/settings/_components/context";
 import { useCurrentConfigLevel } from "src/app/(app)/settings/_hooks";
@@ -25,6 +34,23 @@ import { FormattedConfig } from "../../../_types";
 import { CustomMessagesOptionsDropdown } from "./dropdown";
 import { ChevronDownIcon } from "lucide-react";
 import { dropdownItems, VARIABLE_REGEX } from "./options";
+
+const getStatusLabel = (status: PullRequestMessageStatus): string => {
+    switch (status) {
+        case PullRequestMessageStatus.EVERY_PUSH:
+            return "Every push";
+        case PullRequestMessageStatus.ONLY_WHEN_OPENED:
+            return "Only when opened";
+        case PullRequestMessageStatus.OFF:
+            return "Off";
+        case PullRequestMessageStatus.ACTIVE:
+            return "Active (Legacy)";
+        case PullRequestMessageStatus.INACTIVE:
+            return "Inactive (Legacy)";
+        default:
+            return status;
+    }
+};
 
 export const TabContent = (props: {
     type: "startReviewMessage" | "endReviewMessage";
@@ -53,47 +79,61 @@ export const TabContent = (props: {
 
     return (
         <div className="flex flex-1 flex-col gap-4">
-            <Button
-                size="sm"
-                variant="helper"
-                className="w-full"
-                disabled={!props.canEdit}
-                onClick={() =>
-                    props.onChangeAction({
-                        content: props.value.content.value,
-                        status:
-                            props.value.status.value === "active"
-                                ? "inactive"
-                                : "active",
-                    })
-                }>
-                <CardHeader className="flex flex-row items-center justify-between gap-6 p-4">
-                    <div>
-                        <Heading variant="h3">
-                            Enable{" "}
-                            {props.type === "startReviewMessage"
-                                ? "Start"
-                                : "End"}{" "}
-                            Review message
-                        </Heading>
-                        <OverrideIndicator
-                            currentValue={props.value.status.value}
-                            initialState={props.initialState.status}
-                        />
-                        <p className="text-text-secondary">
-                            If disabled, Kody won't send any message at the{" "}
-                            {props.type === "startReviewMessage"
-                                ? "start"
-                                : "end"}{" "}
-                            of the review.
+            <Card color="lv3">
+                <CardHeader className="flex flex-col gap-4 p-4">
+                    <div className="flex items-center justify-between gap-6">
+                        <div className="flex-1">
+                            <Heading variant="h3">Message settings</Heading>
+                            <OverrideIndicator
+                                currentValue={props.value.status.value}
+                                initialState={props.initialState.status}
+                            />
+                        </div>
+                    </div>
+                    
+                    <div className="flex flex-col gap-2">
+                        <Label>Message behavior</Label>
+                        <Select
+                            value={props.value.status.value}
+                            onValueChange={(value: PullRequestMessageStatus) =>
+                                props.onChangeAction({
+                                    content: props.value.content.value,
+                                    status: value,
+                                })
+                            }
+                            disabled={!props.canEdit}>
+                            <SelectTrigger>
+                                <SelectValue>
+                                    {getStatusLabel(props.value.status.value)}
+                                </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={PullRequestMessageStatus.EVERY_PUSH}>
+                                    {getStatusLabel(PullRequestMessageStatus.EVERY_PUSH)}
+                                </SelectItem>
+                                <SelectItem value={PullRequestMessageStatus.ONLY_WHEN_OPENED}>
+                                    {getStatusLabel(PullRequestMessageStatus.ONLY_WHEN_OPENED)}
+                                </SelectItem>
+                                <SelectItem value={PullRequestMessageStatus.OFF}>
+                                    {getStatusLabel(PullRequestMessageStatus.OFF)}
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
+                        <p className="text-text-tertiary text-xs">
+                            {props.value.status.value === PullRequestMessageStatus.EVERY_PUSH &&
+                                "Kody will send a message every time code is pushed to the PR"}
+                            {props.value.status.value === PullRequestMessageStatus.ONLY_WHEN_OPENED &&
+                                "Kody will send a message only when the PR is opened"}
+                            {props.value.status.value === PullRequestMessageStatus.OFF &&
+                                "Kody won't send any messages"}
+                            {props.value.status.value === PullRequestMessageStatus.ACTIVE &&
+                                "Will be migrated to 'every_push'"}
+                            {props.value.status.value === PullRequestMessageStatus.INACTIVE &&
+                                "Will be migrated to 'off'"}
                         </p>
                     </div>
-                    <Switch
-                        decorative
-                        checked={props.value.status.value === "active"}
-                    />
                 </CardHeader>
-            </Button>
+            </Card>
 
             <div className="mt-4 flex flex-1">
                 <div className="flex flex-2 shrink-0 flex-col gap-2">
@@ -121,7 +161,8 @@ export const TabContent = (props: {
                                 className="h-full resize-none rounded-none bg-transparent p-6"
                                 disabled={
                                     !props.canEdit ||
-                                    props.value.status.value === "inactive"
+                                    props.value.status.value === PullRequestMessageStatus.OFF ||
+                                    props.value.status.value === PullRequestMessageStatus.INACTIVE
                                 }
                                 onChange={(ev) =>
                                     props.onChangeAction({

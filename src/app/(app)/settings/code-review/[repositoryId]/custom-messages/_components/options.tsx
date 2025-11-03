@@ -1,14 +1,9 @@
 "use client";
 
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@components/ui/table";
 import { cn } from "src/core/utils/components";
+import { useCodeReviewConfig } from "src/app/(app)/settings/_components/context";
+import { ReviewCadenceType } from "../../../_types";
 
 /* Match @variable-name, @variable_name, @variableName */
 export const VARIABLE_REGEX = /\@((?:\w(?:[-_]?))+)/g;
@@ -23,6 +18,45 @@ const SimpleCollapsible = (
         {props.children}
     </details>
 );
+
+const REVIEW_CADENCE_COPY: Record<
+    ReviewCadenceType,
+    { label: string; description: string }
+> = {
+    [ReviewCadenceType.AUTOMATIC]: {
+        label: "🤖 Automatic Review",
+        description: "Kody will automatically review every push to this PR.",
+    },
+    [ReviewCadenceType.AUTO_PAUSE]: {
+        label: "⏸️ Auto-Pause Mode",
+        description:
+            "Kody reviews the first push automatically, then pauses if you make 3+ pushes in 15 minutes. Use @kody resume to continue.",
+    },
+    [ReviewCadenceType.MANUAL]: {
+        label: "✋ Manual Review",
+        description:
+            "Kody only reviews when you request with @kody start-review command.",
+    },
+};
+
+const ReviewCadencePreview = () => {
+    const config = useCodeReviewConfig();
+    const automationEnabled = config?.automatedReviewActive?.value;
+    const cadenceType =
+        automationEnabled === false
+            ? ReviewCadenceType.MANUAL
+            : config?.reviewCadence?.type?.value ??
+              ReviewCadenceType.AUTOMATIC;
+    const cadenceCopy =
+        REVIEW_CADENCE_COPY[cadenceType] ??
+        REVIEW_CADENCE_COPY[ReviewCadenceType.AUTOMATIC];
+
+    return (
+        <p className="text-sm">
+            <strong>{cadenceCopy.label}</strong>: {cadenceCopy.description}
+        </p>
+    );
+};
 
 export const dropdownItems = {
     reviewOptions: {
@@ -87,6 +121,16 @@ export const dropdownItems = {
                         </TableRow>
                     </TableBody>
                 </Table>
+            </SimpleCollapsible>
+        ),
+    },
+    reviewCadence: {
+        label: "Review cadence",
+        description:
+            "Shows how Kody will review this PR (automatic, auto-pause, or manual)",
+        example: (
+            <SimpleCollapsible label="⏱️ Review cadence">
+                <ReviewCadencePreview />
             </SimpleCollapsible>
         ),
     },
