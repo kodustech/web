@@ -28,6 +28,86 @@ type SuggestionsModalProps = {
     variant?: "default" | "icon";
 };
 
+const buildExternalPullRequestUrl = ({
+    prUrl,
+    prNumber,
+    repositoryFullName,
+}: {
+    prUrl?: string;
+    prNumber: number;
+    repositoryFullName?: string;
+}) => {
+    if (!prUrl) {
+        return `#pr-${prNumber}`;
+    }
+
+    try {
+        const url = new URL(prUrl);
+        const host = url.host.toLowerCase();
+
+        if (host.includes("github.com")) {
+            if (host.includes("api.github.com")) {
+                const apiMatch = url.pathname.match(/\/repos\/([^/]+)\/([^/]+)\/pulls/);
+                if (apiMatch) {
+                    const [, owner, repo] = apiMatch;
+                    return `https://github.com/${owner}/${repo}/pull/${prNumber}`;
+                }
+                if (repositoryFullName) {
+                    return `https://github.com/${repositoryFullName}/pull/${prNumber}`;
+                }
+            } else {
+                return prUrl;
+            }
+        }
+
+        if (host.includes("gitlab.com")) {
+            if (url.pathname.includes("/api/v4/projects/")) {
+                if (repositoryFullName) {
+                    return `https://gitlab.com/${repositoryFullName}/-/merge_requests/${prNumber}`;
+                }
+            } else {
+                return prUrl;
+            }
+        }
+
+        if (host.includes("bitbucket.org")) {
+            if (host.includes("api.bitbucket.org")) {
+                const apiMatch = url.pathname.match(/\/2\.0\/repositories\/([^/]+)\/([^/]+)/);
+                if (apiMatch) {
+                    const [, workspace, repo] = apiMatch;
+                    return `https://bitbucket.org/${workspace}/${repo}/pull-requests/${prNumber}`;
+                }
+                if (repositoryFullName) {
+                    return `https://bitbucket.org/${repositoryFullName}/pull-requests/${prNumber}`;
+                }
+            } else {
+                return prUrl;
+            }
+        }
+
+        if (host.includes("dev.azure.com")) {
+            if (!url.pathname.includes("/_apis/")) {
+                return prUrl;
+            }
+
+            const orgMatch = prUrl.match(/dev\.azure\.com\/([^/]+)/);
+            const repositoryName = repositoryFullName?.split("/").pop();
+            if (orgMatch && repositoryName) {
+                const [, organization] = orgMatch;
+                return `https://dev.azure.com/${organization}/_git/${repositoryName}/pullrequest/${prNumber}`;
+            }
+        }
+
+        if (!prUrl.includes("/api/") && !prUrl.includes("/_apis/")) {
+            return prUrl;
+        }
+    } catch {
+        return prUrl;
+    }
+
+    return `#pr-${prNumber}`;
+};
+
 export const SuggestionsModal = ({ ruleId, ruleTitle, variant = "default" }: SuggestionsModalProps) => {
     const [open, setOpen] = useState(false);
     const [viewMode, setViewMode] = useState<"detailed" | "minimal">("detailed");
@@ -143,7 +223,14 @@ export const SuggestionsModal = ({ ruleId, ruleTitle, variant = "default" }: Sug
                                                 {group.repositoryFullName}
                                             </p>
                                         </div>
-                                        <Link href={group.prUrl} target="_blank" rel="noopener noreferrer">
+                                        <Link
+                                            href={buildExternalPullRequestUrl({
+                                                prUrl: group.prUrl,
+                                                prNumber: group.prNumber,
+                                                repositoryFullName: group.repositoryFullName,
+                                            })}
+                                            target="_blank"
+                                            rel="noopener noreferrer">
                                             <Button
                                                 size="sm"
                                                 variant="cancel"
@@ -157,49 +244,61 @@ export const SuggestionsModal = ({ ruleId, ruleTitle, variant = "default" }: Sug
                                     <Separator />
 
                                     <div className="space-y-4">
-                                        {group.suggestions.map((suggestion) => (
-                                            <div key={suggestion.id} className="space-y-3">
-                                                <div className="flex items-start justify-between gap-4">
-                                                    <div className="flex-1">
-                                                        <Badge variant="outline" className="h-2 font-mono text-xs mb-2">
-                                                            {suggestion.relevantFile} L{suggestion.relevantLinesStart}-{suggestion.relevantLinesEnd}
-                                                        </Badge>
+                                        {group.suggestions.map((suggestion) => {
+                                            const existingCode = suggestion.existingCode?.trim();
+                                            const improvedCode = suggestion.improvedCode?.trim();
+                                            const shouldShowDetailedView =
+                                                viewMode === "detailed" && (existingCode || improvedCode);
+
+                                            return (
+                                                <div key={suggestion.id} className="space-y-3">
+                                                    <div className="flex items-start justify-between gap-4">
+                                                        <div className="flex-1">
+                                                            <Badge variant="outline" className="h-2 font-mono text-xs mb-2">
+                                                                {suggestion.relevantFile} L{suggestion.relevantLinesStart}-
+                                                                {suggestion.relevantLinesEnd}
+                                                            </Badge>
+                                                        </div>
                                                     </div>
+
+                                                    <p className="text-sm">{suggestion.suggestionContent}</p>
+
+                                                    {shouldShowDetailedView && (
+                                                        <div className="space-y-3">
+                                                            {existingCode && (
+                                                                <div>
+                                                                    <p className="text-xs font-semibold text-text-secondary mb-2">
+                                                                        Existing Code:
+                                                                    </p>
+                                                                    <SyntaxHighlight
+                                                                        language={suggestion.language}
+                                                                        className="text-xs">
+                                                                        {existingCode}
+                                                                    </SyntaxHighlight>
+                                                                </div>
+                                                            )}
+
+                                                            {improvedCode && (
+                                                                <div>
+                                                                    <p className="text-xs font-semibold text-text-secondary mb-2">
+                                                                        Improved Code:
+                                                                    </p>
+                                                                    <SyntaxHighlight
+                                                                        language={suggestion.language}
+                                                                        className="text-xs">
+                                                                        {improvedCode}
+                                                                    </SyntaxHighlight>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+
+                                                    {group.suggestions.indexOf(suggestion) < group.suggestions.length - 1 && (
+                                                        <Separator className="!mt-4" />
+                                                    )}
                                                 </div>
-
-                                                <p className="text-sm">{suggestion.suggestionContent}</p>
-
-                                                {viewMode === "detailed" && (
-                                                    <div className="space-y-3">
-                                                        <div>
-                                                            <p className="text-xs font-semibold text-text-secondary mb-2">
-                                                                Existing Code:
-                                                            </p>
-                                                            <SyntaxHighlight
-                                                                language={suggestion.language}
-                                                                className="text-xs">
-                                                                {suggestion.existingCode}
-                                                            </SyntaxHighlight>
-                                                        </div>
-
-                                                        <div>
-                                                            <p className="text-xs font-semibold text-text-secondary mb-2">
-                                                                Improved Code:
-                                                            </p>
-                                                            <SyntaxHighlight
-                                                                language={suggestion.language}
-                                                                className="text-xs">
-                                                                {suggestion.improvedCode}
-                                                            </SyntaxHighlight>
-                                                        </div>
-                                                    </div>
-                                                )}
-
-                                                {group.suggestions.indexOf(suggestion) < group.suggestions.length - 1 && (
-                                                    <Separator className="!mt-4" />
-                                                )}
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 </div>
                             ))}
@@ -210,4 +309,3 @@ export const SuggestionsModal = ({ ruleId, ruleTitle, variant = "default" }: Sug
         </Dialog>
     );
 };
-

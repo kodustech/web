@@ -22,7 +22,6 @@ import {
     SidebarMenuSub,
     SidebarMenuSubItem,
 } from "@components/ui/sidebar";
-import { UserRole } from "@enums";
 import {
     useSuspenseGetCodeReviewParameter,
     useSuspenseGetDefaultCodeReviewParameter,
@@ -31,11 +30,7 @@ import {
 } from "@services/parameters/hooks";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
-import { useAuth } from "src/core/providers/auth.provider";
-import { usePermissions } from "src/core/providers/permissions.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { hasPermission } from "src/core/utils/permissions";
-import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
 import { useCodeReviewRouteParams } from "../_hooks";
 import { FormattedConfigLevel } from "../code-review/_types";
@@ -57,14 +52,7 @@ const routes = [
     { label: "Custom Messages", href: "custom-messages" },
 ] satisfies Array<{ label: string; href: string }>;
 
-export const SettingsLayout = ({
-    children,
-    pluginsPageFeatureFlag,
-}: React.PropsWithChildren & {
-    pluginsPageFeatureFlag: Awaited<
-        ReturnType<typeof getFeatureFlagWithPayload>
-    >;
-}) => {
+export const SettingsLayout = ({ children }: React.PropsWithChildren) => {
     const pathname = usePathname();
     const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetFormattedCodeReviewParameter(teamId);
@@ -105,7 +93,7 @@ export const SettingsLayout = ({
             });
         }
 
-        if (pluginsPageFeatureFlag?.value && canReadPlugins) {
+        if (canReadPlugins) {
             routes.push({
                 label: "Plugins",
                 href: "/settings/plugins",
@@ -120,7 +108,7 @@ export const SettingsLayout = ({
         }
 
         return routes;
-    }, [pluginsPageFeatureFlag?.value]);
+    }, [canReadGitSettings, canReadBilling, canReadPlugins]);
 
     if (repositoryId && repositoryId !== "global") {
         const repository = configValue?.repositories.find(
