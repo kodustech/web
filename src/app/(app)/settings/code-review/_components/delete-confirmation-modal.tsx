@@ -97,7 +97,7 @@ export const DeleteKodyRuleConfirmationModal = ({
                             Instructions:
                         </strong>
 
-                        <Card>
+                        <Card className="max-h-[300px] overflow-y-scroll">
                             <CardHeader className="py-4">
                                 <Markdown>{rule.rule}</Markdown>
                             </CardHeader>

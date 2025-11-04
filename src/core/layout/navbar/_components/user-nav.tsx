@@ -32,10 +32,8 @@ import { TEAM_STATUS, type AwaitedReturnType } from "src/core/types";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
 export function UserNav({
-    logsPagesFeatureFlag,
     tokenUsagePageFeatureFlag,
 }: {
-    logsPagesFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
     tokenUsagePageFeatureFlag: AwaitedReturnType<
         typeof getFeatureFlagWithPayload
     >;
@@ -118,7 +116,7 @@ export function UserNav({
                     </Link>
                 )}
 
-                {logsPagesFeatureFlag?.value && canReadLogs && (
+                {canReadLogs && (
                     <Link href="/user-logs">
                         <DropdownMenuItem leftIcon={<ActivityIcon />}>
                             Activity Logs

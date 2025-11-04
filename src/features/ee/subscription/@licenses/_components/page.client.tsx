@@ -4,17 +4,9 @@ import { use } from "react";
 import { DataTable } from "@components/ui/data-table";
 
 import { TableFilterContext } from "../../_providers/table-filter-context";
-import { columns } from "./columns";
+import { columns, type LicenseTableRow } from "./columns";
 
-export const LicensesPageClient = ({
-    data,
-}: {
-    data: {
-        id: number;
-        name: string;
-        licenseStatus: "active" | "inactive";
-    }[];
-}) => {
+export const LicensesPageClient = ({ data }: { data: LicenseTableRow[] }) => {
     const { query, setQuery } = use(TableFilterContext);
 
     return (

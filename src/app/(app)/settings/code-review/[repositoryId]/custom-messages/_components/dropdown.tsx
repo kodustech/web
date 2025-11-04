@@ -8,7 +8,10 @@ import {
     DropdownMenuContent,
     DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
-import { CustomMessageConfig } from "@services/pull-request-messages/types";
+import {
+    CustomMessageConfig,
+    PullRequestMessageStatus,
+} from "@services/pull-request-messages/types";
 import { ChevronDownIcon } from "lucide-react";
 
 import { FormattedConfig } from "../../../_types";
@@ -29,7 +32,9 @@ export const CustomMessagesOptionsDropdown = (props: {
             <DropdownMenuTrigger
                 asChild
                 disabled={
-                    !props.canEdit || props.value.status.value === "inactive"
+                    !props.canEdit ||
+                    props.value.status.value === PullRequestMessageStatus.OFF ||
+                    props.value.status.value === PullRequestMessageStatus.INACTIVE
                 }>
                 <Button
                     size="xs"

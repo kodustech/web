@@ -42,7 +42,11 @@ import { KodyRulesEmptyState } from "./empty";
 import { KodyRulesList } from "./list";
 import { KodyRulesToolbar, type VisibleScopes } from "./toolbar";
 
-export const KodyRulesPage = () => {
+export const KodyRulesPage = ({
+    showSuggestionsButton = false,
+}: {
+    showSuggestionsButton?: boolean;
+}) => {
     const platformConfig = usePlatformConfig();
     const config = useFullCodeReviewConfig();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
@@ -319,6 +323,7 @@ export const KodyRulesPage = () => {
                         <KodyRulesList
                             rules={rulesToDisplay}
                             onAnyChange={refreshRulesList}
+                            showSuggestionsButton={showSuggestionsButton}
                         />
                     )}
                 </div>

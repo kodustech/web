@@ -99,3 +99,29 @@ export enum KodyRulesStatus {
     PENDING = "pending",
     DELETED = "deleted",
 }
+
+export type KodyRuleSuggestion = {
+    id: string;
+    relevantFile: string;
+    language: string;
+    suggestionContent: string;
+    existingCode: string;
+    improvedCode: string;
+    oneSentenceSummary: string;
+    relevantLinesStart: number;
+    relevantLinesEnd: number;
+    label: string;
+    severity: string;
+    rankScore: number;
+    brokenKodyRulesIds: string[];
+    priorityStatus: string;
+    deliveryStatus: string;
+    type: string;
+    createdAt: string;
+    updatedAt: string;
+    prNumber: number;
+    prTitle: string;
+    prUrl: string;
+    repositoryId: string;
+    repositoryFullName: string;
+};
