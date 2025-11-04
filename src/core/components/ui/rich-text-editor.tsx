@@ -1,0 +1,532 @@
+"use client";
+
+import * as React from "react";
+import { useEditor, EditorContent, Editor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import Placeholder from "@tiptap/extension-placeholder";
+import { cn } from "src/core/utils/components";
+import { convertTiptapJSONToText as convertTiptapJSONToTextUtil } from "src/core/utils/tiptap-json-to-text";
+import { MCPMention } from "./mcp-mention-extension";
+import { MentionTrigger } from "./mention-trigger-extension";
+import { CodeBlock } from "./code-block-extension";
+import { RichTextEditorToolbar } from "./rich-text-editor-toolbar";
+import { SearchReplace } from "./search-replace-extension";
+import { SlashCommand } from "./slash-command-extension";
+import { RichTextEditorSearch } from "./rich-text-editor-search";
+
+type RichTextEditorProps = {
+    value: string | object;
+    onChangeAction: (next: string | object) => void;
+    className?: string;
+    placeholder?: string;
+    disabled?: boolean;
+    maxLength?: number;
+    enableMentions?: boolean;
+    saveFormat?: "json" | "text";
+    onTriggerAction?: (pos: number) => void;
+    editorRefAction?: (el: HTMLDivElement | null) => void;
+    editorInstanceAction?: (editor: Editor | null) => void;
+    showToolbar?: boolean;
+    toolbarClassName?: string;
+};
+
+const TOKEN_REGEX = /@?mcp\s*<([a-z0-9_]+)\s*\|\s*([a-z0-9_]+)>/gi;
+
+function parseValueToTiptapContent(value: string | object, enableMentions: boolean) {
+    // If value is already a JSON object (from Tiptap), use it directly
+    if (typeof value === "object" && value !== null && "type" in value && value.type === "doc") {
+        return value;
+    }
+
+    // Otherwise, parse from text string
+    const text = typeof value === "string" ? value : "";
+
+    if (!enableMentions) {
+        return {
+            type: "doc",
+            content: [
+                {
+                    type: "paragraph",
+                    content: [{ type: "text", text: text || "" }],
+                },
+            ],
+        };
+    }
+
+    const nodes: any[] = [];
+    let lastIndex = 0;
+    let match: RegExpExecArray | null;
+
+    TOKEN_REGEX.lastIndex = 0;
+    while ((match = TOKEN_REGEX.exec(text)) !== null) {
+        const before = text.slice(lastIndex, match.index);
+        if (before) {
+            nodes.push({
+                type: "text",
+                text: before,
+            });
+        }
+
+        const app = match[1];
+        const tool = match[2];
+        nodes.push({
+            type: "mcpMention",
+            attrs: {
+                app,
+                tool,
+            },
+        });
+
+        lastIndex = match.index + match[0].length;
+    }
+
+    const remaining = text.slice(lastIndex);
+    if (remaining) {
+        nodes.push({
+            type: "text",
+            text: remaining,
+        });
+    }
+
+    return {
+        type: "doc",
+        content: [
+            {
+                type: "paragraph",
+                content: nodes.length > 0 ? nodes : [{ type: "text", text: "" }],
+            },
+        ],
+    };
+}
+
+function serializeTiptapContent(editor: any, enableMentions: boolean): string {
+    if (!enableMentions) {
+        return editor.state.doc.textContent || "";
+    }
+
+    const { state } = editor;
+    const { doc } = state;
+    let text = "";
+
+    doc.descendants((node: any, pos: number) => {
+        if (node.type.name === "mcpMention") {
+            text += `@mcp<${node.attrs.app}|${node.attrs.tool}>`;
+            return false;
+        } else if (node.isText) {
+            text += node.text || "";
+        }
+        return true;
+    });
+
+    return text;
+}
+
+/**
+ * Converts Tiptap JSON content to plain text string.
+ * Re-exports the utility function for convenience.
+ *
+ * @deprecated Use `convertTiptapJSONToText` from `src/core/utils/tiptap-json-to-text` instead
+ */
+export function convertTiptapJSONToText(content: string | object | null | undefined): string {
+    return convertTiptapJSONToTextUtil(content);
+}
+
+export function getTextLengthFromTiptapJSON(json: any): number {
+    if (!json || typeof json !== "object") return 0;
+
+    let length = 0;
+    function traverse(node: any) {
+        if (node.type === "text") {
+            length += (node.text || "").length;
+        } else if (node.type === "mcpMention") {
+            // Count mention as @mcp<app|tool>
+            length += `@mcp<${node.attrs?.app || ""}|${node.attrs?.tool || ""}>`.length;
+        } else if (node.content && Array.isArray(node.content)) {
+            node.content.forEach(traverse);
+        }
+    }
+    traverse(json);
+    return length;
+}
+
+export function getWordCountFromTiptapJSON(json: any): number {
+    if (!json || typeof json !== "object") return 0;
+
+    let text = "";
+    function traverse(node: any) {
+        if (node.type === "text") {
+            text += node.text || "";
+        } else if (node.type === "mcpMention") {
+            // Count mention as @mcp<app|tool>
+            text += `@mcp<${node.attrs?.app || ""}|${node.attrs?.tool || ""}>`;
+        } else if (node.content && Array.isArray(node.content)) {
+            node.content.forEach(traverse);
+        }
+    }
+    traverse(json);
+
+    // Split by whitespace and filter empty strings
+    const words = text.trim().split(/\s+/).filter((w) => w.length > 0);
+    return words.length;
+}
+
+export type TextStats = {
+    characters: number;
+    words: number;
+    mentions: number;
+};
+
+export function getTextStatsFromTiptapJSON(json: any): TextStats {
+    if (!json || typeof json !== "object") {
+        return { characters: 0, words: 0, mentions: 0 };
+    }
+
+    let text = "";
+    let mentions = 0;
+    function traverse(node: any) {
+        if (node.type === "text") {
+            text += node.text || "";
+        } else if (node.type === "mcpMention") {
+            mentions++;
+            text += `@mcp<${node.attrs?.app || ""}|${node.attrs?.tool || ""}>`;
+        } else if (node.content && Array.isArray(node.content)) {
+            node.content.forEach(traverse);
+        }
+    }
+    traverse(json);
+
+    const words = text.trim().split(/\s+/).filter((w) => w.length > 0).length;
+
+    return {
+        characters: text.length,
+        words,
+        mentions,
+    };
+}
+
+export function RichTextEditor(props: RichTextEditorProps) {
+    const {
+        value,
+        onChangeAction: onChange,
+        placeholder,
+        className,
+        disabled,
+        maxLength,
+        enableMentions = false,
+        saveFormat = "json",
+        onTriggerAction: onTrigger,
+        editorRefAction: externalRefCallback,
+        editorInstanceAction,
+        showToolbar = true,
+        toolbarClassName,
+    } = props;
+
+    // Use ref to avoid recreating editor when onTrigger changes
+    const onTriggerRef = React.useRef(onTrigger);
+    const editorInstanceRef = React.useRef<Editor | null>(null);
+
+    React.useEffect(() => {
+        onTriggerRef.current = onTrigger;
+    }, [onTrigger]);
+
+    const handleTriggerMemoized = React.useCallback((pos: number) => {
+        onTriggerRef.current?.(pos);
+    }, []);
+
+    const extensions = React.useMemo(() => {
+        const base: any[] = [
+            StarterKit.configure({
+                paragraph: {
+                    HTMLAttributes: {
+                        class: "m-0",
+                    },
+                },
+                codeBlock: false, // Disable default codeBlock, use custom one
+                heading: {
+                    levels: [1, 2, 3],
+                },
+                // Atalhos de teclado já vêm configurados:
+                // Bold: Cmd/Ctrl+B
+                // Italic: Cmd/Ctrl+I
+                // Code: Cmd/Ctrl+K (inline code)
+                // Heading: Cmd/Ctrl+1/2/3
+                // Lists: Cmd/Ctrl+Shift+7/8
+            }),
+            CodeBlock.configure({
+                // Atalho para CodeBlock: Cmd+Alt+C ou Cmd+Shift+K
+                HTMLAttributes: {
+                    class: "code-block",
+                },
+            }),
+            SearchReplace.configure({
+                searchTerm: "",
+                caseSensitive: false,
+            }),
+            SlashCommand.configure({
+                onMCPTrigger: enableMentions ? () => {
+                    const pos = editorInstanceRef.current?.state.selection.$from.pos || 0;
+                    onTriggerRef.current?.(pos);
+                } : undefined,
+            }),
+        ];
+
+        if (enableMentions) {
+            base.push(
+                MCPMention,
+                MentionTrigger.configure({
+                    onTrigger: handleTriggerMemoized,
+                }),
+            );
+        }
+
+        return base;
+    }, [enableMentions, handleTriggerMemoized]);
+
+    // Use refs to prevent editor recreation when callbacks change
+    const onChangeRef = React.useRef(onChange);
+    const saveFormatRef = React.useRef(saveFormat);
+    const maxLengthRef = React.useRef(maxLength);
+    const enableMentionsRef = React.useRef(enableMentions);
+
+    React.useEffect(() => {
+        onChangeRef.current = onChange;
+        saveFormatRef.current = saveFormat;
+        maxLengthRef.current = maxLength;
+        enableMentionsRef.current = enableMentions;
+    }, [onChange, saveFormat, maxLength, enableMentions]);
+
+    const editor = useEditor({
+        extensions,
+        content: parseValueToTiptapContent(value || "", enableMentions) as any,
+        editable: !disabled,
+        immediatelyRender: false,
+        onUpdate: ({ editor }) => {
+            const currentSaveFormat = saveFormatRef.current;
+            const currentMaxLength = maxLengthRef.current;
+            const currentEnableMentions = enableMentionsRef.current;
+
+            if (currentSaveFormat === "json") {
+                const json = editor.getJSON();
+                onChangeRef.current?.(json);
+            } else {
+                const text = serializeTiptapContent(editor, currentEnableMentions);
+                const final = currentMaxLength && text.length > currentMaxLength ? text.slice(0, currentMaxLength) : text;
+                onChangeRef.current?.(final);
+            }
+        },
+        editorProps: {
+            attributes: {
+                class: cn(
+                    "min-h-20 w-full rounded-xl px-6 py-4 text-sm ring-1",
+                    "bg-card-lv2 ring-card-lv3",
+                    "outline-hidden transition-all duration-200",
+                    "prose prose-sm max-w-none",
+                    "focus-within:ring-primary/30 focus-within:ring-2 focus-within:bg-card-lv3/50",
+                    "hover:ring-card-lv3/80",
+                    "[&_pre]:!bg-transparent [&_pre]:!p-0 [&_pre]:!m-0",
+                    "[&_code]:bg-card-lv3 [&_code]:text-primary-light [&_code]:rounded [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs",
+                    "[&_strong]:font-semibold [&_strong]:text-text-primary",
+                    "[&_em]:italic",
+                    disabled && "opacity-50 pointer-events-none",
+                    className,
+                ),
+            },
+        },
+    });
+
+    React.useEffect(() => {
+        if (editor) {
+            editorInstanceRef.current = editor;
+            if (externalRefCallback) {
+                const element = editor.view.dom as HTMLDivElement;
+                externalRefCallback(element);
+            }
+            if (editorInstanceAction) {
+                editorInstanceAction(editor);
+            }
+
+            // Handle remove button clicks for mention chips
+            const handleRemoveClick = (event: MouseEvent) => {
+                const target = event.target as HTMLElement;
+
+                // Check if clicked element is the button or inside it
+                const removeButton = target.closest('[data-remove-mention="true"]') as HTMLElement;
+
+                if (!removeButton) {
+                    // Also check if it's the button itself
+                    if (target.getAttribute('data-remove-mention') !== 'true') {
+                        return;
+                    }
+                }
+
+                const button = removeButton || target;
+                event.preventDefault();
+                event.stopPropagation();
+
+                const mention = button.closest('[data-type="mcp-mention"]') as HTMLElement;
+                if (!mention) {
+                    console.error("Mention element not found");
+                    return;
+                }
+
+                try {
+                    // Try multiple approaches to find the position
+                    let pos: number | null = null;
+
+                    // Approach 1: posAtDOM on the mention element
+                    try {
+                        pos = editor.view.posAtDOM(mention, 0);
+                    } catch {
+                        // Approach 2: Try with offset 1
+                        try {
+                            pos = editor.view.posAtDOM(mention, 1);
+                        } catch {
+                            // Approach 3: Use the first text node inside
+                            const firstChild = mention.firstChild;
+                            if (firstChild) {
+                                try {
+                                    pos = editor.view.posAtDOM(firstChild, 0);
+                                } catch {
+                                    // Fallback: search by attributes
+                                }
+                            }
+                        }
+                    }
+
+                    if (pos !== null && pos !== undefined) {
+                        const { state } = editor.view;
+                        const $pos = state.doc.resolve(pos);
+
+                        // Find the mention node
+                        let found = false;
+                        for (let depth = $pos.depth; depth >= 0; depth--) {
+                            const node = $pos.node(depth);
+                            if (node && node.type.name === "mcpMention") {
+                                const from = $pos.before(depth);
+                                const to = $pos.after(depth);
+
+                                editor
+                                    .chain()
+                                    .focus()
+                                    .setTextSelection({ from, to })
+                                    .deleteSelection()
+                                    .run();
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        // Fallback: search the entire document
+                        if (!found) {
+                            const app = mention.getAttribute('data-app');
+                            const tool = mention.getAttribute('data-tool');
+
+                            if (app && tool) {
+                                let mentionFrom: number | null = null;
+                                let mentionTo: number | null = null;
+
+                                state.doc.nodesBetween(0, state.doc.content.size, (node, nodePos) => {
+                                    if (node.type.name === "mcpMention" &&
+                                        node.attrs.app === app &&
+                                        node.attrs.tool === tool) {
+                                        mentionFrom = nodePos;
+                                        mentionTo = nodePos + node.nodeSize;
+                                        return false;
+                                    }
+                                });
+
+                                if (mentionFrom !== null && mentionTo !== null) {
+                                    editor
+                                        .chain()
+                                        .focus()
+                                        .setTextSelection({ from: mentionFrom, to: mentionTo })
+                                        .deleteSelection()
+                                        .run();
+                                }
+                            }
+                        }
+                    } else {
+                        // Fallback: search by attributes
+                        const app = mention.getAttribute('data-app');
+                        const tool = mention.getAttribute('data-tool');
+
+                        if (app && tool) {
+                            const { state } = editor.view;
+                            let mentionFrom: number | null = null;
+                            let mentionTo: number | null = null;
+
+                            state.doc.nodesBetween(0, state.doc.content.size, (node, nodePos) => {
+                                if (node.type.name === "mcpMention" &&
+                                    node.attrs.app === app &&
+                                    node.attrs.tool === tool) {
+                                    mentionFrom = nodePos;
+                                    mentionTo = nodePos + node.nodeSize;
+                                    return false;
+                                }
+                            });
+
+                            if (mentionFrom !== null && mentionTo !== null) {
+                                editor
+                                    .chain()
+                                    .focus()
+                                    .setTextSelection({ from: mentionFrom, to: mentionTo })
+                                    .deleteSelection()
+                                    .run();
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error("Error removing mention:", error);
+                }
+            };
+
+            const editorDOM = editor.view.dom;
+            editorDOM.addEventListener("click", handleRemoveClick, true);
+
+            return () => {
+                editorDOM.removeEventListener("click", handleRemoveClick, true);
+            };
+        } else {
+            editorInstanceRef.current = null;
+            if (editorInstanceAction) {
+                editorInstanceAction(null);
+            }
+        }
+    }, [editor, externalRefCallback, editorInstanceAction]);
+
+    // Memoize value comparison to avoid unnecessary JSON.stringify calls
+    const valueKey = React.useMemo(() => {
+        if (typeof value === "object" && value !== null) {
+            try {
+                return JSON.stringify(value);
+            } catch {
+                return String(value);
+            }
+        }
+        return value || "";
+    }, [value]);
+
+    React.useEffect(() => {
+        if (!editor) return;
+
+        // Check if value changed using memoized key
+        const currentContent = saveFormat === "json" ? editor.getJSON() : serializeTiptapContent(editor, enableMentions);
+        const currentKey = typeof currentContent === "object" ? JSON.stringify(currentContent) : currentContent;
+
+        if (valueKey !== currentKey) {
+            editor.commands.setContent(parseValueToTiptapContent(value || "", enableMentions) as any);
+        }
+    }, [valueKey, editor, enableMentions, saveFormat, value]);
+
+    if (!editor) {
+        return null;
+    }
+
+    return (
+        <div className="flex flex-col gap-2">
+            {showToolbar && <RichTextEditorToolbar editor={editor} className={toolbarClassName} />}
+            <RichTextEditorSearch editor={editor} />
+            <EditorContent editor={editor} />
+        </div>
+    );
+}
