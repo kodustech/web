@@ -22,10 +22,11 @@ type Props = {
     placeholder?: string;
     saveFormat?: "json" | "text";
     formatInsertByType?: Partial<Record<string, (item: MentionGroupItem) => string>>;
+    disabled?: boolean;
 };
 
 export function RichTextEditorWithMentions(props: Props) {
-    const { value, onChangeAction: onChange, className, placeholder, groups, saveFormat = "json", formatInsertByType } = props;
+    const { value, onChangeAction: onChange, className, placeholder, groups, saveFormat = "json", formatInsertByType, disabled } = props;
     const [open, setOpen] = React.useState(false);
     const [query, setQuery] = React.useState("");
     const [triggerPos, setTriggerPos] = React.useState<number | null>(null);
@@ -35,7 +36,6 @@ export function RichTextEditorWithMentions(props: Props) {
     const editorRef = React.useRef<HTMLDivElement | null>(null);
     const editorInstanceRef = React.useRef<any>(null);
 
-    // Memoize groups to prevent unnecessary useEffect re-runs
     const groupsRef = React.useRef(groups);
     React.useEffect(() => {
         groupsRef.current = groups;
@@ -50,7 +50,6 @@ export function RichTextEditorWithMentions(props: Props) {
     }, []);
 
     const handleTrigger = React.useCallback((pos: number) => {
-        // Reset all state when opening menu
         setTriggerPos(pos);
         setQuery("");
         setViewStack([]);
@@ -59,11 +58,10 @@ export function RichTextEditorWithMentions(props: Props) {
 
     const insertToken = React.useCallback((item: MentionGroupItem) => {
         const editor = editorInstanceRef.current;
+
         if (!editor) {
-            // Fallback to string manipulation if editor not ready
             const byType = (item.type && formatInsertByType?.[item.type]) || ((it: MentionGroupItem) => `@mcp<${it.label}>`);
             const token = byType(item);
-            // Get text from value (handle both string and object)
             const cur = typeof value === "string" ? value : "";
             const afterAtPos = triggerPos ?? cur.length;
             let atPos = afterAtPos - 1;
@@ -87,7 +85,6 @@ export function RichTextEditorWithMentions(props: Props) {
             return;
         }
 
-        // Use Tiptap API to insert mention node
         const byType = (item.type && formatInsertByType?.[item.type]) || ((it: MentionGroupItem) => {
             const rawApp = String(it?.meta?.appName ?? "");
             const app = rawApp
@@ -108,18 +105,15 @@ export function RichTextEditorWithMentions(props: Props) {
                 .replace(/^_+|_+$/g, "");
             const tool = String(item.label).toLowerCase();
 
-            // Find and delete "@" character, then insert mention
             const { state } = editor;
             const { selection } = state;
             let pos = selection.$from.pos;
 
-            // Go backwards to find "@"
             let foundPos = pos;
             const $pos = state.doc.resolve(pos);
             let searchPos = $pos.pos;
             let found = false;
 
-            // Search backwards up to 50 characters
             for (let i = 0; i < 50 && searchPos > 0; i++) {
                 const char = state.doc.textBetween(searchPos - 1, searchPos);
                 if (char === "@") {
@@ -143,7 +137,6 @@ export function RichTextEditorWithMentions(props: Props) {
                     .insertContent(" ")
                     .run();
             } else {
-                // Fallback: insert at current position
                 editor
                     .chain()
                     .focus()
@@ -154,10 +147,7 @@ export function RichTextEditorWithMentions(props: Props) {
                     .insertContent(" ")
                     .run();
             }
-
-            // The editor's onUpdate will handle calling onChange
         } else {
-            // Fallback for non-mcp items
             const token = byType(item);
             const cur = typeof value === "string" ? value : "";
             const afterAtPos = triggerPos ?? cur.length;
@@ -190,7 +180,6 @@ export function RichTextEditorWithMentions(props: Props) {
         setViewStack((s) => (s.length ? s.slice(0, s.length - 1) : s));
     }, []);
 
-    // Use AbortController to cancel pending requests and prevent race conditions
     React.useEffect(() => {
         const abortController = new AbortController();
         let active = true;
@@ -201,7 +190,6 @@ export function RichTextEditorWithMentions(props: Props) {
                 return;
             }
 
-            // Use current groups from ref to avoid stale closure
             const currentGroups = groupsRef.current;
             const searchQuery = query.toLowerCase();
 
@@ -228,7 +216,6 @@ export function RichTextEditorWithMentions(props: Props) {
                                     items: matchedItems,
                                 } as MentionGroup;
                             } catch (error) {
-                                // Silently ignore errors from aborted requests
                                 return null;
                             }
                         })(),
@@ -278,6 +265,7 @@ export function RichTextEditorWithMentions(props: Props) {
                     onTriggerAction={handleTrigger}
                     className={className}
                     placeholder={placeholder}
+                    disabled={disabled}
                 />
             </div>
             <PopoverContent className="p-0 w-80" align="start" sideOffset={8}>

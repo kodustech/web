@@ -13,7 +13,6 @@ import {
 import { FormControl } from "@components/ui/form-control";
 import { Page } from "@components/ui/page";
 import { Spinner } from "@components/ui/spinner";
-import { MentionsTextarea } from "@components/ui/mentions-textarea";
 import { RichTextEditorWithMentions, type MentionGroup } from "@components/ui/rich-text-editor-with-mentions";
 import { getTextLengthFromTiptapJSON, getWordCountFromTiptapJSON, getTextStatsFromTiptapJSON } from "@components/ui/rich-text-editor";
 import { convertTiptapJSONToText } from "src/core/utils/tiptap-json-to-text";
@@ -124,9 +123,6 @@ function CustomPromptsContent() {
         };
     }, []);
 
-    const renderMentionItem = React.useCallback((item: any) => (
-        <span className="font-mono font-medium truncate">{item.label}</span>
-    ), []);
 
     const handleSubmit = form.handleSubmit(async (formData) => {
         try {
@@ -479,18 +475,31 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <MentionsTextarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(e)
-                                                    }
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
                                                     placeholder="Type the prompt for Bugs"
                                                     className="min-h-32"
-                                                    maxLength={2000}
                                                     disabled={field.disabled}
                                                     groups={mcpGroups}
-                                                    renderItem={renderMentionItem}
                                                     formatInsertByType={{
                                                         mcp: (i: any) => {
                                                             const rawApp = String(i?.meta?.appName ?? "");
@@ -589,18 +598,31 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <MentionsTextarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(e)
-                                                    }
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
                                                     placeholder="Type the prompt for Performance"
                                                     className="min-h-32"
-                                                    maxLength={2000}
                                                     disabled={field.disabled}
                                                     groups={mcpGroups}
-                                                    renderItem={renderMentionItem}
                                                     formatInsertByType={{
                                                         mcp: (i: any) => {
                                                             const rawApp = String(i?.meta?.appName ?? "");
@@ -699,18 +721,31 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <MentionsTextarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(e)
-                                                    }
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
                                                     placeholder="Type the prompt for Security"
                                                     className="min-h-32"
-                                                    maxLength={2000}
                                                     disabled={field.disabled}
                                                     groups={mcpGroups}
-                                                    renderItem={renderMentionItem}
                                                     formatInsertByType={{
                                                         mcp: (i: any) => {
                                                             const rawApp = String(i?.meta?.appName ?? "");
@@ -820,18 +855,31 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <MentionsTextarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(e)
-                                                    }
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
                                                     placeholder="Type the prompt for Critical"
                                                     className="min-h-32"
-                                                    maxLength={2000}
                                                     disabled={field.disabled}
                                                     groups={mcpGroups}
-                                                    renderItem={renderMentionItem}
                                                     formatInsertByType={{
                                                         mcp: (i: any) => {
                                                             const rawApp = String(i?.meta?.appName ?? "");
@@ -929,18 +977,31 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <MentionsTextarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(e)
-                                                    }
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
                                                     placeholder="Type the prompt for High"
                                                     className="min-h-32"
-                                                    maxLength={2000}
                                                     disabled={field.disabled}
                                                     groups={mcpGroups}
-                                                    renderItem={renderMentionItem}
                                                     formatInsertByType={{
                                                         mcp: (i: any) => {
                                                             const rawApp = String(i?.meta?.appName ?? "");
@@ -1038,18 +1099,31 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <MentionsTextarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(e)
-                                                    }
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
                                                     placeholder="Type the prompt for Medium"
                                                     className="min-h-32"
-                                                    maxLength={2000}
                                                     disabled={field.disabled}
                                                     groups={mcpGroups}
-                                                    renderItem={renderMentionItem}
                                                     formatInsertByType={{
                                                         mcp: (i: any) => {
                                                             const rawApp = String(i?.meta?.appName ?? "");
@@ -1147,18 +1221,31 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <MentionsTextarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(e)
-                                                    }
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
                                                     placeholder="Type the prompt for Low"
                                                     className="min-h-32"
-                                                    maxLength={2000}
                                                     disabled={field.disabled}
                                                     groups={mcpGroups}
-                                                    renderItem={renderMentionItem}
                                                     formatInsertByType={{
                                                         mcp: (i: any) => {
                                                             const rawApp = String(i?.meta?.appName ?? "");

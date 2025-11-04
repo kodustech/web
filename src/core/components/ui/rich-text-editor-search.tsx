@@ -62,19 +62,19 @@ export function RichTextEditorSearch({ editor, className }: RichTextEditorSearch
                 className="h-8 flex-1 border-0 bg-transparent focus:ring-0"
                 autoFocus
             />
-            {searchTerm && (
-                <Button
-                    type="button"
-                    variant="cancel"
-                    size="icon-sm"
-                    onClick={() => {
-                        setSearchTerm("");
-                        (editor.commands as any).clearSearch();
-                    }}
-                    className="h-7 w-7">
-                    <X className="size-3" />
-                </Button>
-            )}
+            <Button
+                type="button"
+                variant="cancel"
+                size="icon-sm"
+                onClick={() => {
+                    setIsOpen(false);
+                    setSearchTerm("");
+                    (editor.commands as any).clearSearch();
+                }}
+                className="h-7 w-7"
+                aria-label="Close search">
+                <X className="size-3" />
+            </Button>
         </div>
     );
 }

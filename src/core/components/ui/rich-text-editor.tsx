@@ -3,15 +3,12 @@
 import * as React from "react";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Placeholder from "@tiptap/extension-placeholder";
 import { cn } from "src/core/utils/components";
-import { convertTiptapJSONToText as convertTiptapJSONToTextUtil } from "src/core/utils/tiptap-json-to-text";
 import { MCPMention } from "./mcp-mention-extension";
 import { MentionTrigger } from "./mention-trigger-extension";
 import { CodeBlock } from "./code-block-extension";
 import { RichTextEditorToolbar } from "./rich-text-editor-toolbar";
 import { SearchReplace } from "./search-replace-extension";
-import { SlashCommand } from "./slash-command-extension";
 import { RichTextEditorSearch } from "./rich-text-editor-search";
 
 type RichTextEditorProps = {
@@ -33,12 +30,10 @@ type RichTextEditorProps = {
 const TOKEN_REGEX = /@?mcp\s*<([a-z0-9_]+)\s*\|\s*([a-z0-9_]+)>/gi;
 
 function parseValueToTiptapContent(value: string | object, enableMentions: boolean) {
-    // If value is already a JSON object (from Tiptap), use it directly
     if (typeof value === "object" && value !== null && "type" in value && value.type === "doc") {
         return value;
     }
 
-    // Otherwise, parse from text string
     const text = typeof value === "string" ? value : "";
 
     if (!enableMentions) {
@@ -119,16 +114,6 @@ function serializeTiptapContent(editor: any, enableMentions: boolean): string {
     });
 
     return text;
-}
-
-/**
- * Converts Tiptap JSON content to plain text string.
- * Re-exports the utility function for convenience.
- *
- * @deprecated Use `convertTiptapJSONToText` from `src/core/utils/tiptap-json-to-text` instead
- */
-export function convertTiptapJSONToText(content: string | object | null | undefined): string {
-    return convertTiptapJSONToTextUtil(content);
 }
 
 export function getTextLengthFromTiptapJSON(json: any): number {
@@ -241,19 +226,13 @@ export function RichTextEditor(props: RichTextEditorProps) {
                         class: "m-0",
                     },
                 },
-                codeBlock: false, // Disable default codeBlock, use custom one
+                codeBlock: false,
                 heading: {
                     levels: [1, 2, 3],
                 },
-                // Atalhos de teclado já vêm configurados:
-                // Bold: Cmd/Ctrl+B
-                // Italic: Cmd/Ctrl+I
-                // Code: Cmd/Ctrl+K (inline code)
-                // Heading: Cmd/Ctrl+1/2/3
-                // Lists: Cmd/Ctrl+Shift+7/8
+
             }),
             CodeBlock.configure({
-                // Atalho para CodeBlock: Cmd+Alt+C ou Cmd+Shift+K
                 HTMLAttributes: {
                     class: "code-block",
                 },
@@ -261,12 +240,6 @@ export function RichTextEditor(props: RichTextEditorProps) {
             SearchReplace.configure({
                 searchTerm: "",
                 caseSensitive: false,
-            }),
-            SlashCommand.configure({
-                onMCPTrigger: enableMentions ? () => {
-                    const pos = editorInstanceRef.current?.state.selection.$from.pos || 0;
-                    onTriggerRef.current?.(pos);
-                } : undefined,
             }),
         ];
 
@@ -345,15 +318,12 @@ export function RichTextEditor(props: RichTextEditorProps) {
                 editorInstanceAction(editor);
             }
 
-            // Handle remove button clicks for mention chips
             const handleRemoveClick = (event: MouseEvent) => {
                 const target = event.target as HTMLElement;
 
-                // Check if clicked element is the button or inside it
                 const removeButton = target.closest('[data-remove-mention="true"]') as HTMLElement;
 
                 if (!removeButton) {
-                    // Also check if it's the button itself
                     if (target.getAttribute('data-remove-mention') !== 'true') {
                         return;
                     }
@@ -370,24 +340,19 @@ export function RichTextEditor(props: RichTextEditorProps) {
                 }
 
                 try {
-                    // Try multiple approaches to find the position
                     let pos: number | null = null;
 
-                    // Approach 1: posAtDOM on the mention element
                     try {
                         pos = editor.view.posAtDOM(mention, 0);
                     } catch {
-                        // Approach 2: Try with offset 1
                         try {
                             pos = editor.view.posAtDOM(mention, 1);
                         } catch {
-                            // Approach 3: Use the first text node inside
                             const firstChild = mention.firstChild;
                             if (firstChild) {
                                 try {
                                     pos = editor.view.posAtDOM(firstChild, 0);
                                 } catch {
-                                    // Fallback: search by attributes
                                 }
                             }
                         }
@@ -397,7 +362,6 @@ export function RichTextEditor(props: RichTextEditorProps) {
                         const { state } = editor.view;
                         const $pos = state.doc.resolve(pos);
 
-                        // Find the mention node
                         let found = false;
                         for (let depth = $pos.depth; depth >= 0; depth--) {
                             const node = $pos.node(depth);
@@ -416,7 +380,6 @@ export function RichTextEditor(props: RichTextEditorProps) {
                             }
                         }
 
-                        // Fallback: search the entire document
                         if (!found) {
                             const app = mention.getAttribute('data-app');
                             const tool = mention.getAttribute('data-tool');
@@ -446,7 +409,6 @@ export function RichTextEditor(props: RichTextEditorProps) {
                             }
                         }
                     } else {
-                        // Fallback: search by attributes
                         const app = mention.getAttribute('data-app');
                         const tool = mention.getAttribute('data-tool');
 
@@ -494,7 +456,6 @@ export function RichTextEditor(props: RichTextEditorProps) {
         }
     }, [editor, externalRefCallback, editorInstanceAction]);
 
-    // Memoize value comparison to avoid unnecessary JSON.stringify calls
     const valueKey = React.useMemo(() => {
         if (typeof value === "object" && value !== null) {
             try {
@@ -507,9 +468,8 @@ export function RichTextEditor(props: RichTextEditorProps) {
     }, [value]);
 
     React.useEffect(() => {
-        if (!editor) return;
+        if (!editor) { return; }
 
-        // Check if value changed using memoized key
         const currentContent = saveFormat === "json" ? editor.getJSON() : serializeTiptapContent(editor, enableMentions);
         const currentKey = typeof currentContent === "object" ? JSON.stringify(currentContent) : currentContent;
 

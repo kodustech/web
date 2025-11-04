@@ -117,7 +117,7 @@ export const MCPMention = Node.create<MCPMentionOptions>({
                     type: "button",
                     "data-remove-mention": "true",
                     "aria-label": "Remove",
-                    class: "ml-1.5 -mr-0.5 rounded-md px-1.5 py-0.5 text-xs font-medium text-text-secondary/70 hover:text-text-primary hover:bg-primary/20 opacity-0 group-hover:opacity-100 transition-all duration-150 active:scale-95",
+                    class: "ml-0.5 -mr-0.5 rounded px-0.5 py-0 text-xs font-medium text-red-400/80 hover:text-red-400 hover:bg-red-400/20 opacity-0 group-hover:opacity-100 transition-all duration-150 active:scale-95",
                     style: "outline:none;border:none;background:transparent;cursor:pointer;",
                 },
                 "×",
