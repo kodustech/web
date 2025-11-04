@@ -7,9 +7,14 @@ import { KodyRuleItem } from "./item";
 type KodyRulesListProps = {
     rules: KodyRule[];
     onAnyChange: () => void;
+    showSuggestionsButton?: boolean;
 };
 
-export const KodyRulesList = ({ rules, onAnyChange }: KodyRulesListProps) => {
+export const KodyRulesList = ({
+    rules,
+    onAnyChange,
+    showSuggestionsButton = false,
+}: KodyRulesListProps) => {
     if (rules.length === 0) {
         return (
             <div className="text-text-secondary flex flex-col items-center gap-2 py-20 text-sm">
@@ -25,6 +30,7 @@ export const KodyRulesList = ({ rules, onAnyChange }: KodyRulesListProps) => {
                     key={rule.uuid}
                     rule={rule}
                     onAnyChange={onAnyChange}
+                    showSuggestionsButton={showSuggestionsButton}
                 />
             ))}
         </div>
