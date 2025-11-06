@@ -40,13 +40,6 @@ const LazyTreeFolder = ({
         (d: any) => path.startsWith(`${d.path}/`) || path === d.path,
     );
 
-    console.log('📁 LazyTreeFolder:', { 
-        name: directory.name, 
-        isOpen, 
-        hasChildren: directory.hasChildren,
-        childrenCount: children?.length 
-    });
-
     return (
         <Tree.Folder
             key={directory.path}
