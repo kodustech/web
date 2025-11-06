@@ -20,6 +20,8 @@ interface RepositoryTreeByDirectoryResponse {
     directories: DirectoryItem[];
 }
 
+const repositoryNamesCache = new Map<string, string>();
+
 export const useLazyRepositoryTree = (params: {
     organizationId: string;
     repositoryId: string;
@@ -27,13 +29,12 @@ export const useLazyRepositoryTree = (params: {
 }) => {
     const { accessToken } = useAuth();
     const loadedDirectoriesRef = useRef<Map<string, DirectoryItem[]>>(new Map());
-    const repositoryNamesRef = useRef<Map<string, string>>(new Map());
     const [repositoryName, setRepositoryName] = useState<string>("");
 
     useEffect(() => {
         loadedDirectoriesRef.current = new Map();
         
-        const cachedName = repositoryNamesRef.current.get(params.repositoryId);
+        const cachedName = repositoryNamesCache.get(params.repositoryId);
         if (cachedName) {
             setRepositoryName(cachedName);
         } else {
@@ -76,7 +77,7 @@ export const useLazyRepositoryTree = (params: {
             const data: RepositoryTreeByDirectoryResponse = json.data;
 
             if (data.repository) {
-                repositoryNamesRef.current.set(params.repositoryId, data.repository);
+                repositoryNamesCache.set(params.repositoryId, data.repository);
                 setRepositoryName(data.repository);
             }
 
