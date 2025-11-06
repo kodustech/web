@@ -40,13 +40,25 @@ const TreeFolder = (
         name: string;
         value: string;
         disabled?: boolean;
+        onOpenChange?: (open: boolean) => void;
+        hasChildren?: boolean;
     },
 ) => {
     const [open, setOpen] = useState(false);
-    const hasChildren = Children.toArray(props.children).some((c) => !!c);
+    
+    const hasChildren = props.hasChildren ?? Children.toArray(props.children).some((c) => !!c);
+
+    const handleOpenChange = (newOpen: boolean) => {
+        setOpen(newOpen);
+        props.onOpenChange?.(newOpen);
+    };
 
     return (
-        <Collapsible open={open} onOpenChange={setOpen} disabled={!hasChildren}>
+        <Collapsible 
+            open={open} 
+            onOpenChange={handleOpenChange}
+            disabled={!hasChildren}
+        >
             <div className="flex w-fit items-center gap-3">
                 <RadioGroup.Item
                     value={props.value}
