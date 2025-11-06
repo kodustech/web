@@ -12,7 +12,6 @@ export const useDirectoryLoader = (
     return useQuery({
         queryKey: ["directory-lazy", repositoryId, directoryPath],
         queryFn: () => {
-            console.log('🚀 Fetching directory:', directoryPath);
             return loadDirectory(directoryPath);
         },
         enabled,
