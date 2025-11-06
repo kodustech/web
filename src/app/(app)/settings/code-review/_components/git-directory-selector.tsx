@@ -1,11 +1,87 @@
 "use client";
 
-import { useCallback } from "react";
+import { useState } from "react";
 import { Tree } from "@components/ui/tree";
-import { useSuspenseGetRepositoryTree } from "@services/codeManagement/hooks";
+import { useDirectoryLoader } from "@services/codeManagement/hooks/use-directory-loader";
+import { useLazyRepositoryTree } from "@services/codeManagement/hooks/use-lazy-repository-tree";
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
+
+interface DirectoryItem {
+    name: string;
+    path: string;
+    sha: string;
+    hasChildren: boolean;
+}
+
+const LazyTreeFolder = ({
+    directory,
+    loadDirectory,
+    repository,
+    repositoryId,
+}: {
+    directory: DirectoryItem;
+    loadDirectory: (path: string | null) => Promise<DirectoryItem[]>;
+    repository: any;
+    repositoryId: string;
+}) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const path = `/${directory.path}`;
+
+    const { data: children, isLoading } = useDirectoryLoader(
+        loadDirectory,
+        directory.path,
+        repositoryId,
+        isOpen && directory.hasChildren,
+    );
+
+    const isDisabled = repository?.directories?.some(
+        (d: any) => path.startsWith(`${d.path}/`) || path === d.path,
+    );
+
+    console.log('📁 LazyTreeFolder:', { 
+        name: directory.name, 
+        isOpen, 
+        hasChildren: directory.hasChildren,
+        childrenCount: children?.length 
+    });
+
+    return (
+        <Tree.Folder
+            key={directory.path}
+            name={directory.name}
+            value={path}
+            disabled={isDisabled}
+            hasChildren={directory.hasChildren}
+            onOpenChange={setIsOpen}>
+            
+            {isLoading && (
+                <div className="text-xs text-gray-500 ml-4 py-1">
+                    Loading...
+                </div>
+            )}
+            
+            {!isLoading && children && children.length > 0 && 
+                children.map((child) => (
+                    <LazyTreeFolder
+                        key={child.path}
+                        directory={child}
+                        loadDirectory={loadDirectory}
+                        repository={repository}
+                        repositoryId={repositoryId}
+                    />
+                ))
+            }
+            
+            {!isLoading && children && children.length === 0 && (
+                <div className="text-xs text-gray-400 ml-4 py-1">
+                    Empty
+                </div>
+            )}
+        </Tree.Folder>
+    );
+};
 
 export const GitDirectorySelector = ({
     repositoryId,
@@ -21,43 +97,39 @@ export const GitDirectorySelector = ({
         (r) => r.id === repositoryId,
     );
 
-    const directoryTree = useSuspenseGetRepositoryTree({
-        repositoryId,
+    const {
+        repositoryName,
+        rootDirectories,
+        isLoadingRoot,
+        loadDirectory,
+    } = useLazyRepositoryTree({
         organizationId,
+        repositoryId,
         teamId,
-        treeType: "directories",
-        useCache: true,
     });
 
-    const ComponentTree = useCallback(
-        (tree: (typeof directoryTree)["tree"] = []) =>
-            tree.map((t) => {
-                const path = `/${t.path}`;
-                return (
-                    <Tree.Folder
-                        key={t.name}
-                        name={t.name}
-                        value={path}
-                        disabled={repository?.directories?.some(
-                            (d) =>
-                                // disable already selected directories and all levels of subdirectories from it
-                                path.startsWith(`${d.path}/`) ||
-                                path === d.path,
-                        )}>
-                        {ComponentTree(t.subdirectories)}
-                    </Tree.Folder>
-                );
-            }),
-        [],
-    );
+    if (isLoadingRoot || !repositoryName) {
+        return <div>Loading...</div>;
+    }
 
     return (
         <Tree.Root {...props}>
             <Tree.Folder
                 value="/"
-                name={directoryTree.repository}
+                name={repositoryName}
                 disabled={repository?.isSelected}>
-                {ComponentTree(directoryTree.tree)}
+                
+                {rootDirectories.map((dir) => {
+                    return (
+                        <LazyTreeFolder
+                            key={dir.path}
+                            directory={dir}
+                            loadDirectory={loadDirectory}
+                            repository={repository}
+                            repositoryId={repositoryId}
+                        />
+                    );
+                })}
             </Tree.Folder>
         </Tree.Root>
     );
