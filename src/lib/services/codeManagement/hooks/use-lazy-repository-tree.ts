@@ -1,6 +1,6 @@
 // @services/codeManagement/hooks/use-lazy-repository-tree.ts
 
-import { useCallback, useEffect, useState } from "react"; // ← ADICIONAR useEffect
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "src/core/providers/auth.provider";
 import { pathToApiUrl } from "src/core/utils/helpers";
@@ -26,15 +26,19 @@ export const useLazyRepositoryTree = (params: {
     teamId: string;
 }) => {
     const { accessToken } = useAuth();
-    const [loadedDirectories, setLoadedDirectories] = useState<
-        Map<string, DirectoryItem[]>
-    >(new Map());
+    const loadedDirectoriesRef = useRef<Map<string, DirectoryItem[]>>(new Map());
+    const repositoryNamesRef = useRef<Map<string, string>>(new Map());
     const [repositoryName, setRepositoryName] = useState<string>("");
 
-    // ← ADICIONAR: Resetar estados quando mudar repositoryId
     useEffect(() => {
-        setLoadedDirectories(new Map());
-        setRepositoryName("");
+        loadedDirectoriesRef.current = new Map();
+        
+        const cachedName = repositoryNamesRef.current.get(params.repositoryId);
+        if (cachedName) {
+            setRepositoryName(cachedName);
+        } else {
+            setRepositoryName("");
+        }
     }, [params.repositoryId]);
 
     // Função para buscar diretórios de um path específico
@@ -71,8 +75,8 @@ export const useLazyRepositoryTree = (params: {
 
             const data: RepositoryTreeByDirectoryResponse = json.data;
 
-            // Salvar nome do repositório
             if (data.repository) {
+                repositoryNamesRef.current.set(params.repositoryId, data.repository);
                 setRepositoryName(data.repository);
             }
 
@@ -86,30 +90,22 @@ export const useLazyRepositoryTree = (params: {
         ],
     );
 
-    // Carregar diretórios e salvar no estado
     const loadDirectory = useCallback(
         async (directoryPath: string | null) => {
             const key = directoryPath || "root";
 
-            // Se já carregou, não buscar de novo
-            if (loadedDirectories.has(key)) {
-                return loadedDirectories.get(key)!;
+            if (loadedDirectoriesRef.current.has(key)) {
+                return loadedDirectoriesRef.current.get(key)!;
             }
 
             const directories = await fetchDirectory(directoryPath);
-
-            setLoadedDirectories((prev) => {
-                const newMap = new Map(prev);
-                newMap.set(key, directories);
-                return newMap;
-            });
+            loadedDirectoriesRef.current.set(key, directories);
 
             return directories;
         },
-        [loadedDirectories, fetchDirectory],
+        [fetchDirectory],
     );
 
-    // Carregar a raiz na montagem do componente
     const { data: rootDirectories, isLoading: isLoadingRoot } = useQuery({
         queryKey: [
             "repository-tree-lazy",
@@ -126,6 +122,5 @@ export const useLazyRepositoryTree = (params: {
         rootDirectories: rootDirectories || [],
         isLoadingRoot,
         loadDirectory,
-        loadedDirectories,
     };
 };

@@ -19,10 +19,12 @@ const LazyTreeFolder = ({
     directory,
     loadDirectory,
     repository,
+    repositoryId,
 }: {
     directory: DirectoryItem;
     loadDirectory: (path: string | null) => Promise<DirectoryItem[]>;
     repository: any;
+    repositoryId: string;
 }) => {
     const [isOpen, setIsOpen] = useState(false);
     const path = `/${directory.path}`;
@@ -30,6 +32,7 @@ const LazyTreeFolder = ({
     const { data: children, isLoading } = useDirectoryLoader(
         loadDirectory,
         directory.path,
+        repositoryId,
         isOpen && directory.hasChildren,
     );
 
@@ -66,6 +69,7 @@ const LazyTreeFolder = ({
                         directory={child}
                         loadDirectory={loadDirectory}
                         repository={repository}
+                        repositoryId={repositoryId}
                     />
                 ))
             }
@@ -104,7 +108,7 @@ export const GitDirectorySelector = ({
         teamId,
     });
 
-    if (isLoadingRoot) {
+    if (isLoadingRoot || !repositoryName) {
         return <div>Loading...</div>;
     }
 
@@ -112,7 +116,7 @@ export const GitDirectorySelector = ({
         <Tree.Root {...props}>
             <Tree.Folder
                 value="/"
-                name={repositoryName || "Repository"}
+                name={repositoryName}
                 disabled={repository?.isSelected}>
                 
                 {rootDirectories.map((dir) => {
@@ -122,6 +126,7 @@ export const GitDirectorySelector = ({
                             directory={dir}
                             loadDirectory={loadDirectory}
                             repository={repository}
+                            repositoryId={repositoryId}
                         />
                     );
                 })}

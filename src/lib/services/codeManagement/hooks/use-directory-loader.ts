@@ -2,16 +2,15 @@
 
 import { useQuery } from "@tanstack/react-query";
 
-// use-directory-loader.ts
 export const useDirectoryLoader = (
     loadDirectory: (path: string | null) => Promise<any[]>,
     directoryPath: string,
+    repositoryId: string,
     enabled: boolean,
-) => {
-    console.log('🔍 useDirectoryLoader:', { directoryPath, enabled }); 
+) => { 
     
     return useQuery({
-        queryKey: ["directory-lazy", directoryPath],
+        queryKey: ["directory-lazy", repositoryId, directoryPath],
         queryFn: () => {
             console.log('🚀 Fetching directory:', directoryPath);
             return loadDirectory(directoryPath);
