@@ -55,6 +55,8 @@ export const CODE_MANAGEMENT_API_PATHS = {
     DELETE_INTEGRATION_AND_REPOSITORIES: pathToApiUrl(
         "/code-management/delete-integration-and-repositories",
     ),
+
+    GET_PULL_REQUESTS: pathToApiUrl("/code-management/get-prs-repo"),
 } as const;
 
 export type RepositoryUploadResult = {
