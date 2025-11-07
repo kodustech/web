@@ -11,6 +11,7 @@ import {
     SheetHeader,
     SheetTitle,
 } from "@components/ui/sheet";
+import { toast } from "@components/ui/toaster/use-toast";
 import { useEffectOnce } from "@hooks/use-effect-once";
 import { getPrsByRepository } from "@services/codeManagement/fetch";
 import { executeDryRun } from "@services/dryRun/fetch";
@@ -105,6 +106,31 @@ export const DryRunSidebar = () => {
 
         const response = await executeDryRun(teamId, repositoryId, prNumber);
 
+        if (!response) {
+            setIsStarting(false);
+
+            toast({
+                variant: "warning",
+                title: "Failed to start preview",
+                description: "Failed to start preview. Please try again later.",
+            });
+
+            return;
+        }
+
+        if (response.includes("Limit.Reached")) {
+            setIsStarting(false);
+
+            toast({
+                variant: "warning",
+                title: "Preview limit reached",
+                description:
+                    "You have reached the maximum number of daily previews. Please try again later.",
+            });
+
+            return;
+        }
+
         const jobId = response;
         sessionStorage.setItem(PREVIEW_JOB_ID_KEY, jobId);
         setCorrelationId(jobId);
@@ -165,7 +191,7 @@ export const DryRunSidebar = () => {
                         variant="primary"
                         className="w-full font-semibold"
                         onClick={handleGeneratePreview}
-                        disabled={isLoading}>
+                        disabled={isLoading || isPrsLoading}>
                         {isLoading ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
