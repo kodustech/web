@@ -1,3 +1,5 @@
+import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level-badge";
+import { SuggestionCategoryBadge } from "@components/system/suggestion-category-badge";
 import { Badge } from "@components/ui/badge";
 import { Markdown } from "@components/ui/markdown";
 import { IDryRunMessage } from "@services/dryRun/types";
@@ -10,25 +12,18 @@ export const SuggestionCard = ({
 }: {
     suggestion: IDryRunMessage;
 }) => {
-    const categoryIcon = {
-        bug: <Bug className="h-4 w-4" />,
-        security: <Shield className="h-4 w-4" />,
-    };
-
-    const getCategoryIcon = (category?: string) => {
-        const icon = categoryIcon[category as keyof typeof categoryIcon];
-        return icon ? icon : <Info className="h-4 w-4" />;
-    };
-
     return (
         <div className="border-card-lv2 bg-card-lv1 overflow-hidden rounded-lg border">
-            {suggestion.category && suggestion.severity && (
-                <div className="flex flex-wrap items-center gap-3 p-3 px-4">
-                    {getCategoryIcon(suggestion.category)}
-                    <span className="font-medium">{suggestion.category}</span>
-                    <Badge>{suggestion.severity}</Badge>
-                </div>
-            )}
+            <div className="flex flex-wrap items-center gap-3 p-3 px-4">
+                {suggestion.category && (
+                    <SuggestionCategoryBadge category={suggestion.category} />
+                )}
+                {suggestion.severity && (
+                    <IssueSeverityLevelBadge
+                        severity={suggestion.severity as any}
+                    />
+                )}
+            </div>
 
             <div className="border-card-lv2 space-y-4 border-y p-4">
                 <Markdown>
@@ -50,7 +45,11 @@ export const SuggestionCard = ({
                         </span>
                     </div>
 
-                    <CodeDiff codeBlock={suggestion.codeBlock} />
+                    <CodeDiff
+                        existingCode={suggestion.existingCode}
+                        improvedCode={suggestion.improvedCode}
+                        language={suggestion.language}
+                    />
                 </div>
             )}
         </div>

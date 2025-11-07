@@ -1,10 +1,12 @@
 import { CheckCircle2, Loader2 } from "lucide-react";
 
 export const PreviewSummary = ({
+    suggestionsSent,
     suggestionsFound,
     filesAnalyzed,
     isComplete,
 }: {
+    suggestionsSent: number;
     suggestionsFound: number;
     filesAnalyzed: number | null;
     isComplete: boolean;
@@ -22,17 +24,24 @@ export const PreviewSummary = ({
             </h4>
             <p className="text-text-tertiary text-sm">
                 {isComplete
-                    ? "Kodus has finished analyzing the Pull Request."
-                    : "Kodus is analyzing the Pull Request..."}
+                    ? "Kody has finished analyzing the Pull Request."
+                    : "Kody is analyzing the Pull Request..."}
             </p>
         </div>
         <div className="ml-auto flex gap-6 pr-4 text-right">
+            <div>
+                <div className="text-2xl font-bold">{suggestionsSent}</div>
+                <div className="text-text-tertiary text-sm">
+                    Suggestions sent
+                </div>
+            </div>
             <div>
                 <div className="text-2xl font-bold">{suggestionsFound}</div>
                 <div className="text-text-tertiary text-sm">
                     Suggestions found
                 </div>
             </div>
+
             <div>
                 <div className="text-2xl font-bold">
                     {filesAnalyzed ?? "--"}

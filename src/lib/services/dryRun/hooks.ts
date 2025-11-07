@@ -15,6 +15,8 @@ import {
     IDryRunMessageAddedPayload,
     IDryRunMessageUpdatedPayload,
     IDryRunStatusUpdatedPayload,
+    IFile,
+    ISuggestionByPR,
 } from "./types";
 
 export const PREVIEW_JOB_ID_KEY = "activePreviewJobId";
@@ -34,6 +36,10 @@ export const useDryRun = ({
     const [isLoading, setIsLoading] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [files, setFiles] = useState<IFile[]>([]);
+    const [prLevelSuggestions, setPrLevelSuggestions] = useState<
+        ISuggestionByPR[]
+    >([]);
 
     const eventSourceRef = useRef<AbortController | null>(null);
 
@@ -49,6 +55,8 @@ export const useDryRun = ({
             setMessages([]);
             setStatus(null);
             setDescription(null);
+            setFiles([]);
+            setPrLevelSuggestions([]);
 
             try {
                 let initialStatus: DryRunStatus | null = null;
@@ -112,6 +120,8 @@ export const useDryRun = ({
                     setMessages(details.messages || []);
                     setStatus(details.status);
                     setDescription(details.description || null);
+                    setFiles(details.files || []);
+                    setPrLevelSuggestions(details.prLevelSuggestions || []);
                 }
             } catch (err: any) {
                 console.error("Failed to fetch final dry run details:", err);
@@ -145,7 +155,6 @@ export const useDryRun = ({
                 onopen: async (response) => {
                     if (response.ok) {
                         setIsConnected(true);
-                        setIsLoading(false);
                     } else {
                         controller.abort();
                         setError(
@@ -160,6 +169,8 @@ export const useDryRun = ({
                     if (!event.data) {
                         return;
                     }
+
+                    console.log("Received SSE event:", event);
 
                     let parsedEvent: IDryRunEvent | undefined;
                     try {
@@ -179,6 +190,7 @@ export const useDryRun = ({
                             const payload =
                                 parsedEvent.payload as IDryRunMessageAddedPayload;
 
+                            console.log("Adding message:", payload.message);
                             setMessages((prev) => {
                                 const index = prev.findIndex(
                                     (msg) => msg.id === payload.message.id,
@@ -235,6 +247,7 @@ export const useDryRun = ({
                         case DryRunEventType.REMOVED: {
                             controller.abort();
                             setIsConnected(false);
+                            setIsLoading(false);
                             break;
                         }
                     }
@@ -265,8 +278,18 @@ export const useDryRun = ({
             console.log("Aborting event source from effect cleanup.");
             eventSourceRef.current?.abort();
             setIsConnected(false);
+            setIsLoading(false);
         };
     }, [correlationId, teamId]);
 
-    return { messages, status, description, isLoading, isConnected, error };
+    return {
+        messages,
+        status,
+        description,
+        isLoading,
+        isConnected,
+        error,
+        files,
+        prLevelSuggestions,
+    };
 };

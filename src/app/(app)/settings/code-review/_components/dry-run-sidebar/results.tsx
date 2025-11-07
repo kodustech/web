@@ -1,16 +1,25 @@
 import { Markdown } from "@components/ui/markdown";
-import { DryRunStatus, IDryRunMessage } from "@services/dryRun/types";
+import {
+    DryRunStatus,
+    IDryRunMessage,
+    IFile,
+    ISuggestionByPR,
+} from "@services/dryRun/types";
 
 import { SuggestionCard } from "./suggestion";
 import { PreviewSummary } from "./summary";
 
 export const Results = ({
     messages,
+    files,
+    prLevelSuggestions,
     description,
     status,
     isComplete,
 }: {
     messages: IDryRunMessage[];
+    files: IFile[];
+    prLevelSuggestions: ISuggestionByPR[];
     description: string | null;
     status: DryRunStatus | null;
     isComplete: boolean;
@@ -26,11 +35,17 @@ export const Results = ({
         }
     }
 
+    let suggestions = prLevelSuggestions.length;
+    for (const file of files) {
+        suggestions += file.suggestions.length;
+    }
+
     return (
         <div className="space-y-6">
             <PreviewSummary
-                suggestionsFound={reviewMessages.length}
-                filesAnalyzed={null}
+                suggestionsSent={reviewMessages.length}
+                suggestionsFound={suggestions}
+                filesAnalyzed={files.length}
                 isComplete={isComplete}
             />
             <div className="space-y-4">

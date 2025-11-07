@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import {
     Command,
@@ -18,6 +19,7 @@ import { IDryRunData } from "@services/dryRun/types";
 import { ChevronsUpDown, Loader2 } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 
+import { statusMap } from ".";
 import { useCodeReviewRouteParams } from "../../../_hooks";
 
 const formatHistoryDate = (dateString: string | Date) => {
@@ -106,10 +108,14 @@ export const SelectHistoryItem = (props: {
                         ) : (
                             <div className="flex-1">
                                 <span className="text-primary-light text-xs">
-                                    {formatHistoryDate(selectedItem.createdAt)}
+                                    {selectedItem.repositoryName}
                                 </span>
                                 <span className="text-text-secondary line-clamp-1 wrap-anywhere">
-                                    <strong>#{selectedItem.prNumber}</strong>
+                                    <strong>
+                                        #{selectedItem.prNumber} -{" "}
+                                        {selectedItem.prTitle}
+                                    </strong>{" "}
+                                    {formatHistoryDate(selectedItem.createdAt)}
                                 </span>
                             </div>
                         )}
@@ -161,8 +167,16 @@ export const SelectHistoryItem = (props: {
                                                 }
                                                 className="flex flex-col items-start">
                                                 <span className="text-text-secondary line-clamp-1">
+                                                    <Badge className="mr-2">
+                                                        {item.status
+                                                            ? statusMap[
+                                                                  item.status
+                                                              ]
+                                                            : "Unknown"}
+                                                    </Badge>
                                                     <strong className="mr-2 font-mono">
-                                                        #{item.prNumber}
+                                                        #{item.prNumber} -{" "}
+                                                        {item.prTitle}
                                                     </strong>
                                                 </span>
                                                 <span className="text-text-tertiary text-xs">

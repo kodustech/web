@@ -25,6 +25,12 @@ import { EmptyState } from "./empty";
 import { SelectHistoryItem } from "./history";
 import { Results } from "./results";
 
+export const statusMap: Record<DryRunStatus, string> = {
+    [DryRunStatus.IN_PROGRESS]: "In Progress",
+    [DryRunStatus.COMPLETED]: "Completed",
+    [DryRunStatus.FAILED]: "Failed",
+};
+
 export const DryRunSidebar = () => {
     const { teamId } = useSelectedTeamId();
     const { repositoryId } = useCodeReviewRouteParams();
@@ -71,11 +77,19 @@ export const DryRunSidebar = () => {
     const [correlationId, setCorrelationId] = useState<string | null>(null);
     const [isStarting, setIsStarting] = useState(false);
 
-    const { messages, status, description, isLoading, isConnected, error } =
-        useDryRun({
-            correlationId,
-            teamId,
-        });
+    const {
+        messages,
+        status,
+        description,
+        isLoading,
+        isConnected,
+        error,
+        files,
+        prLevelSuggestions,
+    } = useDryRun({
+        correlationId,
+        teamId,
+    });
 
     const handleGeneratePreview = async () => {
         setIsStarting(true);
@@ -111,7 +125,7 @@ export const DryRunSidebar = () => {
 
     return (
         <SheetContent className="sm:max-w-8xl flex flex-col p-0">
-            <SheetHeader className="bg-card-lv1 p-4">
+            <SheetHeader className="bg-card-lv1 p-4 drop-shadow-lg/50">
                 <div className="flex items-center gap-3">
                     <div className="text-primary-light bg-card-lv3 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
                         <Eye className="h-6 w-6" />
@@ -158,7 +172,9 @@ export const DryRunSidebar = () => {
                             <RefreshCw className="mr-2 h-4 w-4" />
                         )}
                         {isLoading
-                            ? status || "Generating..."
+                            ? status
+                                ? statusMap[status]
+                                : "Generating..."
                             : "Generate Preview"}
                     </Button>
 
@@ -203,6 +219,8 @@ export const DryRunSidebar = () => {
                             status={status}
                             description={description}
                             isComplete={!isConnected && !error}
+                            files={files}
+                            prLevelSuggestions={prLevelSuggestions}
                         />
                     ) : null}
                 </div>
