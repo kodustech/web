@@ -56,6 +56,7 @@ export const KodyRulesLibrary = ({
     buckets,
     pagination: initialPagination,
     initialSelectedBucket,
+    showSuggestionsButton = false,
 }: {
     rules: LibraryRule[];
     buckets: KodyRuleBucket[];
@@ -66,6 +67,7 @@ export const KodyRulesLibrary = ({
         total: number;
         totalPages: number;
     };
+    showSuggestionsButton?: boolean;
 }) => {
     const router = useRouter();
     const [rules, setRules] = useState<LibraryRule[]>(initialRules);
@@ -617,7 +619,7 @@ export const KodyRulesLibrary = ({
                                         key={rule.uuid}
                                         rule={rule}
                                         showLikeButton
-                                        showSuggestionsButton
+                                        showSuggestionsButton={showSuggestionsButton}
                                     />
                                 ))}
                             </div>

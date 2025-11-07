@@ -31,9 +31,11 @@ import { SuggestionsModal } from "src/app/(app)/library/kody-rules/_components/s
 export const KodyRuleItem = ({
     rule,
     onAnyChange,
+    showSuggestionsButton = false,
 }: {
     rule: KodyRuleWithInheritanceDetails;
     onAnyChange: () => void;
+    showSuggestionsButton?: boolean;
 }) => {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const { teamId } = useSelectedTeamId();
@@ -122,7 +124,7 @@ export const KodyRuleItem = ({
                 </div>
 
                 <div className="flex items-center gap-2">
-                    {rule.uuid && (
+                    {showSuggestionsButton && rule.uuid && (
                         <SuggestionsModal ruleId={rule.uuid} ruleTitle={rule.title} variant="icon" />
                     )}
 

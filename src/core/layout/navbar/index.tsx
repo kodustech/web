@@ -48,24 +48,13 @@ const NoSSRGithubStars = dynamic(
 );
 
 export const NavMenu = ({
-    issuesPageFeatureFlag,
-    logsPagesFeatureFlag,
-    pullRequestsPageFeatureFlag,
     tokenUsagePageFeatureFlag,
 }: {
-    issuesPageFeatureFlag: Awaited<
-        ReturnType<typeof getFeatureFlagWithPayload>
-    >;
-    logsPagesFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
-    pullRequestsPageFeatureFlag: AwaitedReturnType<
-        typeof getFeatureFlagWithPayload
-    >;
     tokenUsagePageFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
 }) => {
     const pathname = usePathname();
     const subscription = useSubscriptionStatus();
 
-    const canReadCockpit = usePermission(Action.Read, ResourceType.Cockpit);
     const canReadIssues = usePermission(Action.Read, ResourceType.Issues);
     const canReadPullRequests = usePermission(
         Action.Read,
@@ -115,11 +104,11 @@ export const NavMenu = ({
                 },
             ];
 
-        if (issuesPageFeatureFlag?.value && canReadIssues) {
+        if (canReadIssues) {
             items.push({
                 label: "Issues",
                 href: "/issues",
-                visible: issuesPageFeatureFlag.value === true && canReadIssues,
+                visible: canReadIssues,
                 icon: <InfoIcon className="size-5" />,
                 badge: (
                     <div className="h-5 min-h-auto min-w-8">
@@ -129,23 +118,25 @@ export const NavMenu = ({
             });
         }
 
-        if (pullRequestsPageFeatureFlag?.value && canReadPullRequests) {
+        if (canReadPullRequests) {
             items.push({
                 label: "Pull Requests",
                 href: "/pull-requests",
-                visible:
-                    pullRequestsPageFeatureFlag.value === true &&
-                    canReadPullRequests,
+                visible: canReadPullRequests,
                 icon: <GitPullRequestIcon className="size-5" />,
             });
         }
 
         return items;
     }, [
-        issuesPageFeatureFlag?.value,
-        logsPagesFeatureFlag?.value,
-        pullRequestsPageFeatureFlag?.value,
-        tokenUsagePageFeatureFlag?.value,
+        subscription.valid,
+        subscription.status,
+        canReadCodeReviewSettings,
+        canReadGitSettings,
+        canReadBilling,
+        canReadPlugins,
+        canReadIssues,
+        canReadPullRequests,
     ]);
 
     const isActive = (route: string) => pathname.startsWith(route);
@@ -197,7 +188,7 @@ export const NavMenu = ({
                 </div>
 
                 <Suspense>
-                    <UserNav logsPagesFeatureFlag={logsPagesFeatureFlag} tokenUsagePageFeatureFlag={tokenUsagePageFeatureFlag} />
+                    <UserNav tokenUsagePageFeatureFlag={tokenUsagePageFeatureFlag} />
                 </Suspense>
             </div>
         </div>

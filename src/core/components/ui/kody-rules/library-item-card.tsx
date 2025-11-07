@@ -26,7 +26,7 @@ export const KodyRuleLibraryItem = ({
     repositoryId,
     directoryId,
     showLikeButton,
-    showSuggestionsButton,
+    showSuggestionsButton = false,
 }: {
     rule: LibraryRule;
     repositoryId?: string;

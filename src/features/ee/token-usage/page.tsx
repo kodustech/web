@@ -13,6 +13,7 @@ import { BaseUsageContract, UsageByPrResultContract } from "@services/usage/type
 import { CookieName } from "src/core/utils/cookie";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
+import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { getSelectedDateRange } from "src/features/ee/cockpit/_helpers/get-selected-date-range";
 import { validateOrganizationLicense } from "src/features/ee/subscription/_services/billing/fetch";
@@ -24,11 +25,11 @@ export default async function TokenUsagePage({
 }: {
     searchParams: { [key: string]: string | string[] | undefined };
 }) {
-    const logsPagesFeatureFlag = await getFeatureFlagWithPayload({
-        feature: "token-usage-page",
+    const tokenUsagePageFeatureFlag = await getFeatureFlagWithPayload({
+        feature: FEATURE_FLAGS.tokenUsagePage,
     });
 
-    if (!logsPagesFeatureFlag?.value) {
+    if (!tokenUsagePageFeatureFlag?.value) {
         notFound();
     }
 

@@ -14,6 +14,7 @@ import { NavMenu } from "src/core/layout/navbar";
 import { TEAM_STATUS } from "src/core/types";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
+import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 import { BYOKMissingKeyTopbar } from "src/features/ee/byok/_components/missing-key-topbar";
 import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { FinishedTrialModal } from "src/features/ee/subscription/_components/finished-trial-modal";
@@ -66,9 +67,6 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         organizationName,
         organizationLicense,
         usersWithAssignedLicense,
-        issuesPageFeatureFlag,
-        logsPagesFeatureFlag,
-        pullRequestsPageFeatureFlag,
         tokenUsagePageFeatureFlag,
         byokConfig,
     ] = await Promise.all([
@@ -76,10 +74,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         getOrganizationName(),
         validateOrganizationLicense({ teamId }),
         getUsersWithLicense({ teamId }),
-        getFeatureFlagWithPayload({ feature: "issues-page" }),
-        getFeatureFlagWithPayload({ feature: "logs-pages" }),
-        getFeatureFlagWithPayload({ feature: "pull-requests-pages" }),
-        getFeatureFlagWithPayload({ feature: "token-usage-page" }),
+        getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.tokenUsagePage }),
         getBYOK(),
     ]);
 
@@ -101,9 +96,6 @@ export default async function Layout({ children }: React.PropsWithChildren) {
                 license={organizationLicense}
                 usersWithAssignedLicense={usersWithAssignedLicense}>
                 <NavMenu
-                    issuesPageFeatureFlag={issuesPageFeatureFlag}
-                    logsPagesFeatureFlag={logsPagesFeatureFlag}
-                    pullRequestsPageFeatureFlag={pullRequestsPageFeatureFlag}
                     tokenUsagePageFeatureFlag={tokenUsagePageFeatureFlag}
                 />
                 <FinishedTrialModal />
