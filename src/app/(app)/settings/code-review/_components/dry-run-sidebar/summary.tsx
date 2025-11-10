@@ -35,12 +35,12 @@ export const PreviewSummary = ({
                     Suggestions sent
                 </div>
             </div>
-            <div>
+            {/* <div>
                 <div className="text-2xl font-bold">{suggestionsFound}</div>
                 <div className="text-text-tertiary text-sm">
                     Suggestions found
                 </div>
-            </div>
+            </div> */}
 
             <div>
                 <div className="text-2xl font-bold">

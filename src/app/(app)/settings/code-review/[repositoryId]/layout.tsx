@@ -17,12 +17,16 @@ import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { Eye } from "lucide-react";
 import { FormProvider, useForm } from "react-hook-form";
+import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
 
 import { DryRunSidebar } from "../_components/dry-run-sidebar";
 import { type CodeReviewFormType } from "../_types";
-import { useCodeReviewConfig } from "../../_components/context";
+import {
+    useCodeReviewConfig,
+    useFeatureFlags,
+} from "../../_components/context";
 
 export default function Layout(props: React.PropsWithChildren) {
     const { teamId } = useSelectedTeamId();
@@ -48,6 +52,11 @@ export default function Layout(props: React.PropsWithChildren) {
         repositoryId,
     );
 
+    const canManage = usePermission(
+        Action.Manage,
+        ResourceType.CodeReviewSettings,
+    );
+
     const form = useForm<CodeReviewFormType>({
         mode: "all",
         criteriaMode: "firstError",
@@ -63,31 +72,38 @@ export default function Layout(props: React.PropsWithChildren) {
         form.reset({ ...config, language: parameters.configValue });
     }, [config?.id]);
 
-    // const getStarted = GetStartedChecklist();
-    const getStartedVisible = true;
+    const getStarted = GetStartedChecklist();
+    const getStartedVisible = getStarted !== null;
+
+    const codeReviewDryRunFeatureFlag =
+        useFeatureFlags()[FEATURE_FLAGS.codeReviewDryRun];
 
     return (
         <FormProvider {...form}>
             {props.children}
 
-            <Sheet>
-                <Suspense>
-                    <SheetTrigger asChild>
-                        <Button
-                            size="lg"
-                            variant="primary"
-                            className={cn(
-                                "fixed right-5 z-50",
-                                getStartedVisible ? "bottom-25" : "bottom-5",
-                            )}>
-                            <Eye />
-                            Preview
-                        </Button>
-                    </SheetTrigger>
+            {codeReviewDryRunFeatureFlag && canManage && (
+                <Sheet>
+                    <Suspense>
+                        <SheetTrigger asChild>
+                            <Button
+                                size="lg"
+                                variant="primary"
+                                className={cn(
+                                    "fixed right-5 z-50",
+                                    getStartedVisible
+                                        ? "bottom-25"
+                                        : "bottom-5",
+                                )}>
+                                <Eye />
+                                Preview
+                            </Button>
+                        </SheetTrigger>
 
-                    <DryRunSidebar />
-                </Suspense>
-            </Sheet>
+                        <DryRunSidebar />
+                    </Suspense>
+                </Sheet>
+            )}
         </FormProvider>
     );
 }

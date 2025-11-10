@@ -130,3 +130,21 @@ export const DefaultCodeReviewConfigProvider = (
         {props.children}
     </DefaultCodeReviewConfigContext.Provider>
 );
+
+const FeatureFlagsContext = createContext<Record<string, boolean>>(
+    {} as Record<string, boolean>,
+);
+
+export const useFeatureFlags = () => {
+    return useContext(FeatureFlagsContext);
+};
+
+export const FeatureFlagsProvider = (
+    props: React.PropsWithChildren & {
+        featureFlags: Record<string, boolean>;
+    },
+) => (
+    <FeatureFlagsContext.Provider value={props.featureFlags}>
+        {props.children}
+    </FeatureFlagsContext.Provider>
+);
