@@ -62,6 +62,49 @@ export function useSuspenseGetOnboardingPullRequests(teamId: string) {
     }));
 }
 
+export function useSuspenseGetPullRequestsByRepository(
+    teamId: string,
+    repositoryId: string,
+    filters?: {
+        number?: string;
+        startDate?: string;
+        endDate?: string;
+        author?: string;
+        branch?: string;
+        title?: string;
+        state?: "open" | "closed" | "merged" | "all";
+    },
+) {
+    const rwaData = useSuspenseFetch<
+        {
+            id: string;
+            pull_number: number;
+            repository: {
+                id: string;
+                name: string;
+            };
+            title: string;
+            url: string;
+        }[]
+    >(CODE_MANAGEMENT_API_PATHS.GET_PULL_REQUESTS, {
+        params: {
+            teamId,
+            repositoryId,
+            ...filters,
+        },
+    });
+
+    // Transform to legacy format for compatibility
+    return rwaData.map((pr) => ({
+        id: pr.id,
+        pull_number: pr.pull_number,
+        repository: pr.repository.name, // Extract name from repository object
+        repositoryId: pr.repository.id,
+        title: pr.title,
+        url: pr.url,
+    }));
+}
+
 export function useSearchPullRequests(
     teamId: string,
     searchParams: {
@@ -70,7 +113,6 @@ export function useSearchPullRequests(
         repositoryId?: string;
     } = {},
 ) {
-
     return useFetch<
         {
             id: string;
