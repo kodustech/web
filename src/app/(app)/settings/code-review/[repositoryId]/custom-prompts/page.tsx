@@ -13,9 +13,10 @@ import {
 import { FormControl } from "@components/ui/form-control";
 import { Page } from "@components/ui/page";
 import { Spinner } from "@components/ui/spinner";
-import { RichTextEditorWithMentions, type MentionGroup } from "@components/ui/rich-text-editor-with-mentions";
-import { getTextLengthFromTiptapJSON, getWordCountFromTiptapJSON, getTextStatsFromTiptapJSON } from "@components/ui/rich-text-editor";
+import { RichTextEditorWithMentions } from "@components/ui/rich-text-editor-with-mentions";
+import { getTextStatsFromTiptapJSON } from "@components/ui/rich-text-editor";
 import { convertTiptapJSONToText } from "src/core/utils/tiptap-json-to-text";
+import { useMCPMentions } from "src/core/hooks/use-mcp-mentions";
 
 // Use the exported utility function from rich-text-editor
 function getTextFromValue(value: string | object | null | undefined): string {
@@ -42,7 +43,6 @@ function serializeFieldValue(value: string | object): string {
     }
     return value || "";
 }
-import { getMCPConnections } from "src/lib/services/mcp-manager/fetch";
 import { toast } from "@components/ui/toaster/use-toast";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { PARAMETERS_PATHS } from "@services/parameters";
@@ -89,39 +89,7 @@ function CustomPromptsContent() {
         repositoryId,
     );
 
-    const [mcpGroups, setMcpGroups] = useState<MentionGroup[]>([]);
-
-    useEffect(() => {
-        let mounted = true;
-        (async () => {
-            const res = await getMCPConnections();
-            const groups: MentionGroup[] = [
-                {
-                    groupLabel: "MCP",
-                    items: (res.items ?? []).map((c) => ({
-                        type: "mcp" as const,
-                        value: c.integrationId,
-                        label: c.appName,
-                        children: () => [
-                            {
-                                groupLabel: c.appName,
-                                items: (c.allowedTools ?? []).map((tool) => ({
-                                    type: "mcp" as const,
-                                    value: `${c.integrationId}:${tool}`,
-                                    label: tool,
-                                    meta: { appName: c.appName },
-                                })),
-                            },
-                        ],
-                    })),
-                },
-            ];
-            if (mounted) setMcpGroups(groups);
-        })();
-        return () => {
-            mounted = false;
-        };
-    }, []);
+    const { mcpGroups, formatInsertByType } = useMCPMentions();
 
 
     const handleSubmit = form.handleSubmit(async (formData) => {
@@ -366,18 +334,7 @@ function CustomPromptsContent() {
                                                     placeholder="Describe what Kody should analyze and suggest... Use @ to insert MCP tools for dynamic data."
                                                     className="min-h-32"
                                                     groups={mcpGroups}
-                                                    formatInsertByType={{
-                                                        mcp: (i: any) => {
-                                                            const rawApp = String(i?.meta?.appName ?? "");
-                                                            const app = rawApp
-                                                                .toLowerCase()
-                                                                .replace(/\bmcp\b/g, "")
-                                                                .replace(/[^a-z0-9]+/g, "_")
-                                                                .replace(/^_+|_+$/g, "");
-                                                            const tool = String(i.label).toLowerCase();
-                                                            return `@mcp<${app}|${tool}> `;
-                                                        },
-                                                    }}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
                                                 <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
                                                     {(() => {
@@ -500,18 +457,7 @@ function CustomPromptsContent() {
                                                     className="min-h-32"
                                                     disabled={field.disabled}
                                                     groups={mcpGroups}
-                                                    formatInsertByType={{
-                                                        mcp: (i: any) => {
-                                                            const rawApp = String(i?.meta?.appName ?? "");
-                                                            const app = rawApp
-                                                                .toLowerCase()
-                                                                .replace(/\bmcp\b/g, "")
-                                                                .replace(/[^a-z0-9]+/g, "_")
-                                                                .replace(/^_+|_+$/g, "");
-                                                            const tool = String(i.label).toLowerCase();
-                                                            return `@mcp<${app}|${tool}> `;
-                                                        },
-                                                    }}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
                                                 <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
                                                     {(() => {
@@ -623,18 +569,7 @@ function CustomPromptsContent() {
                                                     className="min-h-32"
                                                     disabled={field.disabled}
                                                     groups={mcpGroups}
-                                                    formatInsertByType={{
-                                                        mcp: (i: any) => {
-                                                            const rawApp = String(i?.meta?.appName ?? "");
-                                                            const app = rawApp
-                                                                .toLowerCase()
-                                                                .replace(/\bmcp\b/g, "")
-                                                                .replace(/[^a-z0-9]+/g, "_")
-                                                                .replace(/^_+|_+$/g, "");
-                                                            const tool = String(i.label).toLowerCase();
-                                                            return `@mcp<${app}|${tool}> `;
-                                                        },
-                                                    }}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
                                                 <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
                                                     {(() => {
@@ -746,18 +681,7 @@ function CustomPromptsContent() {
                                                     className="min-h-32"
                                                     disabled={field.disabled}
                                                     groups={mcpGroups}
-                                                    formatInsertByType={{
-                                                        mcp: (i: any) => {
-                                                            const rawApp = String(i?.meta?.appName ?? "");
-                                                            const app = rawApp
-                                                                .toLowerCase()
-                                                                .replace(/\bmcp\b/g, "")
-                                                                .replace(/[^a-z0-9]+/g, "_")
-                                                                .replace(/^_+|_+$/g, "");
-                                                            const tool = String(i.label).toLowerCase();
-                                                            return `@mcp<${app}|${tool}> `;
-                                                        },
-                                                    }}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
                                                 <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
                                                     {(() => {
@@ -880,18 +804,7 @@ function CustomPromptsContent() {
                                                     className="min-h-32"
                                                     disabled={field.disabled}
                                                     groups={mcpGroups}
-                                                    formatInsertByType={{
-                                                        mcp: (i: any) => {
-                                                            const rawApp = String(i?.meta?.appName ?? "");
-                                                            const app = rawApp
-                                                                .toLowerCase()
-                                                                .replace(/\bmcp\b/g, "")
-                                                                .replace(/[^a-z0-9]+/g, "_")
-                                                                .replace(/^_+|_+$/g, "");
-                                                            const tool = String(i.label).toLowerCase();
-                                                            return `@mcp<${app}|${tool}> `;
-                                                        },
-                                                    }}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
                                                 <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
                                                     {(() => {
@@ -1002,18 +915,7 @@ function CustomPromptsContent() {
                                                     className="min-h-32"
                                                     disabled={field.disabled}
                                                     groups={mcpGroups}
-                                                    formatInsertByType={{
-                                                        mcp: (i: any) => {
-                                                            const rawApp = String(i?.meta?.appName ?? "");
-                                                            const app = rawApp
-                                                                .toLowerCase()
-                                                                .replace(/\bmcp\b/g, "")
-                                                                .replace(/[^a-z0-9]+/g, "_")
-                                                                .replace(/^_+|_+$/g, "");
-                                                            const tool = String(i.label).toLowerCase();
-                                                            return `@mcp<${app}|${tool}> `;
-                                                        },
-                                                    }}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
                                                 <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
                                                     {(() => {
@@ -1124,18 +1026,7 @@ function CustomPromptsContent() {
                                                     className="min-h-32"
                                                     disabled={field.disabled}
                                                     groups={mcpGroups}
-                                                    formatInsertByType={{
-                                                        mcp: (i: any) => {
-                                                            const rawApp = String(i?.meta?.appName ?? "");
-                                                            const app = rawApp
-                                                                .toLowerCase()
-                                                                .replace(/\bmcp\b/g, "")
-                                                                .replace(/[^a-z0-9]+/g, "_")
-                                                                .replace(/^_+|_+$/g, "");
-                                                            const tool = String(i.label).toLowerCase();
-                                                            return `@mcp<${app}|${tool}> `;
-                                                        },
-                                                    }}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
                                                 <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
                                                     {(() => {
@@ -1246,18 +1137,7 @@ function CustomPromptsContent() {
                                                     className="min-h-32"
                                                     disabled={field.disabled}
                                                     groups={mcpGroups}
-                                                    formatInsertByType={{
-                                                        mcp: (i: any) => {
-                                                            const rawApp = String(i?.meta?.appName ?? "");
-                                                            const app = rawApp
-                                                                .toLowerCase()
-                                                                .replace(/\bmcp\b/g, "")
-                                                                .replace(/[^a-z0-9]+/g, "_")
-                                                                .replace(/^_+|_+$/g, "");
-                                                            const tool = String(i.label).toLowerCase();
-                                                            return `@mcp<${app}|${tool}> `;
-                                                        },
-                                                    }}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
                                                 <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
                                                     {(() => {

@@ -56,6 +56,17 @@ export function RichTextEditorWithMentions(props: Props) {
         setOpen(true);
     }, []);
 
+    const listRef = React.useRef<HTMLDivElement | null>(null);
+
+    const handleListWheel = React.useCallback((event: React.WheelEvent<HTMLDivElement>) => {
+        if (!listRef.current) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        listRef.current.scrollBy({ top: event.deltaY, behavior: "auto" });
+    }, []);
+
     const insertToken = React.useCallback((item: MentionGroupItem) => {
         const editor = editorInstanceRef.current;
 
@@ -241,7 +252,7 @@ export function RichTextEditorWithMentions(props: Props) {
     }, [query, viewStack.length]);
 
     return (
-        <Popover open={open} onOpenChange={(o) => {
+        <Popover open={open} modal={false} onOpenChange={(o) => {
             if (o) {
                 setOpen(true);
             } else {
@@ -268,10 +279,10 @@ export function RichTextEditorWithMentions(props: Props) {
                     disabled={disabled}
                 />
             </div>
-            <PopoverContent className="p-0 w-80" align="start" sideOffset={8}>
-                <Command>
+            <PopoverContent className="p-0 w-80 max-h-[min(60vh,28rem)] flex flex-col overflow-hidden" align="start" sideOffset={8}>
+                <Command className="flex h-full flex-col overflow-hidden">
                     {viewStack.length > 0 && (
-                        <div className="flex items-center gap-2 px-3 py-2 text-xs text-text-secondary">
+                        <div className="flex items-center gap-2 px-3 py-2 text-xs text-text-secondary shrink-0">
                             <span>Root</span>
                             {viewStack.map((g, idx) => (
                                 <React.Fragment key={idx}>
@@ -281,8 +292,23 @@ export function RichTextEditorWithMentions(props: Props) {
                             ))}
                         </div>
                     )}
-                    <CommandInput value={query} onValueChange={setQuery} placeholder="Digite para filtrar…" />
-                    <CommandList>
+                    <CommandInput
+                        value={query}
+                        onValueChange={setQuery}
+                        placeholder="Digite para filtrar…"
+                        classNames={{
+                            inputContainer: "shrink-0 border-b",
+                            root: "h-11",
+                        }}
+                    />
+                    <CommandList
+                        className="flex-1 min-h-0 overflow-y-auto"
+                        style={{ maxHeight: "18rem" }}
+                        ref={(node) => {
+                            listRef.current = node;
+                        }}
+                        onWheel={handleListWheel}
+                    >
                         <CommandEmpty>No results.</CommandEmpty>
                         {React.useMemo(() => {
                             const groupsToRender = childSearchGroups ?? currentGroups;
@@ -318,7 +344,7 @@ export function RichTextEditorWithMentions(props: Props) {
                     </CommandList>
                 </Command>
                 {canGoBack && (
-                    <div className="flex items-center justify-end border-t px-3 py-2">
+                    <div className="flex items-center justify-end border-t px-3 py-2 shrink-0 bg-card-lv1/40">
                         <button
                             type="button"
                             className="text-xs text-text-secondary hover:underline"

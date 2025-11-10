@@ -24,6 +24,7 @@ export const CodeBlock = TiptapCodeBlock.extend({
     },
 
     renderHTML({ node, HTMLAttributes }) {
+        const lang = node.attrs.language || "text";
         return [
             "pre",
             {
@@ -33,8 +34,8 @@ export const CodeBlock = TiptapCodeBlock.extend({
             [
                 "code",
                 {
-                    class: "block p-4 text-sm font-mono text-white whitespace-pre overflow-x-auto",
-                    "data-language": node.attrs.language || "text",
+                    class: `block p-4 text-sm font-mono text-white whitespace-pre overflow-x-auto language-${lang}`,
+                    "data-language": lang,
                 },
                 0,
             ],

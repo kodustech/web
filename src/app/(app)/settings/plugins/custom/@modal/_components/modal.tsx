@@ -349,7 +349,7 @@ export const AddCustomPluginModal = ({
                 closeable: !isLoading,
             }}>
             <Dialog open onOpenChange={() => router.push("/settings/plugins")}>
-                <DialogContent className="max-w-2xl">
+                <DialogContent className="max-w-2xl overflow-x-hidden">
                     <DialogHeader>
                         <DialogTitle>
                             {isEditMode
@@ -418,22 +418,22 @@ export const AddCustomPluginModal = ({
                                         Logo URL (Optional)
                                     </FormControl.Label>
                                     <FormControl.Input>
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-2 min-w-0">
                                             <Input
                                                 size="md"
                                                 placeholder="https://example.com/logo.png"
                                                 disabled={!canPerformAction}
                                                 {...field}
                                             />
-                                            <Avatar className="bg-card-lv3 group-disabled/link:bg-card-lv3/50 size-10 rounded-lg p-1">
+                                            <Avatar className="bg-card-lv3 group-disabled/link:bg-card-lv3/50 size-10 shrink-0 rounded-lg p-1">
                                                 {(field.value && (
                                                     <AvatarImage
                                                         src={field.value}
                                                         className="object-contain"
                                                     />
                                                 )) || (
-                                                    <ImageOff className="text-text-tertiary m-auto h-6 w-6" />
-                                                )}
+                                                        <ImageOff className="text-text-tertiary m-auto h-6 w-6" />
+                                                    )}
                                             </Avatar>
                                         </div>
                                     </FormControl.Input>
@@ -701,7 +701,7 @@ export const AddCustomPluginModal = ({
                                                 field: inputField,
                                                 fieldState,
                                             }) => (
-                                                <div className="flex-1">
+                                                <div className="flex-1 min-w-0">
                                                     <Input
                                                         size="md"
                                                         placeholder="Header Key"
@@ -729,7 +729,7 @@ export const AddCustomPluginModal = ({
                                                 field: inputField,
                                                 fieldState,
                                             }) => (
-                                                <div className="flex-1">
+                                                <div className="flex-1 min-w-0">
                                                     <Input
                                                         size="md"
                                                         placeholder="Header Value"

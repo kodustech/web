@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useEditor, EditorContent, Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import Placeholder from "@tiptap/extension-placeholder";
 import { cn } from "src/core/utils/components";
 import { MCPMention } from "./mcp-mention-extension";
 import { MentionTrigger } from "./mention-trigger-extension";
@@ -241,6 +242,9 @@ export function RichTextEditor(props: RichTextEditorProps) {
                 searchTerm: "",
                 caseSensitive: false,
             }),
+            Placeholder.configure({
+                placeholder: placeholder || "",
+            }),
         ];
 
         if (enableMentions) {
@@ -253,7 +257,7 @@ export function RichTextEditor(props: RichTextEditorProps) {
         }
 
         return base;
-    }, [enableMentions, handleTriggerMemoized]);
+    }, [enableMentions, handleTriggerMemoized, placeholder]);
 
     // Use refs to prevent editor recreation when callbacks change
     const onChangeRef = React.useRef(onChange);
@@ -300,6 +304,7 @@ export function RichTextEditor(props: RichTextEditorProps) {
                     "[&_code]:bg-card-lv3 [&_code]:text-primary-light [&_code]:rounded [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs",
                     "[&_strong]:font-semibold [&_strong]:text-text-primary",
                     "[&_em]:italic",
+                    "[&_.is-empty:first-child::before]:content-[attr(data-placeholder)] [&_.is-empty:first-child::before]:float-left [&_.is-empty:first-child::before]:text-text-placeholder/50 [&_.is-empty:first-child::before]:pointer-events-none [&_.is-empty:first-child::before]:h-0",
                     disabled && "opacity-50 pointer-events-none",
                     className,
                 ),
