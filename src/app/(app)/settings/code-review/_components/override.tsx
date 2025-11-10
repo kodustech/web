@@ -1,12 +1,17 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Badge } from "@components/ui/badge";
+import { Button } from "@components/ui/button";
 import {
     Tooltip,
     TooltipContent,
+    TooltipPortal,
     TooltipProvider,
     TooltipTrigger,
 } from "@components/ui/tooltip";
+import { useEffectOnce } from "@hooks/use-effect-once";
+import { Undo2 } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 
 import {
@@ -24,6 +29,23 @@ function getNestedProperty<T>(
     return path.split(".").reduce((acc: any, key) => acc?.[key], obj);
 }
 
+function areValuesDifferent(val1: any, val2: any): boolean {
+    if (Array.isArray(val1) && Array.isArray(val2)) {
+        return JSON.stringify(val1) !== JSON.stringify(val2);
+    }
+
+    if (
+        typeof val1 === "object" &&
+        typeof val2 === "object" &&
+        val1 !== null &&
+        val2 !== null
+    ) {
+        return JSON.stringify(val1) !== JSON.stringify(val2);
+    }
+
+    return val1 !== val2;
+}
+
 type OverrideIndicatorFormProps = {
     fieldName: string;
     className?: string;
@@ -34,14 +56,39 @@ export const OverrideIndicatorForm = ({
 }: OverrideIndicatorFormProps) => {
     const form = useFormContext<CodeReviewFormType>();
     const config = useCodeReviewConfig();
+    const currentLevel = useCurrentConfigLevel();
 
     const initialState = getNestedProperty(config, fieldName);
     const currentValue = form.watch(`${fieldName}.value` as any);
+
+    const isExistingOverride = initialState?.level === currentLevel;
+
+    const handleRevert = () => {
+        if (!initialState) return;
+
+        const valueToRevert = isExistingOverride
+            ? initialState.overriddenValue
+            : initialState.value;
+
+        const levelToRevert =
+            (isExistingOverride
+                ? initialState.overriddenLevel
+                : initialState.level) ?? FormattedConfigLevel.DEFAULT;
+
+        form.setValue(`${fieldName}.value` as any, valueToRevert, {
+            shouldDirty: true,
+        });
+        form.setValue(`${fieldName}.level` as any, levelToRevert, {
+            shouldDirty: true,
+        });
+        form.trigger(fieldName as any);
+    };
 
     return (
         <OverrideIndicator
             currentValue={currentValue}
             initialState={initialState}
+            handleRevert={handleRevert}
         />
     );
 };
@@ -49,93 +96,79 @@ export const OverrideIndicatorForm = ({
 type OverrideIndicatorProps<T> = {
     currentValue: T;
     initialState: IFormattedConfigProperty<T>;
+    handleRevert?: () => void;
 };
 
 export const OverrideIndicator = <T,>({
     currentValue,
     initialState,
+    handleRevert,
 }: OverrideIndicatorProps<T>) => {
     const currentLevel = useCurrentConfigLevel();
+    const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(
+        null,
+    );
 
-    if (currentLevel === FormattedConfigLevel.GLOBAL) {
+    useEffectOnce(() => {
+        setPortalContainer(document.body);
+    });
+
+    if (
+        currentLevel === FormattedConfigLevel.GLOBAL ||
+        !initialState ||
+        !portalContainer
+    ) {
         return null;
     }
 
     const isExistingOverride = initialState?.level === currentLevel;
 
-    const hasFormChange = (() => {
-        const initialValue = initialState?.value;
+    const parentValue = isExistingOverride
+        ? initialState?.overriddenValue
+        : initialState?.value;
 
-        if (Array.isArray(currentValue) && Array.isArray(initialValue)) {
-            return (
-                JSON.stringify(currentValue) !== JSON.stringify(initialValue)
-            );
-        }
+    const parentLevel =
+        (isExistingOverride
+            ? initialState?.overriddenLevel
+            : initialState?.level) ?? FormattedConfigLevel.DEFAULT;
 
-        if (
-            typeof currentValue === "object" &&
-            typeof initialValue === "object" &&
-            currentValue !== null &&
-            initialValue !== null
-        ) {
-            return (
-                JSON.stringify(currentValue) !== JSON.stringify(initialValue)
-            );
-        }
+    const isOverridden = areValuesDifferent(currentValue, parentValue);
 
-        return currentValue !== initialValue;
-    })();
-
-    const overriddenLevelText =
-        (() => {
-            if (isExistingOverride) {
-                // If viewing an override saved AT this level, it overrides the 'overriddenLevel' from the initial state.
-                return initialState?.overriddenLevel;
-            } else {
-                // If creating a NEW override, you're overriding the level you inherited FROM.
-                return initialState?.level;
-            }
-        })() || FormattedConfigLevel.DEFAULT;
-
-    const showIndicator = isExistingOverride || hasFormChange;
-
-    if (!showIndicator) {
+    if (!isOverridden) {
         return null;
     }
 
-    // const handleRevert = () => {
-    //     form.setValue(`${fieldName}.value` as any, inheritedValue, {
-    //         shouldDirty: true,
-    //     });
-    //     form.setValue(`${fieldName}.level` as any, inheritedLevel, {
-    //         shouldDirty: true,
-    //     });
-    //     form.trigger(fieldName as any);
-    // };
-
-    // TODO: fix below, button cannot contain button error
     return (
         <div className="flex items-center gap-2">
-            <TooltipProvider>
-                <Tooltip>
-                    <TooltipTrigger asChild>
-                        <Badge
-                            variant="primary-dark"
-                            className="cursor-default px-2 py-1 text-[10px]">
-                            Overridden
-                        </Badge>
-                    </TooltipTrigger>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <Badge
+                        onClick={(e) => e.stopPropagation()}
+                        variant="primary-dark"
+                        className="cursor-default px-2 py-1 text-[10px]">
+                        Overridden
+                    </Badge>
+                </TooltipTrigger>
+
+                {/* Prevent tooltip from being cut off in overflow hidden containers */}
+                <TooltipPortal container={portalContainer}>
                     <TooltipContent>
                         <p>
                             This overrides the setting from the{" "}
-                            {overriddenLevelText} level.
+                            <strong>{parentLevel}</strong> level.
                         </p>
                     </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
-            {/* <Button size="xs" variant="primary" onClick={handleRevert}>
-                <Undo2 className="h-4 w-4" />
-            </Button> */}
+                </TooltipPortal>
+            </Tooltip>
+            {typeof handleRevert === "function" && (
+                <div
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        handleRevert();
+                    }}>
+                    <Undo2 className="h-4 w-4" />
+                </div>
+            )}
         </div>
     );
 };

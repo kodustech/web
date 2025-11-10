@@ -229,6 +229,16 @@ export default function CustomMessages() {
                                     },
                                 }));
                             }}
+                            handleRevert={() => {
+                                setGlobalSettings((prev) => ({
+                                    ...prev,
+                                    hideComments: {
+                                        ...prev.hideComments,
+                                        value: initialState.globalSettings
+                                            .hideComments.value,
+                                    },
+                                }));
+                            }}
                             canEdit={canEdit}
                         />
                     </TabsContent>

@@ -1,13 +1,13 @@
 "use client";
 
 import { Button } from "@components/ui/button";
+import { Card, CardHeader } from "@components/ui/card";
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@components/ui/dropdown-menu";
-import { Card, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { Label } from "@components/ui/label";
 import { Markdown } from "@components/ui/markdown";
@@ -19,20 +19,19 @@ import {
     SelectValue,
 } from "@components/ui/select";
 import { Textarea } from "@components/ui/textarea";
+import { useSuspenseParentPullRequestMessages } from "@services/pull-request-messages/hooks";
 import {
     CustomMessageConfig,
     PullRequestMessageStatus,
 } from "@services/pull-request-messages/types";
+import { ChevronDownIcon } from "lucide-react";
 import { RuleType } from "markdown-to-jsx";
 import { useDefaultCodeReviewConfig } from "src/app/(app)/settings/_components/context";
 import { useCurrentConfigLevel } from "src/app/(app)/settings/_hooks";
-import { FormattedConfigLevel } from "../../../_types";
-import { useSuspenseParentPullRequestMessages } from "@services/pull-request-messages/hooks";
 
 import { OverrideIndicator } from "../../../_components/override";
-import { FormattedConfig } from "../../../_types";
+import { FormattedConfig, FormattedConfigLevel } from "../../../_types";
 import { CustomMessagesOptionsDropdown } from "./dropdown";
-import { ChevronDownIcon } from "lucide-react";
 import { dropdownItems, VARIABLE_REGEX } from "./options";
 
 const getStatusLabel = (status: PullRequestMessageStatus): string => {
@@ -65,17 +64,31 @@ export const TabContent = (props: {
     const isGlobalScope = currentLevel === FormattedConfigLevel.GLOBAL;
     const parentMessages = useSuspenseParentPullRequestMessages();
     const inheritedContentTarget = hasParent
-        ? (props.type === "startReviewMessage"
-              ? parentMessages.startReviewMessage.content.value
-              : parentMessages.endReviewMessage.content.value)
+        ? props.type === "startReviewMessage"
+            ? parentMessages.startReviewMessage.content.value
+            : parentMessages.endReviewMessage.content.value
         : undefined;
 
     const defaultContentTarget =
         props.type === "startReviewMessage"
-            ? defaults?.startReviewMessage?.content ?? ""
-            : defaults?.endReviewMessage?.content ?? "";
+            ? (defaults?.startReviewMessage?.content ?? "")
+            : (defaults?.endReviewMessage?.content ?? "");
 
     const currentContent = props.value.content.value ?? "";
+
+    const handleStatusRevert = () => {
+        props.onChangeAction({
+            content: props.value.content.value,
+            status: props.initialState.status.value,
+        });
+    };
+
+    const handleContentRevert = () => {
+        props.onChangeAction({
+            content: props.initialState.content.value,
+            status: props.value.status.value,
+        });
+    };
 
     return (
         <div className="flex flex-1 flex-col gap-4">
@@ -87,10 +100,11 @@ export const TabContent = (props: {
                             <OverrideIndicator
                                 currentValue={props.value.status.value}
                                 initialState={props.initialState.status}
+                                handleRevert={handleStatusRevert}
                             />
                         </div>
                     </div>
-                    
+
                     <div className="flex flex-col gap-2">
                         <Label>Message behavior</Label>
                         <Select
@@ -108,27 +122,43 @@ export const TabContent = (props: {
                                 </SelectValue>
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value={PullRequestMessageStatus.EVERY_PUSH}>
-                                    {getStatusLabel(PullRequestMessageStatus.EVERY_PUSH)}
+                                <SelectItem
+                                    value={PullRequestMessageStatus.EVERY_PUSH}>
+                                    {getStatusLabel(
+                                        PullRequestMessageStatus.EVERY_PUSH,
+                                    )}
                                 </SelectItem>
-                                <SelectItem value={PullRequestMessageStatus.ONLY_WHEN_OPENED}>
-                                    {getStatusLabel(PullRequestMessageStatus.ONLY_WHEN_OPENED)}
+                                <SelectItem
+                                    value={
+                                        PullRequestMessageStatus.ONLY_WHEN_OPENED
+                                    }>
+                                    {getStatusLabel(
+                                        PullRequestMessageStatus.ONLY_WHEN_OPENED,
+                                    )}
                                 </SelectItem>
-                                <SelectItem value={PullRequestMessageStatus.OFF}>
-                                    {getStatusLabel(PullRequestMessageStatus.OFF)}
+                                <SelectItem
+                                    value={PullRequestMessageStatus.OFF}>
+                                    {getStatusLabel(
+                                        PullRequestMessageStatus.OFF,
+                                    )}
                                 </SelectItem>
                             </SelectContent>
                         </Select>
                         <p className="text-text-tertiary text-xs">
-                            {props.value.status.value === PullRequestMessageStatus.EVERY_PUSH &&
+                            {props.value.status.value ===
+                                PullRequestMessageStatus.EVERY_PUSH &&
                                 "Kody will send a message every time code is pushed to the PR"}
-                            {props.value.status.value === PullRequestMessageStatus.ONLY_WHEN_OPENED &&
+                            {props.value.status.value ===
+                                PullRequestMessageStatus.ONLY_WHEN_OPENED &&
                                 "Kody will send a message only when the PR is opened"}
-                            {props.value.status.value === PullRequestMessageStatus.OFF &&
+                            {props.value.status.value ===
+                                PullRequestMessageStatus.OFF &&
                                 "Kody won't send any messages"}
-                            {props.value.status.value === PullRequestMessageStatus.ACTIVE &&
+                            {props.value.status.value ===
+                                PullRequestMessageStatus.ACTIVE &&
                                 "Will be migrated to 'every_push'"}
-                            {props.value.status.value === PullRequestMessageStatus.INACTIVE &&
+                            {props.value.status.value ===
+                                PullRequestMessageStatus.INACTIVE &&
                                 "Will be migrated to 'off'"}
                         </p>
                     </div>
@@ -149,6 +179,7 @@ export const TabContent = (props: {
                         <OverrideIndicator
                             currentValue={props.value.content.value}
                             initialState={props.initialState.content}
+                            handleRevert={handleContentRevert}
                         />
                     </div>
 
@@ -161,8 +192,10 @@ export const TabContent = (props: {
                                 className="h-full resize-none rounded-none bg-transparent p-6"
                                 disabled={
                                     !props.canEdit ||
-                                    props.value.status.value === PullRequestMessageStatus.OFF ||
-                                    props.value.status.value === PullRequestMessageStatus.INACTIVE
+                                    props.value.status.value ===
+                                        PullRequestMessageStatus.OFF ||
+                                    props.value.status.value ===
+                                        PullRequestMessageStatus.INACTIVE
                                 }
                                 onChange={(ev) =>
                                     props.onChangeAction({
@@ -184,7 +217,9 @@ export const TabContent = (props: {
                                 <Button
                                     size="xs"
                                     variant="cancel"
-                                    rightIcon={<ChevronDownIcon className="-mr-1" />}
+                                    rightIcon={
+                                        <ChevronDownIcon className="-mr-1" />
+                                    }
                                     className="text-tertiary-light min-h-auto self-end"
                                     disabled={!props.canEdit}>
                                     Reset to…
@@ -195,23 +230,30 @@ export const TabContent = (props: {
                                     <DropdownMenuItem
                                         disabled={
                                             !props.canEdit ||
-                                            inheritedContentTarget === undefined ||
+                                            inheritedContentTarget ===
+                                                undefined ||
                                             currentContent.trim() ===
-                                                (inheritedContentTarget || "")
-                                                    .trim()
+                                                (
+                                                    inheritedContentTarget || ""
+                                                ).trim()
                                         }
                                         onClick={() => {
-                                            if (inheritedContentTarget === undefined)
+                                            if (
+                                                inheritedContentTarget ===
+                                                undefined
+                                            )
                                                 return;
                                             props.onChangeAction({
-                                                status: props.value.status.value,
+                                                status: props.value.status
+                                                    .value,
                                                 content: inheritedContentTarget,
                                             });
                                         }}>
                                         <div>
                                             Inherited message
                                             <p className="text-text-tertiary text-xs">
-                                                Restore content from parent scope
+                                                Restore content from parent
+                                                scope
                                             </p>
                                         </div>
                                     </DropdownMenuItem>
@@ -221,12 +263,14 @@ export const TabContent = (props: {
                                         disabled={
                                             !props.canEdit ||
                                             currentContent.trim() ===
-                                                (defaultContentTarget || "")
-                                                    .trim()
+                                                (
+                                                    defaultContentTarget || ""
+                                                ).trim()
                                         }
                                         onClick={() => {
                                             props.onChangeAction({
-                                                status: props.value.status.value,
+                                                status: props.value.status
+                                                    .value,
                                                 content: defaultContentTarget,
                                             });
                                         }}>
