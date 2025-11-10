@@ -48,6 +48,11 @@ export default function Layout(props: React.PropsWithChildren) {
         repositoryId,
     );
 
+    const canManage = usePermission(
+        Action.Manage,
+        ResourceType.CodeReviewSettings,
+    );
+
     const form = useForm<CodeReviewFormType>({
         mode: "all",
         criteriaMode: "firstError",
@@ -70,24 +75,28 @@ export default function Layout(props: React.PropsWithChildren) {
         <FormProvider {...form}>
             {props.children}
 
-            <Sheet>
-                <Suspense>
-                    <SheetTrigger asChild>
-                        <Button
-                            size="lg"
-                            variant="primary"
-                            className={cn(
-                                "fixed right-5 z-50",
-                                getStartedVisible ? "bottom-25" : "bottom-5",
-                            )}>
-                            <Eye />
-                            Preview
-                        </Button>
-                    </SheetTrigger>
+            {canManage && (
+                <Sheet>
+                    <Suspense>
+                        <SheetTrigger asChild>
+                            <Button
+                                size="lg"
+                                variant="primary"
+                                className={cn(
+                                    "fixed right-5 z-50",
+                                    getStartedVisible
+                                        ? "bottom-25"
+                                        : "bottom-5",
+                                )}>
+                                <Eye />
+                                Preview
+                            </Button>
+                        </SheetTrigger>
 
-                    <DryRunSidebar />
-                </Suspense>
-            </Sheet>
+                        <DryRunSidebar />
+                    </Suspense>
+                </Sheet>
+            )}
         </FormProvider>
     );
 }
