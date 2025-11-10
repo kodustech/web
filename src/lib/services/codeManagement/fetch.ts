@@ -5,7 +5,11 @@ import {
 } from "src/core/types";
 import { axiosAuthorized } from "src/core/utils/axios";
 
-import { CODE_MANAGEMENT_API_PATHS, type Repository, type RepositoryUploadResult } from "./types";
+import {
+    CODE_MANAGEMENT_API_PATHS,
+    type Repository,
+    type RepositoryUploadResult,
+} from "./types";
 
 export const getRepositories = async (
     teamId: string,
@@ -37,21 +41,21 @@ export const createOrUpdateRepositories = (
 export const createOrUpdateRepositoriesInChunks = async (
     repositories: Repository[],
     teamId: string,
-    onProgress?: (current: number, total: number) => void
+    onProgress?: (current: number, total: number) => void,
 ): Promise<RepositoryUploadResult> => {
     const CHUNK_SIZE = 50;
     const chunks = [];
-    
+
     for (let i = 0; i < repositories.length; i += CHUNK_SIZE) {
         chunks.push(repositories.slice(i, i + CHUNK_SIZE));
     }
-    
+
     const results: RepositoryUploadResult = {
         success: 0,
         failed: 0,
-        errors: []
+        errors: [],
     };
-    
+
     for (let i = 0; i < chunks.length; i++) {
         const type = i === 0 ? "replace" : "append";
         try {
@@ -63,7 +67,7 @@ export const createOrUpdateRepositoriesInChunks = async (
         }
         onProgress?.(results.success + results.failed, repositories.length);
     }
-    
+
     return results;
 };
 
@@ -152,4 +156,50 @@ export const deleteIntegrationAndRepositories = async (
         CODE_MANAGEMENT_API_PATHS.DELETE_INTEGRATION_AND_REPOSITORIES,
         { params: { organizationId, teamId } },
     );
+};
+
+export const getPrsByRepository = async (
+    teamId: string,
+    repositoryId: string,
+    filters?: {
+        number?: string;
+        startDate?: string;
+        endDate?: string;
+        author?: string;
+        branch?: string;
+        title?: string;
+        state?: "open" | "closed" | "merged" | "all";
+    },
+) => {
+    const { data: rawData } = (await axiosAuthorized.fetcher(
+        CODE_MANAGEMENT_API_PATHS.GET_PULL_REQUESTS,
+        {
+            params: {
+                teamId,
+                repositoryId,
+                ...filters,
+            },
+        },
+    )) as {
+        data: {
+            id: string;
+            pull_number: number;
+            repository: {
+                id: string;
+                name: string;
+            };
+            title: string;
+            url: string;
+        }[];
+    };
+
+    // Transform to legacy format for compatibility
+    return rawData.map((pr) => ({
+        id: pr.id,
+        pull_number: pr.pull_number,
+        repository: pr.repository.name, // Extract name from repository object
+        repositoryId: pr.repository.id,
+        title: pr.title,
+        url: pr.url,
+    }));
 };
