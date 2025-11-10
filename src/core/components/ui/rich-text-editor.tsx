@@ -28,7 +28,7 @@ type RichTextEditorProps = {
     toolbarClassName?: string;
 };
 
-const TOKEN_REGEX = /@?mcp\s*<([a-z0-9_]+)\s*\|\s*([a-z0-9_]+)>/gi;
+const TOKEN_REGEX = /@?mcp\s*<([a-z0-9_-]+)\s*\|\s*([a-z0-9_-]+)>/gi;
 
 function parseValueToTiptapContent(value: string | object, enableMentions: boolean) {
     if (typeof value === "object" && value !== null && "type" in value && value.type === "doc") {
