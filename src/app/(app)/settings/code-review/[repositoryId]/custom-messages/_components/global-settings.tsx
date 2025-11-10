@@ -12,6 +12,7 @@ export const GlobalSettings = (props: {
     hideComments: IFormattedConfigProperty<boolean>;
     initialState: IFormattedConfigProperty<boolean>;
     onHideCommentsChangeAction: (value: boolean) => void;
+    handleRevert: () => void;
     canEdit: boolean;
 }) => {
     return (
@@ -36,6 +37,7 @@ export const GlobalSettings = (props: {
                             <OverrideIndicator
                                 currentValue={props.hideComments.value}
                                 initialState={props.initialState}
+                                handleRevert={props.handleRevert}
                             />
                         </div>
                         <p className="text-text-secondary">
