@@ -1,5 +1,6 @@
 import { useAsyncAction } from "@hooks/use-async-action";
 import { finishOnboarding } from "@services/codeManagement/fetch";
+import { useSuspenseGetBYOK } from "@services/organizationParameters/hooks";
 import { waitFor } from "src/core/utils/helpers";
 import { captureSegmentEvent } from "src/core/utils/segment";
 import { isSelfHosted } from "src/core/utils/self-hosted";
@@ -15,6 +16,9 @@ export const useFinishOnboardingWithoutSelectingPR = ({
     userId: string;
     organizationId: string;
 }) => {
+    const byokConfig = useSuspenseGetBYOK();
+    const choseBYOK = !!byokConfig?.configValue?.main;
+
     const [
         finishOnboardingWithoutSelectingPR,
         { loading: isFinishingOnboardingWithoutSelectingPR },
@@ -28,7 +32,7 @@ export const useFinishOnboardingWithoutSelectingPR = ({
         });
 
         if (!isSelfHosted) {
-            await startTeamTrial({ teamId, organizationId });
+            await startTeamTrial({ teamId, organizationId, byok: choseBYOK });
         }
 
         await waitFor(5000);

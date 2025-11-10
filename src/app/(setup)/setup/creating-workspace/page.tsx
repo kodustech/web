@@ -31,15 +31,13 @@ import { useGoToStep } from "../_hooks/use-goto-step";
 const createFormSchema = (userDomain: string) =>
     z
         .object({
-            organizationName: z
-                .string()
-                .min(1, {
-                    error: "What's your organization's name?"
-                }),
+            organizationName: z.string().min(1, {
+                error: "What's your organization's name?",
+            }),
             phone: z
                 .string()
                 .refine(isValidPhoneNumber, {
-                    error: "Invalid phone number"
+                    error: "Invalid phone number",
                 })
                 .or(z.literal(""))
                 .optional(),
@@ -52,7 +50,7 @@ const createFormSchema = (userDomain: string) =>
                             return /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
                         },
                         {
-                            error: "Invalid domain format"
+                            error: "Invalid domain format",
                         },
                     ),
                 )
@@ -177,11 +175,7 @@ export default function App() {
             <div className="flex flex-14 flex-col justify-center gap-20 p-10">
                 <div className="flex flex-col items-center gap-10">
                     <div className="flex max-w-96 flex-col gap-6">
-                        <StepIndicators.Root>
-                            <StepIndicators.Item status="active" />
-                            <StepIndicators.Item />
-                            <StepIndicators.Item />
-                        </StepIndicators.Root>
+                        <StepIndicators.Auto />
 
                         <div className="flex flex-col gap-2">
                             <Heading variant="h2">

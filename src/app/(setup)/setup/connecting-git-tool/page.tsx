@@ -103,11 +103,7 @@ export default function App() {
 
             <div className="flex flex-14 flex-col items-center justify-center gap-20 p-10">
                 <div className="flex max-w-118 flex-1 flex-col justify-center gap-10">
-                    <StepIndicators.Root>
-                        <StepIndicators.Item status="completed" />
-                        <StepIndicators.Item status="active" />
-                        <StepIndicators.Item />
-                    </StepIndicators.Root>
+                    <StepIndicators.Auto />
 
                     <div className="flex flex-col gap-2">
                         <Heading variant="h2">Connect your Git tool</Heading>
