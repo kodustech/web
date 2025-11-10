@@ -32,11 +32,13 @@ export default async function Layout(props: React.PropsWithChildren) {
         redirect("/confirm-email");
     }
 
-    const hasActiveTeam = teams.some(
+    const hasActiveTeam = teams?.some(
         (team) => team.status === TEAM_STATUS.ACTIVE,
     );
 
     if (hasActiveTeam) {
+        let shouldRedirect = false;
+
         try {
             const teamId = await getGlobalSelectedTeamId();
             const platformConfigs = await getTeamParameters<{
@@ -47,10 +49,14 @@ export default async function Layout(props: React.PropsWithChildren) {
             });
 
             if (platformConfigs?.configValue?.finishOnboard) {
-                redirect("/");
+                shouldRedirect = true;
             }
         } catch {
             // If we can't get team ID or configs, continue with setup
+        }
+
+        if (shouldRedirect) {
+            redirect("/");
         }
     }
 
