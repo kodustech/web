@@ -23,21 +23,24 @@ import {
     SidebarMenuSubItem,
 } from "@components/ui/sidebar";
 import {
-    useSuspenseGetCodeReviewParameter,
     useSuspenseGetDefaultCodeReviewParameter,
     useSuspenseGetFormattedCodeReviewParameter,
     useSuspenseGetParameterPlatformConfigs,
 } from "@services/parameters/hooks";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
+import { PostHog } from "posthog-node";
+import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { AwaitedReturnType } from "src/core/types";
 
 import { useCodeReviewRouteParams } from "../_hooks";
-import { FormattedConfigLevel } from "../code-review/_types";
 import { countConfigOverrides } from "../_utils/count-overrides";
+import { FormattedConfigLevel } from "../code-review/_types";
 import {
     AutomationCodeReviewConfigProvider,
     DefaultCodeReviewConfigProvider,
+    FeatureFlagsProvider,
     PlatformConfigProvider,
 } from "./context";
 import { PerRepository } from "./per-repository/repository";
@@ -52,7 +55,14 @@ const routes = [
     { label: "Custom Messages", href: "custom-messages" },
 ] satisfies Array<{ label: string; href: string }>;
 
-export const SettingsLayout = ({ children }: React.PropsWithChildren) => {
+export const SettingsLayout = ({
+    children,
+    codeReviewDryRunFeatureFlag,
+}: React.PropsWithChildren & {
+    codeReviewDryRunFeatureFlag:
+        | AwaitedReturnType<PostHog["getFeatureFlag"]>
+        | undefined;
+}) => {
     const pathname = usePathname();
     const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetFormattedCodeReviewParameter(teamId);
@@ -60,7 +70,10 @@ export const SettingsLayout = ({ children }: React.PropsWithChildren) => {
     const platformConfig = useSuspenseGetParameterPlatformConfigs(teamId);
     const { repositoryId, pageName, directoryId } = useCodeReviewRouteParams();
 
-    const globalOverrideCount = countConfigOverrides(configValue.configs, FormattedConfigLevel.GLOBAL);
+    const globalOverrideCount = countConfigOverrides(
+        configValue.configs,
+        FormattedConfigLevel.GLOBAL,
+    );
 
     const canReadGitSettings = usePermission(
         Action.Read,
@@ -181,7 +194,7 @@ export const SettingsLayout = ({ children }: React.PropsWithChildren) => {
                                                 globalOverrideCount > 0 && (
                                                     <Badge
                                                         variant="primary-dark"
-                                                        className="min-w-5 h-5 rounded-full px-1.5 text-[10px] font-medium">
+                                                        className="h-5 min-w-5 rounded-full px-1.5 text-[10px] font-medium">
                                                         {globalOverrideCount}
                                                     </Badge>
                                                 )
@@ -238,14 +251,21 @@ export const SettingsLayout = ({ children }: React.PropsWithChildren) => {
             </Sidebar>
 
             <Page.WithSidebar>
-                <DefaultCodeReviewConfigProvider config={defaultConfig}>
-                    <AutomationCodeReviewConfigProvider config={configValue}>
-                        <PlatformConfigProvider
-                            config={platformConfig.configValue}>
-                            {children}
-                        </PlatformConfigProvider>
-                    </AutomationCodeReviewConfigProvider>
-                </DefaultCodeReviewConfigProvider>
+                <FeatureFlagsProvider
+                    featureFlags={{
+                        [FEATURE_FLAGS.codeReviewDryRun]:
+                            !!codeReviewDryRunFeatureFlag,
+                    }}>
+                    <DefaultCodeReviewConfigProvider config={defaultConfig}>
+                        <AutomationCodeReviewConfigProvider
+                            config={configValue}>
+                            <PlatformConfigProvider
+                                config={platformConfig.configValue}>
+                                {children}
+                            </PlatformConfigProvider>
+                        </AutomationCodeReviewConfigProvider>
+                    </DefaultCodeReviewConfigProvider>
+                </FeatureFlagsProvider>
             </Page.WithSidebar>
         </div>
     );

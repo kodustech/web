@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { GetStartedChecklist } from "@components/system/get-started-checklist";
+import { FEATURE_FLAGS } from "src/core/config/feature-flags";
+import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 
 import { SettingsLayout } from "./_components/_layout";
 
@@ -9,8 +11,13 @@ export const metadata: Metadata = {
 };
 
 export default async function Layout({ children }: React.PropsWithChildren) {
+    const codeReviewDryRunFeatureFlag = await getFeatureFlagWithPayload({
+        feature: FEATURE_FLAGS.codeReviewDryRun,
+    });
+
     return (
-        <SettingsLayout>
+        <SettingsLayout
+            codeReviewDryRunFeatureFlag={codeReviewDryRunFeatureFlag?.value}>
             {children}
             <GetStartedChecklist />
         </SettingsLayout>
