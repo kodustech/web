@@ -4,11 +4,15 @@ import {
     getOrganizationId,
     getOrganizationName,
 } from "@services/organizations/fetch";
+import { getTeamParameters } from "@services/parameters/fetch";
+import { ParametersConfigKey } from "@services/parameters/types";
 import { getTeams } from "@services/teams/fetch";
 import { auth } from "src/core/config/auth";
 import { AllTeamsProvider } from "src/core/providers/all-teams-context";
 import { AuthProvider } from "src/core/providers/auth.provider";
 import { SelectedTeamProvider } from "src/core/providers/selected-team-context";
+import { TEAM_STATUS } from "src/core/types";
+import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { OrganizationProvider } from "src/features/organization/_providers/organization-context";
 
 export default async function Layout(props: React.PropsWithChildren) {
@@ -26,6 +30,34 @@ export default async function Layout(props: React.PropsWithChildren) {
 
     if (userStatus && ["pending", "pending_email"].includes(userStatus)) {
         redirect("/confirm-email");
+    }
+
+    const hasActiveTeam = teams?.some(
+        (team) => team.status === TEAM_STATUS.ACTIVE,
+    );
+
+    if (hasActiveTeam) {
+        let shouldRedirect = false;
+
+        try {
+            const teamId = await getGlobalSelectedTeamId();
+            const platformConfigs = await getTeamParameters<{
+                configValue: { finishOnboard?: boolean };
+            }>({
+                key: ParametersConfigKey.PLATFORM_CONFIGS,
+                teamId,
+            });
+
+            if (platformConfigs?.configValue?.finishOnboard) {
+                shouldRedirect = true;
+            }
+        } catch {
+            // If we can't get team ID or configs, continue with setup
+        }
+
+        if (shouldRedirect) {
+            redirect("/");
+        }
     }
 
     return (

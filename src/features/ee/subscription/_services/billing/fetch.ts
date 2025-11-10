@@ -26,6 +26,7 @@ export const getOrganizationMembers = async (params: { teamId: string }) => {
 export const startTeamTrial = async (params: {
     teamId: string;
     organizationId: string;
+    byok: boolean;
 }) => {
     return billingFetch<{
         id: string;
@@ -45,6 +46,7 @@ export const startTeamTrial = async (params: {
         body: JSON.stringify({
             organizationId: params.organizationId,
             teamId: params.teamId,
+            byok: params.byok,
         }),
     });
 };
