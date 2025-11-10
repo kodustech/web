@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { redirect } from "next/navigation";
 import { SelectPullRequest } from "@components/system/select-pull-requests";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
@@ -17,7 +16,7 @@ import { Link } from "@components/ui/link";
 import { MagicModalContext } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
 import { useSuspenseGetOnboardingPullRequests } from "@services/codeManagement/hooks";
-import { useSuspenseGetParameterPlatformConfigs } from "@services/parameters/hooks";
+import { getBYOK } from "@services/organizationParameters/fetch";
 import { useSuspenseGetOrganizationId } from "@services/setup/hooks";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
@@ -28,8 +27,6 @@ export default function App() {
     const { userId } = useAuth();
 
     const { teamId } = useSelectedTeamId();
-    const { configValue } = useSuspenseGetParameterPlatformConfigs(teamId);
-    if (configValue?.finishOnboard) redirect("/");
 
     const pullRequests = useSuspenseGetOnboardingPullRequests(teamId);
     const organizationId = useSuspenseGetOrganizationId();

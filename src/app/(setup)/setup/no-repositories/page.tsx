@@ -18,7 +18,7 @@ export default function App() {
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
 
     if (configValue?.repositories?.length) {
-        redirect("/setup/choosing-a-pull-request");
+        redirect("/setup/byok-setup");
     }
 
     return (
@@ -70,11 +70,7 @@ export default function App() {
 
             <div className="flex flex-14 flex-col items-center justify-center gap-10 p-10">
                 <div className="flex max-w-96 flex-1 flex-col justify-center gap-10">
-                    <StepIndicators.Root>
-                        <StepIndicators.Item status="completed" />
-                        <StepIndicators.Item status="completed" />
-                        <StepIndicators.Item status="error" />
-                    </StepIndicators.Root>
+                    <StepIndicators.Auto errorStepIndex={3} />
 
                     <div className="flex flex-col gap-8">
                         <Heading variant="h2">No repositories found</Heading>

@@ -1,6 +1,11 @@
+import {
+    OrganizationParametersConfigKey,
+    type CockpitMetricsVisibility,
+} from "@services/parameters/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { CockpitMetricsVisibility } from "@services/parameters/types";
 import { useSuspenseFetch } from "src/core/utils/reactQuery";
+import type { BYOKConfig } from "src/features/ee/byok/_types";
+import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 import { ORGANIZATION_PARAMETERS_PATHS } from ".";
 import {
@@ -38,6 +43,24 @@ export function useCockpitMetricsVisibility(organizationId: string) {
     });
 }
 
+export function useSuspenseGetBYOK() {
+    const { organizationId } = useOrganizationContext();
+    return useSuspenseFetch<{
+        configValue: { main: BYOKConfig; fallback: BYOKConfig };
+    } | null>(
+        ORGANIZATION_PARAMETERS_PATHS.GET_BY_KEY,
+        {
+            params: {
+                key: OrganizationParametersConfigKey.BYOK_CONFIG,
+                organizationId,
+            },
+        },
+        {
+            fallbackData: null,
+        },
+    );
+}
+
 export function useUpdateCockpitMetricsVisibility() {
     const queryClient = useQueryClient();
 
@@ -49,7 +72,10 @@ export function useUpdateCockpitMetricsVisibility() {
         }) => updateCockpitMetricsVisibility(params),
         onSuccess: (_, variables) => {
             queryClient.invalidateQueries({
-                queryKey: ["cockpit-metrics-visibility", variables.organizationId],
+                queryKey: [
+                    "cockpit-metrics-visibility",
+                    variables.organizationId,
+                ],
             });
         },
     });

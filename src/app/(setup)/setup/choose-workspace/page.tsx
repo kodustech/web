@@ -222,11 +222,7 @@ export default function ChooseWorkspacePage() {
             <div className="flex flex-14 flex-col justify-center gap-20 p-10">
                 <div className="flex flex-col items-center gap-10">
                     <div className="flex max-w-96 flex-col gap-10">
-                        <StepIndicators.Root>
-                            <StepIndicators.Item status="active" />
-                            <StepIndicators.Item />
-                            <StepIndicators.Item />
-                        </StepIndicators.Root>
+                        <StepIndicators.Auto />
 
                         {isLoading ? loading : withData}
                     </div>

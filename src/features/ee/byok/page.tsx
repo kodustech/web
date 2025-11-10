@@ -7,13 +7,6 @@ import { ByokPageClient } from "./_components/page.client";
 import { isBYOKSubscriptionPlan } from "./_utils";
 
 export default async function ByokPage() {
-    const teamId = await getGlobalSelectedTeamId();
-    const subscription = await validateOrganizationLicense({ teamId });
-    const isTrial = subscription.subscriptionStatus === "trial";
-
-    if (!isBYOKSubscriptionPlan(subscription) && !isTrial)
-        redirect("/organization");
-
     const byokConfig = await getBYOK();
 
     return <ByokPageClient config={byokConfig} />;

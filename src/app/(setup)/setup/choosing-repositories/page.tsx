@@ -38,8 +38,7 @@ export default function App() {
     const { teamId } = useSelectedTeamId();
 
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
-    if (configValue?.repositories?.length)
-        redirect("/setup/choosing-a-pull-request");
+    if (configValue?.repositories?.length) redirect("/setup/byok-setup");
 
     const [open, setOpen] = useState(false);
     const [selectedRepositories, setSelectedRepositories] = useState<
@@ -122,7 +121,7 @@ export default function App() {
             },
         });
 
-        router.replace("/setup/choosing-a-pull-request");
+        router.replace("/setup/byok-setup");
     });
 
     return (
@@ -174,11 +173,7 @@ export default function App() {
 
             <div className="flex flex-14 flex-col items-center justify-center gap-10 p-10">
                 <div className="flex max-w-96 flex-1 flex-col justify-center gap-10">
-                    <StepIndicators.Root>
-                        <StepIndicators.Item status="completed" />
-                        <StepIndicators.Item status="completed" />
-                        <StepIndicators.Item status="active" />
-                    </StepIndicators.Root>
+                    <StepIndicators.Auto />
 
                     <div className="flex flex-col gap-2">
                         <Heading variant="h2">
