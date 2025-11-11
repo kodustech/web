@@ -44,12 +44,15 @@ export const useSuspenseFetch = <T>(
             try {
                 json = JSON.parse(text);
             } catch {
-                if (config?.fallbackData) return config?.fallbackData;
+                if (config && "fallbackData" in config) {
+                    return config.fallbackData as T;
+                }
                 json = { statusCode: 500, data: undefined };
             }
 
             if (json.statusCode !== 200 && json.statusCode !== 201) {
-                if (config?.fallbackData) return config?.fallbackData;
+                if (config && "fallbackData" in config)
+                    return config.fallbackData as T;
 
                 throw new Error(
                     `Request with url "${url}" and params "${JSON.stringify(params?.params)}" failed with status ${json.statusCode}`,

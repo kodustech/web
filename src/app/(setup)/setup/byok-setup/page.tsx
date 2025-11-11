@@ -311,8 +311,8 @@ export default function BYOKSetupPage() {
     };
 
     return (
-        <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
-            <div className="bg-card-lv1 flex flex-10 flex-col justify-center gap-10 rounded-3xl p-12">
+        <Page.Root className="mx-auto flex min-h-screen flex-col gap-10 overflow-x-hidden overflow-y-auto p-6 lg:max-h-screen lg:flex-row lg:gap-10">
+            <div className="bg-card-lv1 flex w-full max-w-xl flex-col justify-center gap-10 rounded-3xl p-8 lg:max-w-none lg:flex-10 lg:p-12">
                 <SvgKodus className="h-8 min-h-8" />
 
                 <div className="flex-1 overflow-hidden rounded-3xl">
@@ -328,150 +328,148 @@ export default function BYOKSetupPage() {
                 </div>
             </div>
 
-            <div className="flex flex-14 flex-col justify-center gap-20 p-10">
-                <div className="flex flex-col items-center gap-10">
-                    <div className="flex flex-col gap-10">
-                        <StepIndicators.Auto />
+            <div className="flex w-full flex-col gap-10 lg:flex-14 lg:justify-center lg:p-10">
+                <div className="flex flex-col gap-10">
+                    <StepIndicators.Auto />
 
-                        <div className="flex flex-col gap-2">
-                            <Heading variant="h2">
-                                Choose how Kody runs your reviews
-                            </Heading>
-                            <p className="text-text-secondary text-sm">
-                                You can switch this anytime in Settings.
-                            </p>
-                        </div>
+                    <div className="flex flex-col gap-2">
+                        <Heading variant="h2">
+                            Choose how Kody runs your reviews
+                        </Heading>
+                        <p className="text-text-secondary text-sm">
+                            You can switch this anytime in Settings.
+                        </p>
+                    </div>
 
-                        <Card className="border-card-lv3">
-                            <CardHeader className="pb-1">
-                                <CardTitle>
-                                    You've unlocked a 14-day Teams trial!
-                                </CardTitle>
+                    <Card className="border-card-lv3">
+                        <CardHeader className="pb-1">
+                            <CardTitle>
+                                You've unlocked a 14-day Teams trial!
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="pb-0">
+                            Choose how Kody will run your reviews: Use your
+                            own API key (BYOK) or Managed by Kodus.
+                        </CardContent>
+                        <CardFooter>
+                            <CardDescription>
+                                After the trial, you can switch to the Free
+                                Community plan or keep Teams. Kodus will not
+                                charge you today.
+                            </CardDescription>
+                        </CardFooter>
+                    </Card>
+
+                    <div className="flex w-full flex-col gap-4 lg:flex-row">
+                        <Card
+                            className={cn(
+                                "flex flex-1 cursor-pointer transition-colors",
+                                !isManagedByKodus
+                                    ? "border-primary-light"
+                                    : "border-card-lv3",
+                            )}
+                            onClick={() => setIsManagedByKodus(false)}>
+                            <CardHeader className="relative">
+                                <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+                                    <div className="flex flex-col gap-1">
+                                        <CardTitle>
+                                            Use your own API key (BYOK)
+                                        </CardTitle>
+                                        <CardDescription>
+                                            Full control over models and
+                                            costs.
+                                        </CardDescription>
+                                    </div>
+                                    {!isManagedByKodus && (
+                                        <div className="bg-primary-light size-3 shrink-0 rounded-full" />
+                                    )}
+                                </div>
                             </CardHeader>
-                            <CardContent className="pb-0">
-                                Choose how Kody will run your reviews: Use your
-                                own API key (BYOK) or Managed by Kodus.
-                            </CardContent>
-                            <CardFooter>
-                                <CardDescription>
-                                    After the trial, you can switch to the Free
-                                    Community plan or keep Teams. Kodus will not
-                                    charge you today.
-                                </CardDescription>
-                            </CardFooter>
                         </Card>
 
-                        <div className="flex w-full gap-4">
-                            <Card
-                                className={cn(
-                                    "flex flex-1 cursor-pointer transition-colors",
-                                    !isManagedByKodus
-                                        ? "border-primary-light"
-                                        : "border-card-lv3",
-                                )}
-                                onClick={() => setIsManagedByKodus(false)}>
-                                <CardHeader className="relative">
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex flex-col gap-1">
-                                            <CardTitle>
-                                                Use your own API key (BYOK)
-                                            </CardTitle>
-                                            <CardDescription>
-                                                Full control over models and
-                                                costs.
-                                            </CardDescription>
-                                        </div>
-                                        {!isManagedByKodus && (
-                                            <div className="bg-primary-light size-3 shrink-0 rounded-full" />
-                                        )}
+                        <Card
+                            className={cn(
+                                "flex flex-1 cursor-pointer transition-colors",
+                                isManagedByKodus
+                                    ? "border-primary-light"
+                                    : "border-card-lv3",
+                            )}
+                            onClick={() => setIsManagedByKodus(true)}>
+                            <CardHeader className="relative">
+                                <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
+                                    <div className="flex flex-col gap-1">
+                                        <CardTitle>
+                                            Managed by Kodus
+                                        </CardTitle>
+                                        <CardDescription>
+                                            No API keys required. Fastest
+                                            setup.
+                                        </CardDescription>
                                     </div>
-                                </CardHeader>
-                            </Card>
-
-                            <Card
-                                className={cn(
-                                    "flex flex-1 cursor-pointer transition-colors",
-                                    isManagedByKodus
-                                        ? "border-primary-light"
-                                        : "border-card-lv3",
-                                )}
-                                onClick={() => setIsManagedByKodus(true)}>
-                                <CardHeader className="relative">
-                                    <div className="flex items-start justify-between">
-                                        <div className="flex flex-col gap-1">
-                                            <CardTitle>
-                                                Managed by Kodus
-                                            </CardTitle>
-                                            <CardDescription>
-                                                No API keys required. Fastest
-                                                setup.
-                                            </CardDescription>
-                                        </div>
-                                        {isManagedByKodus && (
-                                            <div className="bg-primary-light size-3 shrink-0 rounded-full" />
-                                        )}
-                                    </div>
-                                </CardHeader>
-                            </Card>
-                        </div>
-
-                        {!isManagedByKodus && (
-                            <div className="flex w-full flex-col gap-4">
-                                <p className="text-text-secondary text-sm">
-                                    Your AI provider may charge for usage.
-                                </p>
-                                <FormControl.Root>
-                                    <FormControl.Label>
-                                        Provider
-                                    </FormControl.Label>
-                                    <FormControl.Input>
-                                        <ProviderSelect
-                                            providers={providers}
-                                            provider={provider}
-                                            onProviderChange={(value) => {
-                                                setProvider(value);
-                                                setModel("");
-                                            }}
-                                        />
-                                    </FormControl.Input>
-                                </FormControl.Root>
-                                {provider && (
-                                    <ModelSelect
-                                        provider={provider}
-                                        model={model}
-                                        onModelChange={setModel}
-                                    />
-                                )}
-                                <FormControl.Root>
-                                    <FormControl.Label>
-                                        Api Key
-                                    </FormControl.Label>
-                                    <FormControl.Input>
-                                        <Input
-                                            type="password"
-                                            value={apiKey}
-                                            onChange={(e) =>
-                                                setApiKey(e.target.value)
-                                            }
-                                        />
-                                    </FormControl.Input>
-                                </FormControl.Root>
-                            </div>
-                        )}
-
-                        <Button
-                            variant="primary"
-                            size="lg"
-                            className="w-full"
-                            onClick={handleContinue}
-                            loading={isSaving}
-                            disabled={
-                                !isManagedByKodus &&
-                                (!provider || !model || !apiKey)
-                            }>
-                            {buttonText}
-                        </Button>
+                                    {isManagedByKodus && (
+                                        <div className="bg-primary-light size-3 shrink-0 rounded-full" />
+                                    )}
+                                </div>
+                            </CardHeader>
+                        </Card>
                     </div>
+
+                    {!isManagedByKodus && (
+                        <div className="flex w-full flex-col gap-4">
+                            <p className="text-text-secondary text-sm">
+                                Your AI provider may charge for usage.
+                            </p>
+                            <FormControl.Root>
+                                <FormControl.Label>
+                                    Provider
+                                </FormControl.Label>
+                                <FormControl.Input>
+                                    <ProviderSelect
+                                        providers={providers}
+                                        provider={provider}
+                                        onProviderChange={(value) => {
+                                            setProvider(value);
+                                            setModel("");
+                                        }}
+                                    />
+                                </FormControl.Input>
+                            </FormControl.Root>
+                            {provider && (
+                                <ModelSelect
+                                    provider={provider}
+                                    model={model}
+                                    onModelChange={setModel}
+                                />
+                            )}
+                            <FormControl.Root>
+                                <FormControl.Label>
+                                    Api Key
+                                </FormControl.Label>
+                                <FormControl.Input>
+                                    <Input
+                                        type="password"
+                                        value={apiKey}
+                                        onChange={(e) =>
+                                            setApiKey(e.target.value)
+                                        }
+                                    />
+                                </FormControl.Input>
+                            </FormControl.Root>
+                        </div>
+                    )}
+
+                    <Button
+                        variant="primary"
+                        size="lg"
+                        className="w-full"
+                        onClick={handleContinue}
+                        loading={isSaving}
+                        disabled={
+                            !isManagedByKodus &&
+                            (!provider || !model || !apiKey)
+                        }>
+                        {buttonText}
+                    </Button>
                 </div>
             </div>
         </Page.Root>
