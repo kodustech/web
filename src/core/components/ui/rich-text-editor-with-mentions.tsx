@@ -159,20 +159,30 @@ export function RichTextEditorWithMentions(props: Props) {
                     .run();
             }
         } else {
-            const token = byType(item);
-            const cur = typeof value === "string" ? value : "";
-            const afterAtPos = triggerPos ?? cur.length;
-            let atPos = afterAtPos - 1;
-            while (atPos >= 0 && cur[atPos] !== "@") {
-                atPos--;
+            const byTypeString = (item.type && formatInsertByType?.[item.type]) || ((it: MentionGroupItem) => `@${it.label}`);
+            const token = byTypeString(item);
+
+            const { state } = editor;
+            const { selection } = state;
+            const pos = selection.$from.pos;
+            let foundPos = pos;
+            const $pos = state.doc.resolve(pos);
+            let searchPos = $pos.pos;
+            let found = false;
+            for (let i = 0; i < 50 && searchPos > 0; i++) {
+                const char = state.doc.textBetween(searchPos - 1, searchPos);
+                if (char === "@") {
+                    foundPos = searchPos - 1;
+                    found = true;
+                    break;
+                }
+                searchPos--;
             }
-            if (atPos >= 0 && cur[atPos] === "@") {
-                const before = cur.slice(0, atPos);
-                const after = cur.slice(afterAtPos);
-                onChange(`${before}${token} `);
-            } else {
-                onChange(`${cur}${token} `);
+            const chain = editor.chain().focus();
+            if (found) {
+                chain.setTextSelection({ from: foundPos, to: pos });
             }
+            chain.insertContent(`${token} `).run();
         }
 
         setOpen(false);

@@ -10,31 +10,37 @@ export function useMCPMentions() {
     useEffect(() => {
         let mounted = true;
         (async () => {
-            const res = await getMCPConnections();
-            const groups: MentionGroup[] = [
-                {
-                    groupLabel: "MCP",
-                    items: (res.items ?? []).map((c) => ({
-                        type: "mcp" as const,
-                        value: c.integrationId,
-                        label: c.appName,
-                        children: () => [
-                            {
-                                groupLabel: c.appName,
-                                items: (c.allowedTools ?? []).map((tool) => ({
-                                    type: "mcp" as const,
-                                    value: `${c.integrationId}:${tool}`,
-                                    label: tool,
-                                    meta: { appName: c.appName },
-                                })),
-                            },
-                        ],
-                    })),
-                },
-            ];
+            try {
+                const res = await getMCPConnections();
+                const groups: MentionGroup[] = [
+                    {
+                        groupLabel: "MCP",
+                        items: (res.items ?? []).map((c) => ({
+                            type: "mcp" as const,
+                            value: c.integrationId,
+                            label: c.appName,
+                            children: () => [
+                                {
+                                    groupLabel: c.appName,
+                                    items: (c.allowedTools ?? []).map(
+                                        (tool) => ({
+                                            type: "mcp" as const,
+                                            value: `${c.integrationId}:${tool}`,
+                                            label: tool,
+                                            meta: { appName: c.appName },
+                                        }),
+                                    ),
+                                },
+                            ],
+                        })),
+                    },
+                ];
 
-            if (mounted) {
-                setMcpGroups(groups);
+                if (mounted) {
+                    setMcpGroups(groups);
+                }
+            } catch (error) {
+                console.error("Failed to fetch MCP connections:", error);
             }
         })();
         return () => {

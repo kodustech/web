@@ -9,7 +9,11 @@ export const CodeBlock = TiptapCodeBlock.extend({
             language: {
                 default: null,
                 parseHTML: (element) => {
-                    return element.getAttribute("data-language") || null;
+                    const lang = element.getAttribute("data-language") || null;
+                    if (!lang) {
+                        return null;
+                    }
+                    return lang.replace(/[^a-zA-Z0-9-]/g, "");
                 },
                 renderHTML: (attributes) => {
                     if (!attributes.language) {
