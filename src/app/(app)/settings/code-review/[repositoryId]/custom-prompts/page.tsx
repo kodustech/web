@@ -310,7 +310,7 @@ function CustomPromptsContent() {
                                                 <RichTextEditorWithMentions
                                                     value={(() => {
                                                         const val = field.value;
-                                                        // Se é string JSON, parse para objeto
+                                                        // If it's a JSON string, parse to object
                                                         if (typeof val === "string" && val.startsWith("{")) {
                                                             try {
                                                                 return JSON.parse(val);
@@ -325,7 +325,7 @@ function CustomPromptsContent() {
                                                         return val ?? "";
                                                     })()}
                                                     onChangeAction={(value: string | object) => {
-                                                        // Converte objeto Tiptap JSON para string JSON para salvar
+                                                        // Convert Tiptap JSON object to JSON string for saving
                                                         const toSave = typeof value === "object" && value !== null
                                                             ? JSON.stringify(value)
                                                             : (typeof value === "string" ? value : "");

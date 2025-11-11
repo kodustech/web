@@ -28,12 +28,14 @@ export const useLazyRepositoryTree = (params: {
     teamId: string;
 }) => {
     const { accessToken } = useAuth();
-    const loadedDirectoriesRef = useRef<Map<string, DirectoryItem[]>>(new Map());
+    const loadedDirectoriesRef = useRef<Map<string, DirectoryItem[]>>(
+        new Map(),
+    );
     const [repositoryName, setRepositoryName] = useState<string>("");
 
     useEffect(() => {
         loadedDirectoriesRef.current = new Map();
-        
+
         const cachedName = repositoryNamesCache.get(params.repositoryId);
         if (cachedName) {
             setRepositoryName(cachedName);
@@ -42,7 +44,7 @@ export const useLazyRepositoryTree = (params: {
         }
     }, [params.repositoryId]);
 
-    // Função para buscar diretórios de um path específico
+    // Function to fetch directories from a specific path
     const fetchDirectory = useCallback(
         async (directoryPath: string | null): Promise<DirectoryItem[]> => {
             const url = pathToApiUrl(

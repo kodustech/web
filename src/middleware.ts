@@ -5,7 +5,7 @@ import { auth } from "./core/config/auth";
 import { CURRENT_PATH_HEADER } from "./core/utils/headers";
 import { handleAuthenticated } from "./core/utils/permissions";
 
-// Rotas públicas que não precisam de autenticação
+// Public routes that don't need authentication
 const publicPaths = [
     "/api/health",
     "/api/webhooks",

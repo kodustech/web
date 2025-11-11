@@ -53,7 +53,7 @@ export const DeleteKodyRuleConfirmationModal = ({
                 variant: "success",
             });
         } catch (error) {
-            console.error("Erro ao remover Kody Rule:", error);
+            console.error("Error removing Kody Rule:", error);
 
             toast({
                 title: "Error",

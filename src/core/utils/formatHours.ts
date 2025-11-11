@@ -12,7 +12,7 @@ export function convertToUTC(timeBR: string): string {
     // Cria uma data UTC
     const dateUTC = new Date(Date.UTC(1970, 0, 1, hours, minutes));
 
-    // Adiciona 3 horas para converter de BRT para UTC
+    // Add 3 hours to convert from BRT to UTC
     dateUTC.setUTCHours(dateUTC.getUTCHours() + 3);
 
     const hoursUTC = String(dateUTC.getUTCHours()).padStart(2, "0");
@@ -34,7 +34,7 @@ export function convertToBRT(timeUTC: string): string {
 
     const dateUTC = new Date(Date.UTC(1970, 0, 1, hours, minutes));
 
-    // Subtraindo 3 horas para converter de UTC para BRT
+    // Subtract 3 hours to convert from UTC to BRT
     dateUTC.setUTCHours(dateUTC.getUTCHours() - 3);
 
     const hoursBRT = String(dateUTC.getUTCHours()).padStart(2, "0");

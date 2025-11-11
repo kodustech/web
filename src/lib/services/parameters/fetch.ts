@@ -165,6 +165,6 @@ export const deleteRepositoryCodeReviewParameter = async ({
 
         return response.data;
     } catch (error: any) {
-        throw error; // Re-throw para ser capturado no modal
+        throw error; // Re-throw to be caught in the modal
     }
 };

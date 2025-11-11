@@ -84,7 +84,7 @@ export default function SuggestionControl(
                 variant: "success",
             });
         } catch (error) {
-            console.error("Erro ao salvar as configurações:", error);
+            console.error("Error saving settings:", error);
 
             toast({
                 title: "Error",
