@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef } from "react";
+import React, { Suspense, useEffect, useRef, useState } from "react";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import {
@@ -13,7 +13,36 @@ import {
 import { FormControl } from "@components/ui/form-control";
 import { Page } from "@components/ui/page";
 import { Spinner } from "@components/ui/spinner";
-import { Textarea } from "@components/ui/textarea";
+import { RichTextEditorWithMentions } from "@components/ui/rich-text-editor-with-mentions";
+import { getTextStatsFromTiptapJSON } from "@components/ui/rich-text-editor";
+import { convertTiptapJSONToText } from "src/core/utils/tiptap-json-to-text";
+import { useMCPMentions } from "src/core/hooks/use-mcp-mentions";
+
+// Use the exported utility function from rich-text-editor
+function getTextFromValue(value: string | object | null | undefined): string {
+    return convertTiptapJSONToText(value);
+}
+
+function parseFieldValue(value: any): string | object {
+    if (typeof value === "string" && value.startsWith("{") && value.trim().startsWith("{")) {
+        try {
+            return JSON.parse(value);
+        } catch {
+            return value;
+        }
+    }
+    if (typeof value === "object" && value !== null) {
+        return value;
+    }
+    return value ?? "";
+}
+
+function serializeFieldValue(value: string | object): string {
+    if (typeof value === "object" && value !== null) {
+        return JSON.stringify(value);
+    }
+    return value || "";
+}
 import { toast } from "@components/ui/toaster/use-toast";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { PARAMETERS_PATHS } from "@services/parameters";
@@ -59,6 +88,9 @@ function CustomPromptsContent() {
         ResourceType.CodeReviewSettings,
         repositoryId,
     );
+
+    const { mcpGroups, formatInsertByType } = useMCPMentions();
+
 
     const handleSubmit = form.handleSubmit(async (formData) => {
         try {
@@ -175,7 +207,10 @@ function CustomPromptsContent() {
                 ? path.split(".").reduce<any>((acc, key) => acc?.[key], current)
                 : undefined;
 
-            if (!currentValue || String(currentValue).trim() === "") {
+            const currentText = typeof currentValue === "object" && currentValue !== null
+                ? getTextFromValue(currentValue)
+                : String(currentValue || "");
+            if (!currentValue || currentText.trim() === "") {
                 form.setValue(path, value ?? "", { shouldDirty: false });
                 changed = true;
             }
@@ -234,9 +269,9 @@ function CustomPromptsContent() {
                                             const def =
                                                 defaults?.generation?.main ??
                                                 "";
+                                            const fieldText = getTextFromValue(field.value);
                                             const isDefault =
-                                                (field.value || "").trim() ===
-                                                def.trim();
+                                                fieldText.trim() === def.trim();
                                             return (
                                                 <div className="flex items-center gap-2">
                                                     <Badge
@@ -272,24 +307,55 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <Textarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value,
-                                                        )
-                                                    }
-                                                    placeholder="Type the main prompt for code generation"
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        // Se é string JSON, parse para objeto
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        // Se já é objeto, usa direto
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        // Converte objeto Tiptap JSON para string JSON para salvar
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
+                                                    placeholder="Describe what Kody should analyze and suggest... Use @ to insert MCP tools for dynamic data."
                                                     className="min-h-32"
-                                                    maxLength={2000}
-                                                    disabled={field.disabled}
+                                                    groups={mcpGroups}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
-                                                <FormControl.Helper className="mt-2 block text-right text-xs">
-                                                    {field.value?.length || 0} /
-                                                    2000
+                                                <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
+                                                    {(() => {
+                                                        const stats = typeof field.value === "object" && field.value !== null
+                                                            ? getTextStatsFromTiptapJSON(field.value)
+                                                            : { characters: field.value?.length || 0, words: 0, mentions: 0 };
+                                                        return (
+                                                            <>
+                                                                <span className="font-medium">{stats.characters}</span> chars
+                                                                {stats.words > 0 && (
+                                                                    <> · <span className="font-medium">{stats.words}</span> words</>
+                                                                )}
+                                                                {stats.mentions > 0 && (
+                                                                    <> · <span className="font-medium">{stats.mentions}</span> mentions</>
+                                                                )}
+                                                                {" / 2000"}
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </FormControl.Helper>
-                                                <ExternalReferencesDisplay 
+                                                <ExternalReferencesDisplay
                                                     externalReferences={(form.getValues("v2PromptOverrides.generation.main") as any)?.externalReferences}
                                                     compact
                                                 />
@@ -328,9 +394,9 @@ function CustomPromptsContent() {
                                             const def =
                                                 defaults?.categories
                                                     ?.descriptions?.bug ?? "";
+                                            const fieldText = getTextFromValue(field.value);
                                             const isDefault =
-                                                (field.value || "").trim() ===
-                                                def.trim();
+                                                fieldText.trim() === def.trim();
                                             return (
                                                 <div className="flex items-center gap-2">
                                                     <Badge
@@ -366,24 +432,53 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <Textarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value,
-                                                        )
-                                                    }
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
                                                     placeholder="Type the prompt for Bugs"
                                                     className="min-h-32"
-                                                    maxLength={2000}
                                                     disabled={field.disabled}
+                                                    groups={mcpGroups}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
-                                                <FormControl.Helper className="mt-2 block text-right text-xs">
-                                                    {field.value?.length || 0} /
-                                                    2000
+                                                <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
+                                                    {(() => {
+                                                        const stats = typeof field.value === "object" && field.value !== null
+                                                            ? getTextStatsFromTiptapJSON(field.value)
+                                                            : { characters: field.value?.length || 0, words: 0, mentions: 0 };
+                                                        return (
+                                                            <>
+                                                                <span className="font-medium">{stats.characters}</span> chars
+                                                                {stats.words > 0 && (
+                                                                    <> · <span className="font-medium">{stats.words}</span> words</>
+                                                                )}
+                                                                {stats.mentions > 0 && (
+                                                                    <> · <span className="font-medium">{stats.mentions}</span> mentions</>
+                                                                )}
+                                                                {" / 2000"}
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </FormControl.Helper>
-                                                <ExternalReferencesDisplay 
+                                                <ExternalReferencesDisplay
                                                     externalReferences={(form.getValues("v2PromptOverrides.categories.descriptions.bug") as any)?.externalReferences}
                                                     compact
                                                 />
@@ -411,9 +506,9 @@ function CustomPromptsContent() {
                                                 defaults?.categories
                                                     ?.descriptions
                                                     ?.performance ?? "";
+                                            const fieldText = getTextFromValue(field.value);
                                             const isDefault =
-                                                (field.value || "").trim() ===
-                                                def.trim();
+                                                fieldText.trim() === def.trim();
                                             return (
                                                 <div className="flex items-center gap-2">
                                                     <Badge
@@ -449,24 +544,53 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <Textarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value,
-                                                        )
-                                                    }
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
                                                     placeholder="Type the prompt for Performance"
                                                     className="min-h-32"
-                                                    maxLength={2000}
                                                     disabled={field.disabled}
+                                                    groups={mcpGroups}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
-                                                <FormControl.Helper className="mt-2 block text-right text-xs">
-                                                    {field.value?.length || 0} /
-                                                    2000
+                                                <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
+                                                    {(() => {
+                                                        const stats = typeof field.value === "object" && field.value !== null
+                                                            ? getTextStatsFromTiptapJSON(field.value)
+                                                            : { characters: field.value?.length || 0, words: 0, mentions: 0 };
+                                                        return (
+                                                            <>
+                                                                <span className="font-medium">{stats.characters}</span> chars
+                                                                {stats.words > 0 && (
+                                                                    <> · <span className="font-medium">{stats.words}</span> words</>
+                                                                )}
+                                                                {stats.mentions > 0 && (
+                                                                    <> · <span className="font-medium">{stats.mentions}</span> mentions</>
+                                                                )}
+                                                                {" / 2000"}
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </FormControl.Helper>
-                                                <ExternalReferencesDisplay 
+                                                <ExternalReferencesDisplay
                                                     externalReferences={(form.getValues("v2PromptOverrides.categories.descriptions.performance") as any)?.externalReferences}
                                                     compact
                                                 />
@@ -494,9 +618,9 @@ function CustomPromptsContent() {
                                                 defaults?.categories
                                                     ?.descriptions?.security ??
                                                 "";
+                                            const fieldText = getTextFromValue(field.value);
                                             const isDefault =
-                                                (field.value || "").trim() ===
-                                                def.trim();
+                                                fieldText.trim() === def.trim();
                                             return (
                                                 <div className="flex items-center gap-2">
                                                     <Badge
@@ -532,24 +656,53 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <Textarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value,
-                                                        )
-                                                    }
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
                                                     placeholder="Type the prompt for Security"
                                                     className="min-h-32"
-                                                    maxLength={2000}
                                                     disabled={field.disabled}
+                                                    groups={mcpGroups}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
-                                                <FormControl.Helper className="mt-2 block text-right text-xs">
-                                                    {field.value?.length || 0} /
-                                                    2000
+                                                <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
+                                                    {(() => {
+                                                        const stats = typeof field.value === "object" && field.value !== null
+                                                            ? getTextStatsFromTiptapJSON(field.value)
+                                                            : { characters: field.value?.length || 0, words: 0, mentions: 0 };
+                                                        return (
+                                                            <>
+                                                                <span className="font-medium">{stats.characters}</span> chars
+                                                                {stats.words > 0 && (
+                                                                    <> · <span className="font-medium">{stats.words}</span> words</>
+                                                                )}
+                                                                {stats.mentions > 0 && (
+                                                                    <> · <span className="font-medium">{stats.mentions}</span> mentions</>
+                                                                )}
+                                                                {" / 2000"}
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </FormControl.Helper>
-                                                <ExternalReferencesDisplay 
+                                                <ExternalReferencesDisplay
                                                     externalReferences={(form.getValues("v2PromptOverrides.categories.descriptions.security") as any)?.externalReferences}
                                                     compact
                                                 />
@@ -588,9 +741,9 @@ function CustomPromptsContent() {
                                             const def =
                                                 defaults?.severity?.flags
                                                     ?.critical ?? "";
+                                            const fieldText = getTextFromValue(field.value);
                                             const isDefault =
-                                                (field.value || "").trim() ===
-                                                def.trim();
+                                                fieldText.trim() === def.trim();
                                             return (
                                                 <div className="flex items-center gap-2">
                                                     <Badge
@@ -626,24 +779,53 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <Textarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value,
-                                                        )
-                                                    }
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
                                                     placeholder="Type the prompt for Critical"
                                                     className="min-h-32"
-                                                    maxLength={2000}
                                                     disabled={field.disabled}
+                                                    groups={mcpGroups}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
-                                                <FormControl.Helper className="mt-2 block text-right text-xs">
-                                                    {field.value?.length || 0} /
-                                                    2000
+                                                <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
+                                                    {(() => {
+                                                        const stats = typeof field.value === "object" && field.value !== null
+                                                            ? getTextStatsFromTiptapJSON(field.value)
+                                                            : { characters: field.value?.length || 0, words: 0, mentions: 0 };
+                                                        return (
+                                                            <>
+                                                                <span className="font-medium">{stats.characters}</span> chars
+                                                                {stats.words > 0 && (
+                                                                    <> · <span className="font-medium">{stats.words}</span> words</>
+                                                                )}
+                                                                {stats.mentions > 0 && (
+                                                                    <> · <span className="font-medium">{stats.mentions}</span> mentions</>
+                                                                )}
+                                                                {" / 2000"}
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </FormControl.Helper>
-                                                <ExternalReferencesDisplay 
+                                                <ExternalReferencesDisplay
                                                     externalReferences={(form.getValues("v2PromptOverrides.severity.flags.critical") as any)?.externalReferences}
                                                     compact
                                                 />
@@ -670,9 +852,9 @@ function CustomPromptsContent() {
                                             const def =
                                                 defaults?.severity?.flags
                                                     ?.high ?? "";
+                                            const fieldText = getTextFromValue(field.value);
                                             const isDefault =
-                                                (field.value || "").trim() ===
-                                                def.trim();
+                                                fieldText.trim() === def.trim();
                                             return (
                                                 <div className="flex items-center gap-2">
                                                     <Badge
@@ -708,24 +890,53 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <Textarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value,
-                                                        )
-                                                    }
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
                                                     placeholder="Type the prompt for High"
                                                     className="min-h-32"
-                                                    maxLength={2000}
                                                     disabled={field.disabled}
+                                                    groups={mcpGroups}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
-                                                <FormControl.Helper className="mt-2 block text-right text-xs">
-                                                    {field.value?.length || 0} /
-                                                    2000
+                                                <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
+                                                    {(() => {
+                                                        const stats = typeof field.value === "object" && field.value !== null
+                                                            ? getTextStatsFromTiptapJSON(field.value)
+                                                            : { characters: field.value?.length || 0, words: 0, mentions: 0 };
+                                                        return (
+                                                            <>
+                                                                <span className="font-medium">{stats.characters}</span> chars
+                                                                {stats.words > 0 && (
+                                                                    <> · <span className="font-medium">{stats.words}</span> words</>
+                                                                )}
+                                                                {stats.mentions > 0 && (
+                                                                    <> · <span className="font-medium">{stats.mentions}</span> mentions</>
+                                                                )}
+                                                                {" / 2000"}
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </FormControl.Helper>
-                                                <ExternalReferencesDisplay 
+                                                <ExternalReferencesDisplay
                                                     externalReferences={(form.getValues("v2PromptOverrides.severity.flags.high") as any)?.externalReferences}
                                                     compact
                                                 />
@@ -752,9 +963,9 @@ function CustomPromptsContent() {
                                             const def =
                                                 defaults?.severity?.flags
                                                     ?.medium ?? "";
+                                            const fieldText = getTextFromValue(field.value);
                                             const isDefault =
-                                                (field.value || "").trim() ===
-                                                def.trim();
+                                                fieldText.trim() === def.trim();
                                             return (
                                                 <div className="flex items-center gap-2">
                                                     <Badge
@@ -790,24 +1001,53 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <Textarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value,
-                                                        )
-                                                    }
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
                                                     placeholder="Type the prompt for Medium"
                                                     className="min-h-32"
-                                                    maxLength={2000}
                                                     disabled={field.disabled}
+                                                    groups={mcpGroups}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
-                                                <FormControl.Helper className="mt-2 block text-right text-xs">
-                                                    {field.value?.length || 0} /
-                                                    2000
+                                                <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
+                                                    {(() => {
+                                                        const stats = typeof field.value === "object" && field.value !== null
+                                                            ? getTextStatsFromTiptapJSON(field.value)
+                                                            : { characters: field.value?.length || 0, words: 0, mentions: 0 };
+                                                        return (
+                                                            <>
+                                                                <span className="font-medium">{stats.characters}</span> chars
+                                                                {stats.words > 0 && (
+                                                                    <> · <span className="font-medium">{stats.words}</span> words</>
+                                                                )}
+                                                                {stats.mentions > 0 && (
+                                                                    <> · <span className="font-medium">{stats.mentions}</span> mentions</>
+                                                                )}
+                                                                {" / 2000"}
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </FormControl.Helper>
-                                                <ExternalReferencesDisplay 
+                                                <ExternalReferencesDisplay
                                                     externalReferences={(form.getValues("v2PromptOverrides.severity.flags.medium") as any)?.externalReferences}
                                                     compact
                                                 />
@@ -834,9 +1074,9 @@ function CustomPromptsContent() {
                                             const def =
                                                 defaults?.severity?.flags
                                                     ?.low ?? "";
+                                            const fieldText = getTextFromValue(field.value);
                                             const isDefault =
-                                                (field.value || "").trim() ===
-                                                def.trim();
+                                                fieldText.trim() === def.trim();
                                             return (
                                                 <div className="flex items-center gap-2">
                                                     <Badge
@@ -872,24 +1112,53 @@ function CustomPromptsContent() {
                                         control={form.control}
                                         render={({ field }) => (
                                             <div>
-                                                <Textarea
-                                                    id={field.name}
-                                                    value={field.value}
-                                                    onChange={(e) =>
-                                                        field.onChange(
-                                                            e.target.value,
-                                                        )
-                                                    }
+                                                <RichTextEditorWithMentions
+                                                    value={(() => {
+                                                        const val = field.value;
+                                                        if (typeof val === "string" && val.startsWith("{")) {
+                                                            try {
+                                                                return JSON.parse(val);
+                                                            } catch {
+                                                                return val;
+                                                            }
+                                                        }
+                                                        if (typeof val === "object" && val !== null) {
+                                                            return val;
+                                                        }
+                                                        return val ?? "";
+                                                    })()}
+                                                    onChangeAction={(value: string | object) => {
+                                                        const toSave = typeof value === "object" && value !== null
+                                                            ? JSON.stringify(value)
+                                                            : (typeof value === "string" ? value : "");
+                                                        field.onChange(toSave);
+                                                    }}
                                                     placeholder="Type the prompt for Low"
                                                     className="min-h-32"
-                                                    maxLength={2000}
                                                     disabled={field.disabled}
+                                                    groups={mcpGroups}
+                                                    formatInsertByType={formatInsertByType}
                                                 />
-                                                <FormControl.Helper className="mt-2 block text-right text-xs">
-                                                    {field.value?.length || 0} /
-                                                    2000
+                                                <FormControl.Helper className="mt-2 block text-right text-xs text-text-secondary">
+                                                    {(() => {
+                                                        const stats = typeof field.value === "object" && field.value !== null
+                                                            ? getTextStatsFromTiptapJSON(field.value)
+                                                            : { characters: field.value?.length || 0, words: 0, mentions: 0 };
+                                                        return (
+                                                            <>
+                                                                <span className="font-medium">{stats.characters}</span> chars
+                                                                {stats.words > 0 && (
+                                                                    <> · <span className="font-medium">{stats.words}</span> words</>
+                                                                )}
+                                                                {stats.mentions > 0 && (
+                                                                    <> · <span className="font-medium">{stats.mentions}</span> mentions</>
+                                                                )}
+                                                                {" / 2000"}
+                                                            </>
+                                                        );
+                                                    })()}
                                                 </FormControl.Helper>
-                                                <ExternalReferencesDisplay 
+                                                <ExternalReferencesDisplay
                                                     externalReferences={(form.getValues("v2PromptOverrides.severity.flags.low") as any)?.externalReferences}
                                                     compact
                                                 />

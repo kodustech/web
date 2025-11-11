@@ -31,7 +31,7 @@ const inputVariants = cva(
 
 interface InputProps
     extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size">,
-        VariantProps<typeof inputVariants> {
+    VariantProps<typeof inputVariants> {
     error?: unknown;
     loading?: boolean;
     leftIcon?: React.ReactNode;
@@ -53,7 +53,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         ref,
     ) => {
         return (
-            <div className="relative flex-1">
+            <div className="relative flex-1 min-w-0">
                 {LeftIcon && (
                     <div className="pointer-events-none absolute inset-y-0 left-4 z-1 flex items-center [&_svg]:size-5 [&_svg]:text-current">
                         {LeftIcon}

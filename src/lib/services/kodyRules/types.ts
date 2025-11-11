@@ -25,6 +25,27 @@ export type KodyRule = {
         include?: string[];
     };
     syncError?: string;
+    externalReferences?: Array<{
+        filePath: string;
+        repositoryName: string;
+        originalText?: string;
+        lineRange?: { start: number; end: number } | null;
+    }>;
+    syncErrors?: Array<
+        | string
+        | {
+              fileName?: string;
+              message?: string;
+              errorType?: string;
+              attemptedPaths?: string[];
+              timestamp?: string;
+          }
+    >;
+    referenceProcessingStatus?:
+        | "completed"
+        | "processing"
+        | "failed"
+        | "pending";
 };
 
 export type KodyRuleWithInheritanceDetails = KodyRule & {

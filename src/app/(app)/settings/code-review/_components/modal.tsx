@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
@@ -20,6 +20,9 @@ import { Switch } from "@components/ui/switch";
 import { Textarea } from "@components/ui/textarea";
 import { useToast } from "@components/ui/toaster/use-toast";
 import { ToggleGroup } from "@components/ui/toggle-group";
+import { RichTextEditorWithMentions } from "@components/ui/rich-text-editor-with-mentions";
+import { CodeInputSimple } from "@components/ui/code-input-simple";
+import { useMCPMentions } from "src/core/hooks/use-mcp-mentions";
 import {
     Tooltip,
     TooltipContent,
@@ -47,9 +50,6 @@ import { cn } from "src/core/utils/components";
 import { ExternalReferencesDisplay } from "../[repositoryId]/pr-summary/_components/external-references-display";
 
 import type {
-    CodeReviewDirectoryConfig,
-    FormattedCodeReviewBaseConfig,
-    FormattedCodeReviewConfig,
     FormattedDirectoryCodeReviewConfig,
 } from "../_types";
 
@@ -125,6 +125,8 @@ export const KodyRuleAddOrUpdateItemModal = ({
     const [isInheritanceDisabled, setIsInheritanceDisabled] =
         useState(isExcluded);
 
+    const { mcpGroups, formatInsertByType } = useMCPMentions();
+
     const form = useForm<
         Omit<KodyRule, "examples" | "inheritance"> & {
             badExample: string;
@@ -141,9 +143,9 @@ export const KodyRuleAddOrUpdateItemModal = ({
                 initialScope === "pull-request"
                     ? ""
                     : rule
-                      ? !directory
-                          ? rule.path
-                          : (() => {
+                        ? !directory
+                            ? rule.path
+                            : (() => {
                                 const pathWithoutDirectory =
                                     getKodyRulePathWithoutDirectoryPath({
                                         directory,
@@ -154,9 +156,9 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                     DEFAULT_PATH_FOR_DIRECTORIES
                                 );
                             })()
-                      : directory
-                        ? DEFAULT_PATH_FOR_DIRECTORIES
-                        : "",
+                        : directory
+                            ? DEFAULT_PATH_FOR_DIRECTORIES
+                            : "",
             rule: rule?.rule ?? "",
             title: rule?.title ?? "",
             severity: rule?.severity ?? "high",
@@ -301,7 +303,15 @@ export const KodyRuleAddOrUpdateItemModal = ({
     return (
         <Dialog
             open
-            onOpenChange={() => (onClose ? onClose() : magicModal.hide())}>
+            onOpenChange={(open) => {
+                if (!open) {
+                    if (onClose) {
+                        onClose();
+                    } else {
+                        magicModal.hide();
+                    }
+                }
+            }}>
             <DialogContent className="max-w-(--breakpoint-lg)">
                 <DialogHeader>
                     <DialogTitle>{title}</DialogTitle>
@@ -640,14 +650,14 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                 error={fieldState.error}
                                                 className={cn(
                                                     directory &&
-                                                        !isInherited &&
-                                                        watchScope === "file" &&
-                                                        "rounded-l-none",
+                                                    !isInherited &&
+                                                    watchScope === "file" &&
+                                                    "rounded-l-none",
                                                 )}
                                                 disabled={
                                                     field.disabled ||
                                                     watchScope ===
-                                                        "pull-request"
+                                                    "pull-request"
                                                 }
                                                 onChange={(e) =>
                                                     field.onChange(
@@ -744,24 +754,28 @@ export const KodyRuleAddOrUpdateItemModal = ({
 
                                 <FormControl.Input>
                                     <div>
-                                        <Textarea
-                                            id={field.name}
-                                            value={field.value}
+                                        <RichTextEditorWithMentions
+                                            value={field.value || ""}
+                                            onChangeAction={(value) =>
+                                                field.onChange(
+                                                    typeof value === "string"
+                                                        ? value
+                                                        : "",
+                                                )
+                                            }
                                             disabled={field.disabled}
-                                            placeholder={
-                                                INSTRUCTIONS_PLACEHOLDER
-                                            }
-                                            onChange={(e) =>
-                                                field.onChange(e.target.value)
-                                            }
-                                            className="flex min-h-32 opacity-100!"
+                                            placeholder={INSTRUCTIONS_PLACEHOLDER}
+                                            saveFormat="text"
+                                            groups={mcpGroups}
+                                            formatInsertByType={formatInsertByType}
+                                            className="min-h-32"
                                         />
 
                                         <FormControl.Error>
                                             {fieldState.error?.message}
                                         </FormControl.Error>
 
-                                        <ExternalReferencesDisplay 
+                                        <ExternalReferencesDisplay
                                             externalReferences={{
                                                 references: rule?.externalReferences || [],
                                                 syncErrors: rule?.syncErrors || (rule?.syncError ? [rule.syncError] : []),
@@ -944,20 +958,13 @@ export const KodyRuleAddOrUpdateItemModal = ({
 
                                     <FormControl.Input>
                                         <div>
-                                            <Textarea
-                                                error={fieldState.error}
-                                                value={field.value}
+                                            <CodeInputSimple
+                                                value={field.value || ""}
+                                                onChangeAction={(value) =>
+                                                    field.onChange(value)
+                                                }
                                                 disabled={field.disabled}
-                                                onChange={(e) =>
-                                                    field.onChange(
-                                                        e.target.value,
-                                                    )
-                                                }
-                                                className="flex min-h-32 opacity-100!"
-                                                placeholder={
-                                                    BAD_EXAMPLE_PLACEHOLDER
-                                                }
-                                                id={field.name}
+                                                language="javascript"
                                             />
 
                                             <FormControl.Error>
@@ -996,20 +1003,13 @@ export const KodyRuleAddOrUpdateItemModal = ({
 
                                     <FormControl.Input>
                                         <div>
-                                            <Textarea
-                                                error={fieldState.error}
-                                                value={field.value}
+                                            <CodeInputSimple
+                                                value={field.value || ""}
+                                                onChangeAction={(value) =>
+                                                    field.onChange(value)
+                                                }
                                                 disabled={field.disabled}
-                                                onChange={(e) =>
-                                                    field.onChange(
-                                                        e.target.value,
-                                                    )
-                                                }
-                                                className="flex min-h-32 opacity-100!"
-                                                placeholder={
-                                                    GOOD_EXAMPLE_PLACEHOLDER
-                                                }
-                                                id={field.name}
+                                                language="javascript"
                                             />
 
                                             <FormControl.Error>
@@ -1027,9 +1027,13 @@ export const KodyRuleAddOrUpdateItemModal = ({
                     <Button
                         variant="cancel"
                         size="md"
-                        onClick={() =>
-                            onClose ? onClose() : magicModal.hide()
-                        }>
+                        onClick={() => {
+                            if (onClose) {
+                                onClose();
+                            } else {
+                                magicModal.hide();
+                            }
+                        }}>
                         Cancel
                     </Button>
 
