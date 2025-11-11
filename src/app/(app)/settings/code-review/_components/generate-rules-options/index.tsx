@@ -102,7 +102,7 @@ export const GenerateRulesOptions = () => {
                 }
             }
         } catch (error) {
-            console.error("Erro ao salvar as configurações:", error);
+            console.error("Error saving settings:", error);
 
             toast({
                 title: "Error",
@@ -152,7 +152,7 @@ export const GenerateRulesOptions = () => {
                     if (response) syncIDERules({ teamId, repositoryId });
                 }
             } catch (error) {
-                console.error("Erro ao salvar as configurações:", error);
+                console.error("Error saving settings:", error);
 
                 toast({
                     title: "Error",

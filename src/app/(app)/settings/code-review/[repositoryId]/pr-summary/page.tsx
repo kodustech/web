@@ -145,7 +145,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                 variant: "success",
             });
         } catch (error) {
-            console.error("Erro ao salvar as configurações:", error);
+            console.error("Error saving settings:", error);
 
             toast({
                 title: "Error",
@@ -271,10 +271,10 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                                                 {option.name}
                                                                 {"default" in
                                                                     option && (
-                                                                    <small className="text-text-secondary ml-1">
-                                                                        (default)
-                                                                    </small>
-                                                                )}
+                                                                        <small className="text-text-secondary ml-1">
+                                                                            (default)
+                                                                        </small>
+                                                                    )}
                                                             </Heading>
 
                                                             <p className="text-text-secondary text-xs">
@@ -352,10 +352,10 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
 
                                                             {"default" in
                                                                 option && (
-                                                                <small className="text-text-secondary ml-1">
-                                                                    (default)
-                                                                </small>
-                                                            )}
+                                                                    <small className="text-text-secondary ml-1">
+                                                                        (default)
+                                                                    </small>
+                                                                )}
                                                         </Heading>
 
                                                         <p className="text-text-secondary text-xs">
@@ -444,7 +444,7 @@ export default function PRSummary(props: AutomationCodeReviewConfigPageProps) {
                                         field.onChange(e.target.value)
                                     }
                                 />
-                                <ExternalReferencesDisplay 
+                                <ExternalReferencesDisplay
                                     externalReferences={(config?.summary?.customInstructions as any)?.externalReferences}
                                     onProcessingChange={setIsExternalReferencesProcessing}
                                     compact

@@ -305,7 +305,7 @@ export function RichTextEditorWithMentions(props: Props) {
                     <CommandInput
                         value={query}
                         onValueChange={setQuery}
-                        placeholder="Digite para filtrar…"
+                        placeholder="Type to filter…"
                         classNames={{
                             inputContainer: "shrink-0 border-b",
                             root: "h-11",

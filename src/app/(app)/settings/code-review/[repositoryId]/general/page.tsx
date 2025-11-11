@@ -115,7 +115,7 @@ export default function General() {
                 variant: "success",
             });
         } catch (error) {
-            console.error("Erro ao salvar as configurações:", error);
+            console.error("Error saving settings:", error);
 
             toast({
                 title: "Error",
@@ -153,7 +153,7 @@ export default function General() {
                 variant: "success",
             });
         } catch (error) {
-            console.error("Erro ao salvar as configurações:", error);
+            console.error("Error saving settings:", error);
 
             toast({
                 title: "Error",
@@ -181,8 +181,8 @@ export default function General() {
         currentLevel === FormattedConfigLevel.GLOBAL
             ? "default"
             : currentLevel === FormattedConfigLevel.REPOSITORY
-              ? "repository"
-              : "directory";
+                ? "repository"
+                : "directory";
 
     return (
         <Page.Root>
