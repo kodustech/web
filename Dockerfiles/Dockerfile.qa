@@ -1,35 +1,70 @@
-# 1) Builder stage: instala tudo e faz o build
+# ============================================
+# Builder Stage - Build the application
+# ============================================
 FROM node:22.14.0-slim AS builder
+
 WORKDIR /usr/src/app
 
-# Copia somente package.json e lockfile para cache de dependências
+# Copy package files for dependency installation
 COPY package.json yarn.lock ./
 
-# Instala todas as deps, incluindo devDependencies necessárias para yarn build
+# Install ALL dependencies (including devDependencies) needed for build
 RUN yarn install --frozen-lockfile --production=false
 
-# Copia o restante do código e gera o build de produção
+# Copy source code
 COPY . .
+
+# Set environment variables for build
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build the Next.js application
 RUN yarn build
 
-# 2) Production stage: só pega o resultado final
+# ============================================
+# QA/Homolog Stage - Minimal runtime image
+# ============================================
 FROM node:22.14.0-slim AS Homolog
+
+# Install curl for health checks and clean up in same layer to reduce size
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 WORKDIR /usr/src/app
 
-# Define o ambiente de runtime
+# Set QA/Homolog environment variables
 ENV NODE_ENV=production
 ENV WEB_NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Copia artefatos do builder para o container de produção
+# Copy package files
+COPY package.json yarn.lock ./
+
+# Install ONLY production dependencies (not devDependencies)
+RUN yarn install --frozen-lockfile --production=true && \
+    yarn cache clean
+
+# Copy built application from builder stage
 COPY --from=builder /usr/src/app/.next ./.next
-COPY --from=builder /usr/src/app/node_modules ./node_modules
-COPY --from=builder /usr/src/app/package.json ./
 COPY --from=builder /usr/src/app/public ./public
 
-COPY .env .env
+# Copy Next.js configuration if it exists
+COPY --from=builder /usr/src/app/next.config.* ./
 
-# Exponha a porta padrão do Next.js
+# Note: .env files should be provided via docker-compose or runtime environment variables
+# Avoid baking secrets into the image
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs && \
+    chown -R nextjs:nodejs /usr/src/app
+
+USER nextjs
+
+# Expose Next.js default port
 EXPOSE 3000
 
-# Inicia a aplicação em modo produção
+# Start the application in production mode
 CMD ["yarn", "start"]

@@ -1,23 +1,69 @@
-# Dockerfile para implantação self-hosted
-FROM node:22.14.0-slim AS selfhosted
-
-# Instalar dependências básicas
-RUN apt-get update && apt-get install -y curl
+# ============================================
+# Builder Stage - Build the application
+# ============================================
+FROM node:22.14.0-slim AS builder
 
 WORKDIR /usr/src/app
 
-ENV WEB_NODE_ENV=self-hosted
-ENV NODE_ENV=production
+# Copy package files for dependency installation
+COPY package.json yarn.lock ./
 
-# Expor porta da aplicação
-EXPOSE 3000
+# Install ALL dependencies (including devDependencies) needed for build
+RUN yarn install --frozen-lockfile --production=false
 
-# Copiar todo o código fonte
+# Copy source code
 COPY . .
 
-# Não executamos build ou install aqui
-# Isso será feito em runtime para garantir acesso às variáveis de ambiente
+# Set environment variables for build
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
 
-# Script de inicialização que executa install, build e start
-# Isso garante que as variáveis de ambiente estejam disponíveis durante o build
-CMD ["sh", "-c", "yarn install --production=false && yarn build && yarn start"]
+# Build the Next.js application
+# Note: Build-time env vars can be passed during docker build with --build-arg
+RUN yarn build
+
+# ============================================
+# Self-hosted Runtime Stage
+# ============================================
+FROM node:22.14.0-slim AS selfhosted
+
+# Install curl for health checks and clean up in same layer
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/src/app
+
+# Set self-hosted environment variables
+ENV WEB_NODE_ENV=self-hosted
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Copy package files
+COPY package.json yarn.lock ./
+
+# Install ONLY production dependencies
+RUN yarn install --frozen-lockfile --production=true && \
+    yarn cache clean
+
+# Copy built application from builder stage
+COPY --from=builder /usr/src/app/.next ./.next
+COPY --from=builder /usr/src/app/public ./public
+
+# Copy Next.js configuration if it exists
+COPY --from=builder /usr/src/app/next.config.* ./
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs && \
+    chown -R nextjs:nodejs /usr/src/app
+
+USER nextjs
+
+# Expose application port
+EXPOSE 3000
+
+# Start the application
+# Runtime env vars will be available through docker-compose or docker run -e
+CMD ["yarn", "start"]

@@ -1,27 +1,66 @@
-# Estágio de Produção
-FROM node:22.14.0-slim AS production
-
-RUN apt-get update && apt-get install -y curl
+# ============================================
+# Builder Stage - Build the application
+# ============================================
+FROM node:22.14.0-slim AS builder
 
 WORKDIR /usr/src/app
 
-EXPOSE 3000
-
-# Defina a variável de ambiente NODE_ENV para "production"
-ENV WEB_NODE_ENV=production
-ENV NODE_ENV=production
-
-# Copia somente package.json e lockfile para cache de dependências
+# Copy package files for dependency installation
 COPY package.json yarn.lock ./
 
-# Instala todas as deps, incluindo devDependencies necessárias para yarn build
-RUN yarn install --production=false
+# Install ALL dependencies (including devDependencies) needed for build
+RUN yarn install --frozen-lockfile --production=false
 
-# Copie o restante do código-fonte
+# Copy source code
 COPY . .
 
-# Build da aplicação
+# Set environment variables for build
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Build the Next.js application
 RUN yarn build
 
-# Comando de inicialização para produção
+# ============================================
+# Production Stage - Minimal runtime image
+# ============================================
+FROM node:22.14.0-slim AS production
+
+# Install curl for health checks and clean up in same layer to reduce size
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/src/app
+
+# Set production environment variables
+ENV WEB_NODE_ENV=production
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# Copy package files
+COPY package.json yarn.lock ./
+
+# Install ONLY production dependencies
+RUN yarn install --frozen-lockfile --production=true && \
+    yarn cache clean
+
+# Copy built application from builder stage
+COPY --from=builder /usr/src/app/.next ./.next
+COPY --from=builder /usr/src/app/public ./public
+
+# Copy Next.js configuration if it exists
+COPY --from=builder /usr/src/app/next.config.* ./
+
+# Create non-root user for security
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs && \
+    chown -R nextjs:nodejs /usr/src/app
+
+USER nextjs
+
+EXPOSE 3000
+
+# Start the application
 CMD ["yarn", "start"]
