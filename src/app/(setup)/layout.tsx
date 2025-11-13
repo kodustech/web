@@ -32,33 +32,33 @@ export default async function Layout(props: React.PropsWithChildren) {
         redirect("/confirm-email");
     }
 
-    const hasActiveTeam = teams?.some(
-        (team) => team.status === TEAM_STATUS.ACTIVE,
-    );
+    // const hasActiveTeam = teams?.some(
+    //     (team) => team.status === TEAM_STATUS.ACTIVE,
+    // );
 
-    if (hasActiveTeam) {
-        let shouldRedirect = false;
+    // if (hasActiveTeam) {
+    //     let shouldRedirect = false;
 
-        try {
-            const teamId = await getGlobalSelectedTeamId();
-            const platformConfigs = await getTeamParameters<{
-                configValue: { finishOnboard?: boolean };
-            }>({
-                key: ParametersConfigKey.PLATFORM_CONFIGS,
-                teamId,
-            });
+    //     try {
+    //         const teamId = await getGlobalSelectedTeamId();
+    //         const platformConfigs = await getTeamParameters<{
+    //             configValue: { finishOnboard?: boolean };
+    //         }>({
+    //             key: ParametersConfigKey.PLATFORM_CONFIGS,
+    //             teamId,
+    //         });
 
-            if (platformConfigs?.configValue?.finishOnboard) {
-                shouldRedirect = true;
-            }
-        } catch {
-            // If we can't get team ID or configs, continue with setup
-        }
+    //         if (platformConfigs?.configValue?.finishOnboard) {
+    //             shouldRedirect = true;
+    //         }
+    //     } catch {
+    //         // If we can't get team ID or configs, continue with setup
+    //     }
 
-        if (shouldRedirect) {
-            redirect("/");
-        }
-    }
+    //     if (shouldRedirect) {
+    //         redirect("/");
+    //     }
+    // }
 
     return (
         <AuthProvider session={session}>

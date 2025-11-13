@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
 import {
     Card,
@@ -34,6 +34,7 @@ import {
     useSuspenseGetLLMProviderModels,
     useSuspenseGetLLMProviders,
 } from "@services/organizationParameters/hooks";
+import { useSuspenseGetParameterPlatformConfigs } from "@services/parameters/hooks";
 import { OrganizationParametersConfigKey } from "@services/parameters/types";
 import { ChevronsUpDownIcon } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
@@ -260,6 +261,10 @@ export default function BYOKSetupPage() {
     const [model, setModel] = useState("");
     const [apiKey, setApiKey] = useState("");
     const [isSaving, setIsSaving] = useState(false);
+    const { teamId } = useSelectedTeamId();
+
+    const { configValue } = useSuspenseGetParameterPlatformConfigs(teamId);
+    if (configValue?.finishOnboard) redirect("/");
 
     const buttonText = isManagedByKodus
         ? "Continue with Managed"
@@ -348,8 +353,8 @@ export default function BYOKSetupPage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="pb-0">
-                            Choose how Kody will run your reviews: Use your
-                            own API key (BYOK) or Managed by Kodus.
+                            Choose how Kody will run your reviews: Use your own
+                            API key (BYOK) or Managed by Kodus.
                         </CardContent>
                         <CardFooter>
                             <CardDescription>
@@ -376,8 +381,7 @@ export default function BYOKSetupPage() {
                                             Use your own API key (BYOK)
                                         </CardTitle>
                                         <CardDescription>
-                                            Full control over models and
-                                            costs.
+                                            Full control over models and costs.
                                         </CardDescription>
                                     </div>
                                     {!isManagedByKodus && (
@@ -398,12 +402,9 @@ export default function BYOKSetupPage() {
                             <CardHeader className="relative">
                                 <div className="flex flex-col gap-2 lg:flex-row lg:items-center lg:justify-between">
                                     <div className="flex flex-col gap-1">
-                                        <CardTitle>
-                                            Managed by Kodus
-                                        </CardTitle>
+                                        <CardTitle>Managed by Kodus</CardTitle>
                                         <CardDescription>
-                                            No API keys required. Fastest
-                                            setup.
+                                            No API keys required. Fastest setup.
                                         </CardDescription>
                                     </div>
                                     {isManagedByKodus && (
@@ -420,9 +421,7 @@ export default function BYOKSetupPage() {
                                 Your AI provider may charge for usage.
                             </p>
                             <FormControl.Root>
-                                <FormControl.Label>
-                                    Provider
-                                </FormControl.Label>
+                                <FormControl.Label>Provider</FormControl.Label>
                                 <FormControl.Input>
                                     <ProviderSelect
                                         providers={providers}
@@ -442,9 +441,7 @@ export default function BYOKSetupPage() {
                                 />
                             )}
                             <FormControl.Root>
-                                <FormControl.Label>
-                                    Api Key
-                                </FormControl.Label>
+                                <FormControl.Label>Api Key</FormControl.Label>
                                 <FormControl.Input>
                                     <Input
                                         type="password"

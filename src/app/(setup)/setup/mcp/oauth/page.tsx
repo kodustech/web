@@ -5,7 +5,11 @@ import { useSearchParams } from "next/navigation";
 import { Page } from "@components/ui/page";
 import { Spinner } from "@components/ui/spinner";
 import { useEffectOnce } from "@hooks/use-effect-once";
-import { finishOauthMCPPluginInstallation } from "@services/mcp-manager/fetch";
+import {
+    finishOauthCustomMCPPluginInstallation,
+    finishOauthMCPPluginInstallation,
+} from "@services/mcp-manager/fetch";
+import { CUSTOM_MCP_SESSION_STORAGE_KEYS } from "@services/mcp-manager/types";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 
 import ErrorComponent from "./_components/error";
@@ -19,15 +23,24 @@ const componentsMap = {
 
 export default function MCPOauthPage() {
     const searchParams = useSearchParams();
-    const integrationId = searchParams.get("integrationId")!;
-    const status = searchParams.get("status")!;
-    const appName = searchParams.get("appName")!;
+    const [appName, setAppName] = useState("unknown");
+
+    const integrationId = searchParams.get("integrationId");
+    const status = searchParams.get("status");
+
+    const code = searchParams.get("code");
+    const state = searchParams.get("state");
+
+    const error = searchParams.get("error");
+    if (error) {
+        console.error("OAuth Error:", error);
+    }
 
     const [installationStatus, setInstallationStatus] = useState<
         "success" | "error" | "loading"
     >("loading");
 
-    useEffectOnce(() => {
+    const standardPlugin = (status: string, integrationId: string) => {
         if (status !== "success") {
             return setInstallationStatus("error");
         }
@@ -36,11 +49,11 @@ export default function MCPOauthPage() {
             finishOauthMCPPluginInstallation({
                 id: integrationId,
             })
-                .then(async (a) => {
+                .then(async () => {
                     await revalidateServerSidePath("/settings/plugins");
                     setInstallationStatus("success");
                 })
-                .catch((e) => {
+                .catch(() => {
                     setInstallationStatus("error");
                 });
         }, 1000);
@@ -48,6 +61,65 @@ export default function MCPOauthPage() {
         return () => {
             clearTimeout(timeout);
         };
+    };
+
+    const customPlugin = (code: string, state: string) => {
+        const integrationId = sessionStorage.getItem(
+            CUSTOM_MCP_SESSION_STORAGE_KEYS.INTEGRATION_ID,
+        );
+
+        if (!integrationId) {
+            console.error("Missing integration ID for custom MCP plugin");
+            return setInstallationStatus("error");
+        }
+
+        const timeout = setTimeout(() => {
+            finishOauthCustomMCPPluginInstallation({
+                id: integrationId,
+                code,
+                state,
+            })
+                .then(async (a) => {
+                    await revalidateServerSidePath("/settings/plugins");
+                    setInstallationStatus("success");
+                })
+                .catch((e) => {
+                    console.error("Error finishing custom plugin OAuth:", e);
+                    setInstallationStatus("error");
+                });
+        }, 1000);
+
+        return () => {
+            clearTimeout(timeout);
+        };
+    };
+
+    useEffectOnce(() => {
+        if (error) {
+            console.error("OAuth error received:", error);
+            setInstallationStatus("error");
+            return;
+        }
+
+        if (searchParams.get("appName")) {
+            setAppName(searchParams.get("appName") || "unknown");
+        } else if (sessionStorage) {
+            const storedName = sessionStorage.getItem(
+                CUSTOM_MCP_SESSION_STORAGE_KEYS.INTEGRATION_NAME,
+            );
+
+            if (storedName) {
+                setAppName(storedName);
+            }
+        }
+
+        if (status && integrationId) {
+            standardPlugin(status, integrationId);
+        } else if (code && state) {
+            customPlugin(code, state);
+        } else {
+            setInstallationStatus("error");
+        }
     });
 
     const Component = componentsMap[installationStatus];
