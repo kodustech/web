@@ -14,13 +14,11 @@ import {
 import { Save } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { SeverityLevel } from "src/core/types";
 import { unformatConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import GeneratingConfig from "../../_components/generating-config";
 import {
-    GroupingModeSuggestions,
     LimitationType,
     type AutomationCodeReviewConfigPageProps,
     type CodeReviewFormType,
@@ -33,6 +31,7 @@ import { MaxSuggestions } from "./_components/max-suggestions";
 import { MinimumSeverityLevel } from "./_components/minimum-severity-level";
 import { SuggestionGroupingMode } from "./_components/suggestion-grouping-mode";
 import { SuggestionsPerSeverityLevel } from "./_components/suggestions-per-severity-level";
+import React from "react";
 
 export default function SuggestionControl(
     props: AutomationCodeReviewConfigPageProps,
@@ -76,8 +75,6 @@ export default function SuggestionControl(
                     ),
                 }),
             ]);
-
-            form.reset();
 
             toast({
                 description: "Settings saved",
@@ -147,14 +144,14 @@ export default function SuggestionControl(
                     <LimitationTypeField />
 
                     {limitationType === LimitationType.SEVERITY ? (
-                        <>
+                        <React.Fragment key="severity-limitation">
                             <SuggestionsPerSeverityLevel />
-                        </>
+                        </React.Fragment>
                     ) : (
-                        <>
+                        <React.Fragment key="other-limitation">
                             <MaxSuggestions />
                             <MinimumSeverityLevel />
-                        </>
+                        </React.Fragment>
                     )}
                 </div>
             </Page.Content>

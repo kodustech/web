@@ -26,6 +26,7 @@ import {
     getParameterByKey,
     updateCodeReviewParameterRepositories,
 } from "@services/parameters/fetch";
+import { PARAMETERS_PATHS } from "@services/parameters";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { CodeReviewSummaryOptions } from "src/app/(app)/settings/code-review/_types";
 import { useAuth } from "src/core/providers/auth.provider";
@@ -56,10 +57,10 @@ export default function Gitlab() {
 
             const repos =
                 repoConfig &&
-                Array.isArray(repoConfig?.configValue) &&
-                repoConfig.configValue.every(
-                    (repo) => typeof repo === "object" && repo !== null,
-                )
+                    Array.isArray(repoConfig?.configValue) &&
+                    repoConfig.configValue.every(
+                        (repo) => typeof repo === "object" && repo !== null,
+                    )
                     ? (repoConfig.configValue as Repository[])
                     : [];
 

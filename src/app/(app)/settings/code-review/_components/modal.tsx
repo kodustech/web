@@ -40,7 +40,6 @@ import {
     CheckIcon,
     HelpCircle,
     Info,
-    InfoIcon,
     PlusIcon,
     SaveIcon,
     XIcon,
@@ -179,7 +178,9 @@ export const KodyRuleAddOrUpdateItemModal = ({
     const watchScope = form.watch("scope");
 
     const handleSubmit = form.handleSubmit(async (config) => {
-        if (!onClose) magicModal.lock();
+        if (!onClose) {
+            magicModal.lock();
+        }
 
         let examples = [];
         if (config.badExample)
@@ -219,6 +220,11 @@ export const KodyRuleAddOrUpdateItemModal = ({
             repositoryId,
             directory?.id,
         );
+
+        toast({
+            description: `Rule ${rule?.uuid ? "updated" : "created"}`,
+            variant: "success",
+        });
 
         if (!onClose) {
             magicModal.hide(true);

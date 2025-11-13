@@ -57,13 +57,13 @@ const SliderWithMarkers = forwardRef<
             </SliderPrimitive.Track>
 
             <div className="absolute inset-x-2 top-1.5 flex items-center">
-                {marks.map((_, i) => {
+                {marks.map((mark, i) => {
                     const selectedValueIndex = tickIndex(value);
                     const leftPositionPercentage = calculateTickPercent(i);
 
                     return (
                         <div
-                            key={i}
+                            key={mark}
                             role="presentation"
                             className={cn(
                                 "absolute size-1.5 rounded-full shadow-sm",
@@ -95,12 +95,12 @@ const SliderWithMarkers = forwardRef<
 
             {labels?.length && (
                 <div className="mt-5 flex items-center">
-                    {marks.map((_, i) => {
+                    {marks.map((mark, i) => {
                         const leftPositionPercentage = calculateTickPercent(i);
 
                         return (
                             <div
-                                key={i}
+                                key={labels?.[i] || `label-${i}`}
                                 className="absolute cursor-default text-xs"
                                 style={{
                                     left: `${leftPositionPercentage}%`,

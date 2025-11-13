@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { Badge } from "@components/ui/badge";
 import { Link } from "@components/ui/link";
 import { TableCell, TableRow } from "@components/ui/table";
@@ -38,6 +38,16 @@ const formatTimeAgo = (dateString: string) => {
     if (diffInWeeks < 4)
         return `${diffInWeeks} week${diffInWeeks > 1 ? "s" : ""} ago`;
     return `${diffInMonths} month${diffInMonths > 1 ? "s" : ""} ago`;
+};
+
+const TimeAgoDisplay = ({ dateString }: { dateString: string }) => {
+    const [displayedTime, setDisplayedTime] = useState(dateString);
+
+    useEffect(() => {
+        setDisplayedTime(formatTimeAgo(dateString));
+    }, [dateString]);
+
+    return <>{displayedTime}</>;
 };
 
 const getStatusBadge = (status: string, merged: boolean) => {
@@ -129,7 +139,7 @@ export const PrListItem = ({ pr }: PrListItemProps) => {
                 </TableCell>
                 <TableCell className="w-32">
                     <span className="text-muted-foreground text-sm">
-                        {formatTimeAgo(pr.createdAt)}
+                        <TimeAgoDisplay dateString={pr.createdAt} />
                     </span>
                 </TableCell>
                 <TableCell className="w-32">
@@ -189,9 +199,9 @@ export const PrListItem = ({ pr }: PrListItemProps) => {
                                             </div>
                                             {index <
                                                 pr.codeReviewTimeline.length -
-                                                    1 && (
-                                                <div className="bg-border h-8 w-px" />
-                                            )}
+                                                1 && (
+                                                    <div className="bg-border h-8 w-px" />
+                                                )}
                                         </div>
                                         <div className="min-w-0 flex-1">
                                             <div className="mb-1 flex items-center gap-2">
@@ -216,7 +226,7 @@ export const PrListItem = ({ pr }: PrListItemProps) => {
                                                             </TooltipTrigger>
                                                             <TooltipContent className="text-xs">
                                                                 {automationOrigin?.toLowerCase?.() ===
-                                                                "system"
+                                                                    "system"
                                                                     ? "Triggered automatically by system"
                                                                     : "Triggered by user command"}
                                                             </TooltipContent>
@@ -224,7 +234,7 @@ export const PrListItem = ({ pr }: PrListItemProps) => {
                                                     )}
                                             </div>
                                             <span className="text-muted-foreground text-xs">
-                                                {formatTimeAgo(item.createdAt)}
+                                                <TimeAgoDisplay dateString={item.createdAt} />
                                             </span>
                                         </div>
                                     </div>

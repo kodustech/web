@@ -14,9 +14,10 @@ import {
     MCP_CONNECTION_STATUS,
 } from "@services/mcp-manager/fetch";
 import { CheckIcon, ImageOff } from "lucide-react";
+import type { AwaitedReturnType } from "src/core/types";
 
 export default async function PluginsPage() {
-    let plugins: any[] = [];
+    let plugins: AwaitedReturnType<typeof getMCPPlugins> = [];
     let hasMCPError = false;
     let mcpErrorMessage = "";
 
@@ -43,7 +44,7 @@ export default async function PluginsPage() {
                         <Badge
                             variant="secondary"
                             className="pointer-events-none">
-                            Alpha
+                            Beta
                         </Badge>
                     </div>
 
@@ -77,13 +78,13 @@ export default async function PluginsPage() {
                                         <CardHeader className="gap-4">
                                             <div className="flex h-fit flex-row items-center gap-5">
                                                 <Avatar className="bg-card-lv3 group-disabled/link:bg-card-lv3/50 size-10 rounded-lg p-1">
-                                                    {(item.logo && (
+                                                    {item.logo ? (
                                                         <AvatarImage
                                                             src={item.logo}
                                                             alt={`${item.appName} logo`}
                                                             className="object-contain"
                                                         />
-                                                    )) || (
+                                                    ) : (
                                                         <ImageOff className="text-text-tertiary m-auto h-6 w-6" />
                                                     )}
                                                 </Avatar>
@@ -100,7 +101,7 @@ export default async function PluginsPage() {
 
                                                 {item.isConnected &&
                                                     item.connectionStatus ===
-                                                        MCP_CONNECTION_STATUS.ACTIVE && (
+                                                    MCP_CONNECTION_STATUS.ACTIVE && (
                                                         <Badge
                                                             variant="tertiary"
                                                             leftIcon={

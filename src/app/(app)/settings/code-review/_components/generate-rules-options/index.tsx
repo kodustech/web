@@ -78,6 +78,15 @@ export const GenerateRulesOptions = () => {
                 }),
             });
 
+            resetQueries({
+                queryKey: generateQueryKey(
+                    PARAMETERS_PATHS.GET_CODE_REVIEW_PARAMETER,
+                    {
+                        params: { teamId },
+                    },
+                ),
+            });
+
             toast({ description: "Settings saved", variant: "success" });
 
             if (syncStatus.kodyRulesGeneratorEnabledFirstTime && newValue) {
@@ -139,6 +148,15 @@ export const GenerateRulesOptions = () => {
                     queryKey: generateQueryKey(
                         KODY_RULES_PATHS.CHECK_SYNC_STATUS,
                         { params: { teamId, repositoryId } },
+                    ),
+                });
+
+                resetQueries({
+                    queryKey: generateQueryKey(
+                        PARAMETERS_PATHS.GET_CODE_REVIEW_PARAMETER,
+                        {
+                            params: { teamId },
+                        },
                     ),
                 });
 

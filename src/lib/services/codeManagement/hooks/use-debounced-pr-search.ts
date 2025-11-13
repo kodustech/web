@@ -93,11 +93,7 @@ export function useDebouncedPRSearch({
         }));
     }, [searchResults]);
 
-    // Always return API results (no fallback to initial data)
     const pullRequests = useMemo(() => {
-
-        if (error) console.log("  ❌ Error:", error);
-
         return transformedSearchResults;
     }, [
         debouncedSearchInput,

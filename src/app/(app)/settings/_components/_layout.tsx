@@ -60,8 +60,8 @@ export const SettingsLayout = ({
     codeReviewDryRunFeatureFlag,
 }: React.PropsWithChildren & {
     codeReviewDryRunFeatureFlag:
-        | AwaitedReturnType<PostHog["getFeatureFlag"]>
-        | undefined;
+    | AwaitedReturnType<PostHog["getFeatureFlag"]>
+    | undefined;
 }) => {
     const pathname = usePathname();
     const { teamId } = useSelectedTeamId();
@@ -114,7 +114,7 @@ export const SettingsLayout = ({
                     <Badge
                         variant="secondary"
                         className="pointer-events-none -my-1 h-6 min-h-auto px-2.5">
-                        Alpha
+                        Beta
                     </Badge>
                 ),
             });
@@ -128,15 +128,18 @@ export const SettingsLayout = ({
             (r) => r.id === repositoryId,
         );
 
-        if (!repository) redirect(`/settings/code-review/global/${pageName}`);
+        if (!repository) {
+            redirect(`/settings/code-review/global/${pageName}`);
+        }
 
         if (!repository?.isSelected) {
             const directory = repository?.directories?.find(
                 (d) => d.id === directoryId,
             );
 
-            if (!directory)
+            if (!directory) {
                 redirect(`/settings/code-review/global/${pageName}`);
+            }
         }
     }
 
@@ -210,7 +213,7 @@ export const SettingsLayout = ({
                                                     ({ label, href }) => {
                                                         const active =
                                                             repositoryId ===
-                                                                "global" &&
+                                                            "global" &&
                                                             pageName === href;
 
                                                         return (

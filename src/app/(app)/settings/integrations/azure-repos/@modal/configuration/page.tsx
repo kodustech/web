@@ -32,6 +32,7 @@ import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { IntegrationCategory } from "src/core/types";
 import { captureSegmentEvent } from "src/core/utils/segment";
+import { PARAMETERS_PATHS } from "@services/parameters";
 
 export default function AzureRepos() {
     const router = useRouter();
@@ -56,10 +57,10 @@ export default function AzureRepos() {
 
             const repos =
                 repoConfig &&
-                Array.isArray(repoConfig?.configValue) &&
-                repoConfig.configValue.every(
-                    (repo) => typeof repo === "object" && repo !== null,
-                )
+                    Array.isArray(repoConfig?.configValue) &&
+                    repoConfig.configValue.every(
+                        (repo) => typeof repo === "object" && repo !== null,
+                    )
                     ? (repoConfig.configValue as Repository[])
                     : [];
 

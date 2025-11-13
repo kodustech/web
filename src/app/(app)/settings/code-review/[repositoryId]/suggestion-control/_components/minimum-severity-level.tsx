@@ -91,7 +91,7 @@ export const MinimumSeverityLevel = () => {
 
                                 <FormControl.Helper>
                                     Kody will provide suggestions with severity
-                                    from <strong>{severityLevel.label}</strong>{" "}
+                                    from <strong key={severityLevel.label}>{severityLevel.label}</strong>{" "}
                                     and higher
                                 </FormControl.Helper>
                             </FormControl.Root>
