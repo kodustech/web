@@ -926,29 +926,31 @@ export const AddCustomPluginModal = ({
                             )}
                         </FormControl.Root>
                     </div>
-                    <DialogFooter>
-                        <DialogClose asChild>
+                    <DialogFooter className="flex flex-col items-end gap-2">
+                        <div>
+                            <DialogClose asChild>
+                                <Button
+                                    size="md"
+                                    variant="cancel"
+                                    disabled={isLoading}>
+                                    Go back
+                                </Button>
+                            </DialogClose>
                             <Button
                                 size="md"
-                                variant="cancel"
-                                disabled={isLoading}>
-                                Go back
+                                variant="primary"
+                                loading={isLoading}
+                                disabled={
+                                    !canPerformAction ||
+                                    !form.formState.isValid ||
+                                    isLoading
+                                }
+                                onClick={handleSubmit}>
+                                {isEditMode ? "Update Plugin" : "Create Plugin"}
                             </Button>
-                        </DialogClose>
-                        <Button
-                            size="md"
-                            variant="primary"
-                            loading={isLoading}
-                            disabled={
-                                !canPerformAction ||
-                                !form.formState.isValid ||
-                                isLoading
-                            }
-                            onClick={handleSubmit}>
-                            {isEditMode ? "Update Plugin" : "Create Plugin"}
-                        </Button>
+                        </div>
                         {isOauthEditMode && (
-                            <p>
+                            <p className="text-xs">
                                 Sorry, OAuth custom plugins cannot be edited
                                 currently, please remove it and try again
                             </p>
