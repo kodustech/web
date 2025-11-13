@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Avatar, AvatarImage } from "@components/ui/avatar";
-import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import {
     Dialog,
@@ -32,6 +31,13 @@ import {
     getMCPPluginById,
     updateMCPCustomPlugin,
 } from "@services/mcp-manager/fetch";
+import {
+    CUSTOM_MCP_AUTH_METHODS,
+    CUSTOM_MCP_PROTOCOLS,
+    CUSTOM_MCP_SESSION_STORAGE_KEYS,
+    CustomMCPAuthMethodType,
+    CustomMCPProtocolType,
+} from "@services/mcp-manager/types";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { ImageOff, Trash2 } from "lucide-react";
@@ -40,27 +46,11 @@ import { AwaitedReturnType } from "src/core/types";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 import z from "zod";
 
-const AUTH_METHODS = {
-    NONE: "none",
-    BEARER: "bearer_token",
-    BASIC: "basic",
-    API_KEY: "api_key",
-} as const;
-
-type AuthMethodType = (typeof AUTH_METHODS)[keyof typeof AUTH_METHODS];
-
-const PROTOCOLS = {
-    HTTP: "http",
-    SSE: "sse",
-} as const;
-
-type ProtocolType = (typeof PROTOCOLS)[keyof typeof PROTOCOLS];
-
 const baseSchema = z.object({
     name: z.string().trim().min(1, "Plugin Name is required"),
     description: z.string().optional(),
     baseUrl: z.url().trim().min(1, "URL is required"),
-    protocol: z.enum(PROTOCOLS),
+    protocol: z.enum(CUSTOM_MCP_PROTOCOLS),
     logoUrl: z.string().optional(),
     headers: z.array(
         z.object({
@@ -71,20 +61,26 @@ const baseSchema = z.object({
 });
 
 const authSchema = z.discriminatedUnion("authMethod", [
-    z.object({ authMethod: z.literal(AUTH_METHODS.NONE) }),
+    z.object({ authMethod: z.literal(CUSTOM_MCP_AUTH_METHODS.NONE) }),
     z.object({
-        authMethod: z.literal(AUTH_METHODS.BEARER),
+        authMethod: z.literal(CUSTOM_MCP_AUTH_METHODS.BEARER),
         bearerToken: z.string().trim().min(1, "Bearer Token is required"),
     }),
     z.object({
-        authMethod: z.literal(AUTH_METHODS.BASIC),
+        authMethod: z.literal(CUSTOM_MCP_AUTH_METHODS.BASIC),
         basicUser: z.string().trim().min(1, "Username is required"),
         basicPassword: z.string().optional(),
     }),
     z.object({
-        authMethod: z.literal(AUTH_METHODS.API_KEY),
+        authMethod: z.literal(CUSTOM_MCP_AUTH_METHODS.API_KEY),
         apiKey: z.string().trim().min(1, "API Key is required"),
         apiKeyHeader: z.string().trim().min(1, "Header Name is required"),
+    }),
+    z.object({
+        authMethod: z.literal(CUSTOM_MCP_AUTH_METHODS.OAUTH2),
+        clientId: z.string().optional(),
+        clientSecret: z.string().optional(),
+        oauthScopes: z.string().optional(),
     }),
 ]);
 
@@ -124,9 +120,9 @@ const getEmptyDefaultValues = (): AddCustomPluginFormValues => ({
     name: "",
     description: "",
     baseUrl: "",
-    protocol: PROTOCOLS.HTTP,
+    protocol: CUSTOM_MCP_PROTOCOLS.HTTP,
     logoUrl: "",
-    authMethod: AUTH_METHODS.NONE,
+    authMethod: CUSTOM_MCP_AUTH_METHODS.NONE,
     headers: [{ key: "", value: "" }],
     // @ts-expect-error Default values for discriminated union
     bearerToken: "",
@@ -134,6 +130,9 @@ const getEmptyDefaultValues = (): AddCustomPluginFormValues => ({
     basicPassword: "",
     apiKey: "",
     apiKeyHeader: "",
+    clientId: "",
+    clientSecret: "",
+    oauthScopes: "",
 });
 
 const convertApiDataToFormData = (
@@ -143,15 +142,22 @@ const convertApiDataToFormData = (
         name: data.name || "",
         description: data.description || "",
         baseUrl: data.baseUrl || "",
-        protocol: (data.protocol as ProtocolType) || PROTOCOLS.HTTP,
+        protocol:
+            (data.protocol as CustomMCPProtocolType) ||
+            CUSTOM_MCP_PROTOCOLS.HTTP,
         logoUrl: data.logo || "",
-        authMethod: (data.authType as AuthMethodType) || AUTH_METHODS.NONE,
+        authMethod:
+            (data.authType as CustomMCPAuthMethodType) ||
+            CUSTOM_MCP_AUTH_METHODS.NONE,
         headers: [],
         bearerToken: "",
         basicUser: "",
         basicPassword: "",
         apiKey: "",
         apiKeyHeader: "",
+        clientId: "",
+        clientSecret: "",
+        oauthScopes: "",
     };
 
     if (data.headers && Object.entries(data.headers).length > 0) {
@@ -161,18 +167,23 @@ const convertApiDataToFormData = (
     }
 
     switch (formData.authMethod) {
-        case AUTH_METHODS.BEARER:
+        case CUSTOM_MCP_AUTH_METHODS.BEARER:
             formData.bearerToken = "";
             break;
-        case AUTH_METHODS.BASIC:
+        case CUSTOM_MCP_AUTH_METHODS.BASIC:
             formData.basicUser = data.basicUser || "";
             formData.basicPassword = "";
             break;
-        case AUTH_METHODS.API_KEY:
+        case CUSTOM_MCP_AUTH_METHODS.API_KEY:
             formData.apiKey = "";
             formData.apiKeyHeader = data.apiKeyHeader || "";
             break;
-        case AUTH_METHODS.NONE:
+        case CUSTOM_MCP_AUTH_METHODS.OAUTH2:
+            formData.clientId = data.clientId || "";
+            formData.clientSecret = "";
+            formData.oauthScopes = data.oauthScopes || "";
+            break;
+        case CUSTOM_MCP_AUTH_METHODS.NONE:
         default:
             break;
     }
@@ -200,18 +211,23 @@ const convertFormDataToApiPayload = (
     }
 
     switch (formData.authMethod) {
-        case AUTH_METHODS.BEARER:
+        case CUSTOM_MCP_AUTH_METHODS.BEARER:
             payload.bearerToken = formData.bearerToken;
             break;
-        case AUTH_METHODS.BASIC:
+        case CUSTOM_MCP_AUTH_METHODS.BASIC:
             payload.basicUser = formData.basicUser;
             payload.basicPassword = formData.basicPassword;
             break;
-        case AUTH_METHODS.API_KEY:
+        case CUSTOM_MCP_AUTH_METHODS.API_KEY:
             payload.apiKey = formData.apiKey;
             payload.apiKeyHeader = formData.apiKeyHeader;
             break;
-        case AUTH_METHODS.NONE:
+        case CUSTOM_MCP_AUTH_METHODS.OAUTH2:
+            payload.clientId = formData.clientId;
+            payload.clientSecret = formData.clientSecret;
+            payload.oauthScopes = formData.oauthScopes;
+            break;
+        case CUSTOM_MCP_AUTH_METHODS.NONE:
         default:
             break;
     }
@@ -226,6 +242,7 @@ export const AddCustomPluginModal = ({
 }) => {
     const router = useRouter();
     const { toast } = useToast();
+    const [isDynamicRegister, setIsDynamicRegister] = useState(false);
     const canCreate = usePermission(Action.Create, ResourceType.PluginSettings);
     const canEdit = usePermission(Action.Update, ResourceType.PluginSettings);
 
@@ -257,6 +274,19 @@ export const AddCustomPluginModal = ({
                 const payload = convertFormDataToApiPayload(data);
 
                 const plugin = await createMCPCustomPlugin(payload);
+
+                if ("authUrl" in plugin) {
+                    sessionStorage.setItem(
+                        CUSTOM_MCP_SESSION_STORAGE_KEYS.INTEGRATION_ID,
+                        plugin.integrationId,
+                    );
+                    sessionStorage.setItem(
+                        CUSTOM_MCP_SESSION_STORAGE_KEYS.INTEGRATION_NAME,
+                        data.name,
+                    );
+                    router.push(plugin.authUrl);
+                    return;
+                }
 
                 await revalidateServerSidePath("/settings/plugins");
 
@@ -327,12 +357,13 @@ export const AddCustomPluginModal = ({
         const authManagedHeaders = new Set<string>();
 
         if (
-            watchedAuthMethod === AUTH_METHODS.BEARER ||
-            watchedAuthMethod === AUTH_METHODS.BASIC
+            watchedAuthMethod === CUSTOM_MCP_AUTH_METHODS.BEARER ||
+            watchedAuthMethod === CUSTOM_MCP_AUTH_METHODS.BASIC ||
+            watchedAuthMethod === CUSTOM_MCP_AUTH_METHODS.OAUTH2
         ) {
             authManagedHeaders.add("authorization");
         } else if (
-            watchedAuthMethod === AUTH_METHODS.API_KEY &&
+            watchedAuthMethod === CUSTOM_MCP_AUTH_METHODS.API_KEY &&
             watchedApiKeyHeader?.trim()
         ) {
             authManagedHeaders.add(watchedApiKeyHeader.trim().toLowerCase());
@@ -486,10 +517,16 @@ export const AddCustomPluginModal = ({
                                             <SelectValue placeholder="Select a protocol" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value={PROTOCOLS.HTTP}>
+                                            <SelectItem
+                                                value={
+                                                    CUSTOM_MCP_PROTOCOLS.HTTP
+                                                }>
                                                 HTTP
                                             </SelectItem>
-                                            <SelectItem value={PROTOCOLS.SSE}>
+                                            <SelectItem
+                                                value={
+                                                    CUSTOM_MCP_PROTOCOLS.SSE
+                                                }>
                                                 SSE
                                             </SelectItem>
                                         </SelectContent>
@@ -521,20 +558,34 @@ export const AddCustomPluginModal = ({
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem
-                                                value={AUTH_METHODS.NONE}>
+                                                value={
+                                                    CUSTOM_MCP_AUTH_METHODS.NONE
+                                                }>
                                                 None
                                             </SelectItem>
                                             <SelectItem
-                                                value={AUTH_METHODS.BEARER}>
+                                                value={
+                                                    CUSTOM_MCP_AUTH_METHODS.BEARER
+                                                }>
                                                 Bearer Token
                                             </SelectItem>
                                             <SelectItem
-                                                value={AUTH_METHODS.BASIC}>
+                                                value={
+                                                    CUSTOM_MCP_AUTH_METHODS.BASIC
+                                                }>
                                                 Basic Auth
                                             </SelectItem>
                                             <SelectItem
-                                                value={AUTH_METHODS.API_KEY}>
+                                                value={
+                                                    CUSTOM_MCP_AUTH_METHODS.API_KEY
+                                                }>
                                                 API Key
+                                            </SelectItem>
+                                            <SelectItem
+                                                value={
+                                                    CUSTOM_MCP_AUTH_METHODS.OAUTH2
+                                                }>
+                                                OAuth 2.0
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
@@ -547,7 +598,8 @@ export const AddCustomPluginModal = ({
                             )}
                         />
 
-                        {watchedAuthMethod === AUTH_METHODS.BEARER && (
+                        {watchedAuthMethod ===
+                            CUSTOM_MCP_AUTH_METHODS.BEARER && (
                             <Controller
                                 name="bearerToken"
                                 control={form.control}
@@ -575,7 +627,8 @@ export const AddCustomPluginModal = ({
                             />
                         )}
 
-                        {watchedAuthMethod === AUTH_METHODS.BASIC && (
+                        {watchedAuthMethod ===
+                            CUSTOM_MCP_AUTH_METHODS.BASIC && (
                             <div className="grid grid-cols-2 gap-2">
                                 <Controller
                                     name="basicUser"
@@ -629,7 +682,8 @@ export const AddCustomPluginModal = ({
                             </div>
                         )}
 
-                        {watchedAuthMethod === AUTH_METHODS.API_KEY && (
+                        {watchedAuthMethod ===
+                            CUSTOM_MCP_AUTH_METHODS.API_KEY && (
                             <div className="grid grid-cols-2 gap-2">
                                 <Controller
                                     name="apiKeyHeader"
@@ -668,6 +722,85 @@ export const AddCustomPluginModal = ({
                                                     size="md"
                                                     type="password"
                                                     placeholder="Your API Key"
+                                                    disabled={!canPerformAction}
+                                                    {...field}
+                                                />
+                                            </FormControl.Input>
+                                            {fieldState.error && (
+                                                <FormControl.Error>
+                                                    {fieldState.error.message}
+                                                </FormControl.Error>
+                                            )}
+                                        </FormControl.Root>
+                                    )}
+                                />
+                            </div>
+                        )}
+
+                        {watchedAuthMethod ===
+                            CUSTOM_MCP_AUTH_METHODS.OAUTH2 && (
+                            <div className="grid grid-flow-col gap-2">
+                                <Controller
+                                    name="clientId"
+                                    control={form.control}
+                                    render={({ field, fieldState }) => (
+                                        <FormControl.Root>
+                                            <FormControl.Label>
+                                                Client ID (Optional)
+                                            </FormControl.Label>
+                                            <FormControl.Input>
+                                                <Input
+                                                    size="md"
+                                                    placeholder="OAuth 2.0 Client ID"
+                                                    disabled={!canPerformAction}
+                                                    {...field}
+                                                />
+                                            </FormControl.Input>
+                                            {fieldState.error && (
+                                                <FormControl.Error>
+                                                    {fieldState.error.message}
+                                                </FormControl.Error>
+                                            )}
+                                        </FormControl.Root>
+                                    )}
+                                />
+                                <Controller
+                                    name="clientSecret"
+                                    control={form.control}
+                                    render={({ field, fieldState }) => (
+                                        <FormControl.Root>
+                                            <FormControl.Label>
+                                                Client Secret (Optional)
+                                            </FormControl.Label>
+                                            <FormControl.Input>
+                                                <Input
+                                                    size="md"
+                                                    type="password"
+                                                    placeholder="OAuth 2.0 Client Secret"
+                                                    disabled={!canPerformAction}
+                                                    {...field}
+                                                />
+                                            </FormControl.Input>
+                                            {fieldState.error && (
+                                                <FormControl.Error>
+                                                    {fieldState.error.message}
+                                                </FormControl.Error>
+                                            )}
+                                        </FormControl.Root>
+                                    )}
+                                />
+                                <Controller
+                                    name="oauthScopes"
+                                    control={form.control}
+                                    render={({ field, fieldState }) => (
+                                        <FormControl.Root>
+                                            <FormControl.Label>
+                                                Scope (Optional)
+                                            </FormControl.Label>
+                                            <FormControl.Input>
+                                                <Input
+                                                    size="md"
+                                                    placeholder="Space separated OAuth scopes"
                                                     disabled={!canPerformAction}
                                                     {...field}
                                                 />

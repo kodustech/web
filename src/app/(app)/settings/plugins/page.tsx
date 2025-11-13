@@ -9,10 +9,8 @@ import {
 } from "@components/ui/card";
 import { Link } from "@components/ui/link";
 import { Page } from "@components/ui/page";
-import {
-    getMCPPlugins,
-    MCP_CONNECTION_STATUS,
-} from "@services/mcp-manager/fetch";
+import { getMCPPlugins } from "@services/mcp-manager/fetch";
+import { MCP_CONNECTION_STATUS } from "@services/mcp-manager/types";
 import { CheckIcon, ImageOff } from "lucide-react";
 
 export default async function PluginsPage() {
