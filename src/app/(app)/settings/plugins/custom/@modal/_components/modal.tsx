@@ -247,7 +247,11 @@ export const AddCustomPluginModal = ({
     const canEdit = usePermission(Action.Update, ResourceType.PluginSettings);
 
     const isEditMode = !!pluginToEdit;
-    const canPerformAction = isEditMode ? canEdit : canCreate;
+    const isOauthEditMode =
+        isEditMode && pluginToEdit?.authType === CUSTOM_MCP_AUTH_METHODS.OAUTH2;
+    const canPerformAction = isEditMode
+        ? canEdit && !isOauthEditMode
+        : canCreate;
 
     const form = useForm<
         AddCustomPluginFormValues,
@@ -449,7 +453,7 @@ export const AddCustomPluginModal = ({
                                         Logo URL (Optional)
                                     </FormControl.Label>
                                     <FormControl.Input>
-                                        <div className="flex items-center gap-2 min-w-0">
+                                        <div className="flex min-w-0 items-center gap-2">
                                             <Input
                                                 size="md"
                                                 placeholder="https://example.com/logo.png"
@@ -463,8 +467,8 @@ export const AddCustomPluginModal = ({
                                                         className="object-contain"
                                                     />
                                                 )) || (
-                                                        <ImageOff className="text-text-tertiary m-auto h-6 w-6" />
-                                                    )}
+                                                    <ImageOff className="text-text-tertiary m-auto h-6 w-6" />
+                                                )}
                                             </Avatar>
                                         </div>
                                     </FormControl.Input>
@@ -834,7 +838,7 @@ export const AddCustomPluginModal = ({
                                                 field: inputField,
                                                 fieldState,
                                             }) => (
-                                                <div className="flex-1 min-w-0">
+                                                <div className="min-w-0 flex-1">
                                                     <Input
                                                         size="md"
                                                         placeholder="Header Key"
@@ -862,7 +866,7 @@ export const AddCustomPluginModal = ({
                                                 field: inputField,
                                                 fieldState,
                                             }) => (
-                                                <div className="flex-1 min-w-0">
+                                                <div className="min-w-0 flex-1">
                                                     <Input
                                                         size="md"
                                                         placeholder="Header Value"
@@ -943,6 +947,12 @@ export const AddCustomPluginModal = ({
                             onClick={handleSubmit}>
                             {isEditMode ? "Update Plugin" : "Create Plugin"}
                         </Button>
+                        {isOauthEditMode && (
+                            <p>
+                                Sorry, OAuth custom plugins cannot be edited
+                                currently, please remove it and try again
+                            </p>
+                        )}
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
