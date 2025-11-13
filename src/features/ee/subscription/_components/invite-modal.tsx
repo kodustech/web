@@ -22,11 +22,11 @@ import { z } from "zod";
 
 const emailSchema = z.object({
     email: z.email({
-                error: "Please enter a valid email"
-            })
-            .min(1, {
-                error: "Email is required"
-            }),
+        error: "Please enter a valid email"
+    })
+        .min(1, {
+            error: "Email is required"
+        }),
 });
 
 type EmailFormValues = z.infer<typeof emailSchema>;
@@ -72,7 +72,7 @@ export const InviteModal = ({ teamId }: { teamId: string }) => {
 
     const onSubmit = (data: EmailFormValues) => {
         addEmailToInviteList(data.email.trim());
-        form.reset(); // Limpa o campo após adicionar o e-mail
+        form.reset();
     };
 
     const handleSendEmails = async () => {

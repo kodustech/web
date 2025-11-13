@@ -88,8 +88,6 @@ const authOptions: NextAuthConfig = {
             const exp = getDataFromPayload(token?.accessToken)?.exp;
             if (exp && isJwtExpired(exp)) {
                 try {
-                    console.log("Access token has expired");
-
                     const newTokens = await refreshAccessToken({
                         refreshToken: token.refreshToken,
                     });

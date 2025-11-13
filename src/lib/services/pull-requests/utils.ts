@@ -4,11 +4,7 @@ import type { PullRequestExecution } from "./types";
  * Constrói a URL real do Pull Request baseado no provider e dados do repositório
  */
 export const buildPullRequestUrl = (pr: PullRequestExecution): string => {
-
-    console.log("pr", pr);
     const { provider, repositoryId, prNumber, url } = pr;
-
-    console.log("provider", provider);
 
     // Tenta extrair informações da URL da API para construir a URL real
     switch (provider) {
@@ -56,7 +52,6 @@ export const buildPullRequestUrl = (pr: PullRequestExecution): string => {
             break;
 
         case "BITBUCKET":
-            console.log("url", url);
             // Bitbucket API URL: https://api.bitbucket.org/2.0/repositories/{workspace}/{repo}/pullrequests/{number}
             if (url && url.includes("api.bitbucket.org")) {
                 const apiMatch = url.match(
