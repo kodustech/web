@@ -55,6 +55,7 @@ export const useInfinitePullRequestExecutions = (
     const baseFilters = useMemo<PullRequestFilters>(() => {
         const next: PullRequestFilters = { limit: pageSize };
 
+        if (filters?.teamId) next.teamId = filters.teamId;
         if (filters?.repositoryId) next.repositoryId = filters.repositoryId;
         if (filters?.repositoryName) next.repositoryName = filters.repositoryName;
 
@@ -69,6 +70,7 @@ export const useInfinitePullRequestExecutions = (
 
         return next;
     }, [
+        filters?.teamId,
         filters?.repositoryId,
         filters?.repositoryName,
         filters?.pullRequestTitle,
