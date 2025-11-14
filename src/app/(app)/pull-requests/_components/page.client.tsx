@@ -37,6 +37,7 @@ export function PullRequestsPageClient() {
         isFetchingNextPage,
     } = useInfinitePullRequestExecutions(
         {
+            teamId,
             repositoryName: selectedRepository,
             pullRequestTitle: normalizedTitle ? normalizedTitle : undefined,
             hasSentSuggestions: hasSentSuggestionsParam,
