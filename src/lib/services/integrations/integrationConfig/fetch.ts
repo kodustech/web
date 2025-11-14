@@ -6,6 +6,7 @@ import { axiosAuthorized } from "src/core/utils/axios";
 import { INTEGRATION_CONFIG } from ".";
 import type { IntegrationConfig } from "./types";
 
+// TODO: remove, unused
 export const createOrUpdateIntegrationConfig = async (
     integrationConfigs: Array<{ configKey: string; configValue: any }>,
     teamId: string,

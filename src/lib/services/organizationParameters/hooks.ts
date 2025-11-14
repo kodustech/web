@@ -35,6 +35,7 @@ export function useSuspenseGetLLMProviderModels({
     );
 }
 
+// TODO: remove, unused
 export function useCockpitMetricsVisibility(organizationId: string) {
     return useQuery({
         queryKey: ["cockpit-metrics-visibility", organizationId],
@@ -61,6 +62,7 @@ export function useSuspenseGetBYOK() {
     );
 }
 
+// TODO: remove, unused
 export function useUpdateCockpitMetricsVisibility() {
     const queryClient = useQueryClient();
 

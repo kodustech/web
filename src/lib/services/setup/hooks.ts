@@ -20,6 +20,7 @@ export function useGetGithubIntegrationByInstallId(installId: string) {
     );
 }
 
+// TODO: remove, unused
 export function useGetTeamMembers(teamId: string) {
     return useFetch<TeamMembersResponse>(
         SETUP_PATHS.TEAM_MEMBERS,
@@ -64,6 +65,7 @@ export function useSuspenseGetOrganizationId() {
     return useSuspenseFetch<string>(ORGANIZATIONS_PATHS.ORGANIZATION_ID);
 }
 
+// TODO: remove, unused
 export function useVerifyConnectionCommunication() {
     return useFetch<any>(SETUP_PATHS.VERIFY_CONNECTION_COMMUNICATION);
 }

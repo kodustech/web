@@ -91,6 +91,7 @@ export const useSuspenseGetDefaultCodeReviewParameter = () => {
     >(PARAMETERS_PATHS.DEFAULT_CODE_REVIEW_PARAMETER);
 };
 
+// TODO: remove, unused
 export const useSuspenseGetCodeReviewLabels = (codeReviewVersion?: string) => {
     // Always send the parameter, even for legacy to be explicit
     const params = { codeReviewVersion: codeReviewVersion || "v2" };
@@ -191,6 +192,7 @@ export type CodeReviewV2Defaults = {
     };
 };
 
+// TODO: remove, unused
 export const useSuspenseGetCodeReviewV2Defaults = () => {
     // This endpoint returns an envelope { statusCode, data }, and our
     // useSuspenseFetch returns the inner `data`, so we type it directly.
@@ -217,6 +219,7 @@ export const useSuspenseGetParameterByKey = <T>(
     }>(PARAMETERS_PATHS.GET_BY_KEY, { params: { key, teamId } }, config);
 };
 
+// TODO: remove, unused
 export const useSaveParameterPlatformConfigs = (
     updater?: (oldData: any[] | undefined, newData: any) => any[],
 ): UseMutationResult<

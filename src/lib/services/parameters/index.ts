@@ -17,10 +17,10 @@ export const PARAMETERS_PATHS = {
     ),
     COPY_CODE_REVIEW_PARAMETER: pathToApiUrl(
         "/parameters/copy-code-review-parameter",
-    ),
+    ), // TODO: remove, unused
     GENERATE_CODE_REVIEW_PARAMETER: pathToApiUrl(
         "/parameters/generate-code-review-parameter",
-    ),
+    ), // TODO: remove, unused
     DELETE_REPOSITORY_CODE_REVIEW_PARAMETER: pathToApiUrl(
         "/parameters/delete-repository-code-review-parameter",
     ),
@@ -33,5 +33,5 @@ export const PARAMETERS_PATHS = {
     ),
     LIST_CODE_REVIEW_V2_DEFAULTS: pathToApiUrl(
         "/parameters/list-code-review-v2-defaults",
-    ),
+    ), // TODO: remove, unused
 } as const;

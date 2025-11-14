@@ -4,6 +4,7 @@ import { usePost } from "src/core/utils/reactQuery";
 
 import { AGENT_PATHS } from ".";
 
+// TODO: remove, unused
 export const useExecuteAgent = (): UseMutationResult<
     any, // Tipo do retorno
     AxiosError, // Tipo de erro

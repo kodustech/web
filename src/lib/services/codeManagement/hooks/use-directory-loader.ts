@@ -1,5 +1,3 @@
-// @services/codeManagement/hooks/use-directory-loader.ts
-
 import { useQuery } from "@tanstack/react-query";
 
 export const useDirectoryLoader = (
@@ -7,8 +5,7 @@ export const useDirectoryLoader = (
     directoryPath: string,
     repositoryId: string,
     enabled: boolean,
-) => { 
-    
+) => {
     return useQuery({
         queryKey: ["directory-lazy", repositoryId, directoryPath],
         queryFn: () => {

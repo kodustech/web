@@ -1,5 +1,3 @@
-// @services/codeManagement/hooks/use-lazy-repository-tree.ts
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "src/core/providers/auth.provider";

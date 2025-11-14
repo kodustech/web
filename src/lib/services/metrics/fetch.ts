@@ -4,6 +4,7 @@ import { axiosAuthorized } from "src/core/utils/axios";
 import { FLOW_METRICS_PATH } from ".";
 import type { Metric } from "./types";
 
+// TODO: remove, unused
 export const getTeamsFlowMetrics = async (teamId: string) => {
     return authorizedFetch<Metric[]>(FLOW_METRICS_PATH.GET_TEAM_FLOW_METRICS, {
         params: { teamId },
@@ -11,6 +12,7 @@ export const getTeamsFlowMetrics = async (teamId: string) => {
     });
 };
 
+// TODO: remove, unused
 export const getTeamsChartsFlowData = async (
     teamId: string,
     startDate?: string,

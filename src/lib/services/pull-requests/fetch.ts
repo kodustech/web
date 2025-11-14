@@ -1,4 +1,5 @@
 import { pathToApiUrl } from "src/core/utils/helpers";
+
 import { authorizedFetch } from "../fetch";
 import type { PullRequestExecutionsResponse } from "./types";
 
@@ -30,10 +31,17 @@ export const PULL_REQUEST_API = {
             );
 
         const queryString = params.toString();
-        return pathToApiUrl(`/pull-requests/executions${queryString ? `?${queryString}` : ''}`);
+        return pathToApiUrl(
+            `/pull-requests/executions${queryString ? `?${queryString}` : ""}`,
+        );
     },
 } as const;
 
-export const fetchPullRequestExecutions = (filters?: PullRequestFilters): Promise<PullRequestExecutionsResponse> => {
-    return authorizedFetch<PullRequestExecutionsResponse>(PULL_REQUEST_API.GET_EXECUTIONS(filters));
+// TODO: remove, unused
+export const fetchPullRequestExecutions = (
+    filters?: PullRequestFilters,
+): Promise<PullRequestExecutionsResponse> => {
+    return authorizedFetch<PullRequestExecutionsResponse>(
+        PULL_REQUEST_API.GET_EXECUTIONS(filters),
+    );
 };

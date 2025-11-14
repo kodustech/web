@@ -22,6 +22,7 @@ export function useGetRepositories(
     );
 }
 
+// TODO: remove, unused
 export function useSuspenseGetRepositoryTree(params: {
     organizationId: string;
     repositoryId: string;
@@ -62,6 +63,7 @@ export function useSuspenseGetOnboardingPullRequests(teamId: string) {
     }));
 }
 
+// TODO: remove, unused
 export function useSuspenseGetPullRequestsByRepository(
     teamId: string,
     repositoryId: string,

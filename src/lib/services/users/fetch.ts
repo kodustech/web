@@ -30,4 +30,5 @@ export const updateUser = async (
     return response;
 };
 
+// TODO: remove, unused
 export const getUserInfo = () => authorizedFetch<User>(USERS_PATHS.USER_INFO);

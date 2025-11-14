@@ -114,6 +114,7 @@ export const getGenerateKodusConfigFile = async (
     }
 };
 
+// TODO: remove, unused
 export const copyCodeReviewParameter = async (params: {
     teamId: string;
     sourceRepositoryId: string;
@@ -132,6 +133,7 @@ export const copyCodeReviewParameter = async (params: {
     }
 };
 
+// TODO: remove, unused
 export const generateCodeReviewParameter = async (
     teamId: string,
     repositoryId: string,

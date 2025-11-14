@@ -5,6 +5,7 @@ import { pathToApiUrl } from "src/core/utils/helpers";
 
 import { SETUP_PATHS } from ".";
 
+// TODO: remove, unused
 export const createOrUpdateTeamMembers = (members: any, teamId: string) => {
     return axiosAuthorized.post(pathToApiUrl("/team-members/"), {
         members,
@@ -55,6 +56,7 @@ export function getConnections(teamId: string) {
     >;
 }
 
+// TODO: remove, unused
 export const saveOrganizationNameGithub = (organizationName: string) => {
     return axiosAuthorized.post(pathToApiUrl("/github/organization-name"), {
         organizationName,

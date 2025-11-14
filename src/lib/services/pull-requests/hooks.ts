@@ -1,10 +1,8 @@
 import { useMemo } from "react";
-import {
-    useInfiniteQuery,
-    type InfiniteData,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
 import { axiosAuthorized } from "src/core/utils/axios";
 import { useFetch } from "src/core/utils/reactQuery";
+
 import { PULL_REQUEST_API, type PullRequestFilters } from "./fetch";
 import type {
     PullRequestExecution,
@@ -26,19 +24,16 @@ const normalizeExecutions = (
     return [];
 };
 
+// TODO: remove, unused
 export const usePullRequestExecutions = (filters?: PullRequestFilters) => {
     const url = PULL_REQUEST_API.GET_EXECUTIONS(filters);
-    
-    const { data: response, ...query } = useFetch<PullRequestExecutionsResponse>(
-        url,
-        undefined,
-        true,
-        {
+
+    const { data: response, ...query } =
+        useFetch<PullRequestExecutionsResponse>(url, undefined, true, {
             placeholderData: (prev) => prev,
             refetchOnMount: true,
             refetchOnWindowFocus: true,
-        },
-    );
+        });
 
     const data = normalizeExecutions(response?.data);
 
@@ -56,7 +51,8 @@ export const useInfinitePullRequestExecutions = (
         const next: PullRequestFilters = { limit: pageSize };
 
         if (filters?.repositoryId) next.repositoryId = filters.repositoryId;
-        if (filters?.repositoryName) next.repositoryName = filters.repositoryName;
+        if (filters?.repositoryName)
+            next.repositoryName = filters.repositoryName;
 
         const title = filters?.pullRequestTitle?.trim();
         if (title) {
@@ -76,10 +72,7 @@ export const useInfinitePullRequestExecutions = (
         pageSize,
     ]);
 
-    const {
-        data: infiniteData,
-        ...query
-    } = useInfiniteQuery<
+    const { data: infiniteData, ...query } = useInfiniteQuery<
         PullRequestExecutionsResponse,
         Error,
         InfiniteData<PullRequestExecutionsResponse, number>,
