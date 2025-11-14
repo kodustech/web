@@ -1,17 +1,8 @@
 import type { INTEGRATIONS_KEY } from "@enums";
 import { authorizedFetch } from "@services/fetch";
 import { axiosAuthorized } from "src/core/utils/axios";
-import { pathToApiUrl } from "src/core/utils/helpers";
 
 import { SETUP_PATHS } from ".";
-
-// TODO: remove, unused
-export const createOrUpdateTeamMembers = (members: any, teamId: string) => {
-    return axiosAuthorized.post(pathToApiUrl("/team-members/"), {
-        members,
-        teamId,
-    });
-};
 
 export function getConnectionsOnClient(teamId: string) {
     return axiosAuthorized
@@ -55,10 +46,3 @@ export function getConnections(teamId: string) {
         }>
     >;
 }
-
-// TODO: remove, unused
-export const saveOrganizationNameGithub = (organizationName: string) => {
-    return axiosAuthorized.post(pathToApiUrl("/github/organization-name"), {
-        organizationName,
-    });
-};

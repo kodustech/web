@@ -1,5 +1,3 @@
-import { UserStatus } from "@enums";
-import { authorizedFetch } from "@services/fetch";
 import { axiosAuthorized } from "src/core/utils/axios";
 import { pathToApiUrl } from "src/core/utils/helpers";
 
@@ -29,6 +27,3 @@ export const updateUser = async (
 
     return response;
 };
-
-// TODO: remove, unused
-export const getUserInfo = () => authorizedFetch<User>(USERS_PATHS.USER_INFO);

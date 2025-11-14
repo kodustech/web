@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 import { useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
 import { axiosAuthorized } from "src/core/utils/axios";
-import { useFetch } from "src/core/utils/reactQuery";
 
 import { PULL_REQUEST_API, type PullRequestFilters } from "./fetch";
 import type {
@@ -22,22 +21,6 @@ const normalizeExecutions = (
     if (Array.isArray(payload._page_data)) return payload._page_data;
 
     return [];
-};
-
-// TODO: remove, unused
-export const usePullRequestExecutions = (filters?: PullRequestFilters) => {
-    const url = PULL_REQUEST_API.GET_EXECUTIONS(filters);
-
-    const { data: response, ...query } =
-        useFetch<PullRequestExecutionsResponse>(url, undefined, true, {
-            placeholderData: (prev) => prev,
-            refetchOnMount: true,
-            refetchOnWindowFocus: true,
-        });
-
-    const data = normalizeExecutions(response?.data);
-
-    return { ...query, data };
 };
 
 const DEFAULT_PAGE_SIZE = 30;

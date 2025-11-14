@@ -1,8 +1,5 @@
 import { authorizedFetch } from "@services/fetch";
-import type {
-    CodeReviewGlobalConfig,
-    CodeReviewRepositoryConfig,
-} from "src/app/(app)/settings/code-review/_types";
+import type { CodeReviewGlobalConfig } from "src/app/(app)/settings/code-review/_types";
 import type { LiteralUnion } from "src/core/types";
 import { axiosAuthorized } from "src/core/utils/axios";
 import { codeReviewConfigRemovePropertiesNotInType } from "src/core/utils/helpers";
@@ -109,42 +106,6 @@ export const getGenerateKodusConfigFile = async (
         );
 
         return response;
-    } catch (error: any) {
-        return { error: error.response?.status || "Erro desconhecido" };
-    }
-};
-
-// TODO: remove, unused
-export const copyCodeReviewParameter = async (params: {
-    teamId: string;
-    sourceRepositoryId: string;
-    targetRepositoryId: string;
-    targetDirectoryPath: string | undefined;
-}) => {
-    try {
-        const response = await axiosAuthorized.post<any>(
-            PARAMETERS_PATHS.COPY_CODE_REVIEW_PARAMETER,
-            params,
-        );
-
-        return response.data;
-    } catch (error: any) {
-        return { error: error.response?.status || "Erro desconhecido" };
-    }
-};
-
-// TODO: remove, unused
-export const generateCodeReviewParameter = async (
-    teamId: string,
-    repositoryId: string,
-) => {
-    try {
-        const response = await axiosAuthorized.post<any>(
-            PARAMETERS_PATHS.GENERATE_CODE_REVIEW_PARAMETER,
-            { teamId, repositoryId },
-        );
-
-        return response.data;
     } catch (error: any) {
         return { error: error.response?.status || "Erro desconhecido" };
     }

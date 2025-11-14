@@ -1,8 +1,5 @@
 import { pathToApiUrl } from "src/core/utils/helpers";
 
-import { authorizedFetch } from "../fetch";
-import type { PullRequestExecutionsResponse } from "./types";
-
 export interface PullRequestFilters {
     repositoryId?: string;
     repositoryName?: string;
@@ -36,12 +33,3 @@ export const PULL_REQUEST_API = {
         );
     },
 } as const;
-
-// TODO: remove, unused
-export const fetchPullRequestExecutions = (
-    filters?: PullRequestFilters,
-): Promise<PullRequestExecutionsResponse> => {
-    return authorizedFetch<PullRequestExecutionsResponse>(
-        PULL_REQUEST_API.GET_EXECUTIONS(filters),
-    );
-};
