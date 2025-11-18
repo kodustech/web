@@ -1,6 +1,7 @@
 import { pathToApiUrl } from "src/core/utils/helpers";
 
 export interface PullRequestFilters {
+    teamId?: string;
     repositoryId?: string;
     repositoryName?: string;
     limit?: number;
@@ -13,6 +14,7 @@ export const PULL_REQUEST_API = {
     GET_EXECUTIONS: (filters?: PullRequestFilters) => {
         const params = new URLSearchParams();
 
+        if (filters?.teamId) params.append("teamId", filters.teamId);
         if (filters?.repositoryId)
             params.append("repositoryId", filters.repositoryId);
         if (filters?.repositoryName)
