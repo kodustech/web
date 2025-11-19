@@ -1,12 +1,10 @@
 import { CustomMessageConfig } from "@services/pull-request-messages/types";
-import { UseMutationResult } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import type {
     AutomationCodeReviewConfigType,
     CodeReviewGlobalConfig,
     FormattedGlobalCodeReviewConfig,
 } from "src/app/(app)/settings/code-review/_types";
-import { useFetch, usePost, useSuspenseFetch } from "src/core/utils/reactQuery";
+import { useFetch, useSuspenseFetch } from "src/core/utils/reactQuery";
 
 import { PARAMETERS_PATHS } from ".";
 import { ParametersConfigKey, PlatformConfigValue } from "./types";
@@ -89,21 +87,6 @@ export const useSuspenseGetDefaultCodeReviewParameter = () => {
             customMessages: CustomMessageConfig;
         }
     >(PARAMETERS_PATHS.DEFAULT_CODE_REVIEW_PARAMETER);
-};
-
-export const useSuspenseGetCodeReviewLabels = (codeReviewVersion?: string) => {
-    // Always send the parameter, even for legacy to be explicit
-    const params = { codeReviewVersion: codeReviewVersion || "v2" };
-
-    type Label = { type: string; name: string; description: string };
-
-    // The endpoint returns { statusCode, data: { labels: Label[] } }
-    const raw = useSuspenseFetch<{ labels?: Label[] }>(
-        PARAMETERS_PATHS.GET_CODE_REVIEW_LABELS,
-        { params },
-    );
-
-    return raw?.labels ?? [];
 };
 
 export const useGetCodeReviewLabels = (codeReviewVersion?: string) => {
@@ -191,14 +174,6 @@ export type CodeReviewV2Defaults = {
     };
 };
 
-export const useSuspenseGetCodeReviewV2Defaults = () => {
-    // This endpoint returns an envelope { statusCode, data }, and our
-    // useSuspenseFetch returns the inner `data`, so we type it directly.
-    return useSuspenseFetch<CodeReviewV2Defaults>(
-        PARAMETERS_PATHS.LIST_CODE_REVIEW_V2_DEFAULTS,
-    );
-};
-
 export const useSuspenseGetParameterByKey = <T>(
     key: string,
     teamId: string,
@@ -215,30 +190,4 @@ export const useSuspenseGetParameterByKey = <T>(
         configKey: string;
         configValue: T;
     }>(PARAMETERS_PATHS.GET_BY_KEY, { params: { key, teamId } }, config);
-};
-
-export const useSaveParameterPlatformConfigs = (
-    updater?: (oldData: any[] | undefined, newData: any) => any[],
-): UseMutationResult<
-    any,
-    AxiosError<unknown, any>,
-    {
-        key: ParametersConfigKey;
-        configValue: { finishOnboard: boolean };
-        organizationAndTeamData: { teamId: string };
-    },
-    { previousData: any[] | undefined }
-> => {
-    return usePost<
-        any[],
-        {
-            key: ParametersConfigKey;
-            configValue: { finishOnboard: boolean };
-            organizationAndTeamData: { teamId: string };
-        }
-    >(
-        PARAMETERS_PATHS.CREATE_OR_UPDATE, // Endpoint da API
-        undefined, // Dados serão passados no momento da mutação
-        updater, // Atualização opcional do cache
-    );
 };

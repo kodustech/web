@@ -1,9 +1,6 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useDebounce } from "@hooks/use-debounce";
-import {
-    useSearchPullRequests,
-    useSuspenseGetOnboardingPullRequests,
-} from "@services/codeManagement/hooks";
+import { useSearchPullRequests } from "@services/codeManagement/hooks";
 import { buildSearchParams } from "src/core/utils/pr-search";
 
 type PullRequest = {

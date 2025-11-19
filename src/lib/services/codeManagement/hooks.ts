@@ -1,13 +1,6 @@
-import { Select } from "@services/setup/types";
-import { IntegrationsCommon } from "src/core/types";
-import { pathToApiUrl } from "src/core/utils/helpers";
 import { useFetch, useSuspenseFetch } from "src/core/utils/reactQuery";
 
-import {
-    CODE_MANAGEMENT_API_PATHS,
-    type GitFileOrFolder,
-    type Repository,
-} from "./types";
+import { CODE_MANAGEMENT_API_PATHS, type Repository } from "./types";
 
 export function useGetRepositories(
     teamId: string,
@@ -19,19 +12,6 @@ export function useGetRepositories(
         {
             params: { teamId, organizationSelected, ...(filters || {}) },
         },
-    );
-}
-
-export function useSuspenseGetRepositoryTree(params: {
-    organizationId: string;
-    repositoryId: string;
-    teamId?: string;
-    treeType?: "directories" | "files";
-    useCache?: boolean;
-}) {
-    return useSuspenseFetch<{ repository: string; tree: GitFileOrFolder[] }>(
-        pathToApiUrl("/code-management/get-repository-tree"),
-        { params },
     );
 }
 
@@ -53,49 +33,6 @@ export function useSuspenseGetOnboardingPullRequests(teamId: string) {
 
     // Transform to legacy format for compatibility
     return rawData.map((pr) => ({
-        id: pr.id,
-        pull_number: pr.pull_number,
-        repository: pr.repository.name, // Extract name from repository object
-        repositoryId: pr.repository.id,
-        title: pr.title,
-        url: pr.url,
-    }));
-}
-
-export function useSuspenseGetPullRequestsByRepository(
-    teamId: string,
-    repositoryId: string,
-    filters?: {
-        number?: string;
-        startDate?: string;
-        endDate?: string;
-        author?: string;
-        branch?: string;
-        title?: string;
-        state?: "open" | "closed" | "merged" | "all";
-    },
-) {
-    const rwaData = useSuspenseFetch<
-        {
-            id: string;
-            pull_number: number;
-            repository: {
-                id: string;
-                name: string;
-            };
-            title: string;
-            url: string;
-        }[]
-    >(CODE_MANAGEMENT_API_PATHS.GET_PULL_REQUESTS, {
-        params: {
-            teamId,
-            repositoryId,
-            ...filters,
-        },
-    });
-
-    // Transform to legacy format for compatibility
-    return rwaData.map((pr) => ({
         id: pr.id,
         pull_number: pr.pull_number,
         repository: pr.repository.name, // Extract name from repository object

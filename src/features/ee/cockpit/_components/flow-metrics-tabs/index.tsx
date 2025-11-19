@@ -5,7 +5,6 @@ import { buttonVariants } from "@components/ui/button";
 import { Card, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@radix-ui/react-tabs";
-import { getTeamsChartsFlowData } from "@services/metrics/fetch";
 import {
     Metric,
     NewItemsFrom,
@@ -65,15 +64,7 @@ export default function FlowMetricsTabs({
         newItemsFrom?: string,
     ) => {
         setIsChartLoading(true);
-
-        const fetchedChartData = await getTeamsChartsFlowData(
-            team.uuid,
-            startDate,
-            endDate,
-            newItemsFrom,
-        );
-
-        setChartsData(fetchedChartData || []);
+        setChartsData([]);
         setIsChartLoading(false);
     };
 

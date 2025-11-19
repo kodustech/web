@@ -1,17 +1,9 @@
-import {
-    OrganizationParametersConfigKey,
-    type CockpitMetricsVisibility,
-} from "@services/parameters/types";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { OrganizationParametersConfigKey } from "@services/parameters/types";
 import { useSuspenseFetch } from "src/core/utils/reactQuery";
 import type { BYOKConfig } from "src/features/ee/byok/_types";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 import { ORGANIZATION_PARAMETERS_PATHS } from ".";
-import {
-    getCockpitMetricsVisibility,
-    updateCockpitMetricsVisibility,
-} from "./fetch";
 
 export function useSuspenseGetLLMProviders() {
     return useSuspenseFetch<{
@@ -35,14 +27,6 @@ export function useSuspenseGetLLMProviderModels({
     );
 }
 
-export function useCockpitMetricsVisibility(organizationId: string) {
-    return useQuery({
-        queryKey: ["cockpit-metrics-visibility", organizationId],
-        queryFn: () => getCockpitMetricsVisibility({ organizationId }),
-        enabled: !!organizationId,
-    });
-}
-
 export function useSuspenseGetBYOK() {
     const { organizationId } = useOrganizationContext();
     return useSuspenseFetch<{
@@ -59,24 +43,4 @@ export function useSuspenseGetBYOK() {
             fallbackData: null,
         },
     );
-}
-
-export function useUpdateCockpitMetricsVisibility() {
-    const queryClient = useQueryClient();
-
-    return useMutation({
-        mutationFn: (params: {
-            organizationId: string;
-            teamId?: string;
-            config: CockpitMetricsVisibility;
-        }) => updateCockpitMetricsVisibility(params),
-        onSuccess: (_, variables) => {
-            queryClient.invalidateQueries({
-                queryKey: [
-                    "cockpit-metrics-visibility",
-                    variables.organizationId,
-                ],
-            });
-        },
-    });
 }

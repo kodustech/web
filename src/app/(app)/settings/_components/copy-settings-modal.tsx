@@ -21,10 +21,7 @@ import { Spinner } from "@components/ui/spinner";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { PARAMETERS_PATHS } from "@services/parameters";
-import {
-    copyCodeReviewParameter,
-    createOrUpdateCodeReviewParameter,
-} from "@services/parameters/fetch";
+import { createOrUpdateCodeReviewParameter } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { ArrowDownIcon, CopyPlusIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";

@@ -51,13 +51,6 @@ export const deleteKodyRule = async (ruleId: string) => {
     return response.data;
 };
 
-export const getLibraryKodyRules = async () => {
-    const rules = await authorizedFetch<Record<string, Array<LibraryRule>>>(
-        KODY_RULES_PATHS.FIND_LIBRARY_KODY_RULES,
-    );
-    return Object.values(rules).flat();
-};
-
 export const getLibraryKodyRulesWithFeedback = async (params?: {
     page?: number;
     limit?: number;

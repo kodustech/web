@@ -16,14 +16,6 @@ export const useSuspenseFindLibraryKodyRules = () => {
     return Object.values(rules).flat();
 };
 
-export const useSuspenseFindLibraryKodyRulesWithFeedback = () => {
-    const response = useSuspenseFetch<{ data: Array<LibraryRule> }>(
-        KODY_RULES_PATHS.FIND_LIBRARY_KODY_RULES_WITH_FEEDBACK,
-    );
-
-    return response.data;
-};
-
 export const useSuspenseKodyRulesTotalQuantity = () => {
     return useSuspenseFetch<{ total: number }>(
         KODY_RULES_PATHS.GET_KODY_RULES_TOTAL_QUANTITY,

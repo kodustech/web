@@ -15,12 +15,6 @@ export const PARAMETERS_PATHS = {
     GENERATE_KODUS_CONFIG_FILE: pathToApiUrl(
         "/parameters/generate-kodus-config-file",
     ),
-    COPY_CODE_REVIEW_PARAMETER: pathToApiUrl(
-        "/parameters/copy-code-review-parameter",
-    ),
-    GENERATE_CODE_REVIEW_PARAMETER: pathToApiUrl(
-        "/parameters/generate-code-review-parameter",
-    ),
     DELETE_REPOSITORY_CODE_REVIEW_PARAMETER: pathToApiUrl(
         "/parameters/delete-repository-code-review-parameter",
     ),
@@ -30,8 +24,5 @@ export const PARAMETERS_PATHS = {
     ),
     GET_CODE_REVIEW_PARAMETER: pathToApiUrl(
         "/parameters/code-review-parameter",
-    ),
-    LIST_CODE_REVIEW_V2_DEFAULTS: pathToApiUrl(
-        "/parameters/list-code-review-v2-defaults",
     ),
 } as const;

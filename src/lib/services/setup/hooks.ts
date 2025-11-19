@@ -4,11 +4,7 @@ import { AxiosError } from "axios";
 import { useFetch, usePost, useSuspenseFetch } from "src/core/utils/reactQuery";
 
 import { SETUP_PATHS } from ".";
-import {
-    InstallationStatus,
-    TeamMemberInvite,
-    TeamMembersResponse,
-} from "./types";
+import { InstallationStatus, TeamMemberInvite } from "./types";
 
 export function useGetGithubOrganizationName() {
     return useFetch<string>(SETUP_PATHS.GITHUB_ORGANIZATION_NAME);
@@ -17,14 +13,6 @@ export function useGetGithubOrganizationName() {
 export function useGetGithubIntegrationByInstallId(installId: string) {
     return useFetch<{ status: InstallationStatus; organizationName: string }>(
         SETUP_PATHS.GITHUB_INTEGRATION + `?installId=${installId}`,
-    );
-}
-
-export function useGetTeamMembers(teamId: string) {
-    return useFetch<TeamMembersResponse>(
-        SETUP_PATHS.TEAM_MEMBERS,
-        { params: { teamId: teamId } },
-        !!teamId,
     );
 }
 
@@ -62,8 +50,4 @@ export function useSuspenseGetConnections(teamId: string) {
 
 export function useSuspenseGetOrganizationId() {
     return useSuspenseFetch<string>(ORGANIZATIONS_PATHS.ORGANIZATION_ID);
-}
-
-export function useVerifyConnectionCommunication() {
-    return useFetch<any>(SETUP_PATHS.VERIFY_CONNECTION_COMMUNICATION);
 }

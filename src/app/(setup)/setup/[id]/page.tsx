@@ -18,7 +18,6 @@ import { useEffectOnce } from "@hooks/use-effect-once";
 import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
 import { createCodeManagementIntegration } from "@services/codeManagement/fetch";
 import { SETUP_PATHS } from "@services/setup";
-import { saveOrganizationNameGithub } from "@services/setup/fetch";
 import { useGetGithubOrganizationName } from "@services/setup/hooks";
 import { deleteCookie, getCookie } from "cookies-next";
 import { SaveIcon } from "lucide-react";
@@ -84,8 +83,8 @@ export default function Redirect() {
             const selectedTeamCookie = getCookie("selectedTeam") as any;
             const savedTeam =
                 selectedTeamCookie &&
-                    selectedTeamCookie !== "undefined" &&
-                    selectedTeamCookie !== ""
+                selectedTeamCookie !== "undefined" &&
+                selectedTeamCookie !== ""
                     ? (JSON.parse(selectedTeamCookie) as any)
                     : null;
 
@@ -184,11 +183,11 @@ export default function Redirect() {
         switch (integration) {
             case INTEGRATIONS_KEY.GITHUB: {
                 switch (
-                (
-                    integrationResponse as Awaited<
-                        ReturnType<typeof createCodeManagementIntegration>
-                    >
-                ).data.status
+                    (
+                        integrationResponse as Awaited<
+                            ReturnType<typeof createCodeManagementIntegration>
+                        >
+                    ).data.status
                 ) {
                     case "SUCCESS": {
                         await redirectToConfiguration(
@@ -245,11 +244,11 @@ export default function Redirect() {
 
             case INTEGRATIONS_KEY.GITLAB: {
                 switch (
-                (
-                    integrationResponse as Awaited<
-                        ReturnType<typeof createCodeManagementIntegration>
-                    >
-                ).data.status
+                    (
+                        integrationResponse as Awaited<
+                            ReturnType<typeof createCodeManagementIntegration>
+                        >
+                    ).data.status
                 ) {
                     case "SUCCESS": {
                         await redirectToConfiguration(
