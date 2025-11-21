@@ -3,6 +3,7 @@ import { getOrganizationId } from "@services/organizations/fetch";
 import {
     OrganizationParametersConfigKey,
     type CockpitMetricsVisibility,
+    type OrganizationParametersAutoAssignConfig,
 } from "@services/parameters/types";
 import { axiosAuthorized } from "src/core/utils/axios";
 import type { BYOKConfig } from "src/features/ee/byok/_types";
@@ -35,6 +36,19 @@ export const getBYOK = async () => {
     });
 
     return byokConfig?.configValue;
+};
+
+export const getAutoLicenseAssignmentConfig = async () => {
+    const organizationId = await getOrganizationId();
+
+    const config = await getOrganizationParameterByKey<{
+        configValue: OrganizationParametersAutoAssignConfig;
+    }>({
+        key: OrganizationParametersConfigKey.AUTO_LICENSE_ASSIGNMENT,
+        organizationId,
+    });
+
+    return config?.configValue;
 };
 
 export const deleteBYOK = async (params: {
