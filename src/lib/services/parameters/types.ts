@@ -11,6 +11,7 @@ export enum OrganizationParametersConfigKey {
     AUTO_JOIN_CONFIG = "auto_join_config",
     BYOK_CONFIG = "byok_config",
     COCKPIT_METRICS_VISIBILITY = "cockpit_metrics_visibility",
+    AUTO_LICENSE_ASSIGNMENT = "auto_license_assignment",
 }
 
 export enum BoardPriorityType {
@@ -76,6 +77,11 @@ export enum Timezone {
 export type OrganizationParametersAutoJoinConfig = {
     enabled: boolean;
     domains: string[];
+};
+
+export type OrganizationParametersAutoAssignConfig = {
+    enabled: boolean;
+    ignoredUsers: string[];
 };
 
 export interface CockpitMetricsVisibility {
