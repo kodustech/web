@@ -16,8 +16,10 @@ import { NewPlanSelectionModal } from "./_modals/select-new-plan";
 
 export const Trial = ({
     members,
+    forceShow = false,
 }: {
     members: TeamMembersResponse["members"];
+    forceShow?: boolean;
 }) => {
     const organizationAdminsCount = members.length;
     const canEdit = usePermission(Action.Update, ResourceType.Billing);
@@ -31,20 +33,27 @@ export const Trial = ({
     );
 
     const subscriptionStatus = useSubscriptionStatus();
-    if (
-        subscriptionStatus.status !== "trial-active" &&
-        subscriptionStatus.status !== "trial-expiring"
-    ) {
-        return null;
+    
+    if (!forceShow) {
+        if (
+            subscriptionStatus.status !== "trial-active" &&
+            subscriptionStatus.status !== "trial-expiring"
+        ) {
+            return null;
+        }
     }
+
+    const isTrial = subscriptionStatus.status === "trial-active" || subscriptionStatus.status === "trial-expiring";
 
     return (
         <Card className="w-full">
             <CardHeader className="flex flex-row justify-between gap-2">
                 <div className="flex flex-col gap-2">
-                    <p className="text-text-secondary text-sm">
-                        {subscriptionStatus.trialDaysLeft} days free trial
-                    </p>
+                    {isTrial && subscriptionStatus.trialDaysLeft !== undefined && (
+                        <p className="text-text-secondary text-sm">
+                            {subscriptionStatus.trialDaysLeft} days free trial
+                        </p>
+                    )}
                     <CardTitle className="text-2xl">PRO plan</CardTitle>
 
                     <div className="mt-4 flex gap-6">
@@ -68,6 +77,7 @@ export const Trial = ({
                     variant="primary"
                     className="h-fit"
                     loading={isLoadingPlans}
+                    disabled={!canEdit}
                     leftIcon={<ArrowUpCircle />}
                     onClick={() => _getPlans()}>
                     Upgrade

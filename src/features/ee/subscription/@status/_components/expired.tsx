@@ -13,7 +13,7 @@ import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-s
 
 import { createManageBillingLinkAction } from "../../_actions/create-manage-billing-link";
 
-export const Canceled = ({
+export const Expired = ({
     members,
 }: {
     members: TeamMembersResponse["members"];

@@ -10,6 +10,8 @@ type SubscriptionContextLicense =
           valid: false;
           subscriptionStatus: "payment_failed" | "canceled" | "expired";
           numberOfLicenses: number;
+          planType?: PlanType;
+          stripeCustomerId?: string | null;
       }
     | {
           valid: true;
@@ -35,6 +37,8 @@ type InvalidSubscriptionStatus = {
     numberOfLicenses: number;
     usersWithAssignedLicense: { git_id: string }[];
     status: "payment-failed" | "canceled" | "expired";
+    planType?: PlanType;
+    stripeCustomerId?: string | null;
 };
 
 type FreeSubscriptionStatus = {
@@ -134,5 +138,7 @@ export const useSubscriptionStatus = (): SubscriptionStatus => {
                 ? "payment-failed"
                 : license.subscriptionStatus,
         usersWithAssignedLicense: subscription.usersWithAssignedLicense,
+        planType: (license as any).planType,
+        stripeCustomerId: (license as any).stripeCustomerId,
     };
 };

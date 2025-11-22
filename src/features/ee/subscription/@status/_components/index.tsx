@@ -5,6 +5,7 @@ import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-s
 
 import { Active } from "./active";
 import { Canceled } from "./canceled";
+import { Expired } from "./expired";
 import { FreeByok } from "./free";
 import { PaymentFailed } from "./payment-failed";
 import { Trial } from "./trial";
@@ -28,7 +29,21 @@ export const Redirect = ({
 }: {
     members: TeamMembersResponse["members"];
 }) => {
-    const { status } = useSubscriptionStatus();
+    const subscriptionStatus = useSubscriptionStatus();
+    const { status } = subscriptionStatus;
+
+    if (status === "expired") {
+        const hasStripeCustomerId = 
+            subscriptionStatus.stripeCustomerId && 
+            subscriptionStatus.stripeCustomerId.trim().length > 0;
+
+        if (hasStripeCustomerId) {
+            return <Expired members={members} />;
+        }
+        
+        return <Trial members={members} forceShow />;
+    }
+
     const Component = components[status];
 
     if (!Component) return null;

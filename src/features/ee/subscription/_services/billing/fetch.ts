@@ -130,7 +130,7 @@ export const validateOrganizationLicense = async (params: {
     }
 
     const organizationId = await getOrganizationId();
-    return billingFetch(`validate-org-license`, {
+    return billingFetch<OrganizationLicense>(`validate-org-license`, {
         method: "GET",
         params: { organizationId, teamId: params.teamId },
     });
