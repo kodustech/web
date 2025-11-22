@@ -2,6 +2,8 @@ export type OrganizationLicenseInvalid = {
     valid: false;
     subscriptionStatus: "payment_failed" | "canceled" | "expired" | "inactive";
     numberOfLicenses: number;
+    planType?: PlanType;
+    stripeCustomerId?: string | null;
 };
 
 export type OrganizationLicenseTrial = {
