@@ -10,13 +10,14 @@ import {
     DialogTitle,
 } from "@components/ui/dialog";
 import { Link } from "@components/ui/link";
-import { MagicModalContext } from "@components/ui/magic-modal";
+import { magicModal, MagicModalContext } from "@components/ui/magic-modal";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { ClientSideCookieHelpers } from "src/core/utils/cookie";
 import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
 
-import { createCheckoutSessionAction } from "../_actions/create-checkout-session";
+import { getPlans } from "../_services/billing/fetch";
+import { NewPlanSelectionModal } from "../@status/_components/_modals/select-new-plan";
 
 export const FinishedTrialModal = () => {
     const { teamId } = useSelectedTeamId();
@@ -28,11 +29,12 @@ export const FinishedTrialModal = () => {
     const cookie = ClientSideCookieHelpers("trial-finished-modal-closed");
     if (cookie.has()) return null;
 
-    const [createLinkToCheckout, { loading: isCreatingLinkToCheckout }] =
-        useAsyncAction(async () => {
-            const { url } = await createCheckoutSessionAction({ teamId });
-            window.location.href = url;
-        });
+    const [openPlansModal, { loading: isLoadingPlans }] = useAsyncAction(
+        async () => {
+            const plans = await getPlans();
+            magicModal.show(() => <NewPlanSelectionModal plans={plans} />);
+        },
+    );
 
     return (
         <MagicModalContext.Provider value={{ closeable: false }}>
@@ -76,8 +78,8 @@ export const FinishedTrialModal = () => {
                         <Button
                             size="md"
                             variant="primary"
-                            loading={isCreatingLinkToCheckout}
-                            onClick={() => createLinkToCheckout()}>
+                            loading={isLoadingPlans}
+                            onClick={() => openPlansModal()}>
                             Upgrade subscription
                         </Button>
                     </DialogFooter>
