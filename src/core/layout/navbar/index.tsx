@@ -19,6 +19,7 @@ import {
     GitPullRequestIcon,
     InfoIcon,
     SlidersHorizontalIcon,
+    Sparkles,
 } from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
 import { UserNav } from "src/core/layout/navbar/_components/user-nav";
@@ -26,8 +27,9 @@ import type { AwaitedReturnType } from "src/core/types";
 import { cn } from "src/core/utils/components";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 import { SubscriptionBadge } from "src/features/ee/subscription/_components/subscription-badge";
-import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
+import { useSubscriptionContext } from "src/features/ee/subscription/_providers/subscription-context";
 
+import { PendingRulesNotification } from "./_components/pending-rules-notification";
 import { SupportDropdown } from "./_components/support";
 
 const NoSSRIssuesCount = dynamic(
@@ -50,10 +52,12 @@ const NoSSRGithubStars = dynamic(
 export const NavMenu = ({
     tokenUsagePageFeatureFlag,
 }: {
-    tokenUsagePageFeatureFlag: AwaitedReturnType<typeof getFeatureFlagWithPayload>;
+    tokenUsagePageFeatureFlag: AwaitedReturnType<
+        typeof getFeatureFlagWithPayload
+    >;
 }) => {
     const pathname = usePathname();
-    const subscription = useSubscriptionStatus();
+    const subscription = useSubscriptionContext();
 
     const canReadIssues = usePermission(Action.Read, ResourceType.Issues);
     const canReadPullRequests = usePermission(
@@ -81,28 +85,40 @@ export const NavMenu = ({
             href: string;
             visible: boolean;
             badge?: React.JSX.Element;
+            matcher?: (pathname: string) => boolean;
         }> = [
-                {
-                    label: "Cockpit",
-                    href: "/cockpit",
-                    visible:
-                        subscription.valid &&
-                        subscription.status !== "self-hosted" &&
-                        subscription.status !== "free",
-                    icon: <GaugeIcon className="size-6" />,
-                },
+            {
+                label: "Cockpit",
+                href: "/cockpit",
+                visible:
+                    subscription.license.valid &&
+                    subscription.license.subscriptionStatus !== "self-hosted",
+                icon: <GaugeIcon className="size-6" />,
+            },
 
-                {
-                    label: "Code Review Settings",
-                    icon: <SlidersHorizontalIcon className="size-5" />,
-                    href: "/settings",
-                    visible:
-                        canReadCodeReviewSettings ||
-                        canReadGitSettings ||
-                        canReadBilling ||
-                        canReadPlugins,
-                },
-            ];
+            {
+                label: "Code Review Settings",
+                icon: <SlidersHorizontalIcon className="size-5" />,
+                href: "/settings",
+                visible:
+                    canReadCodeReviewSettings ||
+                    canReadGitSettings ||
+                    canReadBilling ||
+                    canReadPlugins,
+                matcher: (pathname: string) =>
+                    pathname.startsWith("/settings") &&
+                    !pathname.startsWith(
+                        "/settings/code-review/global/kody-rules",
+                    ),
+            },
+
+            {
+                label: "Kody Rules",
+                icon: <Sparkles className="size-5" />,
+                href: "/settings/code-review/global/kody-rules",
+                visible: true,
+            },
+        ];
 
         if (canReadIssues) {
             items.push({
@@ -129,8 +145,8 @@ export const NavMenu = ({
 
         return items;
     }, [
-        subscription.valid,
-        subscription.status,
+        subscription.license.valid,
+        subscription.license.subscriptionStatus,
         canReadCodeReviewSettings,
         canReadGitSettings,
         canReadBilling,
@@ -139,7 +155,13 @@ export const NavMenu = ({
         canReadPullRequests,
     ]);
 
-    const isActive = (route: string) => pathname.startsWith(route);
+    const isActive = (
+        route: string,
+        matcher?: (pathname: string) => boolean,
+    ) => {
+        if (matcher) return matcher(pathname);
+        return pathname.startsWith(route);
+    };
 
     return (
         <div className="border-primary-dark bg-card-lv1 z-50 flex h-16 shrink-0 items-center gap-4 border-b-2 px-6">
@@ -150,29 +172,38 @@ export const NavMenu = ({
             <div className="-mb-1 h-full flex-1">
                 <NavigationMenu className="h-full *:h-full">
                     <NavigationMenuList className="h-full gap-0">
-                        {items.map(({ label, icon, href, visible, badge }) => {
-                            if (!visible) return null;
+                        {items.map(
+                            ({
+                                label,
+                                icon,
+                                href,
+                                visible,
+                                badge,
+                                matcher,
+                            }) => {
+                                if (!visible) return null;
 
-                            return (
-                                <NavigationMenuItem
-                                    key={label}
-                                    className="h-full">
-                                    <NavigationMenuLink
-                                        href={href}
-                                        active={isActive(href)}
-                                        className={cn(
-                                            "text-text-tertiary relative flex h-full flex-row items-center gap-2 border-b-2 border-transparent px-4 text-sm transition",
-                                            "hover:text-white focus-visible:text-white",
-                                            "data-active:font-semibold data-active:text-white",
-                                            "data-active:border-primary-light",
-                                        )}>
-                                        {icon}
-                                        {label}
-                                        {badge}
-                                    </NavigationMenuLink>
-                                </NavigationMenuItem>
-                            );
-                        })}
+                                return (
+                                    <NavigationMenuItem
+                                        key={label}
+                                        className="h-full">
+                                        <NavigationMenuLink
+                                            href={href}
+                                            active={isActive(href, matcher)}
+                                            className={cn(
+                                                "text-text-tertiary relative flex h-full flex-row items-center gap-2 border-b-2 border-transparent px-4 text-sm transition",
+                                                "hover:text-white focus-visible:text-white",
+                                                "data-active:font-semibold data-active:text-white",
+                                                "data-active:border-primary-light",
+                                            )}>
+                                            {icon}
+                                            {label}
+                                            {badge}
+                                        </NavigationMenuLink>
+                                    </NavigationMenuItem>
+                                );
+                            },
+                        )}
                     </NavigationMenuList>
                 </NavigationMenu>
             </div>
@@ -185,10 +216,13 @@ export const NavMenu = ({
                 <div className="flex items-center gap-2">
                     <SubscriptionBadge />
                     <SupportDropdown />
+                    <PendingRulesNotification />
                 </div>
 
                 <Suspense>
-                    <UserNav tokenUsagePageFeatureFlag={tokenUsagePageFeatureFlag} />
+                    <UserNav
+                        tokenUsagePageFeatureFlag={tokenUsagePageFeatureFlag}
+                    />
                 </Suspense>
             </div>
         </div>

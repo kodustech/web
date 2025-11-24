@@ -49,6 +49,12 @@ export const useSuspenseKodyRulesByRepositoryId = (
     );
 };
 
+export const useSuspenseAllOrganizationKodyRules = () => {
+    return useSuspenseFetch<Array<KodyRule>>(
+        KODY_RULES_PATHS.FIND_BY_ORGANIZATION_ID_AND_FILTER,
+    );
+};
+
 export const useSuspenseKodyRulesCheckSyncStatus = (params: {
     teamId: string;
     repositoryId: string;
