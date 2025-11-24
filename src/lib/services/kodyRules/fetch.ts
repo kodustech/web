@@ -120,6 +120,14 @@ export const getKodyRulesByRepositoryId = async (
             next: { tags },
         },
     );
+
+    return rules;
+};
+
+export const getAllOrganizationKodyRules = async () => {
+    const rules = await authorizedFetch<Array<KodyRule>>(
+        KODY_RULES_PATHS.FIND_BY_ORGANIZATION_ID_AND_FILTER,
+    );
     return rules;
 };
 
