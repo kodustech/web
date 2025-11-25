@@ -59,7 +59,7 @@
         "next": "^15.5.6",
         "next-auth": "^5.0.0-beta.29",
         "nuqs": "^2.7.3",
-        "posthog-node": "^5.11.2",
+        "posthog-node": "^5.14.0",
         "radix-ui": "^1.4.3",
         "react": "19.2.0",
         "react-day-picker": "^9.6.7",

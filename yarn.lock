@@ -678,10 +678,10 @@
   resolved "https://registry.npmjs.org/@polka/url/-/url-1.0.0-next.29.tgz#5a40109a1ab5f84d6fd8fc928b19f367cbe7e7b1"
   integrity sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==
 
-"@posthog/core@1.5.2":
-  version "1.5.2"
-  resolved "https://registry.npmjs.org/@posthog/core/-/core-1.5.2.tgz#06f1277c5ac9a3d5a17bc3800172a392e594f44c"
-  integrity sha512-iedUP3EnOPPxTA2VaIrsrd29lSZnUV+ZrMnvY56timRVeZAXoYCkmjfIs3KBAsF8OUT5h1GXLSkoQdrV0r31OQ==
+"@posthog/core@1.6.0":
+  version "1.6.0"
+  resolved "https://registry.npmjs.org/@posthog/core/-/core-1.6.0.tgz#a5b63a30950a8dfe87d4bf335ab24005c7ce1278"
+  integrity sha512-Tbh8UACwbb7jFdDC7wwXHtfNzO+4wKh3VbyMHmp2UBe6w1jliJixexTJNfkqdGZm+ht3M10mcKvGGPnoZ2zLBg==
   dependencies:
     cross-spawn "^7.0.6"
 
@@ -4493,12 +4493,12 @@ postcss@^8.4.4, postcss@^8.4.41, postcss@^8.5.6:
     picocolors "^1.1.1"
     source-map-js "^1.2.1"
 
-posthog-node@^5.11.2:
-  version "5.11.2"
-  resolved "https://registry.npmjs.org/posthog-node/-/posthog-node-5.11.2.tgz#4983d07c5a5bfee674576ce33204d5510db11059"
-  integrity sha512-z+XekcBUmGePMsjPlGaEF2bJFiDHKHYPQjS4OEw4YPDQz8s7Owuim/L7xNX+6UJkyIRniBza9iC7bW8yrGTv1g==
+posthog-node@^5.14.0:
+  version "5.14.0"
+  resolved "https://registry.npmjs.org/posthog-node/-/posthog-node-5.14.0.tgz#edce3a9a72a95a321d9ef0d9818e337cc0a248ea"
+  integrity sha512-cKY2Wdtjx5wlIWL9/Im5/FT+zeKaYjtG94rfrIFKTVoCdwV7S9PaU8frLD/8TpGx1SwOFgw7QTjhpa/vnxTlww==
   dependencies:
-    "@posthog/core" "1.5.2"
+    "@posthog/core" "1.6.0"
 
 preact-render-to-string@6.5.11:
   version "6.5.11"
