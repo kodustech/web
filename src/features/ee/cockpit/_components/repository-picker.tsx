@@ -68,6 +68,8 @@ export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
     const hasMore = displayedCount < filteredRepositories.length;
 
     const handleSelect = (repositoryFullName: string) => {
+        if (!repositoryFullName) return;
+        
         setSelectedRepository(repositoryFullName);
         setOpen(false);
 
@@ -212,23 +214,18 @@ export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
                                 )}
 
                                 {displayedRepositories.map((r) => {
-                                    const displayName =
-                                        r.full_name ||
-                                        `${r.organizationName}/${r.name}` ||
-                                        r.name ||
-                                        "Unknown";
-                                    const value = r.full_name || r.name || r.id;
+                                    const fullName = r.full_name || `${r.organizationName}/${r.name}` || r.name;
+                                    const displayName = fullName || "Unknown";
 
                                     return (
                                         <CommandItem
                                             key={r.id}
-                                            value={value}
+                                            value={fullName || r.id}
                                             onSelect={() =>
-                                                handleSelect(r.full_name)
+                                                handleSelect(fullName)
                                             }>
                                             <span>{displayName}</span>
-                                            {selectedRepository ===
-                                                r.full_name && (
+                                            {selectedRepository === fullName && (
                                                 <Check className="text-primary-light -mr-2 size-5" />
                                             )}
                                         </CommandItem>
