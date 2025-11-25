@@ -105,18 +105,13 @@ export const NavMenu = ({
                     canReadGitSettings ||
                     canReadBilling ||
                     canReadPlugins,
-                matcher: (pathname: string) =>
-                    pathname.startsWith("/settings") &&
-                    !pathname.startsWith(
-                        "/settings/code-review/global/kody-rules",
-                    ),
             },
 
             {
                 label: "Kody Rules",
                 icon: <Sparkles className="size-5" />,
-                href: "/settings/code-review/global/kody-rules",
-                visible: true,
+                href: "/library/kody-rules",
+                visible: canReadCodeReviewSettings,
             },
         ];
 
