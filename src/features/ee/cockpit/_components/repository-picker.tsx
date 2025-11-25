@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { Button } from "@components/ui/button";
 import {
     Command,
@@ -27,6 +26,8 @@ type Props = {
     teamId: string;
 };
 
+const ITEMS_PER_BATCH = 50;
+
 export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
     const { data: repositories = [], isLoading } = useGetRepositories(
         teamId,
@@ -37,8 +38,12 @@ export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
     );
 
     const [loading, startTransition] = useTransition();
-
     const [open, setOpen] = useState(false);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [displayedCount, setDisplayedCount] = useState(ITEMS_PER_BATCH);
+    const commandListRef = useRef<HTMLDivElement | null>(null);
+    const isLoadingMoreRef = useRef(false);
+
     const [selectedRepository, setSelectedRepository] = useState<string>(() => {
         if (!cookieValue) return "";
         try {
@@ -48,7 +53,23 @@ export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
         }
     });
 
+    const filteredRepositories = repositories.filter((r) => {
+        if (!searchQuery.trim()) return true;
+        const query = searchQuery.toLowerCase();
+        const fullName = r.full_name || r.name || "";
+        const orgName = r.organizationName || "";
+        return (
+            fullName.toLowerCase().includes(query) ||
+            orgName.toLowerCase().includes(query)
+        );
+    });
+
+    const displayedRepositories = filteredRepositories.slice(0, displayedCount);
+    const hasMore = displayedCount < filteredRepositories.length;
+
     const handleSelect = (repositoryFullName: string) => {
+        if (!repositoryFullName) return;
+        
         setSelectedRepository(repositoryFullName);
         setOpen(false);
 
@@ -65,6 +86,62 @@ export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
             setCockpitRepositoryCookie("");
         });
     };
+
+    useEffect(() => {
+        if (!open) {
+            setDisplayedCount(ITEMS_PER_BATCH);
+            setSearchQuery("");
+            isLoadingMoreRef.current = false;
+        }
+    }, [open]);
+
+    useEffect(() => {
+        setDisplayedCount(ITEMS_PER_BATCH);
+        isLoadingMoreRef.current = false;
+    }, [searchQuery]);
+
+    useEffect(() => {
+        if (!open) return;
+
+        const timer = setTimeout(() => {
+            const listElement = commandListRef.current;
+            if (!listElement) {
+                return;
+            }
+
+            const handleScroll = () => {
+                if (isLoadingMoreRef.current) return;
+
+                const { scrollTop, scrollHeight, clientHeight } = listElement;
+                const distanceFromBottom = scrollHeight - scrollTop - clientHeight;
+
+                if (distanceFromBottom < 100 && displayedCount < filteredRepositories.length) {
+                    isLoadingMoreRef.current = true;
+
+                    requestAnimationFrame(() => {
+                        setDisplayedCount((prev) => {
+                            const next = Math.min(
+                                prev + ITEMS_PER_BATCH,
+                                filteredRepositories.length,
+                            );
+                            setTimeout(() => {
+                                isLoadingMoreRef.current = false;
+                            }, 100);
+                            return next;
+                        });
+                    });
+                }
+            };
+
+            listElement.addEventListener("scroll", handleScroll, { passive: true });
+
+            return () => {
+                listElement.removeEventListener("scroll", handleScroll);
+            };
+        }, 100);
+
+        return () => clearTimeout(timer);
+    }, [open, displayedCount, filteredRepositories.length]);
 
     return (
         <>
@@ -103,33 +180,22 @@ export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
                 </PopoverTrigger>
 
                 <PopoverContent align="end" className="w-80 p-0">
-                    <Command
-                        filter={(value, search) => {
-                            const repository = repositories.find(
-                                (r) => r.full_name === value,
-                            );
+                    <Command shouldFilter={false}>
+                        <CommandInput
+                            placeholder="Search repository..."
+                            value={searchQuery}
+                            onValueChange={setSearchQuery}
+                        />
 
-                            if (!repository) return 0;
-
-                            if (
-                                repository.full_name
-                                    .toLowerCase()
-                                    .includes(search.toLowerCase()) ||
-                                repository.organizationName
-                                    .toLowerCase()
-                                    .includes(search.toLowerCase())
-                            ) {
-                                return 1;
-                            }
-
-                            return 0;
-                        }}>
-                        <CommandInput placeholder="Search repository..." />
-
-                        <CommandList className="max-h-56 overflow-y-auto">
-                            <CommandEmpty>No repository found.</CommandEmpty>
-
-                            <CommandGroup>
+                        <CommandList
+                            ref={(node) => {
+                                commandListRef.current = node as HTMLDivElement | null;
+                            }}
+                            className="max-h-56 overflow-y-auto">
+                            {filteredRepositories.length === 0 ? (
+                                <CommandEmpty>No repository found.</CommandEmpty>
+                            ) : (
+                                <CommandGroup>
                                 {!selectedRepository && (
                                     <CommandItem
                                         value="all"
@@ -147,20 +213,31 @@ export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
                                     </CommandItem>
                                 )}
 
-                                {repositories.map((r) => (
-                                    <CommandItem
-                                        key={r.id}
-                                        value={r.full_name}
-                                        onSelect={() =>
-                                            handleSelect(r.full_name)
-                                        }>
-                                        <span>{r.full_name}</span>
-                                        {selectedRepository === r.full_name && (
-                                            <Check className="text-primary-light -mr-2 size-5" />
-                                        )}
-                                    </CommandItem>
-                                ))}
-                            </CommandGroup>
+                                {displayedRepositories.map((r) => {
+                                    const fullName = r.full_name || `${r.organizationName}/${r.name}` || r.name;
+                                    const displayName = fullName || "Unknown";
+
+                                    return (
+                                        <CommandItem
+                                            key={r.id}
+                                            value={fullName || r.id}
+                                            onSelect={() =>
+                                                handleSelect(fullName)
+                                            }>
+                                            <span>{displayName}</span>
+                                            {selectedRepository === fullName && (
+                                                <Check className="text-primary-light -mr-2 size-5" />
+                                            )}
+                                        </CommandItem>
+                                    );
+                                })}
+                                    {hasMore && (
+                                        <div className="flex items-center justify-center py-2">
+                                            <Spinner className="size-4" />
+                                        </div>
+                                    )}
+                                </CommandGroup>
+                            )}
                         </CommandList>
                     </Command>
                 </PopoverContent>
