@@ -34,7 +34,7 @@ export default function App() {
     const router = useRouter();
     const pathname = usePathname();
     const { teamId } = useSelectedTeamId();
-    const { userId } = useAuth();
+    const { userId, email } = useAuth();
 
     const connectOauthIntegration = async (
         key: (typeof GIT_INTEGRATIONS_KEY)[keyof typeof GIT_INTEGRATIONS_KEY],
@@ -190,6 +190,7 @@ export default function App() {
                                             <GithubTokenModal
                                                 teamId={teamId}
                                                 userId={userId!}
+                                                userEmail={email}
                                             />
                                         ));
 
@@ -244,6 +245,7 @@ export default function App() {
                                             <GitlabTokenModal
                                                 teamId={teamId}
                                                 userId={userId!}
+                                                userEmail={email}
                                             />
                                         ));
 
@@ -276,6 +278,7 @@ export default function App() {
                                         <BitbucketTokenModal
                                             teamId={teamId}
                                             userId={userId!}
+                                            userEmail={email}
                                         />
                                     ));
                                 }}>
@@ -304,6 +307,7 @@ export default function App() {
                                         <AzureReposTokenModal
                                             teamId={teamId}
                                             userId={userId!}
+                                            userEmail={email}
                                         />
                                     ));
                                 }}>
