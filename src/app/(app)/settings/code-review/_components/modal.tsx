@@ -29,10 +29,16 @@ import { RichTextEditorWithMentions, type RichTextEditorWithMentionsRef, type Me
 import { CodeInputSimple } from "@components/ui/code-input-simple";
 import { useMCPMentions } from "src/core/hooks/use-mcp-mentions";
 import {
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
+} from "@components/ui/hover-card";
+import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from "@components/ui/popover";
+import { KodyReviewPreview } from "@components/ui/kody-review-preview";
 import {
     Tooltip,
     TooltipContent,
@@ -80,12 +86,14 @@ const executionModeOptions = [
         value: "file",
         name: "Per file",
         description: "Runs once for each changed file",
+        output: "Inline review comments",
         icon: FileCode,
     },
     {
         value: "pull-request",
         name: "Per PR",
         description: "Runs once for the whole PR",
+        output: "Single PR comment",
         icon: GitPullRequest,
     },
 ] as const;
@@ -566,35 +574,65 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                     <FormControl.Root>
                                         <FormControl.Label className="mb-0 flex flex-row gap-1">
                                             Execution mode
-                                            <Tooltip>
-                                                <TooltipTrigger>
-                                                    <HelpCircle
-                                                        size={16}
-                                                        className="text-primary-light"
-                                                    />
-                                                </TooltipTrigger>
+                                            <HoverCard openDelay={100} closeDelay={200}>
+                                                <HoverCardTrigger asChild>
+                                                    <button type="button">
+                                                        <HelpCircle
+                                                            size={16}
+                                                            className="text-primary-light hover:text-primary-light/80 transition-colors"
+                                                        />
+                                                    </button>
+                                                </HoverCardTrigger>
 
-                                                <TooltipContent
+                                                <HoverCardContent
                                                     align="start"
-                                                    className="flex max-w-prose flex-col gap-1 text-xs">
-                                                    <p>
-                                                        <strong className="text-primary-light">
-                                                            Per file:
-                                                        </strong>{" "}
-                                                        Rule executes once for each
-                                                        changed file. Use this for
-                                                        file-specific validations.
-                                                    </p>
-                                                    <p>
-                                                        <strong className="text-primary-light">
-                                                            Per PR:
-                                                        </strong>{" "}
-                                                        Rule executes once for the
-                                                        entire pull request. Use this
-                                                        for cross-file analysis.
-                                                    </p>
-                                                </TooltipContent>
-                                            </Tooltip>
+                                                    side="right"
+                                                    className="w-96 p-0">
+                                                    <div className="p-4 border-b border-card-lv3">
+                                                        <h4 className="text-sm font-medium text-text-primary mb-1">
+                                                            Execution mode
+                                                        </h4>
+                                                        <p className="text-xs text-text-secondary">
+                                                            Choose how Kody analyzes your code and where comments appear.
+                                                        </p>
+                                                    </div>
+
+                                                    <div className="p-4 space-y-4">
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <FileCode className="size-4 text-primary-light" />
+                                                                <span className="text-xs font-medium text-text-primary">Per file</span>
+                                                            </div>
+                                                            <p className="text-xs text-text-secondary pl-6">
+                                                                Rule runs once for each changed file. Best for file-specific validations like code style, patterns, or security checks.
+                                                            </p>
+                                                            <div className="pl-6">
+                                                                <KodyReviewPreview
+                                                                    mode="inline"
+                                                                    comment="Consider adding error handling here."
+                                                                    codeLine={{ number: 12, content: "await fetchData();" }}
+                                                                />
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="border-t border-card-lv3 pt-4 space-y-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <GitPullRequest className="size-4 text-primary-light" />
+                                                                <span className="text-xs font-medium text-text-primary">Per PR</span>
+                                                            </div>
+                                                            <p className="text-xs text-text-secondary pl-6">
+                                                                Rule runs once for the entire PR. Best for cross-file analysis, business logic validation, or summary reviews.
+                                                            </p>
+                                                            <div className="pl-6">
+                                                                <KodyReviewPreview
+                                                                    mode="pr-comment"
+                                                                    comment="Changes look good! All validations passed."
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </HoverCardContent>
+                                            </HoverCard>
                                         </FormControl.Label>
                                         <FormControl.Helper>
                                             How many times this rule runs
@@ -665,12 +703,18 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                                             isSelected ? "text-primary-light" : "text-text-secondary"
                                                                         )} />
                                                                     </div>
-                                                                    <div className="flex flex-col gap-0.5 text-left">
+                                                                    <div className="flex flex-col gap-1 text-left">
                                                                         <span className="text-sm font-medium">
                                                                             {option.name}
                                                                         </span>
                                                                         <span className="text-xs text-text-secondary">
                                                                             {option.description}
+                                                                        </span>
+                                                                        <span className={cn(
+                                                                            "text-xs",
+                                                                            isSelected ? "text-primary-light" : "text-text-placeholder"
+                                                                        )}>
+                                                                            → {option.output}
                                                                         </span>
                                                                     </div>
                                                                 </div>
