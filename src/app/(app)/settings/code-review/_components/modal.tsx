@@ -211,8 +211,8 @@ function MCPToolsPopover({
             </PopoverTrigger>
             <PopoverContent
                 align="end"
-                className="w-72 p-0 max-h-80 overflow-hidden">
-                <div className="p-3 border-b border-card-lv3 flex items-center gap-2">
+                className="w-80 p-0 flex flex-col max-h-[320px]">
+                <div className="p-3 border-b border-card-lv3 flex items-center gap-2 shrink-0">
                     {selectedApp && (
                         <button
                             type="button"
@@ -221,11 +221,13 @@ function MCPToolsPopover({
                             ← Back
                         </button>
                     )}
-                    <span className="text-xs font-medium text-text-primary">
+                    <span className="text-xs font-medium text-text-primary truncate">
                         {selectedApp ? selectedApp.label : "Select MCP"}
                     </span>
                 </div>
-                <div className="overflow-y-auto max-h-64 p-2">
+                <div
+                    className="overflow-y-auto p-2 min-h-0 flex-1"
+                    onWheel={(e) => e.stopPropagation()}>
                     {!selectedApp ? (
                         <div className="flex flex-col gap-1">
                             {apps.map((app) => (
