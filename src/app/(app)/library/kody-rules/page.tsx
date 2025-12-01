@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { getLibraryKodyRulesWithFeedback, getLibraryKodyRulesBuckets } from "@services/kodyRules/fetch";
-import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
-import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 
 import { KodyRulesLibrary } from "./_components/_page";
 
@@ -17,14 +15,13 @@ export default async function Route({
 }) {
     const params = await searchParams;
     
-    const [rulesResponse, buckets, suggestionsFeatureFlag] = await Promise.all([
+    const [rulesResponse, buckets] = await Promise.all([
         getLibraryKodyRulesWithFeedback({ 
             page: 1, 
             limit: 50,
             ...(params.bucket ? { buckets: [params.bucket] } : {})
         }),
         getLibraryKodyRulesBuckets(),
-        getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.kodyRuleSuggestions }),
     ]);
 
     const rules = rulesResponse?.data || [];
@@ -33,7 +30,6 @@ export default async function Route({
         rules={rules} 
         buckets={buckets} 
         initialSelectedBucket={params.bucket}
-        showSuggestionsButton={suggestionsFeatureFlag?.value === true}
         pagination={{
             page: rulesResponse?.pagination?.currentPage || 1,
             limit: rulesResponse?.pagination?.itemsPerPage || 50,
