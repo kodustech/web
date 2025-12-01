@@ -312,7 +312,7 @@ export default function BYOKSetupPage() {
         }
         setIsSaving(false);
 
-        router.push("/setup/choosing-a-pull-request");
+        router.push("/setup/customize-team");
     };
 
     return (

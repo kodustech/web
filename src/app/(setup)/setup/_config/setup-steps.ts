@@ -20,6 +20,10 @@ export const SETUP_STEPS = [
         path: "/setup/byok-setup",
     },
     {
+        id: "customize-team",
+        path: "/setup/customize-team",
+    },
+    {
         id: "choosing-a-pull-request",
         path: "/setup/choosing-a-pull-request",
     },
