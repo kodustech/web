@@ -7,11 +7,17 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@components/ui/tooltip";
+import { UserRole } from "@enums";
 import { useSuspenseAllOrganizationKodyRules } from "@services/kodyRules/hooks";
 import { KodyRulesStatus } from "@services/kodyRules/types";
 import { Bell } from "lucide-react";
+import { useAuth } from "src/core/providers/auth.provider";
 
 const PendingRulesNotificationContent = () => {
+    const { role } = useAuth();
+    
+    if (role !== UserRole.OWNER) return null;
+
     const rules = useSuspenseAllOrganizationKodyRules();
     const pendingRules = rules.filter(
         (rule) => rule.status === KodyRulesStatus.PENDING,
