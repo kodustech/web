@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Editor } from "@tiptap/react";
 import { RichTextEditor } from "./rich-text-editor";
 import { Popover, PopoverAnchor, PopoverContent } from "./popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "./command";
@@ -14,6 +15,13 @@ export type MentionGroupItem = {
 };
 export type MentionGroup = { groupLabel: string; items: MentionGroupItem[] };
 
+export type RichTextEditorWithMentionsRef = {
+    insertText: (text: string) => void;
+    insertMCPMention: (app: string, tool: string) => void;
+    getEditor: () => Editor | null;
+    focus: () => void;
+};
+
 type Props = {
     value: string | object;
     onChangeAction: (next: string | object) => void;
@@ -23,10 +31,13 @@ type Props = {
     saveFormat?: "json" | "text";
     formatInsertByType?: Partial<Record<string, (item: MentionGroupItem) => string>>;
     disabled?: boolean;
+    showToolbar?: boolean;
+    headerSlot?: React.ReactNode;
+    toolbarExtraActions?: React.ReactNode;
 };
 
-export function RichTextEditorWithMentions(props: Props) {
-    const { value, onChangeAction: onChange, className, placeholder, groups, saveFormat = "json", formatInsertByType, disabled } = props;
+export const RichTextEditorWithMentions = React.forwardRef<RichTextEditorWithMentionsRef, Props>(function RichTextEditorWithMentions(props, ref) {
+    const { value, onChangeAction: onChange, className, placeholder, groups, saveFormat = "json", formatInsertByType, disabled, showToolbar, headerSlot, toolbarExtraActions } = props;
     const [open, setOpen] = React.useState(false);
     const [query, setQuery] = React.useState("");
     const [triggerPos, setTriggerPos] = React.useState<number | null>(null);
@@ -34,7 +45,40 @@ export function RichTextEditorWithMentions(props: Props) {
     const [childSearchGroups, setChildSearchGroups] = React.useState<MentionGroup[] | null>(null);
 
     const editorRef = React.useRef<HTMLDivElement | null>(null);
-    const editorInstanceRef = React.useRef<any>(null);
+    const editorInstanceRef = React.useRef<Editor | null>(null);
+
+    React.useImperativeHandle(ref, () => ({
+        insertText: (text: string) => {
+            const editor = editorInstanceRef.current;
+            if (editor) {
+                editor.chain().focus().insertContent(text).run();
+            } else {
+                const currentValue = typeof value === "string" ? value : "";
+                onChange(`${currentValue}${text}`);
+            }
+        },
+        insertMCPMention: (app: string, tool: string) => {
+            const editor = editorInstanceRef.current;
+            if (editor) {
+                editor
+                    .chain()
+                    .focus()
+                    .insertContent({
+                        type: "mcpMention",
+                        attrs: { app, tool },
+                    })
+                    .insertContent(" ")
+                    .run();
+            } else {
+                const currentValue = typeof value === "string" ? value : "";
+                onChange(`${currentValue}@mcp<${app}|${tool}> `);
+            }
+        },
+        getEditor: () => editorInstanceRef.current,
+        focus: () => {
+            editorInstanceRef.current?.chain().focus().run();
+        },
+    }), [value, onChange]);
 
     const groupsRef = React.useRef(groups);
     React.useEffect(() => {
@@ -45,7 +89,7 @@ export function RichTextEditorWithMentions(props: Props) {
         editorRef.current = el;
     }, []);
 
-    const handleEditorInstance = React.useCallback((editor: any) => {
+    const handleEditorInstance = React.useCallback((editor: Editor | null) => {
         editorInstanceRef.current = editor;
     }, []);
 
@@ -272,7 +316,8 @@ export function RichTextEditorWithMentions(props: Props) {
                 setChildSearchGroups(null);
             }
         }}>
-            <div className="relative w-full">
+            <div className="relative w-full flex flex-col gap-2">
+                {headerSlot}
                 <PopoverAnchor asChild>
                     <div />
                 </PopoverAnchor>
@@ -287,6 +332,8 @@ export function RichTextEditorWithMentions(props: Props) {
                     className={className}
                     placeholder={placeholder}
                     disabled={disabled}
+                    showToolbar={showToolbar}
+                    toolbarExtraActions={toolbarExtraActions}
                 />
             </div>
             <PopoverContent className="p-0 w-80 max-h-[min(60vh,28rem)] flex flex-col overflow-hidden" align="start" sideOffset={8}>
@@ -367,4 +414,4 @@ export function RichTextEditorWithMentions(props: Props) {
             </PopoverContent>
         </Popover>
     );
-}
+});
