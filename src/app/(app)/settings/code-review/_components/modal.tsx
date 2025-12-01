@@ -57,6 +57,7 @@ import {
     CheckIcon,
     ChevronDown,
     Code2,
+    ExternalLink,
     FileCode,
     GitPullRequest,
     HelpCircle,
@@ -488,7 +489,17 @@ export const KodyRuleAddOrUpdateItemModal = ({
             }}>
             <DialogContent className="max-w-(--breakpoint-lg)">
                 <DialogHeader>
-                    <DialogTitle>{title}</DialogTitle>
+                    <div className="flex items-center justify-between">
+                        <DialogTitle>{title}</DialogTitle>
+                        <a
+                            href="https://docs.kodus.io/how_to_use/en/code_review/configs/kody_rules"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-xs text-text-secondary hover:text-primary-light transition-colors">
+                            Docs
+                            <ExternalLink className="size-3" />
+                        </a>
+                    </div>
                 </DialogHeader>
 
                 {isInherited && (
@@ -626,7 +637,7 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                             <div className="pl-6">
                                                                 <KodyReviewPreview
                                                                     mode="pr-comment"
-                                                                    comment="Changes look good! All validations passed."
+                                                                    comment="PR description is missing required sections: 'Testing' and 'Breaking Changes'."
                                                                 />
                                                             </div>
                                                         </div>
@@ -912,6 +923,12 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                         {"{{file.path}}"}
                                                     </code>{" "}
                                                     to reference dynamic context.
+                                                </p>
+                                                <p>
+                                                    Reference files from any connected repository using{" "}
+                                                    <code className="text-primary-light">
+                                                        @repo/path/to/file
+                                                    </code>
                                                 </p>
                                             </TooltipContent>
                                         </Tooltip>
