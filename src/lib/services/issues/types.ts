@@ -24,6 +24,10 @@ export type IssueListItem = {
     title: string;
     uuid: string;
     prNumbers: string[];
+    kodyRule?: {
+        number?: string;
+        title?: string;
+    } | null;
 };
 
 export type IssueItem = {
@@ -43,6 +47,10 @@ export type IssueItem = {
         id: string;
         name: string;
     };
+    kodyRule?: {
+        number?: string;
+        title?: string;
+    } | null;
 };
 
 export type IssueCreationConfigResponse = {

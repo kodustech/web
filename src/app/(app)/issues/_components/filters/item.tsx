@@ -25,6 +25,17 @@ export const FilterItem = ({
 }) => {
     const { data: issues } = useIssues();
 
+    const getFieldMeta = (field: string) =>
+        (COLUMNS_META_OBJECT[field]?.meta as
+            | {
+                  filtersValueInputType?: "text" | "options";
+              }
+            | undefined) ?? { filtersValueInputType: "options" };
+
+    const currentFieldMeta = getFieldMeta(filter.field);
+    const filterValueInputType =
+        currentFieldMeta.filtersValueInputType ?? "options";
+
     const OPERATORS_OPTIONS = Object.keys(
         COLUMNS_META_OBJECT[filter.field]?.meta?.filters ?? {},
     ) as Operator[];
@@ -39,7 +50,7 @@ export const FilterItem = ({
                         return i[filter.field as keyof typeof i];
 
                     return splittedByDots.reduce<any>(
-                        (acc, current) => acc[current as keyof typeof acc],
+                        (acc, current) => acc?.[current],
                         i,
                     );
                 }),
@@ -64,6 +75,10 @@ export const FilterItem = ({
                         operator = OPERATORS_OPTIONS[0];
                     }
 
+                    const nextFieldMeta = getFieldMeta(v);
+                    const nextFieldInputType =
+                        nextFieldMeta.filtersValueInputType ?? "options";
+
                     const values = [
                         ...new Set(
                             issues.map((i) => {
@@ -81,7 +96,10 @@ export const FilterItem = ({
                     ];
 
                     if (operator === "is" || operator === "is-not") {
-                        value = values[0];
+                        value =
+                            nextFieldInputType === "text"
+                                ? ""
+                                : values[0];
                     } else if (
                         operator === "contains" ||
                         operator === "does-not-contain"
@@ -136,26 +154,44 @@ export const FilterItem = ({
                 <>
                     {(filter.operator === "is" ||
                         filter.operator === "is-not") && (
-                        <Select
-                            value={filter.value}
-                            onValueChange={(v) =>
-                                setFilter({ ...filter, value: v })
-                            }>
-                            <SelectTrigger size="xs" className="w-fit flex-1">
-                                <SelectValue placeholder="Value" />
-                            </SelectTrigger>
+                        <>
+                            {filterValueInputType === "text" ? (
+                                <Input
+                                    className="h-7 w-32 flex-1 rounded-full px-3 text-xs"
+                                    placeholder="Type the ID..."
+                                    value={filter.value ?? ""}
+                                    onChange={(ev) =>
+                                        setFilter({
+                                            ...filter,
+                                            value: ev.target.value,
+                                        })
+                                    }
+                                />
+                            ) : (
+                                <Select
+                                    value={filter.value}
+                                    onValueChange={(v) =>
+                                        setFilter({ ...filter, value: v })
+                                    }>
+                                    <SelectTrigger
+                                        size="xs"
+                                        className="w-fit flex-1">
+                                        <SelectValue placeholder="Value" />
+                                    </SelectTrigger>
 
-                            <SelectContent className="min-w-36">
-                                {values.map((s) => (
-                                    <SelectItem
-                                        key={s}
-                                        value={s}
-                                        className="min-h-auto gap-1.5 px-3 py-1.5 pr-4 text-xs [--icon-size:calc(var(--spacing)*4)]">
-                                        {s}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
+                                    <SelectContent className="min-w-36">
+                                        {values.map((s) => (
+                                            <SelectItem
+                                                key={s}
+                                                value={s}
+                                                className="min-h-auto gap-1.5 px-3 py-1.5 pr-4 text-xs [--icon-size:calc(var(--spacing)*4)]">
+                                                {s}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        </>
                     )}
 
                     {(filter.operator === "contains" ||
