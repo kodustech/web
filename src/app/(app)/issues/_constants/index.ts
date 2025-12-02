@@ -17,6 +17,24 @@ export const COLUMNS_META_OBJECT = COLUMNS_WITHOUT_SELECT.reduce(
     {} as Record<string, Pick<(typeof columns)[number], "meta">>,
 );
 
+const ADDITIONAL_FILTER_FIELDS: Record<
+    string,
+    Pick<(typeof columns)[number], "meta">
+> = {
+    "kodyRule.number": {
+        meta: {
+            name: "Kody Rule ID",
+            filters: {
+                is: true,
+                "is-not": true,
+            },
+            filtersValueInputType: "text",
+        },
+    },
+};
+
+Object.assign(COLUMNS_META_OBJECT, ADDITIONAL_FILTER_FIELDS);
+
 const LOCAL_STORAGE_FILTERS_KEY = "issues/filters";
 
 export const deleteFiltersInLocalStorage = () =>
