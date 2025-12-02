@@ -50,7 +50,7 @@ export const FilterItem = ({
                         return i[filter.field as keyof typeof i];
 
                     return splittedByDots.reduce<any>(
-                        (acc, current) => acc[current as keyof typeof acc],
+                        (acc, current) => acc?.[current],
                         i,
                     );
                 }),
