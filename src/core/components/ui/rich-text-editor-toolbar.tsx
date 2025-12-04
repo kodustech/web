@@ -9,9 +9,10 @@ import { cn } from "src/core/utils/components";
 type RichTextEditorToolbarProps = {
     editor: Editor | null;
     className?: string;
+    extraActions?: React.ReactNode;
 };
 
-export function RichTextEditorToolbar({ editor, className }: RichTextEditorToolbarProps) {
+export function RichTextEditorToolbar({ editor, className, extraActions }: RichTextEditorToolbarProps) {
     if (!editor) return null;
 
     return (
@@ -202,6 +203,14 @@ export function RichTextEditorToolbar({ editor, className }: RichTextEditorToolb
                 title="Horizontal Rule">
                 <Minus className="size-4" />
             </Button>
+
+            {extraActions && (
+                <>
+                    <div className="flex-1" />
+                    <div className="mx-1 h-4 w-px bg-card-lv3" />
+                    {extraActions}
+                </>
+            )}
         </div>
     );
 }

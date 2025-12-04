@@ -3,6 +3,12 @@ import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
 import {
+    Collapsible,
+    CollapsibleContent,
+    CollapsibleIndicator,
+    CollapsibleTrigger,
+} from "@components/ui/collapsible";
+import {
     Dialog,
     DialogContent,
     DialogFooter,
@@ -17,12 +23,22 @@ import { magicModal } from "@components/ui/magic-modal";
 import { Separator } from "@components/ui/separator";
 import { SliderWithMarkers } from "@components/ui/slider-with-markers";
 import { Switch } from "@components/ui/switch";
-import { Textarea } from "@components/ui/textarea";
 import { useToast } from "@components/ui/toaster/use-toast";
 import { ToggleGroup } from "@components/ui/toggle-group";
-import { RichTextEditorWithMentions } from "@components/ui/rich-text-editor-with-mentions";
+import { RichTextEditorWithMentions, type RichTextEditorWithMentionsRef, type MentionGroup, type MentionGroupItem } from "@components/ui/rich-text-editor-with-mentions";
 import { CodeInputSimple } from "@components/ui/code-input-simple";
 import { useMCPMentions } from "src/core/hooks/use-mcp-mentions";
+import {
+    HoverCard,
+    HoverCardContent,
+    HoverCardTrigger,
+} from "@components/ui/hover-card";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@components/ui/popover";
+import { KodyReviewPreview } from "@components/ui/kody-review-preview";
 import {
     Tooltip,
     TooltipContent,
@@ -37,11 +53,18 @@ import {
     type KodyRule,
 } from "@services/kodyRules/types";
 import {
+    AtSign,
     CheckIcon,
+    ChevronDown,
+    Code2,
+    ExternalLink,
+    FileCode,
+    GitPullRequest,
     HelpCircle,
     Info,
     PlusIcon,
     SaveIcon,
+    Settings2,
     XIcon,
 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
@@ -59,20 +82,45 @@ const severityLevelFilterOptions = {
     critical: { label: "Critical", value: 3 },
 } satisfies Record<KodyRule["severity"], { label: string; value: number }>;
 
-const scopeOptions = [
+const executionModeOptions = [
     {
         value: "file",
-        name: "File",
+        name: "Per file",
+        description: "Runs once for each changed file",
+        output: "Inline review comments",
+        icon: FileCode,
     },
     {
         value: "pull-request",
-        name: "Pull Request",
+        name: "Per PR",
+        description: "Runs once for the whole PR",
+        output: "Single PR comment",
+        icon: GitPullRequest,
     },
 ] as const;
 
-const INSTRUCTIONS_PLACEHOLDER = `Write the instructions for this rule. Example:
-- Focus on security changes and performance impacts.
-- Summarize concisely, highlighting modified public APIs.
+const PR_CONTEXT_VARIABLES = [
+    { key: "pr_title", label: "pr_title" },
+    { key: "pr_description", label: "pr_description" },
+    { key: "pr_total_additions", label: "pr_total_additions" },
+    { key: "pr_total_deletions", label: "pr_total_deletions" },
+    { key: "pr_total_files", label: "pr_total_files" },
+    { key: "pr_total_lines_changed", label: "pr_total_lines_changed" },
+    { key: "pr_files_diff", label: "pr_files_diff" },
+    { key: "pr_tags", label: "pr_tags" },
+    { key: "pr_author", label: "pr_author" },
+    { key: "pr_number", label: "pr_number" },
+] as const;
+
+const FILE_CONTEXT_VARIABLES = [
+    { key: "fileDiff", label: "fileDiff" },
+] as const;
+
+const INSTRUCTIONS_PLACEHOLDER = `Write the instructions for this rule.
+
+Use variables to access context:
+- Per PR: pr_title, pr_description, pr_files_diff...
+- Per file: fileDiff
 `;
 
 const BAD_EXAMPLE_PLACEHOLDER = `for (var i = 1; i != 10; i += 2)  // Noncompliant. Infinite; i goes from 9 straight to 11.
@@ -97,6 +145,127 @@ const getKodyRulePathWithoutDirectoryPath = ({
 }) => rule.path.replace(getDirectoryPathForReplace(directory), "");
 
 const DEFAULT_PATH_FOR_DIRECTORIES = "**";
+
+function MCPToolsPopover({
+    mcpGroups,
+    disabled,
+    onInsertMention,
+}: {
+    mcpGroups: MentionGroup[];
+    disabled?: boolean;
+    onInsertMention: (app: string, tool: string) => void;
+}) {
+    const [selectedApp, setSelectedApp] = React.useState<MentionGroupItem | null>(null);
+    const [tools, setTools] = React.useState<MentionGroup[] | null>(null);
+    const [isOpen, setIsOpen] = React.useState(false);
+
+    const apps = mcpGroups[0]?.items ?? [];
+
+    const handleSelectApp = async (app: MentionGroupItem) => {
+        if (app.children) {
+            const childGroups = await app.children();
+            setTools(childGroups);
+            setSelectedApp(app);
+        }
+    };
+
+    const handleBack = () => {
+        setSelectedApp(null);
+        setTools(null);
+    };
+
+    const handleInsertTool = (tool: MentionGroupItem) => {
+        const rawApp = String(tool.meta?.appName ?? "");
+        const app = rawApp
+            .toLowerCase()
+            .replace(/\bmcp\b/g, "")
+            .replace(/[^a-z0-9]+/g, "_")
+            .replace(/^_+|_+$/g, "");
+        const toolName = String(tool.label).toLowerCase();
+
+        onInsertMention(app, toolName);
+        setIsOpen(false);
+        setSelectedApp(null);
+        setTools(null);
+    };
+
+    return (
+        <Popover open={isOpen} onOpenChange={(open) => {
+            setIsOpen(open);
+            if (!open) {
+                setSelectedApp(null);
+                setTools(null);
+            }
+        }}>
+            <PopoverTrigger asChild>
+                <Button
+                    size="xs"
+                    variant="cancel"
+                    type="button"
+                    disabled={disabled}
+                    className="h-7 gap-1"
+                    rightIcon={<ChevronDown className="size-3" />}
+                    leftIcon={<AtSign className="size-3" />}>
+                    MCP
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent
+                align="end"
+                className="w-80 p-0 flex flex-col max-h-[320px]">
+                <div className="p-3 border-b border-card-lv3 flex items-center gap-2 shrink-0">
+                    {selectedApp && (
+                        <button
+                            type="button"
+                            onClick={handleBack}
+                            className="text-xs text-text-secondary hover:text-text-primary transition-colors">
+                            ← Back
+                        </button>
+                    )}
+                    <span className="text-xs font-medium text-text-primary truncate">
+                        {selectedApp ? selectedApp.label : "Select MCP"}
+                    </span>
+                </div>
+                <div
+                    className="overflow-y-auto p-2 min-h-0 flex-1"
+                    onWheel={(e) => e.stopPropagation()}>
+                    {!selectedApp ? (
+                        <div className="flex flex-col gap-1">
+                            {apps.map((app) => (
+                                <button
+                                    key={app.value}
+                                    type="button"
+                                    className="flex items-center justify-between w-full text-left text-sm px-3 py-2 rounded-lg hover:bg-card-lv3 transition-colors"
+                                    onClick={() => handleSelectApp(app)}>
+                                    <span>{app.label}</span>
+                                    <ChevronDown className="size-4 -rotate-90 text-text-secondary" />
+                                </button>
+                            ))}
+                            {apps.length === 0 && (
+                                <p className="text-xs text-text-secondary text-center py-4">
+                                    No MCP connections available
+                                </p>
+                            )}
+                        </div>
+                    ) : (
+                        <div className="flex flex-wrap gap-1.5">
+                            {tools?.flatMap((group) =>
+                                group.items.map((tool) => (
+                                    <button
+                                        key={tool.value}
+                                        type="button"
+                                        className="text-xs font-mono bg-tertiary-dark text-tertiary-light px-2 py-1 rounded hover:brightness-125 transition-all"
+                                        onClick={() => handleInsertTool(tool)}>
+                                        {tool.label}
+                                    </button>
+                                ))
+                            )}
+                        </div>
+                    )}
+                </div>
+            </PopoverContent>
+        </Popover>
+    );
+}
 
 export const KodyRuleAddOrUpdateItemModal = ({
     repositoryId,
@@ -125,6 +294,8 @@ export const KodyRuleAddOrUpdateItemModal = ({
         useState(isExcluded);
 
     const { mcpGroups, formatInsertByType } = useMCPMentions();
+
+    const editorRef = React.useRef<RichTextEditorWithMentionsRef>(null);
 
     const form = useForm<
         Omit<KodyRule, "examples" | "inheritance"> & {
@@ -320,7 +491,17 @@ export const KodyRuleAddOrUpdateItemModal = ({
             }}>
             <DialogContent className="max-w-(--breakpoint-lg)">
                 <DialogHeader>
-                    <DialogTitle>{title}</DialogTitle>
+                    <div className="flex items-center justify-between">
+                        <DialogTitle>{title}</DialogTitle>
+                        <a
+                            href="https://docs.kodus.io/how_to_use/en/code_review/configs/kody_rules"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 text-xs text-text-secondary hover:text-primary-light transition-colors">
+                            Docs
+                            <ExternalLink className="size-3" />
+                        </a>
+                    </div>
                 </DialogHeader>
 
                 {isInherited && (
@@ -401,177 +582,172 @@ export const KodyRuleAddOrUpdateItemModal = ({
                         name="scope"
                         control={form.control}
                         render={({ field }) => (
-                            <div className="grid grid-cols-[1fr_3fr] gap-6">
-                                <FormControl.Root>
-                                    <FormControl.Label className="mb-0 flex flex-row gap-1">
-                                        Scope
-                                        <Tooltip>
-                                            <TooltipTrigger>
-                                                <HelpCircle
-                                                    size={16}
-                                                    className="text-primary-light"
-                                                />
-                                            </TooltipTrigger>
+                            <div className="flex flex-col gap-4">
+                                <div className="grid grid-cols-[1fr_3fr] gap-6">
+                                    <FormControl.Root>
+                                        <FormControl.Label className="mb-0 flex flex-row gap-1">
+                                            Execution mode
+                                            <HoverCard openDelay={100} closeDelay={200}>
+                                                <HoverCardTrigger asChild>
+                                                    <button type="button">
+                                                        <HelpCircle
+                                                            size={16}
+                                                            className="text-primary-light hover:text-primary-light/80 transition-colors"
+                                                        />
+                                                    </button>
+                                                </HoverCardTrigger>
 
-                                            <TooltipContent
-                                                align="start"
-                                                className="flex max-w-prose flex-col gap-1 text-xs">
-                                                <p>
-                                                    <strong className="text-primary-light">
-                                                        File:
-                                                    </strong>{" "}
-                                                    When the rule should be
-                                                    applied to one file at a
-                                                    time.
-                                                </p>
-                                                <p>
-                                                    <strong className="text-primary-light">
-                                                        Pull Request:
-                                                    </strong>{" "}
-                                                    When the rule should be
-                                                    applied cross-file,
-                                                    considering all files in the
-                                                    PR at once.
-                                                </p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </FormControl.Label>
-                                    <FormControl.Helper>
-                                        Define how this rule should be applied
-                                    </FormControl.Helper>
-                                </FormControl.Root>
+                                                <HoverCardContent
+                                                    align="start"
+                                                    side="right"
+                                                    className="w-96 p-0">
+                                                    <div className="p-4 border-b border-card-lv3">
+                                                        <h4 className="text-sm font-medium text-text-primary mb-1">
+                                                            Execution mode
+                                                        </h4>
+                                                        <p className="text-xs text-text-secondary">
+                                                            Choose how Kody analyzes your code and where comments appear.
+                                                        </p>
+                                                    </div>
 
-                                <FormControl.Input>
-                                    <ToggleGroup.Root
-                                        type="single"
-                                        className="flex w-md gap-3"
-                                        value={field.value}
-                                        disabled={field.disabled}
-                                        onValueChange={(value) => {
-                                            if (value) field.onChange(value);
-
-                                            if (value === "file") {
-                                                let newPath = "";
-
-                                                if (directory) {
-                                                    if (rule) {
-                                                        // Editing an existing rule: remove the directory prefix from the path
-                                                        newPath =
-                                                            getKodyRulePathWithoutDirectoryPath(
-                                                                {
-                                                                    directory,
-                                                                    rule,
-                                                                },
-                                                            );
-                                                    } else {
-                                                        // Adding a new rule: default to wildcard
-                                                        newPath =
-                                                            DEFAULT_PATH_FOR_DIRECTORIES;
-                                                    }
-                                                }
-
-                                                form.setValue("path", newPath, {
-                                                    shouldValidate: true,
-                                                });
-                                            } else if (
-                                                value === "pull-request"
-                                            ) {
-                                                form.resetField("path", {
-                                                    defaultValue: "",
-                                                });
-                                            }
-                                        }}>
-                                        {scopeOptions.map((option) => (
-                                            <ToggleGroup.ToggleGroupItem
-                                                asChild
-                                                key={option.value}
-                                                value={option.value}>
-                                                <Button
-                                                    size="md"
-                                                    variant="helper"
-                                                    className="h-auto flex-1 items-start py-3">
-                                                    <div className="flex w-full items-center justify-between gap-3">
-                                                        <div className="flex flex-col gap-1">
-                                                            <Heading
-                                                                variant="h3"
-                                                                className="text-sm leading-loose font-medium">
-                                                                {option.name}
-                                                            </Heading>
+                                                    <div className="p-4 space-y-4">
+                                                        <div className="space-y-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <FileCode className="size-4 text-primary-light" />
+                                                                <span className="text-xs font-medium text-text-primary">Per file</span>
+                                                            </div>
+                                                            <p className="text-xs text-text-secondary pl-6">
+                                                                Rule runs once for each changed file. Best for file-specific validations like code style, patterns, or security checks.
+                                                            </p>
+                                                            <div className="pl-6">
+                                                                <KodyReviewPreview
+                                                                    mode="inline"
+                                                                    comment="Consider adding error handling here."
+                                                                    codeLine={{ number: 12, content: "await fetchData();" }}
+                                                                />
+                                                            </div>
                                                         </div>
 
-                                                        <Checkbox
-                                                            decorative
-                                                            checked={
-                                                                option.value ===
-                                                                field.value
-                                                            }
-                                                        />
+                                                        <div className="border-t border-card-lv3 pt-4 space-y-2">
+                                                            <div className="flex items-center gap-2">
+                                                                <GitPullRequest className="size-4 text-primary-light" />
+                                                                <span className="text-xs font-medium text-text-primary">Per PR</span>
+                                                            </div>
+                                                            <p className="text-xs text-text-secondary pl-6">
+                                                                Rule runs once for the entire PR. Best for cross-file analysis, business logic validation, or summary reviews.
+                                                            </p>
+                                                            <div className="pl-6">
+                                                                <KodyReviewPreview
+                                                                    mode="pr-comment"
+                                                                    comment="PR description is missing required sections: 'Testing' and 'Breaking Changes'."
+                                                                />
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                </Button>
-                                            </ToggleGroup.ToggleGroupItem>
-                                        ))}
-                                    </ToggleGroup.Root>
-                                </FormControl.Input>
+                                                </HoverCardContent>
+                                            </HoverCard>
+                                        </FormControl.Label>
+                                        <FormControl.Helper>
+                                            How many times this rule runs
+                                        </FormControl.Helper>
+                                    </FormControl.Root>
+
+                                    <FormControl.Input>
+                                        <ToggleGroup.Root
+                                            type="single"
+                                            className="flex w-full gap-3"
+                                            value={field.value}
+                                            disabled={field.disabled}
+                                            onValueChange={(value) => {
+                                                if (value) field.onChange(value);
+
+                                                if (value === "file") {
+                                                    let newPath = "";
+
+                                                    if (directory) {
+                                                        if (rule) {
+                                                            newPath =
+                                                                getKodyRulePathWithoutDirectoryPath(
+                                                                    {
+                                                                        directory,
+                                                                        rule,
+                                                                    },
+                                                                );
+                                                        } else {
+                                                            newPath =
+                                                                DEFAULT_PATH_FOR_DIRECTORIES;
+                                                        }
+                                                    }
+
+                                                    form.setValue("path", newPath, {
+                                                        shouldValidate: true,
+                                                    });
+                                                } else if (
+                                                    value === "pull-request"
+                                                ) {
+                                                    form.resetField("path", {
+                                                        defaultValue: "",
+                                                    });
+                                                }
+                                            }}>
+                                            {executionModeOptions.map((option) => {
+                                                const Icon = option.icon;
+                                                const isSelected = option.value === field.value;
+                                                return (
+                                                    <ToggleGroup.ToggleGroupItem
+                                                        asChild
+                                                        key={option.value}
+                                                        value={option.value}>
+                                                        <Button
+                                                            size="md"
+                                                            variant="helper"
+                                                            className={cn(
+                                                                "h-auto flex-1 items-start py-4 px-4",
+                                                                isSelected && "ring-2 ring-primary-light"
+                                                            )}>
+                                                            <div className="flex w-full items-start justify-between gap-3">
+                                                                <div className="flex items-start gap-3">
+                                                                    <div className={cn(
+                                                                        "flex size-9 items-center justify-center rounded-lg",
+                                                                        isSelected ? "bg-primary-light/20" : "bg-card-lv3"
+                                                                    )}>
+                                                                        <Icon className={cn(
+                                                                            "size-5",
+                                                                            isSelected ? "text-primary-light" : "text-text-secondary"
+                                                                        )} />
+                                                                    </div>
+                                                                    <div className="flex flex-col gap-1 text-left">
+                                                                        <span className="text-sm font-medium">
+                                                                            {option.name}
+                                                                        </span>
+                                                                        <span className="text-xs text-text-secondary">
+                                                                            {option.description}
+                                                                        </span>
+                                                                        <span className={cn(
+                                                                            "text-xs",
+                                                                            isSelected ? "text-primary-light" : "text-text-placeholder"
+                                                                        )}>
+                                                                            → {option.output}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+
+                                                                <Checkbox
+                                                                    decorative
+                                                                    checked={isSelected}
+                                                                />
+                                                            </div>
+                                                        </Button>
+                                                    </ToggleGroup.ToggleGroupItem>
+                                                );
+                                            })}
+                                        </ToggleGroup.Root>
+                                    </FormControl.Input>
+                                </div>
                             </div>
                         )}
                     />
 
-                    <Controller
-                        name="inheritable"
-                        control={form.control}
-                        render={({ field }) => (
-                            <div className="grid grid-cols-[1fr_3fr] gap-6">
-                                <FormControl.Root>
-                                    <FormControl.Label className="mb-0 flex flex-row gap-1">
-                                        Inheritable
-                                        <Tooltip>
-                                            <TooltipTrigger>
-                                                <HelpCircle
-                                                    size={16}
-                                                    className="text-primary-light"
-                                                />
-                                            </TooltipTrigger>
-                                            <TooltipContent
-                                                align="start"
-                                                className="flex max-w-prose flex-col gap-1 text-xs">
-                                                <p>
-                                                    When enabled, this rule can
-                                                    be inherited by lower
-                                                    scopes. For example, a
-                                                    global rule can be inherited
-                                                    by repositories, and a
-                                                    repository rule can be
-                                                    inherited by directories.
-                                                </p>
-                                                <p>
-                                                    If disabled, the rule will
-                                                    only apply to the current
-                                                    scope.
-                                                </p>
-                                                <p>
-                                                    Note: Lower scopes can still
-                                                    choose to override and
-                                                    disable this rule if needed.
-                                                </p>
-                                            </TooltipContent>
-                                        </Tooltip>
-                                    </FormControl.Label>
-                                    <FormControl.Helper>
-                                        Define if this rule can be inherited by
-                                        lower scopes
-                                    </FormControl.Helper>
-                                </FormControl.Root>
-                                <FormControl.Input>
-                                    <Switch
-                                        id={field.name}
-                                        disabled={field.disabled}
-                                        onCheckedChange={field.onChange}
-                                        checked={field.value}
-                                    />
-                                </FormControl.Input>
-                            </div>
-                        )}
-                    />
                     <Controller
                         name="path"
                         control={form.control}
@@ -740,27 +916,34 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                                     focus on during the review.
                                                 </p>
                                                 <p>
-                                                    For example, you could
-                                                    highlight security and
-                                                    performance changes or call
-                                                    out updates to public APIs.
+                                                    Use variables like{" "}
+                                                    <code className="text-primary-light">
+                                                        {"{{pr.body}}"}
+                                                    </code>{" "}
+                                                    or{" "}
+                                                    <code className="text-primary-light">
+                                                        {"{{file.path}}"}
+                                                    </code>{" "}
+                                                    to reference dynamic context.
                                                 </p>
                                                 <p>
-                                                    Keep it clear and concise to
-                                                    ensure accurate reviews.
+                                                    Reference files from any connected repository using{" "}
+                                                    <code className="text-primary-light">
+                                                        @repo/path/to/file
+                                                    </code>
                                                 </p>
                                             </TooltipContent>
                                         </Tooltip>
                                     </FormControl.Label>
                                     <FormControl.Helper>
-                                        Provide additional guidelines for code
-                                        review based on file paths.
+                                        Provide guidelines for code review
                                     </FormControl.Helper>
                                 </FormControl.Root>
 
                                 <FormControl.Input>
-                                    <div>
+                                    <div className="flex flex-col gap-2">
                                         <RichTextEditorWithMentions
+                                            ref={editorRef}
                                             value={field.value || ""}
                                             onChangeAction={(value) =>
                                                 field.onChange(
@@ -775,6 +958,62 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                             groups={mcpGroups}
                                             formatInsertByType={formatInsertByType}
                                             className="min-h-32"
+                                            toolbarExtraActions={
+                                                <>
+                                                    <Popover>
+                                                        <PopoverTrigger asChild>
+                                                            <Button
+                                                                size="xs"
+                                                                variant="cancel"
+                                                                type="button"
+                                                                disabled={field.disabled}
+                                                                className="h-7 gap-1"
+                                                                rightIcon={<ChevronDown className="size-3" />}
+                                                                leftIcon={<Code2 className="size-3" />}>
+                                                                Variables
+                                                            </Button>
+                                                        </PopoverTrigger>
+                                                        <PopoverContent
+                                                            align="end"
+                                                            className="w-72 p-3">
+                                                            <div className="flex flex-col gap-3">
+                                                                <span className="text-xs font-medium text-text-primary">
+                                                                    {watchScope === "file"
+                                                                        ? "File context"
+                                                                        : "PR context"}
+                                                                </span>
+                                                                <div className="flex flex-wrap gap-1.5">
+                                                                    {(watchScope === "file"
+                                                                        ? FILE_CONTEXT_VARIABLES
+                                                                        : PR_CONTEXT_VARIABLES
+                                                                    ).map((v) => (
+                                                                        <button
+                                                                            key={v.key}
+                                                                            type="button"
+                                                                            className="text-xs font-mono bg-primary-dark text-primary-light px-2 py-1 rounded hover:brightness-125 transition-all"
+                                                                            onClick={() => {
+                                                                                editorRef.current?.insertText(v.label);
+                                                                                editorRef.current?.focus();
+                                                                            }}>
+                                                                            {v.label}
+                                                                        </button>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        </PopoverContent>
+                                                    </Popover>
+
+                                                    {mcpGroups.length > 0 && (
+                                                        <MCPToolsPopover
+                                                            mcpGroups={mcpGroups}
+                                                            disabled={field.disabled}
+                                                            onInsertMention={(app, tool) => {
+                                                                editorRef.current?.insertMCPMention(app, tool);
+                                                            }}
+                                                        />
+                                                    )}
+                                                </>
+                                            }
                                         />
 
                                         <FormControl.Error>
@@ -932,101 +1171,160 @@ export const KodyRuleAddOrUpdateItemModal = ({
                         }}
                     />
 
-                    <Separator />
+                    <Collapsible>
+                        <CollapsibleTrigger asChild>
+                            <button
+                                type="button"
+                                className="flex w-full items-center gap-2 py-2 text-sm text-text-secondary hover:text-text-primary transition-colors">
+                                <Settings2 className="size-4" />
+                                <span>Advanced settings</span>
+                                <CollapsibleIndicator className="ml-auto" />
+                            </button>
+                        </CollapsibleTrigger>
 
-                    <div className="flex flex-col gap-4">
-                        <Heading variant="h3">Examples</Heading>
-
-                        <Controller
-                            control={form.control}
-                            name="badExample"
-                            render={({ field, fieldState }) => (
-                                <div className="grid grid-cols-[1fr_3fr] gap-6">
-                                    <FormControl.Root>
-                                        <FormControl.Label
-                                            className="mb-0 flex flex-row gap-1"
-                                            htmlFor={field.name}>
-                                            <div className="flex items-center gap-3">
-                                                <div
-                                                    className={cn(
-                                                        "bg-danger/10 flex size-6 items-center justify-center rounded-full",
-                                                    )}>
-                                                    <XIcon className="stroke-danger size-4" />
-                                                </div>
-                                                <div className="flex flex-1 flex-col gap-3">
-                                                    <div className="text-sm font-medium">
-                                                        Bad example
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </FormControl.Label>
-                                    </FormControl.Root>
-
-                                    <FormControl.Input>
-                                        <div>
-                                            <CodeInputSimple
-                                                value={field.value || ""}
-                                                onChangeAction={(value) =>
-                                                    field.onChange(value)
-                                                }
+                        <CollapsibleContent className="flex flex-col gap-6 pt-4">
+                            <Controller
+                                name="inheritable"
+                                control={form.control}
+                                render={({ field }) => (
+                                    <div className="grid grid-cols-[1fr_3fr] gap-6">
+                                        <FormControl.Root>
+                                            <FormControl.Label className="mb-0 flex flex-row gap-1">
+                                                Inheritable
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        <HelpCircle
+                                                            size={16}
+                                                            className="text-primary-light"
+                                                        />
+                                                    </TooltipTrigger>
+                                                    <TooltipContent
+                                                        align="start"
+                                                        className="flex max-w-prose flex-col gap-1 text-xs">
+                                                        <p>
+                                                            When enabled, this rule can
+                                                            be inherited by lower
+                                                            scopes.
+                                                        </p>
+                                                        <p>
+                                                            If disabled, the rule will
+                                                            only apply to the current
+                                                            scope.
+                                                        </p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </FormControl.Label>
+                                            <FormControl.Helper>
+                                                Allow lower scopes to inherit
+                                            </FormControl.Helper>
+                                        </FormControl.Root>
+                                        <FormControl.Input>
+                                            <Switch
+                                                id={field.name}
                                                 disabled={field.disabled}
-                                                language="javascript"
+                                                onCheckedChange={field.onChange}
+                                                checked={field.value}
                                             />
+                                        </FormControl.Input>
+                                    </div>
+                                )}
+                            />
 
-                                            <FormControl.Error>
-                                                {fieldState.error?.message}
-                                            </FormControl.Error>
-                                        </div>
-                                    </FormControl.Input>
-                                </div>
-                            )}
-                        />
+                            <Separator />
 
-                        <Controller
-                            control={form.control}
-                            name="goodExample"
-                            render={({ field, fieldState }) => (
-                                <div className="grid grid-cols-[1fr_3fr] gap-6">
-                                    <FormControl.Root>
-                                        <FormControl.Label
-                                            className="mb-0 flex flex-row gap-1"
-                                            htmlFor={field.name}>
-                                            <div className="flex items-center gap-3">
-                                                <div
-                                                    className={cn(
-                                                        "bg-success/10 flex size-6 items-center justify-center rounded-full",
-                                                    )}>
-                                                    <CheckIcon className="stroke-success size-4" />
-                                                </div>
-                                                <div className="flex flex-1 flex-col gap-3">
-                                                    <div className="text-sm font-medium">
-                                                        Good example
+                            <div className="flex flex-col gap-4">
+                                <span className="text-sm font-medium text-text-secondary">
+                                    Code examples
+                                </span>
+
+                                <Controller
+                                    control={form.control}
+                                    name="badExample"
+                                    render={({ field, fieldState }) => (
+                                        <div className="grid grid-cols-[1fr_3fr] gap-6">
+                                            <FormControl.Root>
+                                                <FormControl.Label
+                                                    className="mb-0 flex flex-row gap-1"
+                                                    htmlFor={field.name}>
+                                                    <div className="flex items-center gap-3">
+                                                        <div
+                                                            className={cn(
+                                                                "bg-danger/10 flex size-6 items-center justify-center rounded-full",
+                                                            )}>
+                                                            <XIcon className="stroke-danger size-4" />
+                                                        </div>
+                                                        <span className="text-sm font-medium">
+                                                            Bad example
+                                                        </span>
                                                     </div>
+                                                </FormControl.Label>
+                                            </FormControl.Root>
+
+                                            <FormControl.Input>
+                                                <div>
+                                                    <CodeInputSimple
+                                                        value={field.value || ""}
+                                                        onChangeAction={(value) =>
+                                                            field.onChange(value)
+                                                        }
+                                                        disabled={field.disabled}
+                                                        language="javascript"
+                                                    />
+
+                                                    <FormControl.Error>
+                                                        {fieldState.error?.message}
+                                                    </FormControl.Error>
                                                 </div>
-                                            </div>
-                                        </FormControl.Label>
-                                    </FormControl.Root>
-
-                                    <FormControl.Input>
-                                        <div>
-                                            <CodeInputSimple
-                                                value={field.value || ""}
-                                                onChangeAction={(value) =>
-                                                    field.onChange(value)
-                                                }
-                                                disabled={field.disabled}
-                                                language="javascript"
-                                            />
-
-                                            <FormControl.Error>
-                                                {fieldState.error?.message}
-                                            </FormControl.Error>
+                                            </FormControl.Input>
                                         </div>
-                                    </FormControl.Input>
-                                </div>
-                            )}
-                        />
-                    </div>
+                                    )}
+                                />
+
+                                <Controller
+                                    control={form.control}
+                                    name="goodExample"
+                                    render={({ field, fieldState }) => (
+                                        <div className="grid grid-cols-[1fr_3fr] gap-6">
+                                            <FormControl.Root>
+                                                <FormControl.Label
+                                                    className="mb-0 flex flex-row gap-1"
+                                                    htmlFor={field.name}>
+                                                    <div className="flex items-center gap-3">
+                                                        <div
+                                                            className={cn(
+                                                                "bg-success/10 flex size-6 items-center justify-center rounded-full",
+                                                            )}>
+                                                            <CheckIcon className="stroke-success size-4" />
+                                                        </div>
+                                                        <span className="text-sm font-medium">
+                                                            Good example
+                                                        </span>
+                                                    </div>
+                                                </FormControl.Label>
+                                            </FormControl.Root>
+
+                                            <FormControl.Input>
+                                                <div>
+                                                    <CodeInputSimple
+                                                        value={field.value || ""}
+                                                        onChangeAction={(value) =>
+                                                            field.onChange(value)
+                                                        }
+                                                        disabled={field.disabled}
+                                                        language="javascript"
+                                                    />
+
+                                                    <FormControl.Error>
+                                                        {fieldState.error?.message}
+                                                    </FormControl.Error>
+                                                </div>
+                                            </FormControl.Input>
+                                        </div>
+                                    )}
+                                />
+                            </div>
+                        </CollapsibleContent>
+                    </Collapsible>
                 </div>
 
                 <DialogFooter className="mt-0">

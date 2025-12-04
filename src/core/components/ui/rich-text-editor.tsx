@@ -26,6 +26,7 @@ type RichTextEditorProps = {
     editorInstanceAction?: (editor: Editor | null) => void;
     showToolbar?: boolean;
     toolbarClassName?: string;
+    toolbarExtraActions?: React.ReactNode;
 };
 
 const TOKEN_REGEX = /@?mcp\s*<([a-z0-9_-]+)\s*\|\s*([a-z0-9_-]+)>/gi;
@@ -205,6 +206,7 @@ export function RichTextEditor(props: RichTextEditorProps) {
         editorInstanceAction,
         showToolbar = true,
         toolbarClassName,
+        toolbarExtraActions,
     } = props;
 
     // Use ref to avoid recreating editor when onTrigger changes
@@ -489,7 +491,7 @@ export function RichTextEditor(props: RichTextEditorProps) {
 
     return (
         <div className="flex flex-col gap-2">
-            {showToolbar && <RichTextEditorToolbar editor={editor} className={toolbarClassName} />}
+            {showToolbar && <RichTextEditorToolbar editor={editor} className={toolbarClassName} extraActions={toolbarExtraActions} />}
             <RichTextEditorSearch editor={editor} />
             <EditorContent editor={editor} />
         </div>
