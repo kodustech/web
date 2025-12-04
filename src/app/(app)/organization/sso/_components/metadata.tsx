@@ -6,6 +6,11 @@ export async function fetchAndParseMetadata(url: string) {
     if (!url) throw new Error("URL is required");
 
     try {
+        const parsedUrl = new URL(url);
+        if (!["http", "https"].includes(parsedUrl.protocol)) {
+            throw new Error("URL must use http or https protocol");
+        }
+
         const response = await fetch(url);
 
         if (!response.ok) {

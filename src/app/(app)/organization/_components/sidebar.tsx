@@ -20,11 +20,16 @@ import {
     LockKeyholeOpenIcon,
     ShieldIcon,
 } from "lucide-react";
+import { FeatureFlagKey } from "src/core/config/feature-flags";
 import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { useSubscriptionContext } from "src/features/ee/subscription/_providers/subscription-context";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
-export const ConfigsSidebar = () => {
+export const ConfigsSidebar = ({
+    featureFlags,
+}: {
+    featureFlags: Partial<Record<FeatureFlagKey, boolean>>;
+}) => {
     const { organizationName } = useOrganizationContext();
     const pathname = usePathname();
     const { license } = useSubscriptionContext();
@@ -42,7 +47,7 @@ export const ConfigsSidebar = () => {
             icon: ShieldIcon,
             label: "SSO",
             href: `/organization/sso`,
-            visible: true,
+            visible: featureFlags["sso"] ?? false,
         },
         {
             icon: GaugeIcon,
