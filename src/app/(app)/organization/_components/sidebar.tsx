@@ -14,7 +14,12 @@ import {
     SidebarMenu,
     SidebarMenuItem,
 } from "@components/ui/sidebar";
-import { CogIcon, GaugeIcon, LockKeyholeOpenIcon } from "lucide-react";
+import {
+    CogIcon,
+    GaugeIcon,
+    LockKeyholeOpenIcon,
+    ShieldIcon,
+} from "lucide-react";
 import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { useSubscriptionContext } from "src/features/ee/subscription/_providers/subscription-context";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
@@ -31,6 +36,12 @@ export const ConfigsSidebar = () => {
             icon: CogIcon,
             label: "General",
             href: `/organization/general`,
+            visible: true,
+        },
+        {
+            icon: ShieldIcon,
+            label: "SSO",
+            href: `/organization/sso`,
             visible: true,
         },
         {

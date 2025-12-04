@@ -63,8 +63,33 @@ const gitlabProvider = GitlabProvider({
     clientSecret: process.env.WEB_OAUTH_GITLAB_CLIENT_SECRET!,
 });
 
+const ssoProvider = CredentialsProvider({
+    id: AuthProviders.SSO,
+    name: AuthProviders.SSO,
+    credentials: {
+        accessToken: { label: "AccessToken", type: "password" },
+        refreshToken: { label: "RefreshToken", type: "password" },
+    },
+    async authorize(credentials) {
+        if (credentials.accessToken && credentials.refreshToken) {
+            return {
+                accessToken: credentials.accessToken as string,
+                refreshToken: credentials.refreshToken as string,
+            };
+        }
+
+        console.error("SSO credentials not found");
+        return null;
+    },
+});
+
 const authOptions: NextAuthConfig = {
-    providers: [credentialsProvider, githubProvider, gitlabProvider],
+    providers: [
+        credentialsProvider,
+        githubProvider,
+        gitlabProvider,
+        ssoProvider,
+    ],
     session: { strategy: "jwt" },
     secret: process.env.WEB_NEXTAUTH_SECRET,
     pages: { signIn: "/sign-in", error: "/error" },
@@ -158,6 +183,7 @@ const authOptions: NextAuthConfig = {
                     }
 
                     return false;
+                case AuthProviders.SSO:
                 case AuthProviders.CREDENTIALS:
                     return true;
                 default:

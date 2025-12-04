@@ -116,6 +116,29 @@ export const loginOAuth = (
     });
 };
 
+export const ssoLogin = async (organizationId: string) => {
+    window.location.href = pathToApiUrl(
+        `${API_ROUTES.ssoLogin}/${organizationId}`,
+    );
+};
+
+export const ssoCheck = async (
+    domain: string,
+): Promise<{
+    active: boolean;
+    organizationId: string;
+}> => {
+    const res = await typedFetch<{
+        data: {
+            active: boolean;
+            organizationId: string;
+        };
+    }>(pathToApiUrl(API_ROUTES.ssoCheck), {
+        params: { domain },
+    });
+
+    return res.data;
+};
 export const sendForgotPasswordMail = async (email: string) => {
     return axiosApi.post(pathToApiUrl(API_ROUTES.forgotPassword), { email });
 };

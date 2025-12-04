@@ -25,6 +25,7 @@ const publicPaths = [
 const authPaths = [
     "/sign-in",
     "/sign-up",
+    "/sso-callback",
     "/forgot-password",
     "/confirm-email",
     "/create-new-password",
