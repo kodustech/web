@@ -353,54 +353,68 @@ export const KodyRuleAddOrUpdateItemModal = ({
             magicModal.lock();
         }
 
-        let examples = [];
-        if (config.badExample)
-            examples.push({ isCorrect: false, snippet: config.badExample });
-        if (config.goodExample)
-            examples.push({ isCorrect: true, snippet: config.goodExample });
+        try {
+            let examples = [];
+            if (config.badExample)
+                examples.push({ isCorrect: false, snippet: config.badExample });
+            if (config.goodExample)
+                examples.push({ isCorrect: true, snippet: config.goodExample });
 
-        let newPath = "";
-        if (config.scope === "file") {
-            if (directory) {
-                newPath = `${getDirectoryPathForReplace(directory)}${config.path}`;
-            } else {
-                newPath = config.path;
+            let newPath = "";
+            if (config.scope === "file") {
+                if (directory) {
+                    newPath = `${getDirectoryPathForReplace(directory)}${config.path}`;
+                } else {
+                    newPath = config.path;
+                }
             }
-        }
 
-        await createOrUpdateKodyRule(
-            {
-                path: newPath,
-                rule: config.rule,
-                title: config.title,
-                severity: config.severity,
-                scope: config.scope,
-                uuid: rule?.uuid,
-                examples: examples,
-                origin: config.origin ?? KodyRulesOrigin.USER,
-                status: config.status ?? KodyRulesStatus.ACTIVE,
-                inheritance: {
-                    ...(rule?.inheritance ?? {
-                        inheritable: true,
-                        exclude: [],
-                        include: [],
-                    }),
-                    inheritable: config.inheritable,
+            await createOrUpdateKodyRule(
+                {
+                    path: newPath,
+                    rule: config.rule,
+                    title: config.title,
+                    severity: config.severity,
+                    scope: config.scope,
+                    uuid: rule?.uuid,
+                    examples: examples,
+                    origin: config.origin ?? KodyRulesOrigin.USER,
+                    status: config.status ?? KodyRulesStatus.ACTIVE,
+                    inheritance: {
+                        ...(rule?.inheritance ?? {
+                            inheritable: true,
+                            exclude: [],
+                            include: [],
+                        }),
+                        inheritable: config.inheritable,
+                    },
                 },
-            },
-            repositoryId,
-            directory?.id,
-        );
+                repositoryId,
+                directory?.id,
+            );
 
-        toast({
-            description: `Rule ${rule?.uuid ? "updated" : "created"}`,
-            variant: "success",
-        });
+            toast({
+                description: `Rule ${rule?.uuid ? "updated" : "created"}`,
+                variant: "success",
+            });
 
-        if (!onClose) {
-            magicModal.hide(true);
-        } else {
-            onClose();
+            if (!onClose) {
+                magicModal.hide(true);
+            } else {
+                onClose();
+            }
+        } catch (error) {
+            console.error("Error updating rule:", error);
+
+            toast({
+                title: "Error",
+                description: `An error occurred while ${rule?.uuid ? "updating" : "creating"} the rule. Please try again later.`,
+                variant: "alert",
+            });
+
+            if (!onClose) {
+                magicModal.unlock();
+            }
         }
     });
 
