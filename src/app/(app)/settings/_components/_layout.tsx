@@ -60,8 +60,8 @@ export const SettingsLayout = ({
     codeReviewDryRunFeatureFlag,
 }: React.PropsWithChildren & {
     codeReviewDryRunFeatureFlag:
-    | AwaitedReturnType<PostHog["getFeatureFlag"]>
-    | undefined;
+        | AwaitedReturnType<PostHog["getFeatureFlag"]>
+        | undefined;
 }) => {
     const pathname = usePathname();
     const { teamId } = useSelectedTeamId();
@@ -213,7 +213,7 @@ export const SettingsLayout = ({
                                                     ({ label, href }) => {
                                                         const active =
                                                             repositoryId ===
-                                                            "global" &&
+                                                                "global" &&
                                                             pageName === href;
 
                                                         return (

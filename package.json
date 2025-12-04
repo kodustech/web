@@ -59,6 +59,7 @@
         "next": "^15.5.7",
         "next-auth": "^5.0.0-beta.29",
         "nuqs": "^2.8.2",
+        "passport-saml-metadata": "^5.0.0",
         "posthog-node": "^5.17.0",
         "radix-ui": "^1.4.3",
         "react": "19.2.1",
