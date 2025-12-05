@@ -20,7 +20,6 @@ import { Eye } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import type { LiteralUnion } from "src/core/types";
 import { axiosAuthorized } from "src/core/utils/axios";
-import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 import { PRSummaryPreviewLoading } from "./_components/loading";
 import { PRSummaryPreviewResult } from "./_components/result";
@@ -55,7 +54,6 @@ export const PRSummaryPreviewModal = ({
     const [error, setError] = useState<string | null>(null);
 
     const { teamId } = useSelectedTeamId();
-    const { organizationId } = useOrganizationContext();
 
     // Determinar se estamos em configuração global ou de repositório específico
     const isGlobalConfig = repositoryId === "global";
@@ -74,7 +72,6 @@ export const PRSummaryPreviewModal = ({
             const response = await axiosAuthorized.post<PreviewResponse>(
                 PARAMETERS_PATHS.PREVIEW_PR_SUMMARY,
                 {
-                    organizationId,
                     teamId,
                     prNumber: selectedPR.pull_number.toString(),
                     behaviourForExistingDescription,

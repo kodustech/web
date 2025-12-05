@@ -6,7 +6,6 @@ import { useDirectoryLoader } from "@services/codeManagement/hooks/use-directory
 import { useLazyRepositoryTree } from "@services/codeManagement/hooks/use-lazy-repository-tree";
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 interface DirectoryItem {
     name: string;
@@ -48,14 +47,15 @@ const LazyTreeFolder = ({
             disabled={isDisabled}
             hasChildren={directory.hasChildren}
             onOpenChange={setIsOpen}>
-            
             {isLoading && (
-                <div className="text-xs text-gray-500 ml-4 py-1">
+                <div className="ml-4 py-1 text-xs text-gray-500">
                     Loading...
                 </div>
             )}
-            
-            {!isLoading && children && children.length > 0 && 
+
+            {!isLoading &&
+                children &&
+                children.length > 0 &&
                 children.map((child) => (
                     <LazyTreeFolder
                         key={child.path}
@@ -64,13 +64,10 @@ const LazyTreeFolder = ({
                         repository={repository}
                         repositoryId={repositoryId}
                     />
-                ))
-            }
-            
+                ))}
+
             {!isLoading && children && children.length === 0 && (
-                <div className="text-xs text-gray-400 ml-4 py-1">
-                    Empty
-                </div>
+                <div className="ml-4 py-1 text-xs text-gray-400">Empty</div>
             )}
         </Tree.Folder>
     );
@@ -83,23 +80,17 @@ export const GitDirectorySelector = ({
     repositoryId: string;
 } & React.ComponentProps<typeof Tree.Root>) => {
     const { teamId } = useSelectedTeamId();
-    const { organizationId } = useOrganizationContext();
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
 
     const repository = configValue?.repositories.find(
         (r) => r.id === repositoryId,
     );
 
-    const {
-        repositoryName,
-        rootDirectories,
-        isLoadingRoot,
-        loadDirectory,
-    } = useLazyRepositoryTree({
-        organizationId,
-        repositoryId,
-        teamId,
-    });
+    const { repositoryName, rootDirectories, isLoadingRoot, loadDirectory } =
+        useLazyRepositoryTree({
+            repositoryId,
+            teamId,
+        });
 
     if (isLoadingRoot || !repositoryName) {
         return <div>Loading...</div>;
@@ -111,7 +102,6 @@ export const GitDirectorySelector = ({
                 value="/"
                 name={repositoryName}
                 disabled={repository?.isSelected}>
-                
                 {rootDirectories.map((dir) => {
                     return (
                         <LazyTreeFolder

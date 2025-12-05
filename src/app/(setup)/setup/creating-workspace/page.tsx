@@ -102,7 +102,7 @@ export default function App() {
     useGoToStep();
 
     const router = useRouter();
-    const { organizationId, organizationName } = useOrganizationContext();
+    const { organizationName } = useOrganizationContext();
     const { mutateAsync } = useUpdateOrganizationInfos();
     const { email } = useAuth();
 
@@ -144,7 +144,6 @@ export default function App() {
                 enabled: data.autoJoin,
                 domains: uniqueDomains,
             },
-            organizationId,
         );
 
         router.push("/setup/connecting-git-tool");

@@ -1,7 +1,6 @@
 import { OrganizationParametersConfigKey } from "@services/parameters/types";
 import { useSuspenseFetch } from "src/core/utils/reactQuery";
 import type { BYOKConfig } from "src/features/ee/byok/_types";
-import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 import { ORGANIZATION_PARAMETERS_PATHS } from ".";
 
@@ -28,7 +27,6 @@ export function useSuspenseGetLLMProviderModels({
 }
 
 export function useSuspenseGetBYOK() {
-    const { organizationId } = useOrganizationContext();
     return useSuspenseFetch<{
         configValue: { main: BYOKConfig; fallback: BYOKConfig };
     } | null>(
@@ -36,7 +34,6 @@ export function useSuspenseGetBYOK() {
         {
             params: {
                 key: OrganizationParametersConfigKey.BYOK_CONFIG,
-                organizationId,
             },
         },
         {

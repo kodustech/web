@@ -1,5 +1,4 @@
 export type TokenUsageQueryContract = {
-    organizationId: string;
     startDate: string;
     endDate: string;
     prNumber?: number;

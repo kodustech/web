@@ -25,13 +25,11 @@ import { IntegrationCategory } from "src/core/types";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 
 type DeleteMemberModalProps = {
-    organizationId: string;
     teamId: string;
     platformName: string;
 };
 
 export const ResetIntegrationModal = ({
-    organizationId,
     teamId,
     platformName,
 }: DeleteMemberModalProps) => {
@@ -47,7 +45,7 @@ export const ResetIntegrationModal = ({
         magicModal.lock();
 
         try {
-            await deleteIntegration(organizationId, teamId);
+            await deleteIntegration(teamId);
 
             toast({
                 variant: "success",
@@ -88,7 +86,7 @@ export const ResetIntegrationModal = ({
         magicModal.lock();
 
         try {
-            await deleteIntegrationAndRepositories(organizationId, teamId);
+            await deleteIntegrationAndRepositories(teamId);
 
             toast({
                 variant: "success",

@@ -1,27 +1,23 @@
 import { useDefaultCodeReviewConfig } from "src/app/(app)/settings/_components/context";
 import { useCodeReviewRouteParams } from "src/app/(app)/settings/_hooks";
 import { FormattedConfigLevel } from "src/app/(app)/settings/code-review/_types";
+import type { LiteralUnion } from "src/core/types";
 import { pathToApiUrl } from "src/core/utils/helpers";
 import { useSuspenseFetch } from "src/core/utils/reactQuery";
-import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 import {
-    CustomMessageEntity,
     FormattedCustomMessageEntity,
     PullRequestMessageStatus,
 } from "./types";
-import type { LiteralUnion } from "src/core/types";
 
 export const useSuspensePullRequestMessages = () => {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
-    const { organizationId } = useOrganizationContext();
     const defaults = useDefaultCodeReviewConfig()?.customMessages;
 
     return useSuspenseFetch<FormattedCustomMessageEntity>(
         pathToApiUrl("/pull-request-messages/find-by-repository-or-directory"),
         {
             params: {
-                organizationId,
                 repositoryId,
                 directoryId,
             },
@@ -71,14 +67,12 @@ export const useSuspensePullRequestMessagesFor = (
     repositoryId: LiteralUnion<"global">,
     directoryId?: string,
 ) => {
-    const { organizationId } = useOrganizationContext();
     const defaults = useDefaultCodeReviewConfig()?.customMessages;
 
     return useSuspenseFetch<FormattedCustomMessageEntity>(
         pathToApiUrl("/pull-request-messages/find-by-repository-or-directory"),
         {
             params: {
-                organizationId,
                 repositoryId,
                 directoryId,
             },
@@ -133,7 +127,12 @@ export const useSuspenseParentPullRequestMessages = () => {
         : repositoryId === "global"
           ? "global"
           : "global";
-    const parentDirectoryId: string | undefined = directoryId ? undefined : undefined;
+    const parentDirectoryId: string | undefined = directoryId
+        ? undefined
+        : undefined;
 
-    return useSuspensePullRequestMessagesFor(parentRepositoryId, parentDirectoryId);
+    return useSuspensePullRequestMessagesFor(
+        parentRepositoryId,
+        parentDirectoryId,
+    );
 };

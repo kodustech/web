@@ -41,7 +41,6 @@ import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { ArrayHelpers } from "src/core/utils/array";
 import { cn } from "src/core/utils/components";
 import type { BYOKConfig } from "src/features/ee/byok/_types";
-import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 import { StepIndicators } from "../_components/step-indicators";
 
@@ -254,7 +253,6 @@ const ModelSelect = ({
 
 export default function BYOKSetupPage() {
     const router = useRouter();
-    const { organizationId } = useOrganizationContext();
     const { providers } = useSuspenseGetLLMProviders();
     const [isManagedByKodus, setIsManagedByKodus] = useState(true);
     const [provider, setProvider] = useState<string>("");
@@ -294,7 +292,6 @@ export default function BYOKSetupPage() {
                     {
                         main: config,
                     },
-                    organizationId,
                 );
 
                 toast({

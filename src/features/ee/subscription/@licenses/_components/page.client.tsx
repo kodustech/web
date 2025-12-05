@@ -30,7 +30,6 @@ import {
 import { Switch } from "src/core/components/ui/switch";
 import { cn } from "src/core/utils/components";
 import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
-import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 import { TableFilterContext } from "../../_providers/table-filter-context";
 import { columns, type LicenseTableRow } from "./columns";
@@ -43,7 +42,6 @@ export const LicensesPageClient = ({
     autoLicenseAssignmentConfig?: OrganizationParametersAutoAssignConfig;
 }) => {
     const { query, setQuery } = use(TableFilterContext);
-    const { organizationId } = useOrganizationContext();
     const router = useRouter();
     const [open, setOpen] = useState(false);
     const [pendingIgnoredUsers, setPendingIgnoredUsers] = useState<string[]>(
@@ -63,7 +61,6 @@ export const LicensesPageClient = ({
                         ignoredUsers:
                             autoLicenseAssignmentConfig?.ignoredUsers || [],
                     },
-                    organizationId,
                 );
 
                 toast({
@@ -90,7 +87,6 @@ export const LicensesPageClient = ({
                         enabled: autoLicenseAssignmentConfig?.enabled || false,
                         ignoredUsers: pendingIgnoredUsers,
                     },
-                    organizationId,
                 );
 
                 toast({

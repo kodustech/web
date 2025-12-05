@@ -8,7 +8,6 @@ import { getTeamParameters } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { getPermissions } from "@services/permissions/fetch";
 import { getTeams } from "@services/teams/fetch";
-import { getDailyTokenUsage } from "@services/usage/fetch";
 import { auth } from "src/core/config/auth";
 import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 import { NavMenu } from "src/core/layout/navbar";

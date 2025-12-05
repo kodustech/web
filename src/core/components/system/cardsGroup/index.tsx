@@ -11,27 +11,29 @@ import { SvgGitlab } from "@components/ui/icons/SvgGitlab";
 import { magicModal } from "@components/ui/magic-modal";
 import { toast } from "@components/ui/toaster/use-toast";
 import { INTEGRATIONS_KEY, type INTEGRATIONS_TYPES } from "@enums";
-import { createCodeManagementIntegration } from "@services/codeManagement/fetch";
+import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
+import {
+    createCodeManagementIntegration,
+    deleteIntegration,
+} from "@services/codeManagement/fetch";
 import {
     checkHasConnectionByPlatform,
     cloneIntegration,
 } from "@services/integrations/fetch";
+import { INTEGRATION_CONFIG } from "@services/integrations/integrationConfig";
 import { getTeamsWithIntegrations } from "@services/teams/fetch";
 import { deleteCookie, setCookie } from "cookies-next";
 import integrationFactory from "src/core/integrations/integrationFactory";
 import { useAllTeams } from "src/core/providers/all-teams-context";
-import { AuthMode, PlatformType } from "src/core/types";
-import { DeleteIntegrationModal } from "./modals/delete-integration";
-import { deleteIntegration } from "@services/codeManagement/fetch";
+import { AuthMode, IntegrationCategory, PlatformType } from "src/core/types";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
-import { useReactQueryInvalidateQueries } from "@hooks/use-invalidate-queries";
-import { INTEGRATION_CONFIG } from "@services/integrations/integrationConfig";
-import { IntegrationCategory } from "src/core/types";
+
 import CardConnection from "./cardConnection";
 import { AzureReposModal } from "./modals/azure-repos-token";
 import { BitbucketModal } from "./modals/bitbucket-token";
 import { CloneOfferingModal } from "./modals/clone-offering";
 import { CloneSelectTeamModal } from "./modals/clone-select-team";
+import { DeleteIntegrationModal } from "./modals/delete-integration";
 import { OauthOrTokenModal } from "./modals/oauth-or-token";
 import TextTopIntegrations from "./textTopIntegrations";
 
@@ -79,10 +81,11 @@ export default function CardsGroup({
     const router = useRouter();
     const pathname = usePathname();
     const { teams } = useAllTeams();
-    const { organizationId, organizationName } = useOrganizationContext();
+    const { organizationId } = useOrganizationContext();
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [integrationToDelete, setIntegrationToDelete] = useState<string>("");
-    const { invalidateQueries, generateQueryKey } = useReactQueryInvalidateQueries();
+    const { invalidateQueries, generateQueryKey } =
+        useReactQueryInvalidateQueries();
 
     const [connections] = useState<
         Array<{
@@ -421,12 +424,6 @@ export default function CardsGroup({
         );
     };
 
-    const hasProjectOrCodeManagementConnection = (): boolean => {
-        return (
-            !connectedCodeManagementPlatform
-        );
-    };
-
     const handleDeleteIntegration = useCallback(async (title: string) => {
         setIntegrationToDelete(title);
         setShowDeleteModal(true);
@@ -445,7 +442,7 @@ export default function CardsGroup({
                 return;
             }
 
-            await deleteIntegration(organizationId!, team.uuid);
+            await deleteIntegration(team.uuid);
 
             toast({
                 variant: "success",
@@ -459,7 +456,8 @@ export default function CardsGroup({
                     {
                         params: {
                             teamId: team.uuid,
-                            integrationCategory: IntegrationCategory.CODE_MANAGEMENT,
+                            integrationCategory:
+                                IntegrationCategory.CODE_MANAGEMENT,
                         },
                     },
                 ),
@@ -479,7 +477,6 @@ export default function CardsGroup({
 
             setShowDeleteModal(false);
             setIntegrationToDelete("");
-
         } catch (error) {
             toast({
                 variant: "warning",
@@ -487,7 +484,13 @@ export default function CardsGroup({
                 description: "Please try again later",
             });
         }
-    }, [organizationId, team.uuid, invalidateQueries, generateQueryKey, router]);
+    }, [
+        organizationId,
+        team.uuid,
+        invalidateQueries,
+        generateQueryKey,
+        router,
+    ]);
 
     return (
         <>

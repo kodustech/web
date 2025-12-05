@@ -21,7 +21,6 @@ interface RepositoryTreeByDirectoryResponse {
 const repositoryNamesCache = new Map<string, string>();
 
 export const useLazyRepositoryTree = (params: {
-    organizationId: string;
     repositoryId: string;
     teamId: string;
 }) => {
@@ -50,7 +49,6 @@ export const useLazyRepositoryTree = (params: {
             );
 
             const queryParams: Record<string, string> = {
-                organizationId: params.organizationId,
                 repositoryId: params.repositoryId,
                 teamId: params.teamId,
                 useCache: "true",
@@ -83,12 +81,7 @@ export const useLazyRepositoryTree = (params: {
 
             return data.directories;
         },
-        [
-            params.organizationId,
-            params.repositoryId,
-            params.teamId,
-            accessToken,
-        ],
+        [params.repositoryId, params.teamId, accessToken],
     );
 
     const loadDirectory = useCallback(
@@ -108,12 +101,7 @@ export const useLazyRepositoryTree = (params: {
     );
 
     const { data: rootDirectories, isLoading: isLoadingRoot } = useQuery({
-        queryKey: [
-            "repository-tree-lazy",
-            params.organizationId,
-            params.repositoryId,
-            "root",
-        ],
+        queryKey: ["repository-tree-lazy", params.repositoryId, "root"],
         queryFn: () => loadDirectory(null),
         staleTime: 15 * 60 * 1000,
     });

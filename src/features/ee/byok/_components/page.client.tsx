@@ -8,7 +8,6 @@ import {
 } from "@services/organizationParameters/fetch";
 import { OrganizationParametersConfigKey } from "@services/parameters/types";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
-import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 import type { BYOKConfig } from "../_types";
 import { BYOKCard } from "./card";
@@ -18,8 +17,6 @@ export const ByokPageClient = ({
 }: {
     config: { main: BYOKConfig; fallback: BYOKConfig } | undefined;
 }) => {
-    const { organizationId } = useOrganizationContext();
-
     const onSaveMain = async (newConfig: BYOKConfig) => {
         try {
             await createOrUpdateOrganizationParameter(
@@ -27,7 +24,6 @@ export const ByokPageClient = ({
                 {
                     main: newConfig,
                 },
-                organizationId,
             );
 
             toast({
@@ -51,7 +47,6 @@ export const ByokPageClient = ({
                 {
                     fallback: newConfig,
                 },
-                organizationId,
             );
 
             toast({

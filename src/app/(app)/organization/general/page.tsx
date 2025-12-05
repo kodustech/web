@@ -28,7 +28,6 @@ export default async function OrganizationSettingsPage() {
             configValue: Timezone;
         }>({
             key: OrganizationParametersConfigKey.TIMEZONE_CONFIG,
-            organizationId,
         });
 
         if (result?.configValue) {
@@ -43,7 +42,6 @@ export default async function OrganizationSettingsPage() {
                     body: JSON.stringify({
                         key: OrganizationParametersConfigKey.TIMEZONE_CONFIG,
                         configValue: timezoneConfigValue,
-                        organizationAndTeamData: { organizationId },
                     }),
                 },
             );
@@ -55,7 +53,6 @@ export default async function OrganizationSettingsPage() {
             configValue: OrganizationParametersAutoJoinConfig;
         }>({
             key: OrganizationParametersConfigKey.AUTO_JOIN_CONFIG,
-            organizationId,
         });
 
         if (result?.configValue) {
@@ -70,7 +67,6 @@ export default async function OrganizationSettingsPage() {
                     body: JSON.stringify({
                         key: OrganizationParametersConfigKey.AUTO_JOIN_CONFIG,
                         configValue: autoJoinConfigValue,
-                        organizationAndTeamData: { organizationId },
                     }),
                 },
             );
