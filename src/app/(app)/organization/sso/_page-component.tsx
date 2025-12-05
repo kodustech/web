@@ -16,7 +16,9 @@ import { useAsyncAction } from "@hooks/use-async-action";
 import { createOrUpdateSSOConfig } from "@services/ssoConfig/fetch";
 import { Save, Upload } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
+import { useAuth } from "src/core/providers/auth.provider";
 import { publicDomainsSet } from "src/core/utils/email";
+import { pathToApiUrl } from "src/core/utils/helpers";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 import { SSOConfig, SSOProtocol } from "src/lib/auth/types";
 import { z } from "zod";
@@ -87,9 +89,14 @@ export const ClientSsoOrganizationSettingsPage = (props: {
     uuid?: string;
 }) => {
     const router = useRouter();
+    const { organizationId } = useAuth();
     const [metadataUrl, setMetadataUrl] = useState<string>("");
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isUploading, setIsUploading] = useState(false);
+
+    const callbackUrl = pathToApiUrl(
+        `/auth/sso/saml/callback/${organizationId}`,
+    );
 
     const userDomain = props.email.split("@")[1];
     const form = useForm<SsoFormData>({
@@ -364,6 +371,58 @@ export const ClientSsoOrganizationSettingsPage = (props: {
                                                     upload an XML file to
                                                     auto-fill the fields below
                                                 </FormControl.Helper>
+
+                                                <div className="pt-2">
+                                                    <FormControl.Root>
+                                                        <FormControl.Label>
+                                                            Callback URL
+                                                        </FormControl.Label>
+                                                        <div className="flex items-center space-x-2">
+                                                            <Input
+                                                                value={
+                                                                    callbackUrl
+                                                                }
+                                                                readOnly
+                                                                className="flex-1 font-mono text-sm"
+                                                                onClick={() => {
+                                                                    navigator.clipboard.writeText(
+                                                                        callbackUrl,
+                                                                    );
+                                                                    toast({
+                                                                        title: "Copied",
+                                                                        description:
+                                                                            "Callback URL copied to clipboard",
+                                                                        variant:
+                                                                            "success",
+                                                                    });
+                                                                }}
+                                                            />
+                                                            <Button
+                                                                type="button"
+                                                                variant="secondary"
+                                                                size="md"
+                                                                onClick={() => {
+                                                                    navigator.clipboard.writeText(
+                                                                        callbackUrl,
+                                                                    );
+                                                                    toast({
+                                                                        title: "Copied",
+                                                                        variant:
+                                                                            "success",
+                                                                        description:
+                                                                            "Callback URL copied to clipboard",
+                                                                    });
+                                                                }}>
+                                                                Copy
+                                                            </Button>
+                                                        </div>
+                                                        <FormControl.Helper>
+                                                            Provide this URL to
+                                                            your identity
+                                                            provider
+                                                        </FormControl.Helper>
+                                                    </FormControl.Root>
+                                                </div>
                                             </div>
                                         </div>
 
