@@ -28,7 +28,6 @@ import { Save } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { publicDomainsSet } from "src/core/utils/email";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
-import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 import { z } from "zod";
 
 const timezoneOptions = [
@@ -91,7 +90,6 @@ export const GeneralOrganizationSettingsPage = (props: {
     timezone: Timezone;
     autoJoinConfig: OrganizationParametersAutoJoinConfig;
 }) => {
-    const { organizationId } = useOrganizationContext();
     const router = useRouter();
     const userDomain = props.email.split("@")[1];
 
@@ -120,7 +118,6 @@ export const GeneralOrganizationSettingsPage = (props: {
                         createOrUpdateOrganizationParameter(
                             OrganizationParametersConfigKey.TIMEZONE_CONFIG,
                             data.timezone,
-                            organizationId,
                         ),
                     );
                 }
@@ -133,7 +130,6 @@ export const GeneralOrganizationSettingsPage = (props: {
                         createOrUpdateOrganizationParameter(
                             OrganizationParametersConfigKey.AUTO_JOIN_CONFIG,
                             data.autoJoinConfig,
-                            organizationId,
                         ),
                     );
                 }

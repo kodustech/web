@@ -1,19 +1,20 @@
 import { cookies } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { Page } from "@components/ui/page";
-import { getBYOK } from "@services/organizationParameters/fetch";
-import { getOrganizationId } from "@services/organizations/fetch";
 import {
     getDailyTokenUsage,
     getTokenPricing,
     getTokenUsageByDeveloper,
     getTokenUsageByPR,
 } from "@services/usage/fetch";
-import { BaseUsageContract, UsageByPrResultContract } from "@services/usage/types";
+import {
+    BaseUsageContract,
+    UsageByPrResultContract,
+} from "@services/usage/types";
+import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 import { CookieName } from "src/core/utils/cookie";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
-import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { getSelectedDateRange } from "src/features/ee/cockpit/_helpers/get-selected-date-range";
 import { validateOrganizationLicense } from "src/features/ee/subscription/_services/billing/fetch";
@@ -45,13 +46,9 @@ export default async function TokenUsagePage({
 
     const cookieStore = await cookies();
 
-    const [organizationId, selectedDateRange] = await Promise.all([
-        getOrganizationId(),
-        getSelectedDateRange(),
-    ]);
+    const selectedDateRange = await getSelectedDateRange();
 
     const filters = {
-        organizationId,
         startDate: selectedDateRange.startDate,
         endDate: selectedDateRange.endDate,
         prNumber: params.prNumber ? Number(params.prNumber) : undefined,
@@ -81,22 +78,34 @@ export default async function TokenUsagePage({
     }
 
     const ENABLE_MOCK_DATA = false;
-    
+
     if (ENABLE_MOCK_DATA && filterType === "by-pr") {
         const mockData: UsageByPrResultContract[] = [];
-        
+
         for (let i = 1; i <= 30; i++) {
             const isOutlier = i === 15;
             const isHighUsage = i === 5 || i === 22;
-            
-            const baseInput = isOutlier ? 15000000 : isHighUsage ? 50000 : Math.random() * 5000 + 1000;
-            const baseOutput = isOutlier ? 8000000 : isHighUsage ? 30000 : Math.random() * 3000 + 500;
-            const baseReasoning = isOutlier ? 2000000 : isHighUsage ? 10000 : Math.random() * 1000 + 200;
-            
+
+            const baseInput = isOutlier
+                ? 15000000
+                : isHighUsage
+                  ? 50000
+                  : Math.random() * 5000 + 1000;
+            const baseOutput = isOutlier
+                ? 8000000
+                : isHighUsage
+                  ? 30000
+                  : Math.random() * 3000 + 500;
+            const baseReasoning = isOutlier
+                ? 2000000
+                : isHighUsage
+                  ? 10000
+                  : Math.random() * 1000 + 200;
+
             const input = Math.floor(baseInput);
             const output = Math.floor(baseOutput);
             const outputReasoning = Math.floor(baseReasoning);
-            
+
             mockData.push({
                 model: "claude-3-5-sonnet-20241022",
                 input,
@@ -106,7 +115,7 @@ export default async function TokenUsagePage({
                 prNumber: i,
             });
         }
-        
+
         data = mockData;
     }
 
@@ -115,7 +124,7 @@ export default async function TokenUsagePage({
     );
 
     let pricing = {};
-    
+
     if (ENABLE_MOCK_DATA && filterType === "by-pr") {
         pricing = {
             "claude-3-5-sonnet-20241022": {
