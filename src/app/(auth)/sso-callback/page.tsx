@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { deleteCookie, getCookie } from "cookies-next";
+import { getCookie } from "cookies-next";
 import { signIn } from "next-auth/react";
 
 export default function SsoCallbackPage() {
@@ -10,10 +10,12 @@ export default function SsoCallbackPage() {
 
     useEffect(() => {
         const domain =
-            process.env.WEB_NODE_ENV === "production" ? ".kodus.io" : undefined;
+            process.env.WEB_NODE_ENV !== "development"
+                ? ".kodus.io"
+                : undefined;
 
         const handoffCookie = getCookie("sso_handoff", { domain });
-        deleteCookie("sso_handoff", { domain });
+        // deleteCookie("sso_handoff", { domain });
 
         console.log("SSO handoff cookie:", handoffCookie);
         console.log("SSO handoff cookie domain:", domain);
