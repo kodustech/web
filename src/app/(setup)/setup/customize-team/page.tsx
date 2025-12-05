@@ -61,12 +61,6 @@ const KodyRuleCard = ({
                             <IssueSeverityLevelBadge severity={rule.severity} />
                         )}
                     </div>
-
-                    {repositoryName && (
-                        <span className="text-text-secondary text-xs">
-                            repo: {repositoryName}
-                        </span>
-                    )}
                 </div>
 
                 <span className="text-text-secondary line-clamp-3 text-xs">
@@ -223,7 +217,7 @@ export default function CustomizeTeamPage() {
     };
 
     return (
-        <Page.Root className="mx-auto flex min-h-screen flex-col gap-6 overflow-x-hidden overflow-y-auto p-6 lg:max-h-screen lg:flex-row lg:gap-6 lg:overflow-hidden">
+        <Page.Root className="mx-auto flex min-h-screen flex-col gap-6 overflow-x-hidden p-6 lg:flex-row lg:gap-6">
             <div className="bg-card-lv1 flex w-full flex-col justify-center gap-10 rounded-3xl p-8 lg:max-w-none lg:flex-10 lg:p-12">
                 <div className="flex-1 overflow-hidden rounded-3xl">
                     <video
@@ -238,7 +232,7 @@ export default function CustomizeTeamPage() {
                 </div>
             </div>
 
-            <div className="flex w-full flex-col gap-10 lg:flex-14 lg:overflow-y-auto lg:p-10">
+            <div className="flex w-full flex-col gap-10 lg:flex-14 lg:p-10">
                 <div className="flex flex-1 flex-col gap-8">
                     <StepIndicators.Auto />
 
@@ -248,14 +242,20 @@ export default function CustomizeTeamPage() {
                         <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                             <div className="flex flex-col gap-1">
                                 <span className="text-text-secondary text-sm">
-                                    Kody Rules are guardrails Kody uses when
-                                    reviewing your code. These rules are auto
-                                    detected from your codebase. Review what
-                                    matters now and adjust anytime in Settings.
+                                    <b>
+                                        Kody Rules are guardrails Kody uses when
+                                        reviewing your code.
+                                    </b>{" "}
+                                    These rules are auto detected from your
+                                    codebase. Review what matters now and adjust
+                                    anytime in Settings.
                                 </span>
                             </div>
+                        </div>
+
+                        <div className="flex flex-row items-center justify-end">
                             {pendingRules.length > 0 && (
-                                <span className="text-primary-light shrink-0 text-sm">
+                                <span className="text-primary-light shrink-0 text-xs">
                                     {selectedRules.length} selected of{" "}
                                     {pendingRules.length}
                                 </span>
@@ -311,7 +311,7 @@ export default function CustomizeTeamPage() {
                             </div>
                         )}
 
-                        <span className="text-text-secondary text-right text-sm">
+                        <span className="text-text-secondary text-right text-xs">
                             You can edit these rules anytime in Settings.
                         </span>
                     </div>
@@ -331,14 +331,14 @@ export default function CustomizeTeamPage() {
                                     selectedRules.length === 0)
                             }
                             onClick={handleApplyAndContinue}>
-                            Apply and continue
+                            {`Apply ${selectedRules.length} and continue`}
                         </Button>
 
                         <button
                             type="button"
                             onClick={handleSkip}
                             className="text-primary-light text-sm hover:underline">
-                            Skip for now
+                            I'll do this later
                         </button>
                     </div>
                 </div>

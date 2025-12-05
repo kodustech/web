@@ -164,7 +164,7 @@ export default function ReviewModePage() {
     };
 
     return (
-        <Page.Root className="mx-auto flex min-h-screen flex-col gap-6 overflow-x-hidden overflow-y-auto p-6 lg:max-h-screen lg:flex-row lg:gap-6 lg:overflow-hidden">
+        <Page.Root className="mx-auto flex min-h-screen flex-col gap-6 overflow-x-hidden p-6 lg:flex-row lg:gap-6">
             <div className="bg-card-lv1 flex w-full flex-col justify-center gap-10 rounded-3xl p-8 lg:max-w-none lg:flex-10 lg:p-12">
                 <div className="flex-1 overflow-hidden rounded-3xl">
                     <video
@@ -179,7 +179,7 @@ export default function ReviewModePage() {
                 </div>
             </div>
 
-            <div className="flex w-full flex-col gap-10 lg:flex-14 lg:overflow-y-auto lg:p-10">
+            <div className="flex w-full flex-col gap-10 lg:flex-14 lg:p-10">
                 <div className="flex flex-1 flex-col gap-8">
                     <StepIndicators.Auto />
 
