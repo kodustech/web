@@ -9,10 +9,14 @@ export default function SsoCallbackPage() {
     const router = useRouter();
 
     useEffect(() => {
-        const handoffCookie = getCookie("sso_handoff");
-        deleteCookie("sso_handoff");
+        const domain =
+            process.env.WEB_NODE_ENV === "production" ? ".kodus.io" : undefined;
+
+        const handoffCookie = getCookie("sso_handoff", { domain });
+        deleteCookie("sso_handoff", { domain });
 
         console.log("SSO handoff cookie:", handoffCookie);
+        console.log("SSO handoff cookie domain:", domain);
         console.log("SSO handoff cookie type:", typeof handoffCookie);
 
         if (handoffCookie) {
