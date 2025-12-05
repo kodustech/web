@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
 import { Card, CardHeader } from "@components/ui/card";
@@ -14,14 +14,19 @@ import { toast } from "@components/ui/toaster/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { createOrUpdateSSOConfig } from "@services/ssoConfig/fetch";
-import { Save } from "lucide-react";
+import { Save, Upload } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
+import { useAuth } from "src/core/providers/auth.provider";
 import { publicDomainsSet } from "src/core/utils/email";
+import { pathToApiUrl } from "src/core/utils/helpers";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 import { SSOConfig, SSOProtocol } from "src/lib/auth/types";
 import { z } from "zod";
 
-import { fetchAndParseMetadata } from "./_components/metadata";
+import {
+    fetchAndParseMetadata,
+    parseMetadataFromFile,
+} from "./_components/metadata";
 
 const createSsoSchema = (userDomain: string) =>
     z
@@ -84,7 +89,14 @@ export const ClientSsoOrganizationSettingsPage = (props: {
     uuid?: string;
 }) => {
     const router = useRouter();
+    const { organizationId } = useAuth();
     const [metadataUrl, setMetadataUrl] = useState<string>("");
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const callbackUrl = pathToApiUrl(
+        `/auth/sso/saml/callback/${organizationId}`,
+    );
 
     const userDomain = props.email.split("@")[1];
     const form = useForm<SsoFormData>({
@@ -179,6 +191,53 @@ export const ClientSsoOrganizationSettingsPage = (props: {
         }
     };
 
+    const handleFileUpload = async (
+        event: React.ChangeEvent<HTMLInputElement>,
+    ) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setIsUploading(true);
+
+        try {
+            const fileContent = await file.text();
+            const { idpIssuer, entryPoint, cert, success, error } =
+                await parseMetadataFromFile(fileContent);
+
+            if (!success) {
+                throw new Error(error);
+            }
+
+            setValue("providerConfig.idpIssuer", idpIssuer);
+            setValue("providerConfig.entryPoint", entryPoint);
+            setValue("providerConfig.cert", cert);
+            form.trigger();
+
+            toast({
+                description: "Metadata uploaded successfully",
+                variant: "success",
+            });
+        } catch (error) {
+            console.error("File upload error:", error);
+            toast({
+                title: "Error",
+                description:
+                    "Failed to parse metadata file. Please make sure it's a valid SAML metadata XML file.",
+                variant: "danger",
+            });
+        } finally {
+            setIsUploading(false);
+            // Reset the file input
+            if (fileInputRef.current) {
+                fileInputRef.current.value = "";
+            }
+        }
+    };
+
+    const handleUploadClick = () => {
+        fileInputRef.current?.click();
+    };
+
     const isEnabled = watch("active");
 
     return (
@@ -236,38 +295,135 @@ export const ClientSsoOrganizationSettingsPage = (props: {
 
                                 {isEnabled && (
                                     <div className="space-y-6 border-t border-gray-200 pt-6">
-                                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                                            <FormControl.Root>
-                                                <FormControl.Label>
-                                                    Metadata URL (optional)
-                                                </FormControl.Label>
-                                                <div className="flex space-x-2">
-                                                    <Input
-                                                        placeholder="https://idp.example.com/metadata.xml"
-                                                        value={metadataUrl}
-                                                        onChange={(e) =>
-                                                            setMetadataUrl(
-                                                                e.target.value,
-                                                            )
-                                                        }
-                                                        className="flex-1"
-                                                    />
+                                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-1">
+                                            <div className="space-y-4">
+                                                <FormControl.Root>
+                                                    <FormControl.Label>
+                                                        Metadata URL (optional)
+                                                    </FormControl.Label>
+                                                    <div className="flex space-x-2">
+                                                        <Input
+                                                            placeholder="https://idp.example.com/metadata.xml"
+                                                            value={metadataUrl}
+                                                            onChange={(e) =>
+                                                                setMetadataUrl(
+                                                                    e.target
+                                                                        .value,
+                                                                )
+                                                            }
+                                                            className="flex-1"
+                                                        />
+                                                        <Button
+                                                            type="button"
+                                                            variant="primary"
+                                                            size="md"
+                                                            onClick={
+                                                                handleMetadataFetch
+                                                            }
+                                                            disabled={
+                                                                !metadataUrl ||
+                                                                isUploading
+                                                            }>
+                                                            Fetch
+                                                        </Button>
+                                                    </div>
+                                                </FormControl.Root>
+
+                                                <div className="relative">
+                                                    <div className="absolute inset-0 flex items-center">
+                                                        <div className="w-full border-t border-gray-200"></div>
+                                                    </div>
+                                                    <div className="relative flex justify-center text-sm">
+                                                        <span className="bg-card-lv1 px-2 text-gray-500">
+                                                            or
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <div>
                                                     <Button
                                                         type="button"
-                                                        variant="primary"
+                                                        variant="secondary"
                                                         size="md"
                                                         onClick={
-                                                            handleMetadataFetch
+                                                            handleUploadClick
                                                         }
-                                                        disabled={!metadataUrl}>
-                                                        Fetch
+                                                        disabled={isUploading}
+                                                        className="w-full">
+                                                        <Upload className="mr-2 h-4 w-4" />
+                                                        {isUploading
+                                                            ? "Uploading..."
+                                                            : "Upload Metadata XML File"}
                                                     </Button>
+                                                    <input
+                                                        type="file"
+                                                        ref={fileInputRef}
+                                                        onChange={
+                                                            handleFileUpload
+                                                        }
+                                                        accept=".xml"
+                                                        className="hidden"
+                                                    />
                                                 </div>
+
                                                 <FormControl.Helper>
-                                                    Provide a metadata URL to
+                                                    Provide a metadata URL or
+                                                    upload an XML file to
                                                     auto-fill the fields below
                                                 </FormControl.Helper>
-                                            </FormControl.Root>
+
+                                                <div className="pt-2">
+                                                    <FormControl.Root>
+                                                        <FormControl.Label>
+                                                            Callback URL
+                                                        </FormControl.Label>
+                                                        <div className="flex items-center space-x-2">
+                                                            <Input
+                                                                value={
+                                                                    callbackUrl
+                                                                }
+                                                                readOnly
+                                                                className="flex-1 font-mono text-sm"
+                                                                onClick={() => {
+                                                                    navigator.clipboard.writeText(
+                                                                        callbackUrl,
+                                                                    );
+                                                                    toast({
+                                                                        title: "Copied",
+                                                                        description:
+                                                                            "Callback URL copied to clipboard",
+                                                                        variant:
+                                                                            "success",
+                                                                    });
+                                                                }}
+                                                            />
+                                                            <Button
+                                                                type="button"
+                                                                variant="secondary"
+                                                                size="md"
+                                                                onClick={() => {
+                                                                    navigator.clipboard.writeText(
+                                                                        callbackUrl,
+                                                                    );
+                                                                    toast({
+                                                                        title: "Copied",
+                                                                        variant:
+                                                                            "success",
+                                                                        description:
+                                                                            "Callback URL copied to clipboard",
+                                                                    });
+                                                                }}>
+                                                                Copy
+                                                            </Button>
+                                                        </div>
+                                                        <FormControl.Helper>
+                                                            Provide this URL to
+                                                            your identity
+                                                            provider
+                                                        </FormControl.Helper>
+                                                    </FormControl.Root>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
