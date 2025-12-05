@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { getCookie } from "cookies-next";
+import { deleteCookie, getCookie } from "cookies-next";
 import { signIn } from "next-auth/react";
 
 export default function SsoCallbackPage() {
@@ -15,11 +15,7 @@ export default function SsoCallbackPage() {
                 : undefined;
 
         const handoffCookie = getCookie("sso_handoff", { domain });
-        // deleteCookie("sso_handoff", { domain });
-
-        console.log("SSO handoff cookie:", handoffCookie);
-        console.log("SSO handoff cookie domain:", domain);
-        console.log("SSO handoff cookie type:", typeof handoffCookie);
+        deleteCookie("sso_handoff", { domain });
 
         if (handoffCookie) {
             try {
@@ -32,11 +28,9 @@ export default function SsoCallbackPage() {
                     redirectTo: "/",
                 });
             } catch (e) {
-                console.error("Failed to parse SSO cookie");
                 router.push("/sign-out");
             }
         } else {
-            console.error("No SSO handoff cookie found");
             router.push("/sign-out");
         }
     }, [router]);
