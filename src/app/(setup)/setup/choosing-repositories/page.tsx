@@ -18,6 +18,7 @@ import {
     getParameterByKey,
     updateCodeReviewParameterRepositories,
 } from "@services/parameters/fetch";
+import { fastSyncIDERules } from "@services/kodyRules/fetch";
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { useSuspenseGetConnections } from "@services/setup/hooks";
@@ -109,6 +110,22 @@ export default function App() {
         }
 
         await updateCodeReviewParameterRepositories(teamId);
+
+        if (teamId) {
+            const fastSyncPromises = selectedRepositories.map((repo) =>
+                fastSyncIDERules({ teamId, repositoryId: repo.id }).catch(
+                    (error) => {
+                        console.error(
+                            "Error fast syncing IDE rules for repo",
+                            repo.id,
+                            error,
+                        );
+                    },
+                ),
+            );
+
+            void Promise.allSettled(fastSyncPromises);
+        }
 
         await captureSegmentEvent({
             userId: userId!,

@@ -1,17 +1,17 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level-badge";
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
 import { Heading } from "@components/ui/heading";
-import { SvgKodus } from "@components/ui/icons/SvgKodus";
 import { Page } from "@components/ui/page";
 import { Spinner } from "@components/ui/spinner";
 import { toast } from "@components/ui/toaster/use-toast";
 import { KODY_RULES_PATHS } from "@services/kodyRules";
+import { PULL_REQUEST_API } from "@services/pull-requests/fetch";
 import {
     reviewFastIDERules,
     type ReviewFastIDERulesPayload,
@@ -31,37 +31,39 @@ const REVIEW_MODES = [
         id: "default" as const,
         title: "Default",
         description: "Balanced review with a reasonable number of comments.",
-        image: "/assets/images/kody/look-right.png",
+        image: "/assets/images/kody_default.png",
     },
     {
         id: "safety" as const,
         title: "Safety",
         description:
             "More issues flagged and more comments. Best for thorough reviews.",
-        image: "/assets/images/kody/chemicals.png",
+        image: "/assets/images/kody_safety.png",
         recommended: true,
     },
     {
         id: "speed" as const,
         title: "Speed",
         description: "Only high impact issues. Minimal comments.",
-        image: "/assets/images/kody/look-left-with-paws.png",
+        image: "/assets/images/kody_speed.png",
     },
     {
         id: "coach" as const,
         title: "Coach",
         description: "More suggestions and explanations. Less nitpicking.",
-        image: "/assets/images/kody/look-right.png",
+        image: "/assets/images/kody_coach.png",
     },
 ];
 
 const ReviewModeCard = ({
     mode,
     selected,
+    recommended,
     onSelect,
 }: {
     mode: (typeof REVIEW_MODES)[number];
     selected: boolean;
+    recommended?: boolean;
     onSelect: () => void;
 }) => {
     return (
@@ -74,8 +76,8 @@ const ReviewModeCard = ({
                     ? "border-primary-light bg-primary-light/5"
                     : "border-card-lv3 hover:border-card-lv3/80",
             )}>
-            {mode.recommended && (
-                <span className="bg-primary-light/20 text-primary-light absolute -top-2.5 right-3 rounded px-2 py-0.5 text-[10px] font-medium whitespace-nowrap">
+            {recommended && (
+                <span className="bg-primary-light text-black absolute -top-2.5 right-3 rounded px-2.5 py-0.5 text-[10px] font-semibold shadow-sm ring-1 ring-primary/30 whitespace-nowrap">
                     Recommended based on your repo
                 </span>
             )}
@@ -108,9 +110,16 @@ const KodyRuleCard = ({
     onToggle: () => void;
 }) => {
     return (
-        <button
-            type="button"
+        <div
+            role="button"
+            tabIndex={0}
             onClick={onToggle}
+            onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onToggle();
+                }
+            }}
             className={cn(
                 "flex flex-row items-start gap-4 rounded-xl border p-4 text-left transition-colors",
                 selected
@@ -141,7 +150,7 @@ const KodyRuleCard = ({
                 </span>
             </div>
             <Checkbox checked={selected} />
-        </button>
+        </div>
     );
 };
 
@@ -149,10 +158,18 @@ export default function CustomizeTeamPage() {
     const router = useRouter();
     const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
-    const [selectedMode, setSelectedMode] = useState<ReviewMode>("safety");
+    const [selectedMode, setSelectedMode] = useState<ReviewMode>("default");
     const [selectedRules, setSelectedRules] = useState<string[]>([]);
     const [isSavingRules, setIsSavingRules] = useState(false);
     const [noRulesTimeoutReached, setNoRulesTimeoutReached] = useState(false);
+    const hasAppliedRecommendation = useRef(false);
+
+    const selectedRepoIds = useMemo(() => {
+        const repos = configValue?.repositories || [];
+        const selected = repos.filter((r) => r?.isSelected);
+        if (selected.length) return selected.map((r) => r.id);
+        return repos.map((r) => r.id);
+    }, [configValue?.repositories]);
 
     const {
         data: pendingRules = [],
@@ -168,6 +185,46 @@ export default function CustomizeTeamPage() {
             staleTime: 0,
         },
     );
+
+    const {
+        data: onboardingSignals = [],
+        isLoading: isOnboardingSignalsLoading,
+        isFetching: isOnboardingSignalsFetching,
+    } =
+        useFetch<
+            Array<{
+                repositoryId: string;
+                recommendation?: { mode?: string };
+            }>
+        >(
+            teamId && selectedRepoIds.length
+                ? PULL_REQUEST_API.GET_ONBOARDING_SIGNALS({
+                      teamId,
+                      repositoryIds: selectedRepoIds,
+                      limit: 5,
+                  })
+                : null,
+            undefined,
+            Boolean(teamId && selectedRepoIds.length),
+        ) || {};
+
+    const recommendedMode = useMemo(() => {
+        const mode =
+            onboardingSignals?.[0]?.recommendation?.mode?.toLowerCase();
+        if (
+            mode === "safety" ||
+            mode === "speed" ||
+            mode === "coach" ||
+            mode === "default"
+        )
+            return mode as ReviewMode;
+        return undefined;
+    }, [onboardingSignals]);
+
+    const recommendationLoading =
+        Boolean(teamId && selectedRepoIds.length) &&
+        !recommendedMode &&
+        (isOnboardingSignalsLoading || isOnboardingSignalsFetching);
 
     const repositoryNameById = useMemo(() => {
         return new Map(
@@ -192,6 +249,13 @@ export default function CustomizeTeamPage() {
         const sortedB = [...b].sort();
         return sortedA.every((id, idx) => id === sortedB[idx]);
     };
+
+    useEffect(() => {
+        if (recommendedMode && !hasAppliedRecommendation.current) {
+            setSelectedMode(recommendedMode);
+            hasAppliedRecommendation.current = true;
+        }
+    }, [recommendedMode]);
 
     useEffect(() => {
         setSelectedRules((prev) => {
@@ -293,8 +357,6 @@ export default function CustomizeTeamPage() {
     return (
         <Page.Root className="mx-auto flex min-h-screen flex-col gap-6 overflow-x-hidden overflow-y-auto p-6 lg:max-h-screen lg:flex-row lg:gap-6 lg:overflow-hidden">
             <div className="bg-card-lv1 flex w-full flex-col justify-center gap-10 rounded-3xl p-8 lg:max-w-none lg:flex-10 lg:p-12">
-                <SvgKodus className="h-8 min-h-8" />
-
                 <div className="flex-1 overflow-hidden rounded-3xl">
                     <video
                         loop
@@ -315,13 +377,19 @@ export default function CustomizeTeamPage() {
                     <Heading variant="h2">Customize for your team</Heading>
 
                     <div className="flex flex-col gap-4">
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1 sm:flex-col ">
                             <span className="text-base font-semibold">
                                 Choose a review mode
                             </span>
                             <span className="text-text-secondary text-sm">
                                 Pick a mode. You can change it anytime.
                             </span>
+                            {recommendationLoading && (
+                                <div className="text-text-secondary flex items-center gap-2 text-xs">
+                                    <Spinner className="h-4 w-4" />
+                                    <span>Loading recommendation...</span>
+                                </div>
+                            )}
                         </div>
 
                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -329,6 +397,7 @@ export default function CustomizeTeamPage() {
                                 <ReviewModeCard
                                     key={mode.id}
                                     mode={mode}
+                                    recommended={recommendedMode === mode.id}
                                     selected={selectedMode === mode.id}
                                     onSelect={() => setSelectedMode(mode.id)}
                                 />
@@ -351,7 +420,7 @@ export default function CustomizeTeamPage() {
                             </div>
                             {pendingRules.length > 0 && (
                                 <span className="text-primary-light shrink-0 text-sm">
-                                 git    {selectedRules.length} selected of{" "}
+                                    {selectedRules.length} selected of{" "}
                                     {pendingRules.length}
                                 </span>
                             )}

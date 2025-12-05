@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { MagicModalPortal } from "@components/ui/magic-modal";
+import { SvgKodus } from "@components/ui/icons/SvgKodus";
+import Link from "next/link";
 import {
     getOrganizationId,
     getOrganizationName,
@@ -14,6 +16,8 @@ import { SelectedTeamProvider } from "src/core/providers/selected-team-context";
 import { TEAM_STATUS } from "src/core/types";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { OrganizationProvider } from "src/features/organization/_providers/organization-context";
+
+import { SetupGithubStars } from "./_components/setup-github-stars";
 
 export default async function Layout(props: React.PropsWithChildren) {
     const [teams, organizationId, organizationName, session] =
@@ -69,7 +73,22 @@ export default async function Layout(props: React.PropsWithChildren) {
                 }}>
                 <AllTeamsProvider teams={teams}>
                     <SelectedTeamProvider>
-                        {props.children}
+                        <div className="relative min-h-screen bg-background">
+                            <div className="pointer-events-none fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between gap-4 border-b-2 border-primary-dark bg-card-lv1 px-6">
+                                <div className="pointer-events-auto flex items-center gap-3">
+                                    <SvgKodus className="h-16 w-16 text-text-primary" />
+                                </div>
+                                <div className="pointer-events-auto flex items-center gap-3 text-xs">
+                                    <SetupGithubStars />
+                                    <Link
+                                        href="/sign-out"
+                                        className="text-text-secondary hover:text-text-primary rounded-full bg-card-lv1 px-3 py-1.5 font-medium ring-1 ring-card-lv3">
+                                        Sign out
+                                    </Link>
+                                </div>
+                            </div>
+                            <div className="pt-16">{props.children}</div>
+                        </div>
                         <MagicModalPortal />
                     </SelectedTeamProvider>
                 </AllTeamsProvider>
