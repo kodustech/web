@@ -39,7 +39,7 @@ export default function App() {
     const { teamId } = useSelectedTeamId();
 
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
-    if (configValue?.repositories?.length) redirect("/setup/byok-setup");
+    if (configValue?.repositories?.length) redirect("/setup/review-mode");
 
     const [open, setOpen] = useState(false);
     const [selectedRepositories, setSelectedRepositories] = useState<
@@ -138,7 +138,7 @@ export default function App() {
             },
         });
 
-        router.replace("/setup/byok-setup");
+        router.replace("/setup/review-mode");
     });
 
     return (

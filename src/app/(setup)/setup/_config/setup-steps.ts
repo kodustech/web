@@ -16,8 +16,8 @@ export const SETUP_STEPS = [
         path: "/setup/choosing-repositories",
     },
     {
-        id: "byok-setup",
-        path: "/setup/byok-setup",
+        id: "review-mode",
+        path: "/setup/review-mode",
     },
     {
         id: "customize-team",

@@ -19,7 +19,7 @@ export default function App() {
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
 
     if (configValue?.repositories?.length) {
-        redirect("/setup/byok-setup");
+        redirect("/setup/review-mode");
     }
 
     return (
