@@ -71,7 +71,7 @@ export const NewPlanSelectionModal = ({
 
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
-            <DialogContent className="max-w-5xl pb-0">
+            <DialogContent className="max-w-7xl pb-0">
                 <DialogHeader>
                     <DialogTitle>Selecting subscription plan</DialogTitle>
                 </DialogHeader>
