@@ -1,24 +1,30 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level-badge";
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
 import { Heading } from "@components/ui/heading";
 import { SvgKodus } from "@components/ui/icons/SvgKodus";
 import { Page } from "@components/ui/page";
+import { Spinner } from "@components/ui/spinner";
+import { toast } from "@components/ui/toaster/use-toast";
+import { KODY_RULES_PATHS } from "@services/kodyRules";
+import {
+    reviewFastIDERules,
+    type ReviewFastIDERulesPayload,
+} from "@services/kodyRules/fetch";
+import type { KodyRule } from "@services/kodyRules/types";
+import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
+import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
+import { useFetch } from "src/core/utils/reactQuery";
 
 import { StepIndicators } from "../_components/step-indicators";
 
 type ReviewMode = "default" | "safety" | "speed" | "coach";
-
-interface KodyRule {
-    id: string;
-    title: string;
-    description: string;
-}
 
 const REVIEW_MODES = [
     {
@@ -46,27 +52,6 @@ const REVIEW_MODES = [
         title: "Coach",
         description: "More suggestions and explanations. Less nitpicking.",
         image: "/assets/images/kody/look-right.png",
-    },
-];
-
-const MOCK_KODY_RULES: KodyRule[] = [
-    {
-        id: "1",
-        title: "Lorem ipsum dolor sit amet consectetur.",
-        description:
-            "Proin donec penatibus sit proin. Ultrices ut arcu lectus venenatis amet. Diam ut ultrices commodo malesuada mus in. Lacus rhoncus iaculis magna in mi nulla suspendisse nunc amet.",
-    },
-    {
-        id: "2",
-        title: "Lorem ipsum dolor sit amet consectetur.",
-        description:
-            "Proin donec penatibus sit proin. Ultrices ut arcu lectus venenatis amet. Diam ut ultrices commodo malesuada mus in. Lacus rhoncus iaculis magna in mi nulla suspendisse nunc amet.",
-    },
-    {
-        id: "3",
-        title: "Lorem ipsum dolor sit amet consectetur.",
-        description:
-            "Proin donec penatibus sit proin. Ultrices ut arcu lectus venenatis amet. Diam ut ultrices commodo malesuada mus in. Lacus rhoncus iaculis magna in mi nulla suspendisse nunc amet.",
     },
 ];
 
@@ -114,10 +99,12 @@ const ReviewModeCard = ({
 const KodyRuleCard = ({
     rule,
     selected,
+    repositoryName,
     onToggle,
 }: {
     rule: KodyRule;
     selected: boolean;
+    repositoryName?: string;
     onToggle: () => void;
 }) => {
     return (
@@ -130,10 +117,27 @@ const KodyRuleCard = ({
                     ? "border-primary-light bg-primary-light/5"
                     : "border-card-lv3 hover:border-card-lv3/80",
             )}>
-            <div className="flex flex-1 flex-col gap-1">
-                <span className="text-sm font-semibold">{rule.title}</span>
-                <span className="text-text-secondary text-xs">
-                    {rule.description}
+            <div className="flex flex-1 flex-col gap-2">
+                <div className="flex flex-col gap-1">
+                    <div className="flex items-start justify-between gap-3">
+                        <span className="text-sm font-semibold">
+                            {rule.title}
+                        </span>
+
+                        {rule.severity && (
+                            <IssueSeverityLevelBadge severity={rule.severity} />
+                        )}
+                    </div>
+
+                    {repositoryName && (
+                        <span className="text-text-secondary text-xs">
+                            repo: {repositoryName}
+                        </span>
+                    )}
+                </div>
+
+                <span className="text-text-secondary line-clamp-3 text-xs">
+                    {rule.rule}
                 </span>
             </div>
             <Checkbox checked={selected} />
@@ -143,10 +147,95 @@ const KodyRuleCard = ({
 
 export default function CustomizeTeamPage() {
     const router = useRouter();
+    const { teamId } = useSelectedTeamId();
+    const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
     const [selectedMode, setSelectedMode] = useState<ReviewMode>("safety");
-    const [selectedRules, setSelectedRules] = useState<string[]>(["1", "3"]);
+    const [selectedRules, setSelectedRules] = useState<string[]>([]);
+    const [isSavingRules, setIsSavingRules] = useState(false);
+    const [noRulesTimeoutReached, setNoRulesTimeoutReached] = useState(false);
+
+    const {
+        data: pendingRules = [],
+        isLoading: isPendingRulesLoading,
+        isRefetching: isPendingRulesRefetching,
+    } = useFetch<Array<KodyRule>>(
+        KODY_RULES_PATHS.PENDING_IDE_RULES,
+        { params: { teamId } },
+        !!teamId,
+        {
+            refetchInterval: 5000,
+            refetchIntervalInBackground: true,
+            staleTime: 0,
+        },
+    );
+
+    const repositoryNameById = useMemo(() => {
+        return new Map(
+            (configValue?.repositories || []).map((repo) => [
+                repo.id,
+                repo.name,
+            ]),
+        );
+    }, [configValue?.repositories]);
+
+    const pendingRuleIds = useMemo(
+        () =>
+            (pendingRules || [])
+                .map((rule) => rule.uuid)
+                .filter((id): id is string => Boolean(id)),
+        [pendingRules],
+    );
+
+    const areArraysEqual = (a: string[], b: string[]) => {
+        if (a.length !== b.length) return false;
+        const sortedA = [...a].sort();
+        const sortedB = [...b].sort();
+        return sortedA.every((id, idx) => id === sortedB[idx]);
+    };
+
+    useEffect(() => {
+        setSelectedRules((prev) => {
+            if (areArraysEqual(prev, pendingRuleIds)) return prev;
+
+            if (prev.length === 0) return pendingRuleIds;
+
+            const stillSelected = prev.filter((id) =>
+                pendingRuleIds.includes(id),
+            );
+            const newOnes = pendingRuleIds.filter(
+                (id) => !stillSelected.includes(id),
+            );
+
+            const next = [...stillSelected, ...newOnes];
+
+            if (areArraysEqual(prev, next)) return prev;
+
+            return next;
+        });
+    }, [pendingRuleIds]);
+
+    useEffect(() => {
+        if (pendingRuleIds.length > 0) {
+            setNoRulesTimeoutReached(false);
+            return;
+        }
+
+        const timeout = setTimeout(() => setNoRulesTimeoutReached(true), 15000);
+
+        return () => clearTimeout(timeout);
+    }, [pendingRuleIds]);
+
+    const showEmptyStateSpinner = useMemo(
+        () =>
+            !noRulesTimeoutReached &&
+            pendingRules.length === 0 &&
+            isPendingRulesLoading,
+        [noRulesTimeoutReached, pendingRules.length, isPendingRulesLoading],
+    );
 
     const toggleRule = (ruleId: string) => {
+        if (!ruleId) return;
+
         setSelectedRules((prev) =>
             prev.includes(ruleId)
                 ? prev.filter((id) => id !== ruleId)
@@ -154,11 +243,50 @@ export default function CustomizeTeamPage() {
         );
     };
 
-    const handleApplyAndContinue = () => {
-        router.push("/setup/choosing-a-pull-request");
+    const handleApplyAndContinue = async () => {
+        if (!teamId) {
+            toast({
+                variant: "danger",
+                description: "Missing team. Please try again.",
+            });
+            return;
+        }
+
+        const pendingIds = pendingRules
+            .map((rule) => rule.uuid)
+            .filter((id): id is string => Boolean(id));
+
+        const payload: ReviewFastIDERulesPayload = {
+            teamId,
+            activateRuleIds: selectedRules,
+            deleteRuleIds: pendingIds.filter(
+                (id) => !selectedRules.includes(id),
+            ),
+        };
+
+        try {
+            setIsSavingRules(true);
+            await reviewFastIDERules(payload);
+            toast({
+                variant: "success",
+                description: "Rules saved for your team.",
+            });
+            router.push("/setup/choosing-a-pull-request");
+        } catch (error) {
+            console.error("Error reviewing fast IDE rules", error);
+            toast({
+                variant: "danger",
+                description:
+                    "We couldn't save your selection. Please try again.",
+            });
+        } finally {
+            setIsSavingRules(false);
+        }
     };
 
     const handleSkip = () => {
+        if (isSavingRules) return;
+
         router.push("/setup/choosing-a-pull-request");
     };
 
@@ -215,28 +343,71 @@ export default function CustomizeTeamPage() {
                                     Kody Rules
                                 </span>
                                 <span className="text-text-secondary text-sm">
-                                    Recommended based on your repo (and recent
-                                    PRs, if available). Edit anytime.
+                                    Kody Rules are guardrails Kody uses when
+                                    reviewing your repo. These suggestions come
+                                    from your codebase; keep what matters and
+                                    adjust anytime.
                                 </span>
                             </div>
-                            <span className="text-primary-light shrink-0 text-sm">
-                                {selectedRules.length} selected
-                            </span>
+                            {pendingRules.length > 0 && (
+                                <span className="text-primary-light shrink-0 text-sm">
+                                 git    {selectedRules.length} selected of{" "}
+                                    {pendingRules.length}
+                                </span>
+                            )}
                         </div>
 
-                        <div className="flex flex-col gap-3">
-                            {MOCK_KODY_RULES.map((rule) => (
-                                <KodyRuleCard
-                                    key={rule.id}
-                                    rule={rule}
-                                    selected={selectedRules.includes(rule.id)}
-                                    onToggle={() => toggleRule(rule.id)}
-                                />
-                            ))}
-                        </div>
+                        {pendingRules.length === 0 ? (
+                            <div className="bg-card-lv1 border-card-lv3 text-text-secondary flex flex-col gap-2 rounded-xl border p-4 text-sm">
+                                <div className="text-text-primary flex items-center gap-2 font-semibold">
+                                    {showEmptyStateSpinner ? <Spinner /> : null}
+                                    <span>
+                                        {noRulesTimeoutReached
+                                            ? "No rules generated this time"
+                                            : "We're syncing rules from your repositories"}
+                                    </span>
+                                </div>
+
+                                <span className="text-text-primary">
+                                    {noRulesTimeoutReached
+                                        ? "We couldn't find rules from your repo configs this time. You can continue and add or edit rules later in Settings."
+                                        : "Kody is scanning your config files and preparing recommendations. They will appear here automatically, and you can keep going in the meantime."}
+                                </span>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col gap-3">
+                                {pendingRules.map((rule) => {
+                                    const ruleId = rule.uuid ?? rule.title;
+
+                                    return (
+                                        <KodyRuleCard
+                                            key={ruleId}
+                                            rule={rule}
+                                            repositoryName={
+                                                rule.repositoryId
+                                                    ? repositoryNameById.get(
+                                                          rule.repositoryId,
+                                                      )
+                                                    : undefined
+                                            }
+                                            selected={
+                                                !!rule.uuid &&
+                                                selectedRules.includes(
+                                                    rule.uuid,
+                                                )
+                                            }
+                                            onToggle={() =>
+                                                rule.uuid &&
+                                                toggleRule(rule.uuid)
+                                            }
+                                        />
+                                    );
+                                })}
+                            </div>
+                        )}
 
                         <span className="text-text-secondary text-right text-sm">
-                            You can add more later in settings.
+                            You can add or edit rules later in Settings.
                         </span>
                     </div>
 
@@ -245,6 +416,15 @@ export default function CustomizeTeamPage() {
                             size="lg"
                             variant="primary"
                             className="w-full"
+                            loading={isSavingRules}
+                            disabled={
+                                isSavingRules ||
+                                (isPendingRulesLoading &&
+                                    !noRulesTimeoutReached &&
+                                    pendingRules.length === 0) ||
+                                (pendingRules.length > 0 &&
+                                    selectedRules.length === 0)
+                            }
                             onClick={handleApplyAndContinue}>
                             Apply and continue
                         </Button>
