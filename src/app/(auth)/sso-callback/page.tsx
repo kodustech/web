@@ -12,6 +12,9 @@ export default function SsoCallbackPage() {
         const handoffCookie = getCookie("sso_handoff");
         deleteCookie("sso_handoff");
 
+        console.log("SSO handoff cookie:", handoffCookie);
+        console.log("SSO handoff cookie type:", typeof handoffCookie);
+
         if (handoffCookie) {
             try {
                 const tokens = JSON.parse(handoffCookie as string);
@@ -27,6 +30,7 @@ export default function SsoCallbackPage() {
                 router.push("/sign-out");
             }
         } else {
+            console.error("No SSO handoff cookie found");
             router.push("/sign-out");
         }
     }, [router]);
