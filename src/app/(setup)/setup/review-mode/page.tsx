@@ -9,6 +9,8 @@ import { Page } from "@components/ui/page";
 import { Spinner } from "@components/ui/spinner";
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
 import { PULL_REQUEST_API } from "@services/pull-requests/fetch";
+import { applyCodeReviewPreset } from "@services/parameters/fetch";
+import { toast } from "@components/ui/toaster/use-toast";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
 import { useFetch } from "src/core/utils/reactQuery";
@@ -94,7 +96,7 @@ export default function ReviewModePage() {
     const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
     const [selectedMode, setSelectedMode] = useState<ReviewMode>("default");
-    const hasAppliedRecommendation = useRef(false);
+    const [isApplyingPreset, setIsApplyingPreset] = useState(false);
 
     const selectedRepoIds = useMemo(() => {
         const repos = configValue?.repositories || [];
@@ -125,6 +127,12 @@ export default function ReviewModePage() {
             : null,
         undefined,
         onboardingEnabled,
+        {
+            staleTime: 0,
+            cacheTime: 0,
+            refetchOnMount: "always",
+            refetchOnReconnect: true,
+        },
     ) ?? { data: [], isLoading: onboardingEnabled, isFetching: false };
 
     const recommendedMode = useMemo(() => {
@@ -149,14 +157,45 @@ export default function ReviewModePage() {
         REVIEW_MODES.find((m) => m.id === selectedMode)?.title ?? "Default";
 
     useEffect(() => {
-        if (recommendedMode && !hasAppliedRecommendation.current) {
+        if (recommendedMode) {
             setSelectedMode(recommendedMode);
-            hasAppliedRecommendation.current = true;
+        } else {
+            setSelectedMode("default");
         }
-    }, [recommendedMode]);
+    }, [recommendedMode, teamId]);
 
-    const handleContinue = () => {
-        router.push("/setup/customize-team");
+    const handleContinue = async () => {
+        if (!teamId) {
+            toast({
+                variant: "danger",
+                description: "Missing team. Please try again.",
+            });
+            return;
+        }
+
+        const preset = ["speed", "safety", "coach"].includes(selectedMode)
+            ? (selectedMode as "speed" | "safety" | "coach")
+            : undefined;
+
+        if (!preset) {
+            router.push("/setup/customize-team");
+            return;
+        }
+
+        try {
+            setIsApplyingPreset(true);
+            await applyCodeReviewPreset({ teamId, preset });
+            router.push("/setup/customize-team");
+        } catch (error) {
+            console.error("Error applying review mode preset", error);
+            toast({
+                variant: "danger",
+                description:
+                    "We couldn't apply this review mode. Please try again.",
+            });
+        } finally {
+            setIsApplyingPreset(false);
+        }
     };
 
     const handleSkip = () => {
@@ -217,7 +256,9 @@ export default function ReviewModePage() {
                             size="lg"
                             variant="primary"
                             className="w-full"
-                            onClick={handleContinue}>
+                            onClick={handleContinue}
+                            loading={isApplyingPreset}
+                            disabled={isApplyingPreset}>
                             {`Continue with ${selectedModeLabel}`}
                         </Button>
                     </div>

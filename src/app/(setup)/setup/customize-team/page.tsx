@@ -10,11 +10,9 @@ import { Page } from "@components/ui/page";
 import { Spinner } from "@components/ui/spinner";
 import { toast } from "@components/ui/toaster/use-toast";
 import { KODY_RULES_PATHS } from "@services/kodyRules";
-import {
-    reviewFastIDERules,
-    type ReviewFastIDERulesPayload,
-} from "@services/kodyRules/fetch";
+import { changeStatusKodyRules } from "@services/kodyRules/fetch";
 import type { KodyRule } from "@services/kodyRules/types";
+import { KodyRulesStatus } from "@services/kodyRules/types";
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
@@ -182,17 +180,21 @@ export default function CustomizeTeamPage() {
             .map((rule) => rule.uuid)
             .filter((id): id is string => Boolean(id));
 
-        const payload: ReviewFastIDERulesPayload = {
-            teamId,
-            activateRuleIds: selectedRules,
-            deleteRuleIds: pendingIds.filter(
-                (id) => !selectedRules.includes(id),
-            ),
-        };
-
         try {
             setIsSavingRules(true);
-            await reviewFastIDERules(payload);
+            const toActivate = selectedRules;
+            const toDelete = pendingIds.filter(
+                (id) => !selectedRules.includes(id),
+            );
+
+            if (toActivate.length) {
+                await changeStatusKodyRules(toActivate, KodyRulesStatus.ACTIVE);
+            }
+
+            if (toDelete.length) {
+                await changeStatusKodyRules(toDelete, KodyRulesStatus.DELETED);
+            }
+
             toast({
                 variant: "success",
                 description: "Rules saved for your team.",

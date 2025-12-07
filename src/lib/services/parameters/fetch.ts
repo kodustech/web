@@ -131,3 +131,15 @@ export const deleteRepositoryCodeReviewParameter = async ({
         throw error; // Re-throw to be caught in the modal
     }
 };
+
+export const applyCodeReviewPreset = async (params: {
+    teamId: string;
+    preset: "speed" | "safety" | "coach";
+}) => {
+    const response = await axiosAuthorized.post(
+        PARAMETERS_PATHS.APPLY_CODE_REVIEW_PRESET,
+        params,
+    );
+
+    return response.data;
+};
