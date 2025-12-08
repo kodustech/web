@@ -40,9 +40,14 @@ export default function App() {
                         </svg>
 
                         <p>
-                            Kody feels like having a senior dev reviewing every
-                            pull request—clear, actionable feedback on quality,
-                            security, and performance, right in Git.
+                            Kodus has had a huge impact on our workflow by
+                            saving us valuable time during PR reviews. It
+                            consistently catches the small details that are easy
+                            to miss, and the ability to set up custom rules
+                            means we can align automated reviews with our own
+                            standards. This has helped us maintain higher
+                            quality while reducing the manual burden on the
+                            team.
                         </p>
                         <p>
                             Since we started using it,{" "}

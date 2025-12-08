@@ -13,12 +13,12 @@ import { Page } from "@components/ui/page";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { createOrUpdateRepositories } from "@services/codeManagement/fetch";
 import type { Repository } from "@services/codeManagement/types";
+import { fastSyncIDERules } from "@services/kodyRules/fetch";
 import {
     createOrUpdateCodeReviewParameter,
     getParameterByKey,
     updateCodeReviewParameterRepositories,
 } from "@services/parameters/fetch";
-import { fastSyncIDERules } from "@services/kodyRules/fetch";
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { useSuspenseGetConnections } from "@services/setup/hooks";
@@ -142,9 +142,8 @@ export default function App() {
     });
 
     return (
-        <Page.Root className="mx-auto flex min-h-[calc(100vh-4rem)] h-full w-full flex-row overflow-hidden p-6">
+        <Page.Root className="mx-auto flex h-full min-h-[calc(100vh-4rem)] w-full flex-row overflow-hidden p-6">
             <div className="bg-card-lv1 flex flex-10 flex-col justify-center gap-10 rounded-3xl p-12">
-
                 <div className="text-text-secondary flex flex-1 flex-col justify-center gap-8 text-[15px]">
                     <div className="flex flex-col gap-4">
                         <svg
@@ -161,27 +160,27 @@ export default function App() {
                         </svg>
 
                         <p>
-                            Kody feels like having a senior dev reviewing every
-                            pull request—clear, actionable feedback on quality,
-                            security, and performance, right in Git.
+                            Kodus has had a huge impact on our workflow by
+                            saving us valuable time during PR reviews. It
+                            consistently catches the small details that are easy
+                            to miss, and the ability to set up custom rules
+                            means we can align automated reviews with our own
+                            standards.
                         </p>
-                        <p>
-                            Since we started using it,{" "}
-                            <strong className="text-success">
-                                our code review time dropped by 40%
-                            </strong>
-                            , and production bugs were reduced by half.
+                        <p className="text-success">
+                            This has helped us maintain higher quality while
+                            reducing the manual burden on the team.
                         </p>
                     </div>
 
                     <div className="flex flex-row gap-4">
                         <Avatar>
-                            <AvatarImage src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAxCAMAAACvdQotAAAAtFBMVEUILEoGJkEMDw4/LCIKFyAdHBdsQTYEc4xAkKYTjZEwHhgJHjB1pLYLZ3p2e4NuUkWIqrs8OjwzMDBub3EZgpQvUGNIU1ojRFyPlJq6ur1ZLSONX1AKPFfDm46mfHJISElWlqe5i3lwY2EJZqZLcouWbl+hn6absbtXOyxqmrfVrqKMiJBAhKllXI4zdZiqs743W3I3bITfvbMGWWmeRi9ujJujOCllEQ21rLlOhYaojYmAZJxguYrKAAAEm0lEQVRIx23Vi3aiOhQG4GAgUkDCRQFBuWREYrFeRtuxzvu/19k7gGjn/K1rVoWPncsmQ05RUbDr9et6ZSLcHvem422jcFldRSTCNkm2XZLP7yFkOp2dFhGq65W7I/niAODepjTLcrcr3x4h5nw+n85mp4jzK2+X+z0SoUiSJO3Wg8vTabnbf+/3m83mvDmTZj83TbNTBVSZO94NybUnDZJ503xgzmDOxDucD/udOUdViGa/L5ttUYhCFmELgdmheRmYd1hsgJiNOZ1F4RFI6AeWAfGLogiT7V/1/M3hcIBxbU4fH0i+Pcc0lz05+FYQoDCCwAr8cPu3y8cjSFwkRyAFkDjwA2OCAWUZlru83W7HWxe13GpgTyQKgmDyFCM8Nk3j9VliiLd5Iq6LY4IbLQilljExYpjEryH74/LYEWfXkSjyLQQyy+p8DcnlRPv1HAerOFgFFlmtWKFKsDqv1u+/MevC2Oxg8yFlWcIGwHSIc34lxiTNRvJeWeHyKbcWVuyFRLCykndEmfd1EJddlZ0DaZr/qSI5EBR9GU6e5wLzXz6Ip4hucSBQBA2g23vlt10+Ie7n9qbI2XlUmRSCsYAGXOT3mvlc1Ln8GnLFT94TZyQF7AlV+04p5bXg9M9z2F2Rw4MI6Ba1i5ZBMyktyhmvKQ1AU9xay5J5/kIKlnKJ1ziTGWxkVtc8z0OMgF8hIt/Pvl5JmhZcSsazjGXr93VVwTrkSZ/WdcVIvHKowoTAbckYq6uqxnVbH4/NET6e8+lClfonYVxAf1W5pAalWZ0h+TadJvk8zN8UyV9JxGBTcCuz1LC45PesXq/by7xM3NNq1pMrtuXB60ksagkzZyyllGE3c1atXSDtSO5XbP79SDguFjMMmsIaMCZpVYVjlfCZdA0TizaQUnKZWrJe/77zKqvy1eVtN5CiH9gFBmZOvRJIeCyohOZnDFsTGq3KMyBO4i6QCKYIHFIHc2dOnY5EBrUkbDxMBZszz/m/ZAbH5xQPxDmSZQjvPWUyxeYQsDPcH8hFkQDIdMxsIVwBp4pFU8ngvanXFadB/FKF5hmJMCeVRRRPAgtPIgubpoZXJ9DjV+K3GVEtneJPmlJicDoce+qU1fXohQT+PSPY6dYfS7W8b9vFcPDp+NF1P3wiYUcul0scxys4JP1Yg3sonTyQDoelO5ISSVITPP7xf6XzKSYaPNoYDfxh/yAUCZQ4nQ/nkxL2RBmjB9LX483iB8lhLj7cjmNbEXsw3dRYLmwNVmzu9cQF0uakiOD5ZLVadQZnPaHQydCY8JIFNl7ajCRwcwIVSJ8VTkYhim8ziHVhqyuLgaRIYrhRI1qvcAEQwXGEbdkRuGPxTGzN1rQR2d1+THxXvfdB97WmxU9E121lhmvK2LAQfnT/3eLXNlTSyEDCrSKdUQpMVwbTRho+w8YL8UCWiuiDgPFh4CE2fm0TTT1ODeBiOg+i43M0dTdRU+qqwT/jkFeEnL3tSGDXtR4RrTedt8kwy5W2aRKXp4FY4u7B77Bs6uGPFdds0mOosnJdJEVLdDVqTe/HMIy8c3Ynu30WbnhNA0v+B9jfygApYtqLAAAAAElFTkSuQmCC" />
+                            <AvatarImage src="https://t5y4w6q9.rocketcdn.me/wp-content/uploads/2025/04/Jonathan-Georgeu-1-1.jpeg" />
                         </Avatar>
 
                         <div>
-                            <strong>Leonardo Maia</strong>
-                            <p>Conta Voltz</p>
+                            <strong>Jonathan Georgeu</strong>
+                            <p>Origen</p>
                         </div>
                     </div>
                 </div>

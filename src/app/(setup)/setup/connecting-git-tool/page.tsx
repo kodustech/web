@@ -60,7 +60,7 @@ export default function App() {
     };
 
     return (
-        <Page.Root className="mx-auto flex min-h-[calc(100vh-4rem)] h-full w-full flex-row overflow-hidden p-6">
+        <Page.Root className="mx-auto flex h-full min-h-[calc(100vh-4rem)] w-full flex-row overflow-hidden p-6">
             <div className="bg-card-lv1 flex flex-10 flex-col justify-center gap-10 rounded-3xl p-12">
                 <div className="flex flex-1 flex-col justify-center gap-10">
                     <Heading variant="h1" className="max-w-60 text-[4vh]">
@@ -330,38 +330,43 @@ export default function App() {
 
                     <div className="flex flex-row justify-center gap-4 opacity-75">
                         <Image
-                            width={58}
-                            height={20}
-                            alt="TrackCo logo"
-                            src="/assets/images/trusted-by/track-co.webp"
+                            width={40}
+                            height={24}
+                            alt="r10 logo"
+                            className="h-6 w-auto object-contain"
+                            src="https://t5y4w6q9.rocketcdn.me/wp-content/uploads/2025/03/r10scrore.png"
                         />
 
                         <Image
-                            width={33}
-                            height={20}
-                            alt="Voltz logo"
-                            src="/assets/images/trusted-by/voltz.webp"
+                            width={40}
+                            height={24}
+                            alt="lerian logo"
+                            className="h-6 w-auto object-contain"
+                            src="https://t5y4w6q9.rocketcdn.me/wp-content/uploads/2025/03/lerian1-300x182.png"
                         />
 
                         <Image
-                            width={72}
-                            height={20}
+                            width={86}
+                            height={24}
                             alt="Ikatec logo"
+                            className="h-6 w-auto object-contain"
                             src="/assets/images/trusted-by/ikatec.webp"
                         />
 
                         <Image
-                            width={82}
-                            height={20}
-                            alt="Sommus logo"
-                            src="/assets/images/trusted-by/sommus.webp"
+                            width={62}
+                            height={24}
+                            alt="origen logo"
+                            className="h-6 w-auto object-contain"
+                            src="https://t5y4w6q9.rocketcdn.me/wp-content/uploads/2025/03/origen.png"
                         />
 
                         <Image
-                            width={80}
-                            height={20}
-                            alt="OpenCo logo"
-                            src="/assets/images/trusted-by/open-co.webp"
+                            width={95}
+                            height={24}
+                            alt="rocket chat logo"
+                            className="h-6 w-[95px] object-contain"
+                            src="https://t5y4w6q9.rocketcdn.me/wp-content/uploads/2025/03/rocket-chat-logo.svg"
                         />
                     </div>
                 </div>

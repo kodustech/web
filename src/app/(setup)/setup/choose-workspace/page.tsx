@@ -204,7 +204,6 @@ export default function ChooseWorkspacePage() {
     return (
         <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
             <div className="bg-card-lv1 flex flex-10 flex-col justify-center gap-10 rounded-3xl p-12">
-                <SvgKodus className="h-8 min-h-8" />
 
                 <div className="flex-1 overflow-hidden rounded-3xl">
                     <video
