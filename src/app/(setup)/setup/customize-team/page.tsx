@@ -150,23 +150,14 @@ export default function CustomizeTeamPage() {
         return () => clearTimeout(timeout);
     }, [pendingRuleIds]);
 
+    // Keep the loading state visible while there are no rules and the timeout hasn't been reached
     const showEmptyStateSpinner = useMemo(
-        () =>
-            !noRulesTimeoutReached &&
-            pendingRules.length === 0 &&
-            isPendingRulesLoading,
-        [noRulesTimeoutReached, pendingRules.length, isPendingRulesLoading],
+        () => pendingRules.length === 0 && !noRulesTimeoutReached,
+        [noRulesTimeoutReached, pendingRules.length],
     );
 
-    const isSyncingRules =
-        pendingRules.length === 0 &&
-        (isPendingRulesLoading || isPendingRulesFetching) &&
-        !noRulesTimeoutReached;
-    const noRulesAfterSync =
-        pendingRules.length === 0 &&
-        noRulesTimeoutReached &&
-        !isPendingRulesLoading &&
-        !isPendingRulesFetching;
+    const isSyncingRules = pendingRules.length === 0 && !noRulesTimeoutReached;
+    const noRulesAfterSync = pendingRules.length === 0 && noRulesTimeoutReached;
 
     const toggleRule = (ruleId: string) => {
         if (!ruleId) return;
