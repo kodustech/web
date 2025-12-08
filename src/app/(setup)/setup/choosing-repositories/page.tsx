@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { redirect, useRouter } from "next/navigation";
 import { SelectRepositories } from "@components/system/select-repositories";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
@@ -10,6 +11,7 @@ import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
 import { SvgKodus } from "@components/ui/icons/SvgKodus";
 import { Page } from "@components/ui/page";
+import { ToggleGroup } from "@components/ui/toggle-group";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { createOrUpdateRepositories } from "@services/codeManagement/fetch";
 import type { Repository } from "@services/codeManagement/types";
@@ -22,7 +24,14 @@ import {
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { useSuspenseGetConnections } from "@services/setup/hooks";
-import { InfoIcon, PowerIcon } from "lucide-react";
+import {
+    AlertTriangle,
+    HatGlasses,
+    InfoIcon,
+    PowerIcon,
+    Sparkles,
+    Users,
+} from "lucide-react";
 import {
     CodeReviewSummaryOptions,
     type CodeReviewGlobalConfig,
@@ -30,8 +39,11 @@ import {
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { captureSegmentEvent } from "src/core/utils/segment";
+import { pluralize } from "src/core/utils/string";
 
 import { StepIndicators } from "../_components/step-indicators";
+
+type ReviewScope = "pilot" | "team";
 
 export default function App() {
     const router = useRouter();
@@ -45,6 +57,7 @@ export default function App() {
     const [selectedRepositories, setSelectedRepositories] = useState<
         Repository[]
     >([]);
+    const [reviewScope, setReviewScope] = useState<ReviewScope>("pilot");
 
     const connections = useSuspenseGetConnections(teamId);
 
@@ -135,10 +148,34 @@ export default function App() {
                     .at(0)
                     ?.platformName.toLowerCase(),
                 quantityOfRepositories: selectedRepositories.length,
+                scope: reviewScope,
             },
         });
 
         router.replace("/setup/review-mode");
+    });
+
+    const selectedCount = selectedRepositories.length;
+    const repoLabel = pluralize(selectedCount || 1, {
+        singular: "repo",
+        plural: "repos",
+    });
+    const ctaLabel =
+        selectedCount > 0
+            ? reviewScope === "pilot"
+                ? `Enable on my PRs (${selectedCount} ${repoLabel})`
+                : `Enable for team (${selectedCount} ${repoLabel})`
+            : "Select at least one repo";
+    const scopeCopy =
+        reviewScope === "pilot"
+            ? "Kody reviews only PRs opened by you. No impact on the team yet."
+            : "Kody reviews every new PR in these repos.";
+    const staleRepositories = selectedRepositories.filter((repo) => {
+        if (!repo.lastActivityAt) return true;
+        const last = Date.parse(repo.lastActivityAt);
+        if (Number.isNaN(last)) return true;
+        const fourteenDaysMs = 14 * 24 * 60 * 60 * 1000;
+        return Date.now() - last > fourteenDaysMs;
     });
 
     return (
@@ -187,7 +224,7 @@ export default function App() {
             </div>
 
             <div className="flex flex-14 flex-col items-center justify-center gap-10 p-10">
-                <div className="flex max-w-96 flex-1 flex-col justify-center gap-10">
+                <div className="flex flex-1 flex-col justify-center gap-10">
                     <StepIndicators.Auto />
 
                     <div className="flex flex-col gap-2">
@@ -196,8 +233,8 @@ export default function App() {
                         </Heading>
 
                         <p className="text-text-secondary text-sm">
-                            Select the repositories where Kody will help your
-                            team streamline reviews and boost quality.
+                            Select a few active repos to see results today. You
+                            can add more later.
                         </p>
                     </div>
 
@@ -217,30 +254,95 @@ export default function App() {
                                     }
                                     teamId={teamId}
                                 />
+                                <small className="text-text-secondary mt-2 text-xs">
+                                    Recommended: repos with recent PR activity
+                                </small>
+
+                                {selectedRepositories.length > 0 &&
+                                    staleRepositories.length ===
+                                        selectedRepositories.length && (
+                                        <Alert
+                                            variant="alert"
+                                            className="border-alert/30 bg-alert/10 mt-3">
+                                            <AlertTriangle className="text-alert size-3" />
+                                            <AlertTitle className="text-alert text-sm">
+                                                Low recent activity{" "}
+                                            </AlertTitle>
+                                            <AlertDescription className="text-text-secondary text-xs">
+                                                {`Selected repos had no PRs in the last 14 days: ${staleRepositories
+                                                    .map(
+                                                        (r) =>
+                                                            `${r.organizationName}/${r.name}`,
+                                                    )
+                                                    .join(", ")}`}
+                                            </AlertDescription>
+                                        </Alert>
+                                    )}
                             </FormControl.Input>
                         </FormControl.Root>
+
+                        <div className="flex flex-col gap-2">
+                            <FormControl.Label>
+                                Who should Kody review?
+                            </FormControl.Label>
+                            <ToggleGroup.Root
+                                type="single"
+                                value={reviewScope}
+                                onValueChange={(value) => {
+                                    if (value)
+                                        setReviewScope(value as ReviewScope);
+                                }}
+                                className="border-border-subtle bg-card-lv2/70 grid grid-cols-2 gap-2 rounded-xl border p-1">
+                                <ToggleGroup.ToggleGroupItem
+                                    asChild
+                                    value="pilot">
+                                    <Button
+                                        variant={
+                                            reviewScope === "pilot"
+                                                ? "primary-dark"
+                                                : "helper"
+                                        }
+                                        size="md"
+                                        className={`w-full justify-center gap-2 rounded-lg border transition-all`}>
+                                        <HatGlasses className={`size-4`} />
+                                        <span>PRs opened by me</span>
+                                    </Button>
+                                </ToggleGroup.ToggleGroupItem>
+
+                                <ToggleGroup.ToggleGroupItem
+                                    asChild
+                                    value="team">
+                                    <Button
+                                        variant={
+                                            reviewScope === "team"
+                                                ? "primary-dark"
+                                                : "helper"
+                                        }
+                                        size="md"
+                                        className={`w-full justify-center gap-3 rounded-lg border transition-all`}>
+                                        <Sparkles className={`size-4`} />
+                                        All PRs in selected repos
+                                    </Button>
+                                </ToggleGroup.ToggleGroupItem>
+                            </ToggleGroup.Root>
+
+                            <p className="text-text-secondary text-xs">
+                                {scopeCopy}
+                            </p>
+                        </div>
 
                         <Button
                             size="lg"
                             variant="primary"
-                            className="w-full"
+                            className="mt-5 w-full"
                             rightIcon={<PowerIcon />}
                             loading={loadingSaveRepositories}
                             onClick={saveSelectedRepositoriesAction}
                             disabled={selectedRepositories.length === 0}>
-                            Turn on automation
+                            {ctaLabel}
                         </Button>
                     </div>
                 </div>
-
-                <Alert variant="success" className="max-w-96">
-                    <InfoIcon />
-                    <AlertTitle>You’re in control</AlertTitle>
-                    <AlertDescription className="mt-2 -ml-8">
-                        Kody only acts when you ask — no changes or reviews
-                        happen without your approval.
-                    </AlertDescription>
-                </Alert>
             </div>
         </Page.Root>
     );

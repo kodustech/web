@@ -26,6 +26,7 @@ export function useSuspenseGetOnboardingPullRequests(teamId: string) {
             };
             title: string;
             url: string;
+            lastActivityAt?: string;
         }[]
     >(CODE_MANAGEMENT_API_PATHS.GET_ONBOARDING_PULL_REQUESTS, {
         params: { teamId },
@@ -39,6 +40,7 @@ export function useSuspenseGetOnboardingPullRequests(teamId: string) {
         repositoryId: pr.repository.id,
         title: pr.title,
         url: pr.url,
+        lastActivityAt: pr.lastActivityAt,
     }));
 }
 
@@ -60,6 +62,7 @@ export function useSearchPullRequests(
             };
             title: string;
             url: string;
+            lastActivityAt?: string;
         }[]
     >(
         CODE_MANAGEMENT_API_PATHS.GET_ONBOARDING_PULL_REQUESTS,
