@@ -16,13 +16,19 @@ import { useAsyncAction } from "@hooks/use-async-action";
 import { createOrUpdateRepositories } from "@services/codeManagement/fetch";
 import type { Repository } from "@services/codeManagement/types";
 import { fastSyncIDERules } from "@services/kodyRules/fetch";
+import { ORGANIZATION_PARAMETERS_PATHS } from "@services/organizationParameters";
+import { createOrUpdateOrganizationParameter } from "@services/organizationParameters/fetch";
 import {
     createOrUpdateCodeReviewParameter,
     getParameterByKey,
     updateCodeReviewParameterRepositories,
 } from "@services/parameters/fetch";
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
-import { ParametersConfigKey } from "@services/parameters/types";
+import {
+    OrganizationParametersConfigKey,
+    type OrganizationParametersAutoAssignConfig,
+    ParametersConfigKey,
+} from "@services/parameters/types";
 import { useSuspenseGetConnections } from "@services/setup/hooks";
 import {
     AlertTriangle,
@@ -38,6 +44,7 @@ import {
 } from "src/app/(app)/settings/code-review/_types";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { useFetch } from "src/core/utils/reactQuery";
 import { captureSegmentEvent } from "src/core/utils/segment";
 import { pluralize } from "src/core/utils/string";
 
@@ -47,7 +54,7 @@ type ReviewScope = "pilot" | "team";
 
 export default function App() {
     const router = useRouter();
-    const { userId } = useAuth();
+    const { userId, organizationId } = useAuth();
     const { teamId } = useSelectedTeamId();
 
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
@@ -63,6 +70,22 @@ export default function App() {
 
     const codeManagementConnections = connections.filter(
         (c) => c.category === "CODE_MANAGEMENT" && c.hasConnection,
+    );
+
+    const {
+        data: autoLicenseAssignmentConfig,
+        refetch: refetchAutoLicenseAssignmentConfig,
+    } = useFetch<{
+        configValue: OrganizationParametersAutoAssignConfig;
+    } | null>(
+        ORGANIZATION_PARAMETERS_PATHS.GET_BY_KEY,
+        {
+            params: {
+                key: OrganizationParametersConfigKey.AUTO_LICENSE_ASSIGNMENT,
+                organizationId,
+            },
+        },
+        Boolean(organizationId),
     );
 
     const [
@@ -123,6 +146,30 @@ export default function App() {
         }
 
         await updateCodeReviewParameterRepositories(teamId);
+
+        if (reviewScope === "pilot" && organizationId && userId) {
+            let latestAutoLicenseConfig = autoLicenseAssignmentConfig;
+
+            if (latestAutoLicenseConfig === undefined) {
+                const refetchResult =
+                    await refetchAutoLicenseAssignmentConfig();
+                latestAutoLicenseConfig = refetchResult.data;
+            }
+
+            const currentAutoLicenseConfig =
+                latestAutoLicenseConfig?.configValue;
+
+            await createOrUpdateOrganizationParameter(
+                OrganizationParametersConfigKey.AUTO_LICENSE_ASSIGNMENT,
+                {
+                    enabled: currentAutoLicenseConfig?.enabled ?? false,
+                    ignoredUsers: currentAutoLicenseConfig?.ignoredUsers ?? [],
+                    allowedUsers: [userId.toString()],
+                },
+                organizationId,
+                teamId,
+            );
+        }
 
         if (teamId) {
             const fastSyncPromises = selectedRepositories.map((repo) =>
