@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
@@ -112,6 +112,9 @@ export default function ReviewModePage() {
         data: onboardingSignals = [],
         isLoading: isOnboardingSignalsLoading = onboardingEnabled,
         isFetching: isOnboardingSignalsFetching = false,
+        isError: isOnboardingSignalsError = false,
+        failureCount: onboardingSignalsFailureCount = 0,
+        refetch: refetchOnboardingSignals,
     } = useFetch<
         Array<{
             repositoryId: string;
@@ -132,12 +135,36 @@ export default function ReviewModePage() {
             cacheTime: 0,
             refetchOnMount: "always",
             refetchOnReconnect: true,
+            retry: 3,
+            retryDelay: (attempt) =>
+                Math.min(2000 * (attempt + 1), 8000),
+            refetchInterval: onboardingEnabled
+                ? (data) => {
+                      const signals = Array.isArray(data) ? data : [];
+                      const hasRecommendation = signals.some((signal) => {
+                          const mode =
+                              signal?.recommendation?.mode?.toLowerCase();
+                          return (
+                              mode === "safety" ||
+                              mode === "speed" ||
+                              mode === "coach" ||
+                              mode === "default"
+                          );
+                      });
+                      return hasRecommendation ? false : 5000;
+                  }
+                : false,
+            refetchIntervalInBackground: true,
         },
-    ) ?? { data: [], isLoading: onboardingEnabled, isFetching: false };
+    );
 
     const recommendedMode = useMemo(() => {
-        const mode =
-            onboardingSignals?.[0]?.recommendation?.mode?.toLowerCase();
+        const signals = Array.isArray(onboardingSignals)
+            ? onboardingSignals
+            : [];
+        const mode = signals
+            .find((signal) => signal?.recommendation?.mode)
+            ?.recommendation?.mode?.toLowerCase();
         if (
             mode === "safety" ||
             mode === "speed" ||
@@ -151,7 +178,41 @@ export default function ReviewModePage() {
     const recommendationLoading =
         Boolean(teamId && selectedRepoIds.length) &&
         !recommendedMode &&
-        (isOnboardingSignalsLoading || isOnboardingSignalsFetching);
+        (isOnboardingSignalsLoading ||
+            isOnboardingSignalsFetching ||
+            isOnboardingSignalsError);
+
+    // Manual backoff to refetch when the endpoint fails, reducing the need for a full page refresh.
+    useEffect(() => {
+        if (
+            !onboardingEnabled ||
+            recommendedMode ||
+            isOnboardingSignalsLoading ||
+            isOnboardingSignalsFetching ||
+            !isOnboardingSignalsError
+        ) {
+            return;
+        }
+
+        const retryDelay = Math.min(
+            2000 * Math.max(1, onboardingSignalsFailureCount),
+            8000,
+        );
+
+        const timeoutId = setTimeout(() => {
+            refetchOnboardingSignals();
+        }, retryDelay);
+
+        return () => clearTimeout(timeoutId);
+    }, [
+        onboardingEnabled,
+        recommendedMode,
+        isOnboardingSignalsLoading,
+        isOnboardingSignalsFetching,
+        onboardingSignalsFailureCount,
+        refetchOnboardingSignals,
+        isOnboardingSignalsError,
+    ]);
 
     const selectedModeLabel =
         REVIEW_MODES.find((m) => m.id === selectedMode)?.title ?? "Default";

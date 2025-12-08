@@ -81,6 +81,7 @@ export default function CustomizeTeamPage() {
     const {
         data: pendingRules = [],
         isLoading: isPendingRulesLoading,
+        isFetching: isPendingRulesFetching,
         isRefetching: isPendingRulesRefetching,
     } = useFetch<Array<KodyRule>>(
         KODY_RULES_PATHS.PENDING_IDE_RULES,
@@ -156,6 +157,16 @@ export default function CustomizeTeamPage() {
             isPendingRulesLoading,
         [noRulesTimeoutReached, pendingRules.length, isPendingRulesLoading],
     );
+
+    const isSyncingRules =
+        pendingRules.length === 0 &&
+        (isPendingRulesLoading || isPendingRulesFetching) &&
+        !noRulesTimeoutReached;
+    const noRulesAfterSync =
+        pendingRules.length === 0 &&
+        noRulesTimeoutReached &&
+        !isPendingRulesLoading &&
+        !isPendingRulesFetching;
 
     const toggleRule = (ruleId: string) => {
         if (!ruleId) return;
@@ -319,29 +330,45 @@ export default function CustomizeTeamPage() {
                     </div>
 
                     <div className="flex flex-col items-center gap-4">
-                        <Button
-                            size="lg"
-                            variant="primary"
-                            className="w-full"
-                            loading={isSavingRules}
-                            disabled={
-                                isSavingRules ||
-                                (isPendingRulesLoading &&
-                                    !noRulesTimeoutReached &&
-                                    pendingRules.length === 0) ||
-                                (pendingRules.length > 0 &&
-                                    selectedRules.length === 0)
-                            }
-                            onClick={handleApplyAndContinue}>
-                            {`Apply ${selectedRules.length} and continue`}
-                        </Button>
+                        {!isSyncingRules && !noRulesAfterSync && (
+                            <Button
+                                size="lg"
+                                variant="primary"
+                                className="w-full"
+                                loading={isSavingRules}
+                                disabled={
+                                    isSavingRules ||
+                                    (pendingRules.length > 0 &&
+                                        selectedRules.length === 0)
+                                }
+                                onClick={handleApplyAndContinue}>
+                                {`Apply ${selectedRules.length} and continue`}
+                            </Button>
+                        )}
 
-                        <button
-                            type="button"
-                            onClick={handleSkip}
-                            className="text-primary-light text-sm hover:underline">
-                            I'll do this later
-                        </button>
+                        {noRulesAfterSync && (
+                            <Button
+                                size="lg"
+                                variant="primary"
+                                className="w-full"
+                                onClick={handleSkip}
+                                disabled={isSavingRules}>
+                                Continue to the next step
+                            </Button>
+                        )}
+
+                        {!noRulesAfterSync && (
+                            <button
+                                type="button"
+                                onClick={handleSkip}
+                                disabled={isSavingRules}
+                                className={cn(
+                                    "text-primary-light text-sm hover:underline",
+                                    isSavingRules && "opacity-60",
+                                )}>
+                                I'll do this later
+                            </button>
+                        )}
                     </div>
                 </div>
             </div>
