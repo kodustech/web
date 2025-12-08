@@ -142,9 +142,8 @@ export default function App() {
     });
 
     return (
-        <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
+        <Page.Root className="mx-auto flex min-h-[calc(100vh-4rem)] h-full w-full flex-row overflow-hidden p-6">
             <div className="bg-card-lv1 flex flex-10 flex-col justify-center gap-10 rounded-3xl p-12">
-                <SvgKodus className="h-8 min-h-8" />
 
                 <div className="text-text-secondary flex flex-1 flex-col justify-center gap-8 text-[15px]">
                     <div className="flex flex-col gap-4">
