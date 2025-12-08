@@ -25,7 +25,7 @@ import {
 import { useToast } from "@components/ui/toaster/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAsyncAction } from "@hooks/use-async-action";
-import { Description } from "@radix-ui/themes/dist/cjs/components/alert-dialog";
+import { TypedFetchError } from "@services/fetch";
 import {
     createMCPCustomPlugin,
     getMCPPluginById,
@@ -35,8 +35,11 @@ import {
     CUSTOM_MCP_AUTH_METHODS,
     CUSTOM_MCP_PROTOCOLS,
     CUSTOM_MCP_SESSION_STORAGE_KEYS,
+    CustomIntegrationErrorCode,
     CustomMCPAuthMethodType,
     CustomMCPProtocolType,
+    IntegrationErrorCode,
+    OAuthErrorCode,
 } from "@services/mcp-manager/types";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
@@ -235,6 +238,162 @@ const convertFormDataToApiPayload = (
     return payload;
 };
 
+type BackendErrorBody = {
+    code?: string;
+    message?: string;
+    details?: Record<string, any>;
+};
+
+const getFriendlyErrorMessage = (
+    error: unknown,
+): { title: string; description: string } => {
+    if (!TypedFetchError.isError(error)) {
+        return {
+            title: "Error",
+            description:
+                "Are the protocol, URL, and authorization details correct? Please check and try again.",
+        };
+    }
+
+    const body = (error.body || {}) as BackendErrorBody;
+    const code = body.code as IntegrationErrorCode | undefined;
+    const details = body.details || {};
+
+    // Custom integration validation errors
+    if (code === IntegrationErrorCode.VALIDATION_ERROR) {
+        const field = details.field as CustomIntegrationErrorCode | undefined;
+
+        switch (field) {
+            case CustomIntegrationErrorCode.CUSTOM_INTEGRATION_MISSING_FIELDS:
+                return {
+                    title: "Missing required fields",
+                    description:
+                        "Name, authorization type, and protocol are required for custom plugins.",
+                };
+            case CustomIntegrationErrorCode.CUSTOM_INTEGRATION_VALIDATION_FAILED: {
+                const baseUrl = details.baseUrl as string | undefined;
+                return {
+                    title: "Could not validate plugin",
+                    description: baseUrl
+                        ? `We couldn't reach or validate the MCP server at ${baseUrl}. Check the URL, protocol, and auth settings, then try again.`
+                        : "We couldn't validate this custom plugin. Check the URL, protocol, and auth settings, then try again.",
+                };
+            }
+            case CustomIntegrationErrorCode.CUSTOM_INTEGRATION_EDIT_NOT_SUPPORTED:
+                return {
+                    title: "Editing not supported",
+                    description:
+                        "Editing this integration is only supported for custom plugins.",
+                };
+            case CustomIntegrationErrorCode.CUSTOM_INTEGRATION_DELETE_NOT_SUPPORTED:
+                return {
+                    title: "Delete not supported",
+                    description:
+                        "Deleting this integration is only supported for custom plugins.",
+                };
+            case CustomIntegrationErrorCode.CUSTOM_INTEGRATION_HAS_ACTIVE_CONNECTIONS:
+                return {
+                    title: "Plugin is still in use",
+                    description:
+                        "This plugin has active connections. Disconnect it from all workspaces before deleting it.",
+                };
+            default:
+                return {
+                    title: "Validation error",
+                    description:
+                        body.message ||
+                        "There is a problem with this configuration. Please review the fields and try again.",
+                };
+        }
+    }
+
+    // OAuth-specific errors
+    if (code === IntegrationErrorCode.OAUTH_ERROR) {
+        const oauthErrorCode = details.oauthErrorCode as
+            | OAuthErrorCode
+            | undefined;
+        switch (oauthErrorCode) {
+            case OAuthErrorCode.OAUTH_CONFIG_MISSING_REDIRECT_URI:
+                return {
+                    title: "OAuth redirect not configured",
+                    description:
+                        "The server is missing the OAuth redirect URL configuration. Please contact your administrator.",
+                };
+            case OAuthErrorCode.OAUTH_DISCOVERY_MISSING_AUTHORIZATION_SERVERS:
+            case OAuthErrorCode.OAUTH_DISCOVERY_FAILED_AUTHORIZATION_SERVER:
+            case OAuthErrorCode.OAUTH_DISCOVERY_MISSING_ENDPOINTS:
+                return {
+                    title: "Could not auto-discover OAuth settings",
+                    description:
+                        "We couldn't discover the OAuth configuration from the MCP URL. Make sure the server exposes standard OAuth metadata or provide a client ID manually.",
+                };
+            case OAuthErrorCode.OAUTH_TOKEN_MISSING_ACCESS_TOKEN:
+            case OAuthErrorCode.OAUTH_TOKEN_EXCHANGE_FAILED:
+                return {
+                    title: "OAuth token error",
+                    description:
+                        "We couldn't obtain an access token from the OAuth server. Try the flow again or contact the plugin provider.",
+                };
+            case OAuthErrorCode.OAUTH_INTEGRATION_NOT_FOUND:
+                return {
+                    title: "Plugin not found",
+                    description:
+                        "We couldn't find this plugin while finishing the OAuth flow. Try setting it up again.",
+                };
+            case OAuthErrorCode.OAUTH_INTEGRATION_WRONG_AUTH_TYPE:
+                return {
+                    title: "Invalid OAuth configuration",
+                    description:
+                        "This plugin is not configured to use OAuth 2.0. Check the authorization method and try again.",
+                };
+            case OAuthErrorCode.OAUTH_METADATA_INCOMPLETE:
+                return {
+                    title: "Incomplete OAuth metadata",
+                    description:
+                        "The stored OAuth information for this plugin is incomplete. Try reconnecting the plugin.",
+                };
+            case OAuthErrorCode.OAUTH_INVALID_STATE:
+                return {
+                    title: "OAuth session expired",
+                    description:
+                        "The OAuth session is no longer valid. Please restart the connection flow.",
+                };
+            default:
+                return {
+                    title: "OAuth error",
+                    description:
+                        body.message ||
+                        "Something went wrong while performing the OAuth flow for this plugin.",
+                };
+        }
+    }
+
+    // Client registration / generic integration errors
+    if (code === IntegrationErrorCode.CLIENT_REGISTRATION_FAILED) {
+        return {
+            title: "Failed to register OAuth client",
+            description:
+                "The plugin's OAuth client could not be dynamically registered. Check the MCP URL and scopes, or configure a client ID manually if supported.",
+        };
+    }
+
+    if (code === IntegrationErrorCode.INVALID_CLIENT) {
+        return {
+            title: "Invalid OAuth client",
+            description:
+                "The OAuth provider returned an invalid client configuration. Verify the MCP server's dynamic client registration support.",
+        };
+    }
+
+    // Fallback: show backend message if present
+    return {
+        title: "Error",
+        description:
+            body.message ||
+            "Are the protocol, URL, and authorization details correct? Please check and try again.",
+    };
+};
+
 export const AddCustomPluginModal = ({
     pluginToEdit,
 }: {
@@ -304,11 +463,12 @@ export const AddCustomPluginModal = ({
             } catch (error) {
                 console.warn("Error creating custom plugin:", error);
 
+                const friendly = getFriendlyErrorMessage(error);
+
                 toast({
                     variant: "danger",
-                    title: "Error creating custom plugin",
-                    description:
-                        "Are the protocol, URL, and authorization details correct? Please check and try again.",
+                    title: friendly.title,
+                    description: friendly.description,
                 });
             }
         });
@@ -334,11 +494,12 @@ export const AddCustomPluginModal = ({
             } catch (error) {
                 console.warn("Error updating custom plugin:", error);
 
+                const friendly = getFriendlyErrorMessage(error);
+
                 toast({
                     variant: "danger",
-                    title: "Error updating custom plugin",
-                    description:
-                        "Are the protocol, URL, and authorization details correct? Please check and try again.",
+                    title: friendly.title,
+                    description: friendly.description,
                 });
             }
         });
