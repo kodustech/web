@@ -62,6 +62,8 @@ export const LicensesPageClient = ({
                         enabled: checked,
                         ignoredUsers:
                             autoLicenseAssignmentConfig?.ignoredUsers || [],
+                        allowedUsers:
+                            autoLicenseAssignmentConfig?.allowedUsers || [],
                     },
                     organizationId,
                 );
@@ -89,6 +91,8 @@ export const LicensesPageClient = ({
                     {
                         enabled: autoLicenseAssignmentConfig?.enabled || false,
                         ignoredUsers: pendingIgnoredUsers,
+                        allowedUsers:
+                            autoLicenseAssignmentConfig?.allowedUsers || [],
                     },
                     organizationId,
                 );

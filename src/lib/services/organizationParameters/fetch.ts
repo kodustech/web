@@ -14,13 +14,18 @@ export const createOrUpdateOrganizationParameter = async (
     key: string,
     configValue: any,
     organizationId: string,
+    teamId?: string,
 ) => {
+    const organizationAndTeamData = teamId
+        ? { organizationId, teamId }
+        : { organizationId };
+
     return await axiosAuthorized.post<any>(
         ORGANIZATION_PARAMETERS_PATHS.CREATE_OR_UPDATE,
         {
             key,
             configValue,
-            organizationAndTeamData: { organizationId },
+            organizationAndTeamData,
         },
     );
 };
@@ -105,6 +110,17 @@ export const updateCockpitMetricsVisibility = async (params: {
 }) => {
     return await axiosAuthorized.post(
         ORGANIZATION_PARAMETERS_PATHS.UPDATE_COCKPIT_METRICS_VISIBILITY,
+        params,
+    );
+};
+
+export const updateAutoLicenseAllowedUsers = async (params: {
+    organizationId?: string;
+    teamId?: string;
+    includeCurrentUser?: boolean;
+}) => {
+    return await axiosAuthorized.post(
+        ORGANIZATION_PARAMETERS_PATHS.UPDATE_AUTO_LICENSE_ALLOWED_USERS,
         params,
     );
 };
