@@ -8,6 +8,7 @@ export class TypedFetchError extends Error {
     statusCode: number;
     statusText: string;
     url: string;
+    body?: unknown;
 
     static isError<T extends TypedFetchError>(
         this: new (...a: any[]) => T,
@@ -16,12 +17,18 @@ export class TypedFetchError extends Error {
         return error instanceof this;
     }
 
-    constructor(statusCode: number, statusText: string, url: string) {
+    constructor(
+        statusCode: number,
+        statusText: string,
+        url: string,
+        body?: unknown,
+    ) {
         super(`Request error: ${statusCode} ${statusText} in URL: ${url}`);
         this.name = "TypedFetchError";
         this.statusCode = statusCode;
         this.statusText = statusText;
         this.url = url;
+        this.body = body;
     }
 }
 
@@ -77,14 +84,23 @@ export const typedFetch = async <Data>(
         });
 
         if (!response.ok) {
+            let errorBody: unknown = undefined;
+            try {
+                // Try to parse JSON error response from backend
+                errorBody = await response.json();
+            } catch {
+                // ignore JSON parse errors, keep body undefined
+            }
+
             throw new TypedFetchError(
                 response.status,
                 response.statusText,
                 urlWithParams,
+                errorBody,
             );
         }
 
-        return response.json() as Data;
+        return (await response.json()) as Data;
     } catch (error) {
         // Re-throw the error with more context if it's a network error
         if (
