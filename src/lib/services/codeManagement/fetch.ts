@@ -138,23 +138,17 @@ export const finishOnboarding = (params: {
     });
 };
 
-export const deleteIntegration = async (
-    organizationId: string,
-    teamId: string,
-) => {
+export const deleteIntegration = async (teamId: string) => {
     return axiosAuthorized.deleted<any>(
         CODE_MANAGEMENT_API_PATHS.DELETE_INTEGRATION,
-        { params: { organizationId, teamId } },
+        { params: { teamId } },
     );
 };
 
-export const deleteIntegrationAndRepositories = async (
-    organizationId: string,
-    teamId: string,
-) => {
+export const deleteIntegrationAndRepositories = async (teamId: string) => {
     return axiosAuthorized.deleted<any>(
         CODE_MANAGEMENT_API_PATHS.DELETE_INTEGRATION_AND_REPOSITORIES,
-        { params: { organizationId, teamId } },
+        { params: { teamId } },
     );
 };
 

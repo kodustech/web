@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
 import { Card, CardHeader } from "@components/ui/card";
 import { FormControl } from "@components/ui/form-control";
-import { Heading } from "@components/ui/heading";
 import { Label } from "@components/ui/label";
 import { Page } from "@components/ui/page";
 import { Switch } from "@components/ui/switch";
@@ -16,7 +15,6 @@ import { CockpitMetricsVisibility } from "@services/parameters/types";
 import { Save } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
-import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 import { z } from "zod";
 
 const createSettingsSchema = () =>
@@ -44,7 +42,6 @@ type SettingsFormData = z.infer<ReturnType<typeof createSettingsSchema>>;
 export const CockpitOrganizationSettingsPage = (props: {
     cockpitMetricsVisibility: CockpitMetricsVisibility;
 }) => {
-    const { organizationId } = useOrganizationContext();
     const router = useRouter();
 
     const form = useForm<SettingsFormData>({
@@ -65,7 +62,6 @@ export const CockpitOrganizationSettingsPage = (props: {
         async (data: SettingsFormData) => {
             try {
                 await updateCockpitMetricsVisibility({
-                    organizationId,
                     config: data.cockpitMetricsVisibility,
                 });
 
@@ -388,8 +384,8 @@ export const CockpitOrganizationSettingsPage = (props: {
                                                         Team Activity
                                                     </Label>
                                                     <p className="text-muted-foreground text-xs">
-                                                        Overall team activity and
-                                                        contributions
+                                                        Overall team activity
+                                                        and contributions
                                                     </p>
                                                 </div>
                                                 <Switch
@@ -411,4 +407,3 @@ export const CockpitOrganizationSettingsPage = (props: {
         </Page.Root>
     );
 };
-

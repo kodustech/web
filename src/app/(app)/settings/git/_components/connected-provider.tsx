@@ -9,7 +9,6 @@ import type { getConnections } from "@services/setup/fetch";
 import { RefreshCcwIcon } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import type { AwaitedReturnType } from "src/core/types";
-import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 import { CODE_MANAGEMENT_PLATFORMS } from "../_constants";
 import { ResetIntegrationModal } from "./_modals/reset-integration-modal";
@@ -20,7 +19,6 @@ export const GitConnectedProvider = ({
     connection: AwaitedReturnType<typeof getConnections>[number];
 }) => {
     const { teamId } = useSelectedTeamId();
-    const { organizationId } = useOrganizationContext();
 
     const canDelete = usePermission(Action.Delete, ResourceType.GitSettings);
 
@@ -50,7 +48,6 @@ export const GitConnectedProvider = ({
                         magicModal.show(() => (
                             <ResetIntegrationModal
                                 platformName={platform.platformName}
-                                organizationId={organizationId}
                                 teamId={teamId}
                             />
                         ));
