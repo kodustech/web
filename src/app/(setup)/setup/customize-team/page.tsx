@@ -284,7 +284,7 @@ export default function CustomizeTeamPage() {
                                 </span>
                             </div>
                         ) : (
-                            <div className="flex flex-col gap-3">
+                            <div className="flex max-h-[45vh] flex-col gap-3 overflow-y-scroll pr-1">
                                 {pendingRules.map((rule) => {
                                     const ruleId = rule.uuid ?? rule.title;
 
