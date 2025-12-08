@@ -49,20 +49,29 @@ export const NewPlanSelectionModal = ({
                 return acc;
             }
 
-            if (current.pricing.length === 0) {
+            if (current.id === "free_byok") {
                 acc.free = current;
                 return acc;
             }
 
-            acc.teams = current;
+            if (current.id === "teams_byok") {
+                acc.teams_byok = current;
+                return acc;
+            }
+
+            if (current.id === "teams_managed") {
+                acc.teams_managed = current;
+                return acc;
+            }
+
             return acc;
         },
-        {} as Record<"free" | "teams" | "enterprise", Plan | undefined>,
+        {} as Record<"free" | "teams_byok" | "teams_managed" | "enterprise", Plan | undefined>,
     );
 
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
-            <DialogContent className="max-w-5xl pb-0">
+            <DialogContent className="max-w-7xl pb-0">
                 <DialogHeader>
                     <DialogTitle>Selecting subscription plan</DialogTitle>
                 </DialogHeader>
@@ -73,8 +82,12 @@ export const NewPlanSelectionModal = ({
                             <FreePlan plan={plansObject.free} />
                         )}
 
-                        {plansObject.teams && (
-                            <TeamsPlan plan={plansObject.teams} />
+                        {plansObject.teams_byok && (
+                            <TeamsPlan plan={plansObject.teams_byok} />
+                        )}
+
+                        {plansObject.teams_managed && (
+                            <TeamsPlan plan={plansObject.teams_managed} />
                         )}
 
                         {plansObject.enterprise && (
@@ -239,7 +252,7 @@ const TeamsPlan = ({ plan }: { plan: Plan }) => {
                                     currency: addonPricing.currency,
                                     amount:
                                         addonPricing.amount -
-                                        (planPricing?.amount ?? 0),
+                                        planPricing.amount,
                                 })}
                             </span>
                             <span>/dev/month</span>
@@ -294,13 +307,6 @@ const TeamsPlan = ({ plan }: { plan: Plan }) => {
 
 const EnterprisePlan = ({ plan }: { plan: Plan }) => {
     const { email } = useAuth();
-    const [isAddonActive, setIsAddonActive] = useState(false);
-
-    const planPricing = plan.pricing.find((p) => p.interval === "month");
-    if (!planPricing) return null;
-
-    const addon = plan.addons.at(0);
-    const addonPricing = addon?.pricing.find((p) => p.interval === "month");
 
     return (
         <Card className="flex-1">
@@ -311,47 +317,7 @@ const EnterprisePlan = ({ plan }: { plan: Plan }) => {
                 </CardDescription>
             </CardHeader>
 
-            <CardContent className="flex-none py-0">
-                <div className="h-12">
-                    <Heading variant="h2" className="text-primary-light">
-                        {CurrencyHelpers.format({
-                            currency: planPricing.currency,
-                            amount: planPricing.amount,
-                            maximumFractionDigits: 0,
-                        })}
-                        <span className="text-text-secondary">/dev/month</span>
-                    </Heading>
-                </div>
-            </CardContent>
-
-            {addonPricing && (
-                <Label className="bg-card-lv1 mb-5 flex gap-6 px-6 py-4">
-                    <div className="space-y-1">
-                        <Heading variant="h3">{addon?.description}</Heading>
-
-                        <Heading variant="h3" className="text-text-secondary">
-                            <span className="text-primary-light">
-                                +{" "}
-                                {CurrencyHelpers.format({
-                                    maximumFractionDigits: 0,
-                                    currency: addonPricing.currency,
-                                    amount:
-                                        addonPricing.amount -
-                                        (planPricing?.amount ?? 0),
-                                })}
-                            </span>
-                            <span>/dev/month</span>
-                        </Heading>
-                    </div>
-
-                    <Switch
-                        checked={isAddonActive}
-                        onCheckedChange={setIsAddonActive}
-                    />
-                </Label>
-            )}
-
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-3 pt-6">
                 <PlanFeatures features={plan.features} />
             </CardContent>
 
@@ -364,13 +330,7 @@ const EnterprisePlan = ({ plan }: { plan: Plan }) => {
                         process.env.WEB_SUPPORT_TALK_TO_FOUNDER_URL ?? "",
                         {
                             email,
-                            notes: "I want to know more about Enterprise plan"
-                                .concat(
-                                    isAddonActive
-                                        ? ` with "${addon?.description}" addon`
-                                        : "",
-                                )
-                                .concat("."),
+                            notes: "I want to know more about Enterprise plan.",
                         },
                     )}>
                     <Button

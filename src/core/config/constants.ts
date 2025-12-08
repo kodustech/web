@@ -14,6 +14,9 @@ export const API_ROUTES = {
     loginOAuth: "/auth/oauth",
     checkForEmailExistence: "/user/email",
     getOrganizationsByDomain: "/organization/domain",
+    ssoCallback: "/auth/saml/callback",
+    ssoLogin: "/auth/sso/login",
+    ssoCheck: "/auth/sso/check",
 } as const;
 
 export type ApiRoute = (typeof API_ROUTES)[keyof typeof API_ROUTES];
