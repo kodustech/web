@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { Badge } from "@components/ui/badge";
 import { Page } from "@components/ui/page";
 import {
     Tabs,
@@ -51,6 +52,10 @@ export default async function GitSettings() {
         (c) => c.category === "CODE_MANAGEMENT",
     );
 
+    const hasFilters =
+        (autoLicenseAssignmentConfig?.ignoredUsers?.length ?? 0) > 0 ||
+        (autoLicenseAssignmentConfig?.allowedUsers?.length ?? 0) > 0;
+
     const pathname = await getCurrentPathnameOnServerComponents();
 
     // 1. condition: team has a git provider connected, but no repositories were selected;
@@ -81,8 +86,13 @@ export default async function GitSettings() {
                         <TabsTrigger value="repositories">
                             Repositories
                         </TabsTrigger>
-                        <TabsTrigger value="filters">
+                        <TabsTrigger
+                            value="filters"
+                            className="flex items-center gap-2">
                             PR author filters
+                            {hasFilters && (
+                                <Badge className="h-2 w-2 min-w-2 rounded-full ml-2" ><b>!</b></Badge>
+                            )}
                         </TabsTrigger>
                         <div className="flex-1" />
                     </TabsList>
