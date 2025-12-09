@@ -35,6 +35,7 @@ export function UserAuthForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get("callbackUrl");
+    const reason = searchParams.get("reason");
 
     const [step, setStep] = useState<AuthStep>("email");
     const [typePassword, setTypePassword] = useState<"password" | "text">(
@@ -47,6 +48,19 @@ export function UserAuthForm() {
     } | null>(null);
 
     const isError = searchParams?.has("error") ?? false;
+    
+    const getReasonMessage = () => {
+        switch (reason) {
+            case "removed":
+                return "Your account has been removed from the organization.";
+            case "inactive":
+                return "Your account is inactive. Please contact your administrator.";
+            default:
+                return null;
+        }
+    };
+    
+    const reasonMessage = getReasonMessage();
 
     useEffect(() => {
         if (callbackUrl?.includes("setup_action=install")) {
@@ -158,7 +172,16 @@ export function UserAuthForm() {
         <form
             onSubmit={form.handleSubmit(handleSubmit)}
             className="grid w-full gap-6">
-            {isError && (
+            {reasonMessage && (
+                <Card className="bg-danger/10 text-sm">
+                    <CardHeader className="flex-row items-center gap-4">
+                        <AlertTriangleIcon className="text-danger size-5" />
+                        <span>{reasonMessage}</span>
+                    </CardHeader>
+                </Card>
+            )}
+            
+            {isError && !reasonMessage && (
                 <Card className="bg-warning/10 text-sm">
                     <CardHeader className="flex-row items-center gap-4">
                         <AlertTriangleIcon className="text-warning size-5" />
