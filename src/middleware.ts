@@ -83,6 +83,19 @@ export default auth(async (req) => {
     const normalizedStatus = session.user.status
         ? String(session.user.status).toLowerCase()
         : undefined;
+    
+    // Block removed or inactive users
+    if (
+        normalizedStatus === UserStatus.REMOVED ||
+        normalizedStatus === UserStatus.INACTIVE
+    ) {
+        const signOutUrl = new URL("/sign-out", req.url);
+        signOutUrl.searchParams.set("reason", normalizedStatus);
+        return NextResponse.redirect(signOutUrl, {
+            status: 302,
+        });
+    }
+
     const requiresEmailConfirmation = ["pending", "pending_email"].includes(
         normalizedStatus ?? "",
     );
