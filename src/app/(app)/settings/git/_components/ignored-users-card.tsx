@@ -65,6 +65,11 @@ export const IgnoredUsersCard = ({
         autoLicenseAssignmentConfig?.allowedUsers ?? [],
     );
 
+    const resetPendingUsersFromConfig = () => {
+        setPendingIgnoredUsers(autoLicenseAssignmentConfig?.ignoredUsers ?? []);
+        setPendingAllowedUsers(autoLicenseAssignmentConfig?.allowedUsers ?? []);
+    };
+
     const canEditGitSettings = usePermission(
         Action.Update,
         ResourceType.GitSettings,
@@ -100,8 +105,45 @@ export const IgnoredUsersCard = ({
             }
         });
 
+    const [handleResetFilters, { loading: isResettingFilters }] =
+        useAsyncAction(async () => {
+            try {
+                await createOrUpdateOrganizationParameter(
+                    OrganizationParametersConfigKey.AUTO_LICENSE_ASSIGNMENT,
+                    {
+                        enabled: autoLicenseAssignmentConfig?.enabled ?? false,
+                        ignoredUsers: [],
+                        allowedUsers: [],
+                    },
+                    organizationId,
+                );
+
+                setPendingIgnoredUsers([]);
+                setPendingAllowedUsers([]);
+                setMode("ignore");
+
+                toast({
+                    variant: "success",
+                    title: "PR author filters reset",
+                });
+
+                setOpen(false);
+                router.refresh();
+            } catch {
+                toast({
+                    variant: "danger",
+                    title: "Failed to reset PR author filters",
+                });
+            }
+        });
+
     const toggleUser = (userId: string) => {
-        if (!canEditGitSettings) return;
+        if (
+            !canEditGitSettings ||
+            isResettingFilters ||
+            isSavingIgnoredUsers
+        )
+            return;
 
         if (mode === "ignore") {
             setPendingIgnoredUsers((current) =>
@@ -168,22 +210,26 @@ export const IgnoredUsersCard = ({
                         },
                     ].map((option) => {
                         const isActive = mode === option.value;
+                        const isDisabled =
+                            !canEditGitSettings ||
+                            isResettingFilters ||
+                            isSavingIgnoredUsers;
                         return (
                             <button
                                 key={option.value}
                                 type="button"
                                 onClick={() =>
-                                    canEditGitSettings &&
+                                    !isDisabled &&
                                     setMode(option.value as FilterMode)
                                 }
-                                disabled={!canEditGitSettings}
+                                disabled={isDisabled}
                                 className={cn(
                                     "flex h-full flex-col items-start gap-1 rounded-lg border px-4 py-3 text-left transition",
                                     "hover:border-primary/60 hover:bg-card/60 focus-visible:ring-primary focus-visible:ring-2 focus-visible:ring-offset-0 focus-visible:outline-none",
                                     isActive
                                         ? "border-primary bg-card-lv2 border-primary-light"
                                         : "",
-                                    !canEditGitSettings &&
+                                    isDisabled &&
                                         "cursor-not-allowed opacity-70",
                                 )}>
                                 <span className="text-sm font-semibold">
@@ -201,18 +247,7 @@ export const IgnoredUsersCard = ({
                     open={open}
                     onOpenChange={(isOpen) => {
                         if (isOpen) {
-                            setPendingIgnoredUsers(
-                                autoLicenseAssignmentConfig?.ignoredUsers ?? [],
-                            );
-                            setPendingAllowedUsers(
-                                autoLicenseAssignmentConfig?.allowedUsers ?? [],
-                            );
-                            setMode(
-                                (autoLicenseAssignmentConfig?.allowedUsers
-                                    ?.length ?? 0) > 0
-                                    ? "allow"
-                                    : "ignore",
-                            );
+                            resetPendingUsersFromConfig();
                         }
                         setOpen(isOpen);
                     }}>
@@ -223,7 +258,11 @@ export const IgnoredUsersCard = ({
                             role="combobox"
                             aria-expanded={open}
                             className="w-full justify-between"
-                            disabled={!canEditGitSettings}>
+                            disabled={
+                                !canEditGitSettings ||
+                                isResettingFilters ||
+                                isSavingIgnoredUsers
+                            }>
                             {selectionLabel}
                             <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
                         </Button>
@@ -240,7 +279,11 @@ export const IgnoredUsersCard = ({
                                         <CommandItem
                                             key={user.id}
                                             value={user.name}
-                                            disabled={!canEditGitSettings}
+                                            disabled={
+                                                !canEditGitSettings ||
+                                                isResettingFilters ||
+                                                isSavingIgnoredUsers
+                                            }
                                             onSelect={() =>
                                                 toggleUser(user.id.toString())
                                             }>
@@ -259,14 +302,29 @@ export const IgnoredUsersCard = ({
                                     ))}
                                 </CommandGroup>
                             </CommandList>
-                            <div className="border-t p-2">
+                            <div className="border-t p-2 flex items-center gap-2">
                                 <Button
-                                    className="w-full"
+                                    className="flex-1"
+                                    size="sm"
+                                    variant="cancel"
+                                    onClick={handleResetFilters}
+                                    loading={isResettingFilters}
+                                    disabled={
+                                        !canEditGitSettings ||
+                                        isSavingIgnoredUsers
+                                    }>
+                                    Reset
+                                </Button>
+                                <Button
+                                    className="flex-1"
                                     size="sm"
                                     variant="primary"
                                     onClick={handleIgnoredUsersChange}
                                     loading={isSavingIgnoredUsers}
-                                    disabled={!canEditGitSettings}>
+                                    disabled={
+                                        !canEditGitSettings ||
+                                        isResettingFilters
+                                    }>
                                     Apply
                                 </Button>
                             </div>
