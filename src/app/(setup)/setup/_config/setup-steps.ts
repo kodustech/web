@@ -1,4 +1,6 @@
-export const SETUP_STEPS = [
+import { isSelfHosted } from "src/core/utils/self-hosted";
+
+const BASE_SETUP_STEPS = [
     {
         id: "choose-workspace",
         path: "/setup/choose-workspace",
@@ -16,6 +18,11 @@ export const SETUP_STEPS = [
         path: "/setup/choosing-repositories",
     },
     {
+        id: "byok",
+        path: "/setup/byok",
+        selfHostedOnly: true,
+    },
+    {
         id: "review-mode",
         path: "/setup/review-mode",
     },
@@ -29,7 +36,17 @@ export const SETUP_STEPS = [
     },
 ] as const;
 
-export type SetupStepId = (typeof SETUP_STEPS)[number]["id"];
+type SetupStep = (typeof BASE_SETUP_STEPS)[number];
+
+export const SETUP_STEPS: SetupStep[] = BASE_SETUP_STEPS.filter((step) => {
+    if ("selfHostedOnly" in step && step.selfHostedOnly) {
+        return isSelfHosted;
+    }
+
+    return true;
+});
+
+export type SetupStepId = SetupStep["id"];
 
 export const getStepIndex = (stepId: SetupStepId): number => {
     return SETUP_STEPS.findIndex((step) => step.id === stepId);
