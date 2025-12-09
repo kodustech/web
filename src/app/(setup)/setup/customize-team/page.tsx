@@ -158,6 +158,32 @@ export default function CustomizeTeamPage() {
 
     const isSyncingRules = pendingRules.length === 0 && !noRulesTimeoutReached;
     const noRulesAfterSync = pendingRules.length === 0 && noRulesTimeoutReached;
+    const hasSelectedRules = selectedRules.length > 0;
+
+    const highlightItems = useMemo(() => {
+        const items: Array<{
+            label: string;
+            helper?: string;
+            accent?: boolean;
+        }> = [
+            { label: "Bugs" },
+            { label: "Security" },
+            { label: "Performance" },
+        ];
+
+        if (hasSelectedRules) {
+            items.push({
+                label: "Team standards",
+                helper:
+                    selectedRules.length === 1
+                        ? "1 custom rule selected"
+                        : `${selectedRules.length} custom rules selected`,
+                accent: true,
+            });
+        }
+
+        return items;
+    }, [hasSelectedRules, selectedRules.length]);
 
     const toggleRule = (ruleId: string) => {
         if (!ruleId) return;
@@ -223,16 +249,40 @@ export default function CustomizeTeamPage() {
     return (
         <Page.Root className="mx-auto flex min-h-screen flex-col gap-6 overflow-x-hidden p-6 lg:flex-row lg:gap-6">
             <div className="bg-card-lv1 flex w-full flex-col justify-center gap-10 rounded-3xl p-8 lg:max-w-none lg:flex-10 lg:p-12">
-                <div className="flex-1 overflow-hidden rounded-3xl">
-                    <video
-                        loop
-                        muted
-                        autoPlay
-                        playsInline
-                        disablePictureInPicture
-                        className="h-full w-full object-contain"
-                        src="/assets/videos/setup/learn-with-your-context.webm"
-                    />
+                <div className="flex-1 overflow-hidden">
+                    <h1 className="text-2xl font-bold">
+                        Teach Kody how your team builds software
+                    </h1>
+                    <p className="text-text-secondary mt-2 text-base">
+                        Rules add your team’s standards to every review. By
+                        default, Kody checks bugs, security, and performance.
+                    </p>
+                    <div className="mt-5 flex flex-col gap-2">
+                        {highlightItems.map((item) => (
+                            <div
+                                key={item.label}
+                                className={cn(
+                                    "bg-card-lv2 border-border flex items-center justify-between gap-2 rounded-xl border p-3 text-sm transition-all duration-300",
+                                    item.accent &&
+                                        "border-primary-light/80 bg-primary-light/5 ring-primary-light/30 shadow-[0_12px_40px_rgba(0,0,0,0.06)] ring-1",
+                                )}>
+                                <div className="flex items-center gap-2">
+                                    <span className="font-semibold">
+                                        {item.label}
+                                    </span>
+                                    {item.helper ? (
+                                        <span className="text-primary-light text-xs font-semibold">
+                                            {item.helper}
+                                        </span>
+                                    ) : null}
+                                </div>
+                                <Checkbox
+                                    checked={true}
+                                    variant={"primary-dark"}
+                                />
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
 
@@ -246,10 +296,6 @@ export default function CustomizeTeamPage() {
                         <div className="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                             <div className="flex flex-col gap-1">
                                 <span className="text-text-secondary text-sm">
-                                    <b>
-                                        Kody Rules are guardrails Kody uses when
-                                        reviewing your code.
-                                    </b>{" "}
                                     These rules are auto detected from your
                                     codebase. Review what matters now and adjust
                                     anytime in Settings.
@@ -284,7 +330,7 @@ export default function CustomizeTeamPage() {
                                 </span>
                             </div>
                         ) : (
-                            <div className="flex max-h-[45vh] flex-col gap-3 overflow-y-scroll pr-1">
+                            <div className="flex max-h-[45vh] flex-col gap-3 overflow-y-auto pr-1">
                                 {pendingRules.map((rule) => {
                                     const ruleId = rule.uuid ?? rule.title;
 

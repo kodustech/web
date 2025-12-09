@@ -58,7 +58,7 @@ export default function App() {
     const [selectedRepositories, setSelectedRepositories] = useState<
         Repository[]
     >([]);
-    const [reviewScope, setReviewScope] = useState<ReviewScope>("pilot");
+    const [reviewScope, setReviewScope] = useState<ReviewScope>("team");
 
     const connections = useSuspenseGetConnections(teamId);
 
