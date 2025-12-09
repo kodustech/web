@@ -56,14 +56,6 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
                     </QueryProvider>
                 </TooltipProvider>
 
-                <Script
-                    async
-                    id="optinmonster"
-                    type="text/javascript"
-                    data-user="340940"
-                    data-account="360754"
-                    src="https://a.omappapi.com/app/js/api.min.js"
-                />
 
             </body>
         </html>
