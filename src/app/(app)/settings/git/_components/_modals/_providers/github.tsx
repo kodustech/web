@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { GitTokenDocs } from "@components/system/git-token-docs";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
@@ -32,6 +32,8 @@ export const GithubModal = (props: Props) => {
         setError({ message: "" });
     }, [token]);
 
+    const canSubmit = !!token && !error.message;
+
     const [saveToken, { loading: loadingSaveToken }] = useAsyncAction(
         async () => {
             magicModal.lock();
@@ -48,6 +50,13 @@ export const GithubModal = (props: Props) => {
             }
         },
     );
+
+    const handleTokenSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (!canSubmit) return;
+
+        void saveToken();
+    };
 
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
@@ -77,44 +86,50 @@ export const GithubModal = (props: Props) => {
                     </TabsContent>
 
                     <TabsContent value="token">
-                        <Alert variant="info" className="mb-4">
-                            <Info />
-                            <AlertTitle>Heads up!</AlertTitle>
-                            <AlertDescription>
-                                Unlike OAuth, reviews will be published using
-                                your profile - not Kody's.
-                            </AlertDescription>
-                        </Alert>
+                        <form
+                            className="flex flex-col gap-4"
+                            onSubmit={handleTokenSubmit}>
+                            <Alert variant="info" className="mb-4">
+                                <Info />
+                                <AlertTitle>Heads up!</AlertTitle>
+                                <AlertDescription>
+                                    Unlike OAuth, reviews will be published
+                                    using your profile - not Kody's.
+                                </AlertDescription>
+                            </Alert>
 
-                        <FormControl.Root>
-                            <FormControl.Input>
-                                <Input
-                                    type="password"
-                                    value={token}
-                                    error={error.message}
-                                    onChange={(e) => setToken(e.target.value)}
-                                    placeholder="Personal Access Token"
-                                />
+                            <FormControl.Root>
+                                <FormControl.Input>
+                                    <Input
+                                        type="password"
+                                        value={token}
+                                        error={error.message}
+                                        onChange={(e) =>
+                                            setToken(e.target.value)
+                                        }
+                                        placeholder="Personal Access Token"
+                                    />
 
-                                <FormControl.Error>
-                                    {error.message}
-                                </FormControl.Error>
-                            </FormControl.Input>
-                        </FormControl.Root>
+                                    <FormControl.Error>
+                                        {error.message}
+                                    </FormControl.Error>
+                                </FormControl.Input>
+                            </FormControl.Root>
 
-                        <GitTokenDocs provider="github" />
+                            <GitTokenDocs provider="github" />
 
-                        <DialogFooter>
-                            <Button
-                                size="md"
-                                variant="primary"
-                                onClick={saveToken}
-                                leftIcon={<Save />}
-                                loading={loadingSaveToken}
-                                disabled={!token || !!error.message}>
-                                Validate and save
-                            </Button>
-                        </DialogFooter>
+                            <DialogFooter>
+                                <Button
+                                    size="md"
+                                    type="submit"
+                                    variant="primary"
+                                    leftIcon={<Save />}
+                                    loading={loadingSaveToken}
+                                    disabled={!canSubmit}>
+                                    Validate and save
+                                </Button>
+                            </DialogFooter>
+                        </form>
                     </TabsContent>
                 </Tabs>
             </DialogContent>

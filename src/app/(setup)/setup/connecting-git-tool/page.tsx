@@ -20,6 +20,7 @@ import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { ClientSideCookieHelpers } from "src/core/utils/cookie";
 import { captureSegmentEvent } from "src/core/utils/segment";
+import { isSelfHosted } from "src/core/utils/self-hosted";
 
 import { StepIndicators } from "../_components/step-indicators";
 import { useGoToStep } from "../_hooks/use-goto-step";
@@ -35,6 +36,9 @@ export default function App() {
     const pathname = usePathname();
     const { teamId } = useSelectedTeamId();
     const { userId, email } = useAuth();
+    const nextStepPath = isSelfHosted
+        ? "/setup/byok"
+        : "/setup/choosing-repositories";
 
     const connectOauthIntegration = async (
         key: (typeof GIT_INTEGRATIONS_KEY)[keyof typeof GIT_INTEGRATIONS_KEY],
@@ -194,7 +198,7 @@ export default function App() {
 
                                     if (!response) return;
 
-                                    router.push("/setup/choosing-repositories");
+                                    router.push(nextStepPath);
                                 }}>
                                 Connect via token
                             </Button>
@@ -249,7 +253,7 @@ export default function App() {
 
                                     if (!response) return;
 
-                                    router.push("/setup/choosing-repositories");
+                                    router.push(nextStepPath);
                                 }}>
                                 Connect via token
                             </Button>

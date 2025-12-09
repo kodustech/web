@@ -89,7 +89,7 @@ export const SetupByokPage = () => {
                 description: "Your key is set. You can update it anytime.",
             });
 
-            router.replace("/setup/review-mode");
+            router.replace("/setup/choosing-repositories");
         } catch (error) {
             console.error("Error saving BYOK during setup", error);
             toast({

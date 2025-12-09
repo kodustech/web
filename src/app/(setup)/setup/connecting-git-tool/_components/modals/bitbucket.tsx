@@ -22,6 +22,7 @@ import {
 } from "src/core/components/ui/dialog";
 import { AuthMode, PlatformType } from "src/core/types";
 import { captureSegmentEvent } from "src/core/utils/segment";
+import { isSelfHosted } from "src/core/utils/self-hosted";
 import { z } from "zod";
 
 const tokenFormSchema = z.object({
@@ -46,6 +47,9 @@ export const BitbucketTokenModal = (props: {
     userEmail: string;
 }) => {
     const router = useRouter();
+    const nextStepPath = isSelfHosted
+        ? "/setup/byok"
+        : "/setup/choosing-repositories";
 
     const form = useForm({
         resolver: zodResolver(tokenFormSchema),
@@ -84,7 +88,7 @@ export const BitbucketTokenModal = (props: {
 
             switch (integrationResponse.data.status) {
                 case "SUCCESS": {
-                    router.push("/setup/choosing-repositories");
+                    router.push(nextStepPath);
                     break;
                 }
 

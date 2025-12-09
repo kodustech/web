@@ -41,7 +41,6 @@ import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { captureSegmentEvent } from "src/core/utils/segment";
 import { pluralize } from "src/core/utils/string";
-import { isSelfHosted } from "src/core/utils/self-hosted";
 
 import { StepIndicators } from "../_components/step-indicators";
 
@@ -51,7 +50,7 @@ export default function App() {
     const router = useRouter();
     const { userId, organizationId } = useAuth();
     const { teamId } = useSelectedTeamId();
-    const nextStepPath = isSelfHosted ? "/setup/byok" : "/setup/review-mode";
+    const nextStepPath = "/setup/review-mode";
 
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
     if (configValue?.repositories?.length) redirect(nextStepPath);

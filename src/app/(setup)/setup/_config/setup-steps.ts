@@ -14,13 +14,13 @@ const BASE_SETUP_STEPS = [
         path: "/setup/connecting-git-tool",
     },
     {
-        id: "choosing-repositories",
-        path: "/setup/choosing-repositories",
-    },
-    {
         id: "byok",
         path: "/setup/byok",
         selfHostedOnly: true,
+    },
+    {
+        id: "choosing-repositories",
+        path: "/setup/choosing-repositories",
     },
     {
         id: "review-mode",

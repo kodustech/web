@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { GitTokenDocs } from "@components/system/git-token-docs";
 import { Button } from "@components/ui/button";
 import {
@@ -31,6 +31,9 @@ export const BitbucketModal = (props: Props) => {
         setError({ message: "" });
     }, [token, username, email]);
 
+    const canSubmit =
+        !!username && !!token && !!email && !error.message;
+
     const [saveToken, { loading: loadingSaveToken }] = useAsyncAction(
         async () => {
             magicModal.lock();
@@ -48,79 +51,90 @@ export const BitbucketModal = (props: Props) => {
         },
     );
 
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (!canSubmit) return;
+
+        void saveToken();
+    };
+
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
             <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>
-                        <span>Bitbucket</span> - New Integration
-                    </DialogTitle>
-                </DialogHeader>
+                <form
+                    className="flex flex-col gap-4"
+                    onSubmit={handleSubmit}>
+                    <DialogHeader>
+                        <DialogTitle>
+                            <span>Bitbucket</span> - New Integration
+                        </DialogTitle>
+                    </DialogHeader>
 
-                <FormControl.Root>
-                    <FormControl.Label htmlFor="bitbucket-username-input">
-                        Username
-                    </FormControl.Label>
+                    <FormControl.Root>
+                        <FormControl.Label htmlFor="bitbucket-username-input">
+                            Username
+                        </FormControl.Label>
 
-                    <FormControl.Input>
-                        <Input
-                            type="text"
-                            value={username}
-                            error={error.message}
-                            id="bitbucket-username-input"
-                            onChange={(e) => setUsername(e.target.value)}
-                            placeholder="Paste your username"
-                        />
-                    </FormControl.Input>
-                </FormControl.Root>
+                        <FormControl.Input>
+                            <Input
+                                type="text"
+                                value={username}
+                                error={error.message}
+                                id="bitbucket-username-input"
+                                onChange={(e) => setUsername(e.target.value)}
+                                placeholder="Paste your username"
+                            />
+                        </FormControl.Input>
+                    </FormControl.Root>
 
-                <FormControl.Root>
-                    <FormControl.Label htmlFor="bitbucket-email-input">
-                        Email
-                    </FormControl.Label>
-                    <FormControl.Input>
-                        <Input
-                            type="email"
-                            value={email}
-                            error={error.message}
-                            id="bitbucket-email-input"
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="Enter your email address"
-                        />
-                    </FormControl.Input>
-                </FormControl.Root>
+                    <FormControl.Root>
+                        <FormControl.Label htmlFor="bitbucket-email-input">
+                            Email
+                        </FormControl.Label>
+                        <FormControl.Input>
+                            <Input
+                                type="email"
+                                value={email}
+                                error={error.message}
+                                id="bitbucket-email-input"
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="Enter your email address"
+                            />
+                        </FormControl.Input>
+                    </FormControl.Root>
 
-                <FormControl.Root>
-                    <FormControl.Label htmlFor="bitbucket-api-token-input">
-                        API token
-                    </FormControl.Label>
-                    <FormControl.Input>
-                        <Input
-                            type="password"
-                            value={token}
-                            error={error.message}
-                            id="bitbucket-api-token-input"
-                            onChange={(e) => setToken(e.target.value)}
-                            placeholder="Paste your API token"
-                        />
-                    </FormControl.Input>
+                    <FormControl.Root>
+                        <FormControl.Label htmlFor="bitbucket-api-token-input">
+                            API token
+                        </FormControl.Label>
+                        <FormControl.Input>
+                            <Input
+                                type="password"
+                                value={token}
+                                error={error.message}
+                                id="bitbucket-api-token-input"
+                                onChange={(e) => setToken(e.target.value)}
+                                placeholder="Paste your API token"
+                            />
+                        </FormControl.Input>
 
-                    <FormControl.Error>{error.message}</FormControl.Error>
-                </FormControl.Root>
+                        <FormControl.Error>{error.message}</FormControl.Error>
+                    </FormControl.Root>
 
-                <GitTokenDocs provider="bitbucket" />
+                    <GitTokenDocs provider="bitbucket" />
 
-                <DialogFooter>
-                    <Button
-                        size="md"
-                        variant="primary"
-                        onClick={saveToken}
-                        leftIcon={<Save />}
-                        loading={loadingSaveToken}
-                        disabled={!username || !token || !email || !!error.message}>
-                        Validate and save
-                    </Button>
-                </DialogFooter>
+                    <DialogFooter>
+                        <Button
+                            size="md"
+                            type="submit"
+                            variant="primary"
+                            leftIcon={<Save />}
+                            loading={loadingSaveToken}
+                            disabled={!canSubmit}>
+                            Validate and save
+                        </Button>
+                    </DialogFooter>
+                </form>
             </DialogContent>
         </Dialog>
     );
