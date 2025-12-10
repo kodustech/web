@@ -3,8 +3,6 @@ import { redirect } from "next/navigation";
 import { Page } from "@components/ui/page";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@components/ui/tabs";
 import { getCockpitMetricsVisibility } from "@services/organizationParameters/fetch";
-import { getOrganizationId } from "@services/organizations/fetch";
-import { getConnections } from "@services/setup/fetch";
 import type { CookieName } from "src/core/utils/cookie";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { greeting } from "src/core/utils/helpers";
@@ -54,10 +52,9 @@ export default async function Layout({
         return <AnalyticsNotAvailable />;
     }
 
-    const [cookieStore, selectedTeamId, organizationId] = await Promise.all([
+    const [cookieStore, selectedTeamId] = await Promise.all([
         cookies(),
         getGlobalSelectedTeamId(),
-        getOrganizationId(),
     ]);
 
     const organizationLicense = await validateOrganizationLicense({
@@ -71,13 +68,10 @@ export default async function Layout({
     )
         redirect("/settings/git");
 
-    const [connections, analyticsResult, metricsVisibility] = await Promise.all(
-        [
-            getConnections(selectedTeamId),
-            getAnalyticsStatus().catch(() => ({ hasData: false })),
-            getCockpitMetricsVisibility({ organizationId }),
-        ],
-    );
+    const [analyticsResult, metricsVisibility] = await Promise.all([
+        getAnalyticsStatus().catch(() => ({ hasData: false })),
+        getCockpitMetricsVisibility(),
+    ]);
 
     const data = extractApiData(analyticsResult);
     const hasAnalyticsData = data?.hasData;
@@ -126,10 +120,7 @@ export default async function Layout({
                 </div>
 
                 <div className="mt-10">
-                    <Tabs
-                        defaultValue={
-                            ("productivity") satisfies TabValue
-                        }>
+                    <Tabs defaultValue={"productivity" satisfies TabValue}>
                         <TabsList>
                             {/* TODO: add JIRA tab */}
                             {entries.map(([value, name]) => {
@@ -162,13 +153,16 @@ export default async function Layout({
                             value={"productivity" satisfies TabValue}>
                             <div className="relative grid grid-cols-2 gap-2 *:h-[500px]">
                                 <ExpandableCardsLayout>
-                                    {metricsVisibility.details.leadTimeBreakdown &&
+                                    {metricsVisibility.details
+                                        .leadTimeBreakdown &&
                                         leadTimeBreakdownChart}
                                     {metricsVisibility.details.prCycleTime &&
                                         prCycleTimeChart}
-                                    {metricsVisibility.details.prsOpenedVsClosed &&
+                                    {metricsVisibility.details
+                                        .prsOpenedVsClosed &&
                                         prsOpenedVsClosedChart}
-                                    {metricsVisibility.details.prsMergedByDeveloper &&
+                                    {metricsVisibility.details
+                                        .prsMergedByDeveloper &&
                                         prsMergedByDeveloperChart}
                                 </ExpandableCardsLayout>
 

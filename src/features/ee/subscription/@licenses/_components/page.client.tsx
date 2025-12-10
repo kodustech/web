@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DataTable } from "@components/ui/data-table";
 import { toast } from "@components/ui/toaster/use-toast";
@@ -14,7 +14,6 @@ import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { Switch } from "src/core/components/ui/switch";
 import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
-import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 import { TableFilterContext } from "../../_providers/table-filter-context";
 import { columns, type LicenseTableRow } from "./columns";
@@ -27,11 +26,15 @@ export const LicensesPageClient = ({
     autoLicenseAssignmentConfig?: OrganizationParametersAutoAssignConfig;
 }) => {
     const { query, setQuery } = use(TableFilterContext);
-    const { organizationId } = useOrganizationContext();
     const router = useRouter();
 
     const subscription = useSubscriptionStatus();
     const canEdit = usePermission(Action.Update, ResourceType.UserSettings);
+
+    const [open, setOpen] = useState(false);
+    const [pendingIgnoredUsers, setPendingIgnoredUsers] = useState<string[]>(
+        autoLicenseAssignmentConfig?.ignoredUsers ?? [],
+    );
 
     const [handleToggle, { loading: isToggling }] = useAsyncAction(
         async (checked: boolean) => {
@@ -45,7 +48,6 @@ export const LicensesPageClient = ({
                         allowedUsers:
                             autoLicenseAssignmentConfig?.allowedUsers || [],
                     },
-                    organizationId,
                 );
 
                 toast({
@@ -62,6 +64,40 @@ export const LicensesPageClient = ({
             }
         },
     );
+
+    const [handleIgnoredUsersChange, { loading: isSavingIgnoredUsers }] =
+        useAsyncAction(async () => {
+            try {
+                await createOrUpdateOrganizationParameter(
+                    OrganizationParametersConfigKey.AUTO_LICENSE_ASSIGNMENT,
+                    {
+                        enabled: autoLicenseAssignmentConfig?.enabled || false,
+                        ignoredUsers: pendingIgnoredUsers,
+                    },
+                );
+
+                toast({
+                    variant: "success",
+                    title: "Ignored users updated",
+                });
+
+                setOpen(false);
+                router.refresh();
+            } catch {
+                toast({
+                    variant: "danger",
+                    title: "Failed to update ignored users",
+                });
+            }
+        });
+
+    const toggleUser = (userId: string) => {
+        setPendingIgnoredUsers((current) =>
+            current.includes(userId)
+                ? current.filter((id) => id !== userId)
+                : [...current, userId],
+        );
+    };
 
     return (
         <div className="flex flex-col gap-4">

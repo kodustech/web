@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Card, CardHeader } from "@components/ui/card";
 import { FormControl } from "@components/ui/form-control";
@@ -13,18 +13,15 @@ import {
     LogInIcon,
 } from "lucide-react";
 import { signIn } from "next-auth/react";
-import { Controller, Resolver, useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { Button } from "src/core/components/ui/button";
 import { Input } from "src/core/components/ui/input";
 import { ssoCheck, ssoLogin } from "src/lib/auth/fetchers";
 import { z } from "zod";
 
-const emailSchema = z.object({
-    email: z.email({ message: "Please use a valid email address" }),
-});
-
-const signInFormSchema = emailSchema.extend({
-    password: z.string().min(1, { error: "Enter a password" }),
+const signInFormSchema = z.object({
+    email: z.string().email({ message: "Please use a valid email address" }),
+    password: z.string(),
 });
 
 type SignInFormSchema = z.infer<typeof signInFormSchema>;
@@ -35,18 +32,33 @@ export function UserAuthForm() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const callbackUrl = searchParams.get("callbackUrl");
+    const reason = searchParams.get("reason");
 
     const [step, setStep] = useState<AuthStep>("email");
     const [typePassword, setTypePassword] = useState<"password" | "text">(
         "password",
     );
     const [isCheckingSSO, setIsCheckingSSO] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [ssoAvailable, setSsoAvailable] = useState<{
         active: boolean;
         organizationId: string;
     } | null>(null);
 
     const isError = searchParams?.has("error") ?? false;
+    
+    const getReasonMessage = () => {
+        switch (reason) {
+            case "removed":
+                return "Your account has been removed from the organization.";
+            case "inactive":
+                return "Your account is inactive. Please contact your administrator.";
+            default:
+                return null;
+        }
+    };
+    
+    const reasonMessage = getReasonMessage();
 
     useEffect(() => {
         if (callbackUrl?.includes("setup_action=install")) {
@@ -60,29 +72,14 @@ export function UserAuthForm() {
     }, [callbackUrl, router]);
 
     const form = useForm<SignInFormSchema>({
-        mode: "onChange",
-        resolver: zodResolver(
-            step === "password" ? signInFormSchema : emailSchema,
-        ) as unknown as Resolver<SignInFormSchema>,
+        mode: "onSubmit",
+        resolver: zodResolver(signInFormSchema),
         defaultValues: { email: "", password: "" },
     });
 
-    const emailValue = form.watch("email");
-
-    // Reset state if user modifies email after proceeding
-    // We only want to reset if we are NOT in the initial step and the email changes
-    useEffect(() => {
-        if (step !== "email") {
-            // Optional: You can choose to automatically reset to step 'email'
-            // if the user starts typing in the email field again.
-            // For now, we will lock the email input in later steps to prevent confusion.
-        }
-    }, [emailValue, step]);
-
-    const checkSsoAvailability = async (email: string) => {
+    const checkSsoAvailability = useCallback(async (email: string) => {
         try {
             const domain = email.split("@")[1];
-            // Replace with your actual API call
             const response = await ssoCheck(domain);
             setSsoAvailable(response);
             return response;
@@ -91,74 +88,78 @@ export function UserAuthForm() {
             setSsoAvailable(null);
             return null;
         }
-    };
+    }, []);
 
-    // Step 1: Handle "Continue" click (Check Email -> Check SSO)
-    const handleEmailStep = async (data: { email: string }) => {
+    const handleEmailStep = useCallback(async (email: string) => {
         setIsCheckingSSO(true);
-        const ssoResponse = await checkSsoAvailability(data.email);
+        const ssoResponse = await checkSsoAvailability(email);
         setIsCheckingSSO(false);
 
         if (ssoResponse?.active && ssoResponse.organizationId) {
-            // Logic Requirement: If SSO available -> Go to Choice Screen
             setStep("sso-choice");
         } else {
-            // Logic Requirement: If No SSO -> Go straight to Password
             setStep("password");
         }
-    };
+    }, [checkSsoAvailability]);
 
-    // Step 2 (Choice): User clicks "Continue with SSO"
-    const handleSsoLogin = async () => {
+    const handleSsoLogin = useCallback(async () => {
         if (ssoAvailable?.organizationId) {
+            setIsSubmitting(true);
             await ssoLogin(ssoAvailable.organizationId);
+            setIsSubmitting(false);
         }
-    };
+    }, [ssoAvailable]);
 
-    // Step 3 (Password): User submits email + password
-    const handlePasswordLogin = async (data: SignInFormSchema) => {
-        const { email, password } = data;
+    const handlePasswordLogin = useCallback(async (email: string, password: string) => {
+        setIsSubmitting(true);
         await signIn("credentials", {
             email,
             password,
             redirect: true,
             redirectTo: callbackUrl ?? "/setup",
         });
-    };
+        setIsSubmitting(false);
+    }, [callbackUrl]);
 
-    // Main Submit Handler
-    const handleSubmit = async (data: SignInFormSchema) => {
+    const handleSubmit = async (e: { preventDefault: () => void }) => {
+        e.preventDefault();
+        
         if (step === "email") {
-            await handleEmailStep(data);
+            const isValid = await form.trigger("email");
+            if (!isValid) return;
+            
+            const email = form.getValues("email");
+            await handleEmailStep(email);
         } else if (step === "password") {
-            await handlePasswordLogin(data);
+            const isValid = await form.trigger();
+            if (!isValid) return;
+            
+            const { email, password } = form.getValues();
+            await handlePasswordLogin(email, password);
         }
-        // Note: "sso-choice" step buttons handle their own clicks,
-        // they don't trigger the form submit event usually.
     };
 
-    const resetFlow = () => {
+    const resetFlow = useCallback(() => {
         setStep("email");
         setSsoAvailable(null);
         form.setValue("password", "");
         form.clearErrors();
-    };
-
-    const {
-        isLoading: formIsLoading,
-        isValidating: formIsValidating,
-        isValid: formIsValid,
-        isSubmitting: formIsSubmitting,
-    } = form.formState;
-
-    const isLoading =
-        formIsLoading || formIsSubmitting || formIsValidating || isCheckingSSO;
+    }, [form]);
 
     return (
         <form
-            onSubmit={form.handleSubmit(handleSubmit)}
+            onSubmit={handleSubmit}
             className="grid w-full gap-6">
-            {isError && (
+            {reasonMessage && (
+                <Card className="bg-danger/10 text-sm">
+                    <CardHeader className="flex-row items-center gap-4">
+                        <AlertTriangleIcon className="text-danger size-5" />
+                        <span>{reasonMessage}</span>
+                    </CardHeader>
+                </Card>
+            )}
+            
+            {isError && !reasonMessage && (
                 <Card className="bg-warning/10 text-sm">
                     <CardHeader className="flex-row items-center gap-4">
                         <AlertTriangleIcon className="text-warning size-5" />
@@ -185,7 +186,7 @@ export function UserAuthForm() {
                                 error={fieldState.error}
                                 autoCapitalize="none"
                                 autoCorrect="off"
-                                disabled={isLoading || step !== "email"}
+                                disabled={isSubmitting || isCheckingSSO || step !== "email"}
                                 rightIcon={
                                     step !== "email" ? (
                                         <Button
@@ -212,7 +213,7 @@ export function UserAuthForm() {
                 <div className="animate-in fade-in slide-in-from-top-2 space-y-4">
                     <div className="bg-muted text-muted-foreground rounded-md p-4 text-sm">
                         Single Sign-On is available for{" "}
-                        <strong>{emailValue.split("@")[1]}</strong>.
+                        <strong>{form.getValues("email").split("@")[1]}</strong>.
                     </div>
 
                     <Button
@@ -221,9 +222,9 @@ export function UserAuthForm() {
                         size="lg"
                         className="w-full"
                         onClick={handleSsoLogin}
-                        disabled={isLoading}
+                        disabled={isSubmitting}
                         rightIcon={<ArrowRight />}
-                        loading={isLoading}>
+                        loading={isSubmitting}>
                         Continue with SSO
                     </Button>
 
@@ -244,7 +245,7 @@ export function UserAuthForm() {
                         size="lg"
                         className="w-full"
                         onClick={() => setStep("password")}
-                        disabled={isLoading}>
+                        disabled={isSubmitting}>
                         Sign in with password
                     </Button>
                 </div>
@@ -270,7 +271,7 @@ export function UserAuthForm() {
                                         placeholder="Type your password"
                                         error={fieldState.error}
                                         autoComplete="current-password"
-                                        disabled={isLoading}
+                                        disabled={isSubmitting}
                                         rightIcon={
                                             <Button
                                                 variant="helper"
@@ -305,9 +306,9 @@ export function UserAuthForm() {
                         type="submit"
                         variant="primary"
                         className="w-full"
-                        disabled={!formIsValid || isLoading}
+                        disabled={isSubmitting}
                         rightIcon={<LogInIcon />}
-                        loading={isLoading}>
+                        loading={isSubmitting}>
                         Sign in
                     </Button>
                 </div>
@@ -320,9 +321,9 @@ export function UserAuthForm() {
                     type="submit"
                     variant="primary"
                     className="w-full"
-                    disabled={!formIsValid || isLoading}
+                    disabled={isSubmitting || isCheckingSSO}
                     rightIcon={<ArrowRight />}
-                    loading={isLoading}>
+                    loading={isSubmitting || isCheckingSSO}>
                     Continue
                 </Button>
             )}
