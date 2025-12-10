@@ -2,6 +2,7 @@ import { useAsyncAction } from "@hooks/use-async-action";
 import { finishOnboarding } from "@services/codeManagement/fetch";
 import { useSuspenseGetBYOK } from "@services/organizationParameters/hooks";
 import { waitFor } from "src/core/utils/helpers";
+import { revalidateServerSideTag } from "src/core/utils/revalidate-server-side";
 import { captureSegmentEvent } from "src/core/utils/segment";
 import { isSelfHosted } from "src/core/utils/self-hosted";
 
@@ -37,13 +38,14 @@ export const useFinishOnboardingReviewingPR = ({
             return;
         }
 
-        finishOnboarding({
+        await finishOnboarding({
             teamId,
             reviewPR: true,
             repositoryId: selectedPR.id,
             repositoryName: selectedPR.repository,
             pullNumber: selectedPR.pull_number,
         });
+        await revalidateServerSideTag("team-dependent");
 
         captureSegmentEvent({
             userId: userId!,

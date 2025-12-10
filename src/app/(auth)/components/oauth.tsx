@@ -15,7 +15,7 @@ export const OAuthButtons = ({ isSignUp = false }: { isSignUp?: boolean }) => {
     const handleProviderLogin = async (provider: AuthProviders) => {
         await signIn(provider, {
             redirect: true,
-            redirectTo: callbackUrl ?? "/setup",
+            redirectTo: callbackUrl ?? (isSignUp ? "/setup" : "/"),
         });
     };
 

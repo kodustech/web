@@ -4,7 +4,7 @@ import {
     getOrganizationId,
     getOrganizationName,
 } from "@services/organizations/fetch";
-import { getTeamParameters } from "@services/parameters/fetch";
+import { getTeamParametersNoCache } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { getPermissions } from "@services/permissions/fetch";
 import { getTeams } from "@services/teams/fetch";
@@ -48,7 +48,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
 
     const teamId = await getGlobalSelectedTeamId();
 
-    const platformConfigs = await getTeamParameters<{
+    const platformConfigs = await getTeamParametersNoCache<{
         configValue: { finishOnboard?: boolean };
     }>({
         key: ParametersConfigKey.PLATFORM_CONFIGS,

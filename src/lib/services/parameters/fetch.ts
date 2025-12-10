@@ -18,6 +18,17 @@ export const getTeamParameters = async <
         next: { tags: ["team-dependent"] },
     });
 
+export const getTeamParametersNoCache = async <
+    T extends { configValue: unknown },
+>(params: {
+    key: ParametersConfigKey;
+    teamId: string;
+}) =>
+    authorizedFetch<T>(PARAMETERS_PATHS.GET_BY_KEY, {
+        params,
+        cache: "no-store",
+    });
+
 export const getParameterByKey = async (key: string, teamId: string) => {
     try {
         const response = await axiosAuthorized.fetcher(
