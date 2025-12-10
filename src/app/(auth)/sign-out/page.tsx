@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Heading } from "@components/ui/heading";
 import { Page } from "@components/ui/page";
@@ -10,7 +10,7 @@ import { signOut } from "next-auth/react";
 import { deleteFiltersInLocalStorage } from "src/app/(app)/issues/_constants";
 import { ClientSideCookieHelpers } from "src/core/utils/cookie";
 
-export default function App() {
+function SignOutContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const { removeQueries } = useReactQueryInvalidateQueries();
@@ -45,12 +45,27 @@ export default function App() {
         removeQueries();
 
         redirectToSignInPage();
-    }, [reason]);
+    }, [reason, router, removeQueries]);
 
     return (
         <Page.Root className="flex h-full w-full flex-row items-center justify-center gap-8">
             <Spinner />
             <Heading variant="h3">Disconnecting...</Heading>
         </Page.Root>
+    );
+}
+
+export default function App() {
+    return (
+        <Suspense
+            fallback={
+                <Page.Root className="flex h-full w-full flex-row items-center justify-center gap-8">
+                    <Spinner />
+                    <Heading variant="h3">Disconnecting...</Heading>
+                </Page.Root>
+            }
+        >
+            <SignOutContent />
+        </Suspense>
     );
 }
