@@ -21,6 +21,7 @@ export type Repository = {
         name?: string;
     };
     selected?: boolean;
+    lastActivityAt?: string;
 };
 
 export type GitFileOrFolder = {

@@ -21,6 +21,9 @@ export const KODY_RULES_PATHS = {
         "/kody-rules/find-library-kody-rules-buckets",
     ),
     ADD_LIBRARY_KODY_RULES: pathToApiUrl("/kody-rules/add-library-kody-rules"),
+    FAST_SYNC_IDE_RULES: pathToApiUrl("/kody-rules/fast-sync-ide-rules"),
+    PENDING_IDE_RULES: pathToApiUrl("/kody-rules/pending-ide-rules"),
+    REVIEW_FAST_IDE_RULES: pathToApiUrl("/kody-rules/review-fast-ide-rules"),
     CHANGE_STATUS_KODY_RULES: pathToApiUrl(
         "/kody-rules/change-status-kody-rules",
     ),

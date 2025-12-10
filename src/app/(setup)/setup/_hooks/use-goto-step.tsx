@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { useSuspenseGetConnections } from "@services/setup/hooks";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { isSelfHosted } from "src/core/utils/self-hosted";
 
 export const useGoToStep = () => {
     const { teamId } = useSelectedTeamId();
@@ -10,6 +11,11 @@ export const useGoToStep = () => {
         (c) => c.category === "CODE_MANAGEMENT" && c.hasConnection,
     );
 
-    if (codeManagementConnections.length)
-        redirect("/setup/choosing-repositories");
+    if (codeManagementConnections.length) {
+        const nextStepPath = isSelfHosted
+            ? "/setup/byok"
+            : "/setup/choosing-repositories";
+
+        redirect(nextStepPath);
+    }
 };

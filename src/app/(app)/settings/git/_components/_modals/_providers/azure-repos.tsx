@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { GitTokenDocs } from "@components/system/git-token-docs";
 import { Button } from "@components/ui/button";
 import {
@@ -30,6 +30,8 @@ export const AzureReposModal = (props: Props) => {
         setError({ message: "" });
     }, [token, organizationName]);
 
+    const canSubmit = !!organizationName && !!token && !error.message;
+
     const [saveToken, { loading: loadingSaveToken }] = useAsyncAction(
         async () => {
             magicModal.lock();
@@ -47,67 +49,76 @@ export const AzureReposModal = (props: Props) => {
         },
     );
 
+    const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        if (!canSubmit) return;
+
+        void saveToken();
+    };
+
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
             <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>
-                        <span>Azure Repos</span> - New Integration
-                    </DialogTitle>
-                </DialogHeader>
+                <form
+                    className="flex flex-col gap-4"
+                    onSubmit={handleSubmit}>
+                    <DialogHeader>
+                        <DialogTitle>
+                            <span>Azure Repos</span> - New Integration
+                        </DialogTitle>
+                    </DialogHeader>
 
-                <FormControl.Root>
-                    <FormControl.Label htmlFor="azure-repos-username-input">
-                        Organization name
-                    </FormControl.Label>
+                    <FormControl.Root>
+                        <FormControl.Label htmlFor="azure-repos-username-input">
+                            Organization name
+                        </FormControl.Label>
 
-                    <FormControl.Input>
-                        <Input
-                            type="text"
-                            value={organizationName}
-                            error={error.message}
-                            id="azure-repos-username-input"
-                            onChange={(e) =>
-                                setOrganizationName(e.target.value)
-                            }
-                            placeholder="Paste your organization name"
-                        />
-                    </FormControl.Input>
-                </FormControl.Root>
+                        <FormControl.Input>
+                            <Input
+                                type="text"
+                                value={organizationName}
+                                error={error.message}
+                                id="azure-repos-username-input"
+                                onChange={(e) =>
+                                    setOrganizationName(e.target.value)
+                                }
+                                placeholder="Paste your organization name"
+                            />
+                        </FormControl.Input>
+                    </FormControl.Root>
 
-                <FormControl.Root>
-                    <FormControl.Label htmlFor="azure-repos-token-input">
-                        Personal Access Token
-                    </FormControl.Label>
-                    <FormControl.Input>
-                        <Input
-                            type="password"
-                            value={token}
-                            error={error.message}
-                            id="azure-repos-token-input"
-                            onChange={(e) => setToken(e.target.value)}
-                            placeholder="Paste your Personal Access Token"
-                        />
-                    </FormControl.Input>
+                    <FormControl.Root>
+                        <FormControl.Label htmlFor="azure-repos-token-input">
+                            Personal Access Token
+                        </FormControl.Label>
+                        <FormControl.Input>
+                            <Input
+                                type="password"
+                                value={token}
+                                error={error.message}
+                                id="azure-repos-token-input"
+                                onChange={(e) => setToken(e.target.value)}
+                                placeholder="Paste your Personal Access Token"
+                            />
+                        </FormControl.Input>
 
-                    <FormControl.Error>{error.message}</FormControl.Error>
-                </FormControl.Root>
+                        <FormControl.Error>{error.message}</FormControl.Error>
+                    </FormControl.Root>
 
-                <GitTokenDocs provider="azure_repos" />
+                    <GitTokenDocs provider="azure_repos" />
 
-                <DialogFooter>
-                    <Button
-                        size="md"
-                        variant="primary"
-                        onClick={saveToken}
-                        loading={loadingSaveToken}
-                        leftIcon={<Save />}
-                        disabled={
-                            !organizationName || !token || !!error.message
-                        }>
-                        Validate and save
-                    </Button>
-                </DialogFooter>
+                    <DialogFooter>
+                        <Button
+                            size="md"
+                            type="submit"
+                            variant="primary"
+                            loading={loadingSaveToken}
+                            leftIcon={<Save />}
+                            disabled={!canSubmit}>
+                            Validate and save
+                        </Button>
+                    </DialogFooter>
+                </form>
             </DialogContent>
         </Dialog>
     );

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Button } from "@components/ui/button";
 import {
     Command,
@@ -15,6 +15,7 @@ import {
 } from "@components/ui/popover";
 import { useGetRepositories } from "@services/codeManagement/hooks";
 import type { Repository } from "@services/codeManagement/types";
+import { formatDistanceToNow } from "date-fns";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { pluralize } from "src/core/utils/string";
 
@@ -43,9 +44,35 @@ export const SelectRepositories = (props: {
         onChangeSelectedRepositories,
     } = props;
 
-    const unselectedRepositories = repositories.filter(
-        (r) => !selectedRepositories.some((s) => s.id === r.id),
+    const sortedRepositories = useMemo(() => {
+        return [...repositories].sort((a, b) => {
+            const aTime = a.lastActivityAt
+                ? Date.parse(a.lastActivityAt)
+                : 0;
+            const bTime = b.lastActivityAt
+                ? Date.parse(b.lastActivityAt)
+                : 0;
+
+            if (bTime !== aTime) return bTime - aTime;
+
+            return a.name.localeCompare(b.name);
+        });
+    }, [repositories]);
+
+    const unselectedRepositories = useMemo(
+        () =>
+            sortedRepositories.filter(
+                (r) => !selectedRepositories.some((s) => s.id === r.id),
+            ),
+        [sortedRepositories, selectedRepositories],
     );
+
+    const formatLastActivity = (date?: string) => {
+        if (!date) return null;
+        const parsed = new Date(date);
+        if (Number.isNaN(parsed.getTime())) return null;
+        return formatDistanceToNow(parsed, { addSuffix: true });
+    };
 
     return (
         <Popover open={open} onOpenChange={onOpenChange} modal>
@@ -76,7 +103,7 @@ export const SelectRepositories = (props: {
             <PopoverContent className="w-[var(--radix-popper-anchor-width)] p-0">
                 <Command
                     filter={(value, search) => {
-                        const repository = repositories.find(
+                        const repository = sortedRepositories.find(
                             (r) => r.id === value,
                         );
 
@@ -115,11 +142,23 @@ export const SelectRepositories = (props: {
                                                 ),
                                             );
                                         }}>
-                                        <span>
-                                            <span className="text-text-secondary">
-                                                {r.organizationName}/
+                                        <span className="flex flex-col items-start gap-1 text-left">
+                                            <span>
+                                                <span className="text-text-secondary">
+                                                    {r.organizationName}/
+                                                </span>
+                                                {r.name}
                                             </span>
-                                            {r.name}
+                                            {formatLastActivity(
+                                                r.lastActivityAt,
+                                            ) && (
+                                                <span className="text-text-tertiary text-xs">
+                                                    Last activity{" "}
+                                                    {formatLastActivity(
+                                                        r.lastActivityAt,
+                                                    )}
+                                                </span>
+                                            )}
                                         </span>
 
                                         <Check className="text-primary-light -mr-2 size-5" />
@@ -136,18 +175,30 @@ export const SelectRepositories = (props: {
                                         onSelect={(currentValue) => {
                                             onChangeSelectedRepositories([
                                                 ...selectedRepositories,
-                                                repositories.find(
+                                                sortedRepositories.find(
                                                     (repo) =>
                                                         repo.id ===
                                                         currentValue,
                                                 )!,
                                             ]);
                                         }}>
-                                        <span>
-                                            <span className="text-text-secondary">
-                                                {r.organizationName}/
+                                        <span className="flex flex-col items-start gap-1 text-left">
+                                            <span>
+                                                <span className="text-text-secondary">
+                                                    {r.organizationName}/
+                                                </span>
+                                                {r.name}
                                             </span>
-                                            {r.name}
+                                            {formatLastActivity(
+                                                r.lastActivityAt,
+                                            ) && (
+                                                <span className="text-text-tertiary text-xs">
+                                                    Last activity{" "}
+                                                    {formatLastActivity(
+                                                        r.lastActivityAt,
+                                                    )}
+                                                </span>
+                                            )}
                                         </span>
                                     </CommandItem>
                                 ))}

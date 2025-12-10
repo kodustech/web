@@ -55,6 +55,17 @@ export const useSuspenseAllOrganizationKodyRules = () => {
     );
 };
 
+export const useSuspenseGetPendingIDERules = (params: {
+    teamId: string;
+    repositoryId?: string;
+}) => {
+    return useSuspenseFetch<Array<KodyRule>>(
+        KODY_RULES_PATHS.PENDING_IDE_RULES,
+        { params },
+        { fallbackData: [] },
+    );
+};
+
 export const useSuspenseKodyRulesCheckSyncStatus = (params: {
     teamId: string;
     repositoryId: string;

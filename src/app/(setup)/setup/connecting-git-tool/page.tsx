@@ -20,6 +20,7 @@ import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { ClientSideCookieHelpers } from "src/core/utils/cookie";
 import { captureSegmentEvent } from "src/core/utils/segment";
+import { isSelfHosted } from "src/core/utils/self-hosted";
 
 import { StepIndicators } from "../_components/step-indicators";
 import { useGoToStep } from "../_hooks/use-goto-step";
@@ -34,7 +35,10 @@ export default function App() {
     const router = useRouter();
     const pathname = usePathname();
     const { teamId } = useSelectedTeamId();
-    const { userId } = useAuth();
+    const { userId, email } = useAuth();
+    const nextStepPath = isSelfHosted
+        ? "/setup/byok"
+        : "/setup/choosing-repositories";
 
     const connectOauthIntegration = async (
         key: (typeof GIT_INTEGRATIONS_KEY)[keyof typeof GIT_INTEGRATIONS_KEY],
@@ -60,10 +64,8 @@ export default function App() {
     };
 
     return (
-        <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
+        <Page.Root className="mx-auto flex h-full min-h-[calc(100vh-4rem)] w-full flex-row overflow-hidden p-6">
             <div className="bg-card-lv1 flex flex-10 flex-col justify-center gap-10 rounded-3xl p-12">
-                <SvgKodus className="h-8 min-h-8" />
-
                 <div className="flex flex-1 flex-col justify-center gap-10">
                     <Heading variant="h1" className="max-w-60 text-[4vh]">
                         Security and Privacy
@@ -190,12 +192,13 @@ export default function App() {
                                             <GithubTokenModal
                                                 teamId={teamId}
                                                 userId={userId!}
+                                                userEmail={email}
                                             />
                                         ));
 
                                     if (!response) return;
 
-                                    router.push("/setup/choosing-repositories");
+                                    router.push(nextStepPath);
                                 }}>
                                 Connect via token
                             </Button>
@@ -244,12 +247,13 @@ export default function App() {
                                             <GitlabTokenModal
                                                 teamId={teamId}
                                                 userId={userId!}
+                                                userEmail={email}
                                             />
                                         ));
 
                                     if (!response) return;
 
-                                    router.push("/setup/choosing-repositories");
+                                    router.push(nextStepPath);
                                 }}>
                                 Connect via token
                             </Button>
@@ -276,6 +280,7 @@ export default function App() {
                                         <BitbucketTokenModal
                                             teamId={teamId}
                                             userId={userId!}
+                                            userEmail={email}
                                         />
                                     ));
                                 }}>
@@ -304,6 +309,7 @@ export default function App() {
                                         <AzureReposTokenModal
                                             teamId={teamId}
                                             userId={userId!}
+                                            userEmail={email}
                                         />
                                     ));
                                 }}>
@@ -328,38 +334,43 @@ export default function App() {
 
                     <div className="flex flex-row justify-center gap-4 opacity-75">
                         <Image
-                            width={58}
-                            height={20}
-                            alt="TrackCo logo"
-                            src="/assets/images/trusted-by/track-co.webp"
+                            width={40}
+                            height={24}
+                            alt="r10 logo"
+                            className="h-6 w-auto object-contain"
+                            src="https://t5y4w6q9.rocketcdn.me/wp-content/uploads/2025/03/r10scrore.png"
                         />
 
                         <Image
-                            width={33}
-                            height={20}
-                            alt="Voltz logo"
-                            src="/assets/images/trusted-by/voltz.webp"
+                            width={40}
+                            height={24}
+                            alt="lerian logo"
+                            className="h-6 w-auto object-contain"
+                            src="https://t5y4w6q9.rocketcdn.me/wp-content/uploads/2025/03/lerian1-300x182.png"
                         />
 
                         <Image
-                            width={72}
-                            height={20}
+                            width={86}
+                            height={24}
                             alt="Ikatec logo"
+                            className="h-6 w-auto object-contain"
                             src="/assets/images/trusted-by/ikatec.webp"
                         />
 
                         <Image
-                            width={82}
-                            height={20}
-                            alt="Sommus logo"
-                            src="/assets/images/trusted-by/sommus.webp"
+                            width={62}
+                            height={24}
+                            alt="origen logo"
+                            className="h-6 w-auto object-contain"
+                            src="https://t5y4w6q9.rocketcdn.me/wp-content/uploads/2025/03/origen.png"
                         />
 
                         <Image
-                            width={80}
-                            height={20}
-                            alt="OpenCo logo"
-                            src="/assets/images/trusted-by/open-co.webp"
+                            width={95}
+                            height={24}
+                            alt="rocket chat logo"
+                            className="h-6 w-[95px] object-contain"
+                            src="https://t5y4w6q9.rocketcdn.me/wp-content/uploads/2025/03/rocket-chat-logo.svg"
                         />
                     </div>
                 </div>

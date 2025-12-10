@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, Overpass_Mono } from "next/font/google";
 import Script from "next/script";
-import { OptinMonsterRouteChangeListener } from "@components/system/optinmonster-route-change-listener";
 import { Toaster } from "@components/ui/toaster/toaster";
 import { TooltipProvider } from "@components/ui/tooltip";
 import { GoogleTagManager } from "@next/third-parties/google";
@@ -57,16 +56,7 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
                     </QueryProvider>
                 </TooltipProvider>
 
-                <Script
-                    async
-                    id="optinmonster"
-                    type="text/javascript"
-                    data-user="340940"
-                    data-account="360754"
-                    src="https://a.omappapi.com/app/js/api.min.js"
-                />
 
-                <OptinMonsterRouteChangeListener />
             </body>
         </html>
     );

@@ -12,23 +12,7 @@ import {
 } from "@services/parameters/types";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
-import { Check, ChevronsUpDown } from "lucide-react";
-import { Button } from "src/core/components/ui/button";
-import {
-    Command,
-    CommandEmpty,
-    CommandGroup,
-    CommandInput,
-    CommandItem,
-    CommandList,
-} from "src/core/components/ui/command";
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from "src/core/components/ui/popover";
 import { Switch } from "src/core/components/ui/switch";
-import { cn } from "src/core/utils/components";
 import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
 
 import { TableFilterContext } from "../../_providers/table-filter-context";
@@ -43,13 +27,14 @@ export const LicensesPageClient = ({
 }) => {
     const { query, setQuery } = use(TableFilterContext);
     const router = useRouter();
-    const [open, setOpen] = useState(false);
-    const [pendingIgnoredUsers, setPendingIgnoredUsers] = useState<string[]>(
-        [],
-    );
 
     const subscription = useSubscriptionStatus();
     const canEdit = usePermission(Action.Update, ResourceType.UserSettings);
+
+    const [open, setOpen] = useState(false);
+    const [pendingIgnoredUsers, setPendingIgnoredUsers] = useState<string[]>(
+        autoLicenseAssignmentConfig?.ignoredUsers ?? [],
+    );
 
     const [handleToggle, { loading: isToggling }] = useAsyncAction(
         async (checked: boolean) => {
@@ -60,6 +45,8 @@ export const LicensesPageClient = ({
                         enabled: checked,
                         ignoredUsers:
                             autoLicenseAssignmentConfig?.ignoredUsers || [],
+                        allowedUsers:
+                            autoLicenseAssignmentConfig?.allowedUsers || [],
                     },
                 );
 
@@ -134,99 +121,6 @@ export const LicensesPageClient = ({
                             loading={isToggling}
                             disabled={isToggling}
                         />
-                    </div>
-
-                    <div className="flex flex-col gap-2">
-                        <div className="text-base font-medium">
-                            Ignored Users
-                        </div>
-                        <div className="text-muted-foreground text-sm font-medium">
-                            The selected users and their pull requests will be
-                            ignored by Kody.
-                        </div>
-                        <Popover
-                            open={open}
-                            onOpenChange={(isOpen) => {
-                                if (isOpen) {
-                                    setPendingIgnoredUsers(
-                                        autoLicenseAssignmentConfig?.ignoredUsers ||
-                                            [],
-                                    );
-                                }
-                                setOpen(isOpen);
-                            }}>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant="helper"
-                                    size="lg"
-                                    role="combobox"
-                                    aria-expanded={open}
-                                    className="w-full justify-between">
-                                    {(() => {
-                                        const ignoredCount =
-                                            autoLicenseAssignmentConfig?.ignoredUsers?.filter(
-                                                (id) =>
-                                                    data.some(
-                                                        (user) =>
-                                                            user.id.toString() ===
-                                                            id,
-                                                    ),
-                                            ).length ?? 0;
-
-                                        return ignoredCount > 0
-                                            ? `${ignoredCount} users ignored`
-                                            : "Select users to ignore...";
-                                    })()}
-                                    <ChevronsUpDown className="ml-2 size-4 shrink-0 opacity-50" />
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent
-                                className="w-[var(--radix-popover-trigger-width)] p-0"
-                                align="start">
-                                <Command>
-                                    <CommandInput placeholder="Search users..." />
-                                    <CommandList>
-                                        <CommandEmpty>
-                                            No user found.
-                                        </CommandEmpty>
-                                        <CommandGroup>
-                                            {data.map((user) => (
-                                                <CommandItem
-                                                    key={user.id}
-                                                    value={user.name}
-                                                    onSelect={() =>
-                                                        toggleUser(
-                                                            user.id.toString(),
-                                                        )
-                                                    }>
-                                                    {user.name}
-                                                    <Check
-                                                        className={cn(
-                                                            "mr-2 size-4",
-                                                            pendingIgnoredUsers.includes(
-                                                                user.id.toString(),
-                                                            )
-                                                                ? "opacity-100"
-                                                                : "opacity-0",
-                                                        )}
-                                                    />
-                                                </CommandItem>
-                                            ))}
-                                        </CommandGroup>
-                                    </CommandList>
-                                    <div className="border-t p-2">
-                                        <Button
-                                            className="w-full"
-                                            size="sm"
-                                            variant="primary"
-                                            onClick={handleIgnoredUsersChange}
-                                            loading={isSavingIgnoredUsers}>
-                                            Apply
-                                        </Button>
-                                    </div>
-                                </Command>
-                            </PopoverContent>
-                        </Popover>
                     </div>
                 </div>
             )}

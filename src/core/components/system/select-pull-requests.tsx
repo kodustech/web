@@ -12,6 +12,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@components/ui/popover";
+import { formatDistanceToNow } from "date-fns";
 import { ChevronsUpDown } from "lucide-react";
 
 type PullRequest = {
@@ -21,6 +22,7 @@ type PullRequest = {
     repositoryId: string;
     title: string;
     url: string;
+    lastActivityAt?: string;
 };
 
 export const SelectPullRequest = (props: {
@@ -52,6 +54,15 @@ export const SelectPullRequest = (props: {
         {} as Record<string, typeof pullRequests>,
     );
 
+    const formatLastActivity = (date?: string) => {
+        if (!date) return null;
+        const parsed = new Date(date);
+        if (Number.isNaN(parsed.getTime())) return null;
+        return formatDistanceToNow(parsed, { addSuffix: true });
+    };
+
+    const selectedLastActivity = formatLastActivity(value?.lastActivityAt);
+
     return (
         <Popover open={open} onOpenChange={onOpenChange} modal>
             <PopoverTrigger asChild>
@@ -68,7 +79,7 @@ export const SelectPullRequest = (props: {
                                 No pull request selected
                             </span>
                         ) : (
-                            <div className="flex-1">
+                            <div className="flex flex-1 flex-col gap-1">
                                 <span className="text-primary-light text-xs">
                                     {value.repository}
                                 </span>
@@ -77,6 +88,11 @@ export const SelectPullRequest = (props: {
                                     <strong>#{value.pull_number}</strong>{" "}
                                     {value.title}
                                 </span>
+                                {selectedLastActivity && (
+                                    <span className="text-text-tertiary text-xs">
+                                        Last activity {selectedLastActivity}
+                                    </span>
+                                )}
                             </div>
                         )}
                     </div>
@@ -130,21 +146,42 @@ export const SelectPullRequest = (props: {
                                     <CommandGroup
                                         heading={repository}
                                         key={repository}>
-                                        {prs.map((pr) => (
-                                            <CommandItem
-                                                key={`${pr.id}_${pr.pull_number}`}
-                                                value={`${repository}#${pr.pull_number}`}
-                                                onSelect={() => onChange(pr)}
-                                                className="flex items-center justify-start">
-                                                <span className="text-text-secondary line-clamp-2">
-                                                    <strong className="mr-2 font-mono">
-                                                        #{pr.pull_number}
-                                                    </strong>
+                                        {prs.map((pr) => {
+                                            const lastActivity =
+                                                formatLastActivity(
+                                                    pr.lastActivityAt,
+                                                );
+                                            return (
+                                                <CommandItem
+                                                    key={`${pr.id}_${pr.pull_number}`}
+                                                    value={`${repository}#${pr.pull_number}`}
+                                                    onSelect={() =>
+                                                        onChange(pr)
+                                                    }
+                                                    className="flex items-start justify-start">
+                                                    <span className="flex flex-col items-start gap-1 text-left">
+                                                        <span className="text-text-secondary line-clamp-2">
+                                                            <strong className="mr-2 font-mono">
+                                                                #
+                                                                {
+                                                                    pr.pull_number
+                                                                }
+                                                            </strong>
 
-                                                    {pr.title}
-                                                </span>
-                                            </CommandItem>
-                                        ))}
+                                                            {pr.title}
+                                                        </span>
+                                                        {lastActivity && (
+                                                            <span className="text-text-tertiary text-xs">
+                                                                Last activity{" "}
+                                                                {
+                                                                    lastActivity
+                                                                }
+                                                            </span>
+                                                        )}
+                                                    </span>
+                                                </CommandItem>
+                                            );
+                                        })}
                                     </CommandGroup>
                                 ),
                             )}

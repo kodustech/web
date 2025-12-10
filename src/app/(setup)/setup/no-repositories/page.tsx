@@ -18,14 +18,12 @@ export default function App() {
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
 
     if (configValue?.repositories?.length) {
-        redirect("/setup/byok-setup");
+        redirect("/setup/review-mode");
     }
 
     return (
         <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
             <div className="bg-card-lv1 flex flex-10 flex-col justify-center gap-10 rounded-3xl p-12">
-                <SvgKodus className="h-8 min-h-8" />
-
                 <div className="text-text-secondary flex flex-1 flex-col justify-center gap-8 text-[15px]">
                     <div className="flex flex-col gap-4">
                         <svg
@@ -42,9 +40,14 @@ export default function App() {
                         </svg>
 
                         <p>
-                            Kody feels like having a senior dev reviewing every
-                            pull request—clear, actionable feedback on quality,
-                            security, and performance, right in Git.
+                            Kodus has had a huge impact on our workflow by
+                            saving us valuable time during PR reviews. It
+                            consistently catches the small details that are easy
+                            to miss, and the ability to set up custom rules
+                            means we can align automated reviews with our own
+                            standards. This has helped us maintain higher
+                            quality while reducing the manual burden on the
+                            team.
                         </p>
                         <p>
                             Since we started using it,{" "}

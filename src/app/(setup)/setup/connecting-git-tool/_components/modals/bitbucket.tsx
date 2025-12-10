@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
 import { FormControl } from "@components/ui/form-control";
 import { Input } from "@components/ui/input";
+import { KodyReviewPreview } from "@components/ui/kody-review-preview";
 import { magicModal } from "@components/ui/magic-modal";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createCodeManagementIntegration } from "@services/codeManagement/fetch";
@@ -21,6 +22,7 @@ import {
 } from "src/core/components/ui/dialog";
 import { AuthMode, PlatformType } from "src/core/types";
 import { captureSegmentEvent } from "src/core/utils/segment";
+import { isSelfHosted } from "src/core/utils/self-hosted";
 import { z } from "zod";
 
 const tokenFormSchema = z.object({
@@ -35,11 +37,19 @@ const tokenFormSchema = z.object({
         }),
 });
 
+function getUsernameFromEmail(email: string): string {
+    return email.split("@")[0] || email;
+}
+
 export const BitbucketTokenModal = (props: {
     teamId: string;
     userId: string;
+    userEmail: string;
 }) => {
     const router = useRouter();
+    const nextStepPath = isSelfHosted
+        ? "/setup/byok"
+        : "/setup/choosing-repositories";
 
     const form = useForm({
         resolver: zodResolver(tokenFormSchema),
@@ -78,7 +88,7 @@ export const BitbucketTokenModal = (props: {
 
             switch (integrationResponse.data.status) {
                 case "SUCCESS": {
-                    router.push("/setup/choosing-repositories");
+                    router.push(nextStepPath);
                     break;
                 }
 
@@ -111,6 +121,10 @@ export const BitbucketTokenModal = (props: {
         isSubmitting: formIsSubmitting,
     } = form.formState;
 
+    const watchedUsername = form.watch("username");
+    const displayName =
+        watchedUsername || getUsernameFromEmail(props.userEmail);
+
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
             <DialogContent>
@@ -120,7 +134,25 @@ export const BitbucketTokenModal = (props: {
                         <DialogDescription></DialogDescription>
                     </DialogHeader>
 
-                    <div className="mt-4 flex flex-col gap-4">
+                    <div className="my-4 flex flex-col gap-3 rounded-xl border border-informative/20 bg-informative/5 p-4">
+                        <p className="text-sm text-text-secondary">
+                            Reviews will be posted from the token owner's
+                            account:
+                        </p>
+                        <KodyReviewPreview
+                            mode="inline"
+                            author={{
+                                name: displayName,
+                            }}
+                            comment="Consider adding error handling here to prevent unhandled promise rejections."
+                            codeLine={{
+                                number: 42,
+                                content: "const result = await fetchData();",
+                            }}
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-4">
                         <Controller
                             name="username"
                             control={form.control}

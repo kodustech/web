@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
 import { Card, CardHeader } from "@components/ui/card";
 import {
@@ -11,12 +10,13 @@ import {
 } from "@components/ui/collapsible";
 import { FormControl } from "@components/ui/form-control";
 import { Input } from "@components/ui/input";
+import { KodyReviewPreview } from "@components/ui/kody-review-preview";
 import { magicModal } from "@components/ui/magic-modal";
 import { Switch } from "@components/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createCodeManagementIntegration } from "@services/codeManagement/fetch";
 import { AxiosError } from "axios";
-import { Info, SaveIcon } from "lucide-react";
+import { SaveIcon } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
 import { GitTokenDocs } from "src/core/components/system/git-token-docs";
 import {
@@ -38,7 +38,15 @@ const tokenFormSchema = z.object({
     selfhostUrl: z.string().optional(),
 });
 
-export const GitlabTokenModal = (props: { teamId: string; userId: string }) => {
+function getUsernameFromEmail(email: string): string {
+    return email.split("@")[0] || email;
+}
+
+export const GitlabTokenModal = (props: {
+    teamId: string;
+    userId: string;
+    userEmail: string;
+}) => {
     const [selfhosted, setSelfhosted] = useState(false);
 
     const form = useForm({
@@ -102,14 +110,23 @@ export const GitlabTokenModal = (props: { teamId: string; userId: string }) => {
                         <DialogDescription></DialogDescription>
                     </DialogHeader>
 
-                    <Alert variant="info" className="my-4">
-                        <Info />
-                        <AlertTitle>Heads up!</AlertTitle>
-                        <AlertDescription>
-                            Unlike OAuth, reviews will be published using your
-                            profile - not Kody's.
-                        </AlertDescription>
-                    </Alert>
+                    <div className="my-4 flex flex-col gap-3 rounded-xl border border-informative/20 bg-informative/5 p-4">
+                        <p className="text-sm text-text-secondary">
+                            Reviews will be posted from the token owner's
+                            account:
+                        </p>
+                        <KodyReviewPreview
+                            mode="inline"
+                            author={{
+                                name: getUsernameFromEmail(props.userEmail),
+                            }}
+                            comment="Consider adding error handling here to prevent unhandled promise rejections."
+                            codeLine={{
+                                number: 42,
+                                content: "const result = await fetchData();",
+                            }}
+                        />
+                    </div>
 
                     <div className="flex flex-col gap-4">
                         <Controller

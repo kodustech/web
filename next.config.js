@@ -67,6 +67,12 @@ const nextConfig = {
                 port: "",
                 pathname: "/**",
             },
+            {
+                protocol: "https",
+                hostname: "t5y4w6q9.rocketcdn.me",
+                port: "",
+                pathname: "/**",
+            },
         ],
     },
     async rewrites() {

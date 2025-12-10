@@ -1,25 +1,60 @@
 import { redirect } from "next/navigation";
+import { Badge } from "@components/ui/badge";
 import { Page } from "@components/ui/page";
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "src/core/components/ui/tabs";
 import { getIntegrationConfig } from "@services/integrations/integrationConfig/fetch";
 import { getConnections } from "@services/setup/fetch";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { getCurrentPathnameOnServerComponents } from "src/core/utils/headers";
+import { getAutoLicenseAssignmentConfig } from "src/lib/services/organizationParameters/fetch";
+
+import { getOrganizationMembers } from "src/features/ee/subscription/_services/billing/fetch";
 
 import { GitProviders } from "./_components/_providers";
 import { GitConnectedProvider } from "./_components/connected-provider";
 import { GitRepositoriesTable } from "./_components/table";
+import { IgnoredUsersCard } from "./_components/ignored-users-card";
 
 export default async function GitSettings() {
     const teamId = await getGlobalSelectedTeamId();
 
-    const [connections, connectedRepositories] = await Promise.all([
+    const [
+        connections,
+        connectedRepositories,
+        autoLicenseAssignmentConfig,
+        organizationMembersRaw,
+    ] = await Promise.all([
         getConnections(teamId),
         getIntegrationConfig({ teamId }),
+        getAutoLicenseAssignmentConfig(),
+        getOrganizationMembers({ teamId }).catch(() => []),
     ]);
+
+    const organizationMembers = Array.isArray(organizationMembersRaw)
+        ? organizationMembersRaw.map((member) => {
+              const normalizedName =
+                  member.name?.trim() ||
+                  member.displayName?.trim() ||
+                  member.username?.trim() ||
+                  member.login?.trim() ||
+                  "Unknown member";
+
+              return { id: member.id.toString(), name: normalizedName };
+          })
+        : [];
 
     const gitConnection = connections.find(
         (c) => c.category === "CODE_MANAGEMENT",
     );
+
+    const hasFilters =
+        (autoLicenseAssignmentConfig?.ignoredUsers?.length ?? 0) > 0 ||
+        (autoLicenseAssignmentConfig?.allowedUsers?.length ?? 0) > 0;
 
     const pathname = await getCurrentPathnameOnServerComponents();
 
@@ -46,14 +81,42 @@ export default async function GitSettings() {
             </Page.Header>
 
             <Page.Content>
-                {gitConnection ? (
-                    <GitRepositoriesTable
-                        platformName={gitConnection.platformName}
-                        repositories={connectedRepositories}
-                    />
-                ) : (
-                    <GitProviders />
-                )}
+                <Tabs defaultValue="repositories" className="flex flex-col">
+                    <TabsList className="mt-5">
+                        <TabsTrigger value="repositories">
+                            Repositories
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="filters"
+                            className="flex items-center gap-2">
+                            PR author filters
+                            {hasFilters && (
+                                <Badge className="h-2 w-2 min-w-2 rounded-full ml-2" ><b>!</b></Badge>
+                            )}
+                        </TabsTrigger>
+                        <div className="flex-1" />
+                    </TabsList>
+
+                    <TabsContent value="repositories">
+                        {gitConnection ? (
+                            <GitRepositoriesTable
+                                platformName={gitConnection.platformName}
+                                repositories={connectedRepositories}
+                            />
+                        ) : (
+                            <GitProviders />
+                        )}
+                    </TabsContent>
+
+                    <TabsContent value="filters" className="max-w-3xl">
+                        <IgnoredUsersCard
+                            organizationMembers={organizationMembers}
+                            autoLicenseAssignmentConfig={
+                                autoLicenseAssignmentConfig
+                            }
+                        />
+                    </TabsContent>
+                </Tabs>
             </Page.Content>
         </Page.Root>
     );

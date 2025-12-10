@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { redirect } from "next/navigation";
 import { SelectPullRequest } from "@components/system/select-pull-requests";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
@@ -62,6 +62,23 @@ export default function App() {
                 setRequestedPullRequestReview(true);
             },
         });
+
+    const shouldSkipPullRequestSelection = pullRequests.length === 0;
+    const autoFinishRequestedRef = useRef(false);
+
+    useEffect(() => {
+        if (!shouldSkipPullRequestSelection || autoFinishRequestedRef.current) {
+            return;
+        }
+
+        autoFinishRequestedRef.current = true;
+        finishOnboardingWithoutSelectingPR();
+    }, [
+        shouldSkipPullRequestSelection,
+        finishOnboardingWithoutSelectingPR,
+    ]);
+
+    if (shouldSkipPullRequestSelection) return null;
 
     return (
         <Page.Root className="flex h-full w-full flex-col items-center overflow-auto py-20">

@@ -95,3 +95,14 @@ export const updateCockpitMetricsVisibility = async (params: {
         params,
     );
 };
+
+export const updateAutoLicenseAllowedUsers = async (params: {
+    organizationId?: string;
+    teamId?: string;
+    includeCurrentUser?: boolean;
+}) => {
+    return await axiosAuthorized.post(
+        ORGANIZATION_PARAMETERS_PATHS.UPDATE_AUTO_LICENSE_ALLOWED_USERS,
+        params,
+    );
+};

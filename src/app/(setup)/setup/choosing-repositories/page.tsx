@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { redirect, useRouter } from "next/navigation";
 import { SelectRepositories } from "@components/system/select-repositories";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
@@ -10,9 +11,12 @@ import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
 import { SvgKodus } from "@components/ui/icons/SvgKodus";
 import { Page } from "@components/ui/page";
+import { ToggleGroup } from "@components/ui/toggle-group";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { createOrUpdateRepositories } from "@services/codeManagement/fetch";
 import type { Repository } from "@services/codeManagement/types";
+import { fastSyncIDERules } from "@services/kodyRules/fetch";
+import { updateAutoLicenseAllowedUsers } from "@services/organizationParameters/fetch";
 import {
     createOrUpdateCodeReviewParameter,
     getParameterByKey,
@@ -21,7 +25,14 @@ import {
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { useSuspenseGetConnections } from "@services/setup/hooks";
-import { InfoIcon, PowerIcon } from "lucide-react";
+import {
+    AlertTriangle,
+    HatGlasses,
+    InfoIcon,
+    PowerIcon,
+    Sparkles,
+    Users,
+} from "lucide-react";
 import {
     CodeReviewSummaryOptions,
     type CodeReviewGlobalConfig,
@@ -29,21 +40,26 @@ import {
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { captureSegmentEvent } from "src/core/utils/segment";
+import { pluralize } from "src/core/utils/string";
 
 import { StepIndicators } from "../_components/step-indicators";
 
+type ReviewScope = "pilot" | "team";
+
 export default function App() {
     const router = useRouter();
-    const { userId } = useAuth();
+    const { userId, organizationId } = useAuth();
     const { teamId } = useSelectedTeamId();
+    const nextStepPath = "/setup/review-mode";
 
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
-    if (configValue?.repositories?.length) redirect("/setup/byok-setup");
+    if (configValue?.repositories?.length) redirect(nextStepPath);
 
     const [open, setOpen] = useState(false);
     const [selectedRepositories, setSelectedRepositories] = useState<
         Repository[]
     >([]);
+    const [reviewScope, setReviewScope] = useState<ReviewScope>("team");
 
     const connections = useSuspenseGetConnections(teamId);
 
@@ -110,6 +126,30 @@ export default function App() {
 
         await updateCodeReviewParameterRepositories(teamId);
 
+        if (reviewScope === "pilot" && teamId) {
+            await updateAutoLicenseAllowedUsers({
+                organizationId,
+                teamId,
+                includeCurrentUser: true,
+            });
+        }
+
+        if (teamId) {
+            const fastSyncPromises = selectedRepositories.map((repo) =>
+                fastSyncIDERules({ teamId, repositoryId: repo.id }).catch(
+                    (error) => {
+                        console.error(
+                            "Error fast syncing IDE rules for repo",
+                            repo.id,
+                            error,
+                        );
+                    },
+                ),
+            );
+
+            void Promise.allSettled(fastSyncPromises);
+        }
+
         await captureSegmentEvent({
             userId: userId!,
             event: "setup_select_repositories",
@@ -118,17 +158,39 @@ export default function App() {
                     .at(0)
                     ?.platformName.toLowerCase(),
                 quantityOfRepositories: selectedRepositories.length,
+                scope: reviewScope,
             },
         });
 
-        router.replace("/setup/byok-setup");
+        router.replace(nextStepPath);
+    });
+
+    const selectedCount = selectedRepositories.length;
+    const repoLabel = pluralize(selectedCount || 1, {
+        singular: "repo",
+        plural: "repos",
+    });
+    const ctaLabel =
+        selectedCount > 0
+            ? reviewScope === "pilot"
+                ? `Enable on my PRs (${selectedCount} ${repoLabel})`
+                : `Enable for team (${selectedCount} ${repoLabel})`
+            : "Select at least one repo";
+    const scopeCopy =
+        reviewScope === "pilot"
+            ? "Kody reviews only PRs opened by you. No impact on the team yet."
+            : "Kody reviews every new PR in these repos.";
+    const staleRepositories = selectedRepositories.filter((repo) => {
+        if (!repo.lastActivityAt) return true;
+        const last = Date.parse(repo.lastActivityAt);
+        if (Number.isNaN(last)) return true;
+        const fourteenDaysMs = 14 * 24 * 60 * 60 * 1000;
+        return Date.now() - last > fourteenDaysMs;
     });
 
     return (
-        <Page.Root className="mx-auto flex max-h-screen flex-row overflow-hidden p-6">
+        <Page.Root className="mx-auto flex h-full min-h-[calc(100vh-4rem)] w-full flex-row overflow-hidden p-6">
             <div className="bg-card-lv1 flex flex-10 flex-col justify-center gap-10 rounded-3xl p-12">
-                <SvgKodus className="h-8 min-h-8" />
-
                 <div className="text-text-secondary flex flex-1 flex-col justify-center gap-8 text-[15px]">
                     <div className="flex flex-col gap-4">
                         <svg
@@ -145,34 +207,34 @@ export default function App() {
                         </svg>
 
                         <p>
-                            Kody feels like having a senior dev reviewing every
-                            pull request—clear, actionable feedback on quality,
-                            security, and performance, right in Git.
+                            Kodus has had a huge impact on our workflow by
+                            saving us valuable time during PR reviews. It
+                            consistently catches the small details that are easy
+                            to miss, and the ability to set up custom rules
+                            means we can align automated reviews with our own
+                            standards.
                         </p>
-                        <p>
-                            Since we started using it,{" "}
-                            <strong className="text-success">
-                                our code review time dropped by 40%
-                            </strong>
-                            , and production bugs were reduced by half.
+                        <p className="text-success">
+                            This has helped us maintain higher quality while
+                            reducing the manual burden on the team.
                         </p>
                     </div>
 
                     <div className="flex flex-row gap-4">
                         <Avatar>
-                            <AvatarImage src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAxCAMAAACvdQotAAAAtFBMVEUILEoGJkEMDw4/LCIKFyAdHBdsQTYEc4xAkKYTjZEwHhgJHjB1pLYLZ3p2e4NuUkWIqrs8OjwzMDBub3EZgpQvUGNIU1ojRFyPlJq6ur1ZLSONX1AKPFfDm46mfHJISElWlqe5i3lwY2EJZqZLcouWbl+hn6absbtXOyxqmrfVrqKMiJBAhKllXI4zdZiqs743W3I3bITfvbMGWWmeRi9ujJujOCllEQ21rLlOhYaojYmAZJxguYrKAAAEm0lEQVRIx23Vi3aiOhQG4GAgUkDCRQFBuWREYrFeRtuxzvu/19k7gGjn/K1rVoWPncsmQ05RUbDr9et6ZSLcHvem422jcFldRSTCNkm2XZLP7yFkOp2dFhGq65W7I/niAODepjTLcrcr3x4h5nw+n85mp4jzK2+X+z0SoUiSJO3Wg8vTabnbf+/3m83mvDmTZj83TbNTBVSZO94NybUnDZJ503xgzmDOxDucD/udOUdViGa/L5ttUYhCFmELgdmheRmYd1hsgJiNOZ1F4RFI6AeWAfGLogiT7V/1/M3hcIBxbU4fH0i+Pcc0lz05+FYQoDCCwAr8cPu3y8cjSFwkRyAFkDjwA2OCAWUZlru83W7HWxe13GpgTyQKgmDyFCM8Nk3j9VliiLd5Iq6LY4IbLQilljExYpjEryH74/LYEWfXkSjyLQQyy+p8DcnlRPv1HAerOFgFFlmtWKFKsDqv1u+/MevC2Oxg8yFlWcIGwHSIc34lxiTNRvJeWeHyKbcWVuyFRLCykndEmfd1EJddlZ0DaZr/qSI5EBR9GU6e5wLzXz6Ip4hucSBQBA2g23vlt10+Ie7n9qbI2XlUmRSCsYAGXOT3mvlc1Ln8GnLFT94TZyQF7AlV+04p5bXg9M9z2F2Rw4MI6Ba1i5ZBMyktyhmvKQ1AU9xay5J5/kIKlnKJ1ziTGWxkVtc8z0OMgF8hIt/Pvl5JmhZcSsazjGXr93VVwTrkSZ/WdcVIvHKowoTAbckYq6uqxnVbH4/NET6e8+lClfonYVxAf1W5pAalWZ0h+TadJvk8zN8UyV9JxGBTcCuz1LC45PesXq/by7xM3NNq1pMrtuXB60ksagkzZyyllGE3c1atXSDtSO5XbP79SDguFjMMmsIaMCZpVYVjlfCZdA0TizaQUnKZWrJe/77zKqvy1eVtN5CiH9gFBmZOvRJIeCyohOZnDFsTGq3KMyBO4i6QCKYIHFIHc2dOnY5EBrUkbDxMBZszz/m/ZAbH5xQPxDmSZQjvPWUyxeYQsDPcH8hFkQDIdMxsIVwBp4pFU8ngvanXFadB/FKF5hmJMCeVRRRPAgtPIgubpoZXJ9DjV+K3GVEtneJPmlJicDoce+qU1fXohQT+PSPY6dYfS7W8b9vFcPDp+NF1P3wiYUcul0scxys4JP1Yg3sonTyQDoelO5ISSVITPP7xf6XzKSYaPNoYDfxh/yAUCZQ4nQ/nkxL2RBmjB9LX483iB8lhLj7cjmNbEXsw3dRYLmwNVmzu9cQF0uakiOD5ZLVadQZnPaHQydCY8JIFNl7ajCRwcwIVSJ8VTkYhim8ziHVhqyuLgaRIYrhRI1qvcAEQwXGEbdkRuGPxTGzN1rQR2d1+THxXvfdB97WmxU9E121lhmvK2LAQfnT/3eLXNlTSyEDCrSKdUQpMVwbTRho+w8YL8UCWiuiDgPFh4CE2fm0TTT1ODeBiOg+i43M0dTdRU+qqwT/jkFeEnL3tSGDXtR4RrTedt8kwy5W2aRKXp4FY4u7B77Bs6uGPFdds0mOosnJdJEVLdDVqTe/HMIy8c3Ynu30WbnhNA0v+B9jfygApYtqLAAAAAElFTkSuQmCC" />
+                            <AvatarImage src="https://t5y4w6q9.rocketcdn.me/wp-content/uploads/2025/04/Jonathan-Georgeu-1-1.jpeg" />
                         </Avatar>
 
                         <div>
-                            <strong>Leonardo Maia</strong>
-                            <p>Conta Voltz</p>
+                            <strong>Jonathan Georgeu</strong>
+                            <p>Origen</p>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div className="flex flex-14 flex-col items-center justify-center gap-10 p-10">
-                <div className="flex max-w-96 flex-1 flex-col justify-center gap-10">
+                <div className="flex flex-1 flex-col justify-center gap-10 w-150">
                     <StepIndicators.Auto />
 
                     <div className="flex flex-col gap-2">
@@ -181,8 +243,8 @@ export default function App() {
                         </Heading>
 
                         <p className="text-text-secondary text-sm">
-                            Select the repositories where Kody will help your
-                            team streamline reviews and boost quality.
+                            Select a few active repos to see results today. You
+                            can add more later.
                         </p>
                     </div>
 
@@ -202,30 +264,95 @@ export default function App() {
                                     }
                                     teamId={teamId}
                                 />
+                                <small className="text-text-secondary mt-2 text-xs">
+                                    Recommended: repos with recent PR activity
+                                </small>
+
+                                {selectedRepositories.length > 0 &&
+                                    staleRepositories.length ===
+                                        selectedRepositories.length && (
+                                        <Alert
+                                            variant="alert"
+                                            className="border-alert/30 bg-alert/10 mt-3">
+                                            <AlertTriangle className="text-alert size-3" />
+                                            <AlertTitle className="text-alert text-sm">
+                                                Low recent activity{" "}
+                                            </AlertTitle>
+                                            <AlertDescription className="text-text-secondary text-xs">
+                                                {`Selected repos had no PRs in the last 14 days: ${staleRepositories
+                                                    .map(
+                                                        (r) =>
+                                                            `${r.organizationName}/${r.name}`,
+                                                    )
+                                                    .join(", ")}`}
+                                            </AlertDescription>
+                                        </Alert>
+                                    )}
                             </FormControl.Input>
                         </FormControl.Root>
 
-                        <Button
-                            size="lg"
-                            variant="primary"
-                            className="w-full"
+                        <div className="flex flex-col gap-2">
+                            <FormControl.Label>
+                                Who should Kody review?
+                            </FormControl.Label>
+                            <ToggleGroup.Root
+                                type="single"
+                                value={reviewScope}
+                                onValueChange={(value) => {
+                                    if (value)
+                                        setReviewScope(value as ReviewScope);
+                                }}
+                                className="border-border-subtle bg-card-lv2/70 grid grid-cols-2 gap-2 rounded-xl border p-1">
+                                <ToggleGroup.ToggleGroupItem
+                                    asChild
+                                    value="pilot">
+                                    <Button
+                                        variant={
+                                            reviewScope === "pilot"
+                                                ? "primary-dark"
+                                                : "helper"
+                                        }
+                                        size="md"
+                                        className={`w-full justify-center gap-2 rounded-lg border transition-all`}>
+                                        <HatGlasses className={`size-4`} />
+                                        <span>PRs opened by me</span>
+                                    </Button>
+                                </ToggleGroup.ToggleGroupItem>
+
+                                <ToggleGroup.ToggleGroupItem
+                                    asChild
+                                    value="team">
+                                    <Button
+                                        variant={
+                                            reviewScope === "team"
+                                                ? "primary-dark"
+                                                : "helper"
+                                        }
+                                        size="md"
+                                        className={`w-full justify-center gap-3 rounded-lg border transition-all`}>
+                                        <Sparkles className={`size-4`} />
+                                        All PRs in selected repos
+                                    </Button>
+                                </ToggleGroup.ToggleGroupItem>
+                            </ToggleGroup.Root>
+
+                        <p className="text-text-secondary text-xs">
+                            {scopeCopy}
+                        </p>
+                    </div>
+
+                <Button
+                    size="lg"
+                    variant="primary"
+                    className="mt-5 w-full"
                             rightIcon={<PowerIcon />}
                             loading={loadingSaveRepositories}
                             onClick={saveSelectedRepositoriesAction}
                             disabled={selectedRepositories.length === 0}>
-                            Turn on automation
+                            {ctaLabel}
                         </Button>
                     </div>
                 </div>
-
-                <Alert variant="success" className="max-w-96">
-                    <InfoIcon />
-                    <AlertTitle>You’re in control</AlertTitle>
-                    <AlertDescription className="mt-2 -ml-8">
-                        Kody only acts when you ask — no changes or reviews
-                        happen without your approval.
-                    </AlertDescription>
-                </Alert>
             </div>
         </Page.Root>
     );

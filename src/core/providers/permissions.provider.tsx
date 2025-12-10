@@ -1,3 +1,5 @@
+"use client";
+
 import { createContext, useContext } from "react";
 import { PermissionsMap } from "@services/permissions/types";
 

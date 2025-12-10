@@ -10,6 +10,7 @@ type PullRequest = {
     repositoryId: string;
     title: string;
     url: string;
+    lastActivityAt?: string;
 };
 
 interface UseDebouncedPRSearchParams {
@@ -87,6 +88,7 @@ export function useDebouncedPRSearch({
             repositoryId: pr.repository.id,
             title: pr.title,
             url: pr.url,
+            lastActivityAt: pr.lastActivityAt,
         }));
     }, [searchResults]);
 

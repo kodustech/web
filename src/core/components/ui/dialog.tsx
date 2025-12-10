@@ -76,7 +76,7 @@ const DialogContent = React.forwardRef<
                     <DialogPrimitive.Close
                         asChild
                         className="absolute top-5 right-4">
-                        <Button size="icon-sm" variant="cancel">
+                        <Button size="icon-sm" variant="cancel" type="button">
                             <X />
                         </Button>
                     </DialogPrimitive.Close>

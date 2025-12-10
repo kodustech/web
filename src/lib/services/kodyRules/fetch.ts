@@ -12,6 +12,32 @@ import type {
     PaginatedResponse,
 } from "./types";
 
+export type FastSyncIDERulesPayload = {
+    teamId: string;
+    repositoryId: string;
+    maxFiles?: number;
+    maxFileSizeBytes?: number;
+    maxTotalBytes?: number;
+};
+
+export type FastSyncIDERulesResponse = {
+    rules: KodyRule[];
+    skippedFiles?: unknown[];
+    errors?: unknown[];
+};
+
+export type ReviewFastIDERulesPayload = {
+    teamId: string;
+    activateRuleIds?: string[];
+    deleteRuleIds?: string[];
+};
+
+export type ReviewFastIDERulesResponse = {
+    activatedRules?: KodyRule[];
+    deletedRules?: KodyRule[];
+    errors?: unknown[];
+};
+
 export const createOrUpdateKodyRule = async (
     rule: KodyRule,
     repositoryId?: string,
@@ -108,6 +134,17 @@ export const getLibraryKodyRulesBuckets = async () => {
     return response || [];
 };
 
+export const fastSyncIDERules = async (
+    payload: FastSyncIDERulesPayload,
+): Promise<FastSyncIDERulesResponse> => {
+    const response = await axiosAuthorized.post<FastSyncIDERulesResponse>(
+        KODY_RULES_PATHS.FAST_SYNC_IDE_RULES,
+        payload,
+    );
+
+    return response.data;
+};
+
 export const getKodyRulesByRepositoryId = async (
     repositoryId: string,
     directoryId?: string,
@@ -128,6 +165,18 @@ export const getAllOrganizationKodyRules = async () => {
     const rules = await authorizedFetch<Array<KodyRule>>(
         KODY_RULES_PATHS.FIND_BY_ORGANIZATION_ID_AND_FILTER,
     );
+    return rules;
+};
+
+export const getPendingIDERules = async (params: {
+    teamId: string;
+    repositoryId?: string;
+}) => {
+    const rules = await authorizedFetch<Array<KodyRule>>(
+        KODY_RULES_PATHS.PENDING_IDE_RULES,
+        { params },
+    );
+
     return rules;
 };
 
@@ -175,6 +224,17 @@ export const syncIDERules = (params: {
     repositoryId: string;
 }) => {
     axiosAuthorized.post(KODY_RULES_PATHS.SYNC_IDE_RULES, params);
+};
+
+export const reviewFastIDERules = async (
+    payload: ReviewFastIDERulesPayload,
+): Promise<ReviewFastIDERulesResponse> => {
+    const response = await axiosAuthorized.post<ReviewFastIDERulesResponse>(
+        KODY_RULES_PATHS.REVIEW_FAST_IDE_RULES,
+        payload,
+    );
+
+    return response.data;
 };
 
 export const getKodyRuleSuggestions = async (ruleId: string) => {
