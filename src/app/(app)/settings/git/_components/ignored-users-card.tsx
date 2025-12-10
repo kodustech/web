@@ -87,12 +87,11 @@ export const IgnoredUsersCard = ({
                         allowedUsers:
                             mode === "allow" ? pendingAllowedUsers : [],
                     },
-                    organizationId,
                 );
 
                 toast({
                     variant: "success",
-                    title: "Auto license filters updated",
+                    title: "PR author filters updated",
                 });
 
                 setOpen(false);
@@ -100,7 +99,7 @@ export const IgnoredUsersCard = ({
             } catch {
                 toast({
                     variant: "danger",
-                    title: "Failed to update auto license filters",
+                    title: "Failed to update PR author filters",
                 });
             }
         });
@@ -115,7 +114,6 @@ export const IgnoredUsersCard = ({
                         ignoredUsers: [],
                         allowedUsers: [],
                     },
-                    organizationId,
                 );
 
                 setPendingIgnoredUsers([]);
@@ -138,11 +136,7 @@ export const IgnoredUsersCard = ({
         });
 
     const toggleUser = (userId: string) => {
-        if (
-            !canEditGitSettings ||
-            isResettingFilters ||
-            isSavingIgnoredUsers
-        )
+        if (!canEditGitSettings || isResettingFilters || isSavingIgnoredUsers)
             return;
 
         if (mode === "ignore") {
@@ -302,7 +296,7 @@ export const IgnoredUsersCard = ({
                                     ))}
                                 </CommandGroup>
                             </CommandList>
-                            <div className="border-t p-2 flex items-center gap-2">
+                            <div className="flex items-center gap-2 border-t p-2">
                                 <Button
                                     className="flex-1"
                                     size="sm"
