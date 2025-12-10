@@ -120,7 +120,7 @@ export const AcceptInviteForm = (props: {
                 email: props.email,
                 password,
                 redirect: true,
-                redirectTo: callbackUrl ?? "/setup",
+                redirectTo: callbackUrl ?? "/",
             });
         }
     });
