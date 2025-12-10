@@ -28,13 +28,11 @@ import {
     editKeySchema,
     type EditKeyForm,
 } from "src/features/ee/byok/_components/_modals/edit-key/_types";
-import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 import { StepIndicators } from "../_components/step-indicators";
 
 export const SetupByokPage = () => {
     const router = useRouter();
-    const { organizationId } = useOrganizationContext();
     const byokConfig = useSuspenseGetBYOK();
 
     const existingMain = byokConfig?.configValue?.main;
@@ -80,7 +78,6 @@ export const SetupByokPage = () => {
                         baseURL: values.baseURL || undefined,
                     },
                 },
-                organizationId,
             );
 
             toast({
@@ -251,7 +248,7 @@ export const SetupByokPage = () => {
                                     {model?.trim().length > 0 && (
                                         <div>
                                             <ByokKeyInput />
-                                            <p className="text-text-secondary text-xs mt-2">
+                                            <p className="text-text-secondary mt-2 text-xs">
                                                 Your AI provider may charge for
                                                 usage.
                                             </p>
