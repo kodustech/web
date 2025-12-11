@@ -21,6 +21,7 @@ export const getMCPPlugins = () =>
             connectionStatus?: MCP_CONNECTION_STATUS;
             isDefault?: boolean;
             baseUrl?: string;
+            active?: boolean;
         }>
     >("/mcp/integrations", { params: { page: 1, pageSize: 100 } });
 
@@ -58,7 +59,9 @@ export const getMCPPluginById = ({
         apiKeyHeader?: string;
         basicUser?: string;
         clientId?: string;
-        oauthScopes?: string;
+        oauthScopes?: string[];
+        dynamicRegistration?: boolean;
+        active?: boolean;
     }>(`/mcp/${provider}/integrations/${id}`);
 
 export const getMCPPluginTools = ({
@@ -230,18 +233,17 @@ export const createMCPCustomPlugin = async (data: {
     basicPassword?: string;
     clientId?: string;
     clientSecret?: string;
-    oauthScopes?: string;
+    oauthScopes?: string[];
+    dynamicRegistration?: boolean;
 }) => {
-    const response = await mcpManagerFetch<
-        | CustomMCPPlugin
-        | {
-              integrationId: string;
-              authUrl: string;
-          }
-    >(`/mcp/integration/custom`, {
-        method: "POST",
-        body: JSON.stringify(data),
-    });
+    console.log(data);
+    const response = await mcpManagerFetch<CustomMCPPlugin>(
+        `/mcp/integration/custom`,
+        {
+            method: "POST",
+            body: JSON.stringify(data),
+        },
+    );
 
     return response;
 };
@@ -266,7 +268,8 @@ export const updateMCPCustomPlugin = async (
         basicPassword?: string;
         clientId?: string;
         clientSecret?: string;
-        oauthScopes?: string;
+        oauthScopes?: string[];
+        dynamicRegistration?: boolean;
     },
 ) => {
     const response = await mcpManagerFetch<CustomMCPPlugin>(
@@ -292,17 +295,35 @@ export const deleteMCPCustomPlugin = async (id: string) => {
     return response;
 };
 
+export const initializeOauthCustomMCPPlugin = async (
+    provider: string,
+    id: string,
+) => {
+    const response = await mcpManagerFetch<{ authUrl: string }>(
+        `/mcp/integration/${provider}/oauth/initialize`,
+        {
+            method: "POST",
+            body: JSON.stringify({ integrationId: id }),
+        },
+    );
+    console.log("RESPONSEEEEE", response);
+
+    return response;
+};
+
 export const finishOauthCustomMCPPluginInstallation = async ({
+    provider,
     id,
     code,
     state,
 }: {
+    provider: string;
     id: string;
     code: string;
     state: string;
 }) => {
     const response = await mcpManagerFetch<{}>(
-        `/mcp/integration/custom/oauth`,
+        `/mcp/integration/${provider}/oauth/finalize`,
         {
             method: "POST",
             body: JSON.stringify({

@@ -38,6 +38,7 @@ export type CustomMCPProtocolType =
 export const CUSTOM_MCP_SESSION_STORAGE_KEYS = {
     INTEGRATION_ID: "mcp_custom_integration_id",
     INTEGRATION_NAME: "mcp_custom_integration_name",
+    PROVIDER: "mcp_custom_integration_provider",
 } as const;
 
 export enum IntegrationErrorCode {

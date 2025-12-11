@@ -67,14 +67,20 @@ export default function MCPOauthPage() {
         const integrationId = sessionStorage.getItem(
             CUSTOM_MCP_SESSION_STORAGE_KEYS.INTEGRATION_ID,
         );
+        const provider = sessionStorage.getItem(
+            CUSTOM_MCP_SESSION_STORAGE_KEYS.PROVIDER,
+        );
 
-        if (!integrationId) {
-            console.error("Missing integration ID for custom MCP plugin");
+        if (!integrationId || !provider) {
+            console.error(
+                "Missing integration ID or provider for custom MCP plugin",
+            );
             return setInstallationStatus("error");
         }
 
         const timeout = setTimeout(() => {
             finishOauthCustomMCPPluginInstallation({
+                provider,
                 id: integrationId,
                 code,
                 state,

@@ -1,9 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Avatar, AvatarImage } from "@components/ui/avatar";
 import { Button } from "@components/ui/button";
+import { Checkbox } from "@components/ui/checkbox";
 import {
     Dialog,
     DialogClose,
@@ -34,7 +33,6 @@ import {
 import {
     CUSTOM_MCP_AUTH_METHODS,
     CUSTOM_MCP_PROTOCOLS,
-    CUSTOM_MCP_SESSION_STORAGE_KEYS,
     CustomIntegrationErrorCode,
     CustomMCPAuthMethodType,
     CustomMCPProtocolType,
@@ -44,6 +42,8 @@ import {
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { ImageOff, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo } from "react";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import { AwaitedReturnType } from "src/core/types";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
@@ -83,8 +83,15 @@ const authSchema = z.discriminatedUnion("authMethod", [
         authMethod: z.literal(CUSTOM_MCP_AUTH_METHODS.OAUTH2),
         clientId: z.string().optional(),
         clientSecret: z.string().optional(),
-        oauthScopes: z.string().optional(),
-    }),
+        oauthScopes: z.array(z.string()).optional(),
+        dynamicRegistration: z.boolean().optional(),
+    }).refine(
+        (data) => data.dynamicRegistration || data.clientId,
+        {
+            message: "Client ID is required when dynamic registration is disabled",
+            path: ["clientId"],
+        },
+    ),
 ]);
 
 const addCustomPluginSchema = z
@@ -136,6 +143,7 @@ const getEmptyDefaultValues = (): AddCustomPluginFormValues => ({
     clientId: "",
     clientSecret: "",
     oauthScopes: "",
+    dynamicRegistration: false,
 });
 
 const convertApiDataToFormData = (
@@ -160,7 +168,8 @@ const convertApiDataToFormData = (
         apiKeyHeader: "",
         clientId: "",
         clientSecret: "",
-        oauthScopes: "",
+        oauthScopes: [],
+        dynamicRegistration: false, // Default to false for existing plugins
     };
 
     if (data.headers && Object.entries(data.headers).length > 0) {
@@ -184,7 +193,8 @@ const convertApiDataToFormData = (
         case CUSTOM_MCP_AUTH_METHODS.OAUTH2:
             formData.clientId = data.clientId || "";
             formData.clientSecret = "";
-            formData.oauthScopes = data.oauthScopes || "";
+            formData.oauthScopes = data.oauthScopes || [];
+            formData.dynamicRegistration = data.dynamicRegistration || false;
             break;
         case CUSTOM_MCP_AUTH_METHODS.NONE:
         default:
@@ -205,6 +215,16 @@ const convertFormDataToApiPayload = (
         protocol: formData.protocol,
         logoUrl: formData.logoUrl || undefined,
     };
+
+    // If using dynamic registration, ensure client credentials are not sent
+    if (
+        formData.authMethod === CUSTOM_MCP_AUTH_METHODS.OAUTH2 &&
+        formData.dynamicRegistration
+    ) {
+        payload.clientId = "";
+        payload.clientSecret = "";
+        payload.oauthScopes = [];
+    }
 
     const filteredHeaders = formData.headers.filter(
         (header) => header.key.trim() !== "",
@@ -229,6 +249,7 @@ const convertFormDataToApiPayload = (
             payload.clientId = formData.clientId;
             payload.clientSecret = formData.clientSecret;
             payload.oauthScopes = formData.oauthScopes;
+            payload.dynamicRegistration = formData.dynamicRegistration;
             break;
         case CUSTOM_MCP_AUTH_METHODS.NONE:
         default:
@@ -401,16 +422,11 @@ export const AddCustomPluginModal = ({
 }) => {
     const router = useRouter();
     const { toast } = useToast();
-    const [isDynamicRegister, setIsDynamicRegister] = useState(false);
     const canCreate = usePermission(Action.Create, ResourceType.PluginSettings);
     const canEdit = usePermission(Action.Update, ResourceType.PluginSettings);
 
     const isEditMode = !!pluginToEdit;
-    const isOauthEditMode =
-        isEditMode && pluginToEdit?.authType === CUSTOM_MCP_AUTH_METHODS.OAUTH2;
-    const canPerformAction = isEditMode
-        ? canEdit && !isOauthEditMode
-        : canCreate;
+    const canPerformAction = isEditMode ? canEdit : canCreate;
 
     const form = useForm<
         AddCustomPluginFormValues,
@@ -426,6 +442,17 @@ export const AddCustomPluginModal = ({
         criteriaMode: "firstError",
     });
 
+    const watchedAuthMethod = form.watch("authMethod");
+    const isOauth2 = watchedAuthMethod === CUSTOM_MCP_AUTH_METHODS.OAUTH2;
+    const dynamicRegistration = form.watch("dynamicRegistration");
+
+    // Reset dynamic registration when switching away from OAuth2
+    useEffect(() => {
+        if (!isOauth2) {
+            form.setValue("dynamicRegistration", false);
+        }
+    }, [isOauth2, form]);
+
     const { fields, append, remove } = useFieldArray({
         control: form.control,
         name: "headers",
@@ -437,19 +464,6 @@ export const AddCustomPluginModal = ({
                 const payload = convertFormDataToApiPayload(data);
 
                 const plugin = await createMCPCustomPlugin(payload);
-
-                if ("authUrl" in plugin) {
-                    sessionStorage.setItem(
-                        CUSTOM_MCP_SESSION_STORAGE_KEYS.INTEGRATION_ID,
-                        plugin.integrationId,
-                    );
-                    sessionStorage.setItem(
-                        CUSTOM_MCP_SESSION_STORAGE_KEYS.INTEGRATION_NAME,
-                        data.name,
-                    );
-                    router.push(plugin.authUrl);
-                    return;
-                }
 
                 await revalidateServerSidePath("/settings/plugins");
 
@@ -514,21 +528,21 @@ export const AddCustomPluginModal = ({
 
     const isLoading = isCreatePluginLoading || isUpdatePluginLoading;
 
-    const watchedAuthMethod = form.watch("authMethod");
     const watchedApiKeyHeader = form.watch("apiKeyHeader");
     const watchedHeaders = form.watch("headers");
 
     const manuallyOverriddenHeader = useMemo(() => {
         const authManagedHeaders = new Set<string>();
+        const currentAuthMethod = form.getValues("authMethod");
 
         if (
-            watchedAuthMethod === CUSTOM_MCP_AUTH_METHODS.BEARER ||
-            watchedAuthMethod === CUSTOM_MCP_AUTH_METHODS.BASIC ||
-            watchedAuthMethod === CUSTOM_MCP_AUTH_METHODS.OAUTH2
+            currentAuthMethod === CUSTOM_MCP_AUTH_METHODS.BEARER ||
+            currentAuthMethod === CUSTOM_MCP_AUTH_METHODS.BASIC ||
+            currentAuthMethod === CUSTOM_MCP_AUTH_METHODS.OAUTH2
         ) {
             authManagedHeaders.add("authorization");
         } else if (
-            watchedAuthMethod === CUSTOM_MCP_AUTH_METHODS.API_KEY &&
+            currentAuthMethod === CUSTOM_MCP_AUTH_METHODS.API_KEY &&
             watchedApiKeyHeader?.trim()
         ) {
             authManagedHeaders.add(watchedApiKeyHeader.trim().toLowerCase());
@@ -537,7 +551,7 @@ export const AddCustomPluginModal = ({
         return watchedHeaders.find((h) =>
             authManagedHeaders.has(h.key.trim().toLowerCase()),
         );
-    }, [watchedAuthMethod, watchedApiKeyHeader, watchedHeaders]);
+    }, [form, watchedApiKeyHeader, watchedHeaders]);
 
     return (
         <MagicModalContext
@@ -712,7 +726,7 @@ export const AddCustomPluginModal = ({
                             render={({ field, fieldState }) => (
                                 <FormControl.Root>
                                     <FormControl.Label>
-                                        Authorization (Optional)
+                                        Authorization
                                     </FormControl.Label>
                                     <Select
                                         value={field.value}
@@ -904,80 +918,133 @@ export const AddCustomPluginModal = ({
 
                         {watchedAuthMethod ===
                             CUSTOM_MCP_AUTH_METHODS.OAUTH2 && (
-                            <div className="grid grid-flow-col gap-2">
-                                <Controller
-                                    name="clientId"
-                                    control={form.control}
-                                    render={({ field, fieldState }) => (
-                                        <FormControl.Root>
-                                            <FormControl.Label>
-                                                Client ID (Optional)
-                                            </FormControl.Label>
-                                            <FormControl.Input>
-                                                <Input
-                                                    size="md"
-                                                    placeholder="OAuth 2.0 Client ID"
-                                                    disabled={!canPerformAction}
-                                                    {...field}
-                                                />
-                                            </FormControl.Input>
-                                            {fieldState.error && (
-                                                <FormControl.Error>
-                                                    {fieldState.error.message}
-                                                </FormControl.Error>
+                            <div className="space-y-4">
+                                <div className="flex items-center space-x-2">
+                                    <Checkbox
+                                        id="dynamicRegistration"
+                                        checked={dynamicRegistration}
+                                        onCheckedChange={(c) => {
+                                            form.setValue(
+                                                "dynamicRegistration",
+                                                c as boolean,
+                                            );
+                                            if (c) {
+                                                form.setValue("clientId", "");
+                                                form.setValue(
+                                                    "clientSecret",
+                                                    "",
+                                                );
+                                                form.setValue(
+                                                    "oauthScopes",
+                                                    [],
+                                                );
+                                            }
+                                        }}
+                                    />
+                                    <label htmlFor="dynamicRegistration">
+                                        Use Dynamic Client Registration
+                                    </label>
+                                </div>
+                                {!dynamicRegistration && (
+                                    <>
+                                        <Controller
+                                            name="clientId"
+                                            control={form.control}
+                                            render={({ field, fieldState }) => (
+                                                <FormControl.Root>
+                                                    <FormControl.Label>
+                                                        Client ID
+                                                    </FormControl.Label>
+                                                    <FormControl.Input>
+                                                        <Input
+                                                            size="md"
+                                                            placeholder="OAuth 2.0 Client ID"
+                                                            disabled={
+                                                                !canPerformAction
+                                                            }
+                                                            {...field}
+                                                        />
+                                                    </FormControl.Input>
+                                                    {fieldState.error && (
+                                                        <FormControl.Error>
+                                                            {
+                                                                fieldState.error
+                                                                    .message
+                                                            }
+                                                        </FormControl.Error>
+                                                    )}
+                                                </FormControl.Root>
                                             )}
-                                        </FormControl.Root>
-                                    )}
-                                />
-                                <Controller
-                                    name="clientSecret"
-                                    control={form.control}
-                                    render={({ field, fieldState }) => (
-                                        <FormControl.Root>
-                                            <FormControl.Label>
-                                                Client Secret (Optional)
-                                            </FormControl.Label>
-                                            <FormControl.Input>
-                                                <Input
-                                                    size="md"
-                                                    type="password"
-                                                    placeholder="OAuth 2.0 Client Secret"
-                                                    disabled={!canPerformAction}
-                                                    {...field}
-                                                />
-                                            </FormControl.Input>
-                                            {fieldState.error && (
-                                                <FormControl.Error>
-                                                    {fieldState.error.message}
-                                                </FormControl.Error>
+                                        />
+                                        <Controller
+                                            name="clientSecret"
+                                            control={form.control}
+                                            render={({ field, fieldState }) => (
+                                                <FormControl.Root>
+                                                    <FormControl.Label>
+                                                        Client Secret (Optional)
+                                                    </FormControl.Label>
+                                                    <FormControl.Input>
+                                                        <Input
+                                                            size="md"
+                                                            type="password"
+                                                            placeholder="OAuth 2.0 Client Secret"
+                                                            disabled={
+                                                                !canPerformAction
+                                                            }
+                                                            {...field}
+                                                        />
+                                                    </FormControl.Input>
+                                                    {fieldState.error && (
+                                                        <FormControl.Error>
+                                                            {
+                                                                fieldState.error
+                                                                    .message
+                                                            }
+                                                        </FormControl.Error>
+                                                    )}
+                                                </FormControl.Root>
                                             )}
-                                        </FormControl.Root>
-                                    )}
-                                />
-                                <Controller
-                                    name="oauthScopes"
-                                    control={form.control}
-                                    render={({ field, fieldState }) => (
-                                        <FormControl.Root>
-                                            <FormControl.Label>
-                                                Scope (Optional)
-                                            </FormControl.Label>
-                                            <FormControl.Input>
-                                                <Input
-                                                    size="md"
-                                                    placeholder="Space separated OAuth scopes"
-                                                    disabled={!canPerformAction}
-                                                    {...field}
-                                                />
-                                            </FormControl.Input>
-                                            {fieldState.error && (
-                                                <FormControl.Error>
-                                                    {fieldState.error.message}
-                                                </FormControl.Error>
+                                        />
+                                        <Controller
+                                            name="oauthScopes"
+                                            control={form.control}
+                                            render={({ field, fieldState }) => (
+                                                <FormControl.Root>
+                                                    <FormControl.Label>
+                                                        Scopes (Comma-separated, Optional)
+                                                    </FormControl.Label>
+                                                    <FormControl.Input>
+                                                        <Input
+                                                            size="md"
+                                                            placeholder="e.g., read,write,profile"
+                                                            disabled={
+                                                                !canPerformAction
+                                                            }
+                                                            value={Array.isArray(field.value) ? field.value.join(', ') : ''}
+                                                            onChange={(e) => {
+                                                                const value = e.target.value;
+                                                                const scopes = value
+                                                                    .split(',')
+                                                                    .map(s => s.trim())
+                                                                    .filter(Boolean);
+                                                                field.onChange(scopes);
+                                                            }}
+                                                        />
+                                                    </FormControl.Input>
+                                                    {fieldState.error && (
+                                                        <FormControl.Error>
+                                                            {
+                                                                fieldState.error
+                                                                    .message
+                                                            }
+                                                        </FormControl.Error>
+                                                    )}
+                                                </FormControl.Root>
                                             )}
-                                        </FormControl.Root>
-                                    )}
-                                />
+                                        />
+                                    </>
+                                )}
                             </div>
                         )}
 
@@ -1110,12 +1177,6 @@ export const AddCustomPluginModal = ({
                                 {isEditMode ? "Update Plugin" : "Create Plugin"}
                             </Button>
                         </div>
-                        {isOauthEditMode && (
-                            <p className="text-xs">
-                                Sorry, OAuth custom plugins cannot be edited
-                                currently, please remove it and try again
-                            </p>
-                        )}
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

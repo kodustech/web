@@ -33,6 +33,8 @@ export default async function PluginsPage() {
         a.name > b.name ? 1 : -1,
     );
 
+    console.log(alphabeticallySortedPlugins);
+
     return (
         <Page.Root>
             <Page.Header>
@@ -99,7 +101,7 @@ export default async function PluginsPage() {
 
                                                 {item.isConnected &&
                                                     item.connectionStatus ===
-                                                    MCP_CONNECTION_STATUS.ACTIVE && (
+                                                        MCP_CONNECTION_STATUS.ACTIVE && (
                                                         <Badge
                                                             variant="tertiary"
                                                             leftIcon={

@@ -1,11 +1,10 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { MCPPluginsLimitPopover } from "@components/system/mcp-plugins-limit-popover";
 import { Avatar, AvatarImage } from "@components/ui/avatar";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
+import { Card } from "@components/ui/card";
 import { Checkbox } from "@components/ui/checkbox";
 import { ConfirmModal } from "@components/ui/confirm-modal";
 import {
@@ -24,6 +23,7 @@ import { useAsyncAction } from "@hooks/use-async-action";
 import {
     deleteMCPConnection,
     deleteMCPCustomPlugin,
+    initializeOauthCustomMCPPlugin,
     installMCPPlugin,
     updateMCPAllowedTools,
     type getMCPPluginById,
@@ -33,10 +33,13 @@ import {
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { EditIcon, PlugIcon, RefreshCwIcon, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 import type { AwaitedReturnType } from "src/core/types";
 import { revalidateServerSidePath } from "src/core/utils/revalidate-server-side";
 import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
 
+import { CUSTOM_MCP_SESSION_STORAGE_KEYS } from "@services/mcp-manager/types";
 import { RequiredConfiguration } from "./required-configuration";
 import { SelectTools } from "./select-tools";
 
@@ -81,6 +84,11 @@ export const PluginModal = ({
     const canEdit = usePermission(Action.Update, ResourceType.PluginSettings);
     const canDelete = usePermission(Action.Delete, ResourceType.PluginSettings);
 
+    const isCustomOauthUnauthorized =
+        plugin.authScheme?.toLowerCase() === "oauth2" &&
+        ['custom', 'kodusmcp'].includes(plugin.provider) &&
+        !plugin.active;
+
     const [requiredParamsValues, setRequiredParamsValues] = useState<
         Record<string, string>
     >({});
@@ -113,6 +121,32 @@ export const PluginModal = ({
         Object.keys(requiredParamsValues).length ===
             (plugin.requiredParams?.length || 0) &&
         Object.values(requiredParamsValues).every((v) => v.trim().length > 0);
+
+    const [authorizePlugin, {loading: isAuthorizePluginLoading}] = useAsyncAction(async () => {
+        const initializeResponse = await initializeOauthCustomMCPPlugin(plugin.provider, plugin.id);
+        if (initializeResponse && 'authUrl' in initializeResponse) {
+            sessionStorage.setItem(
+                CUSTOM_MCP_SESSION_STORAGE_KEYS.INTEGRATION_ID,
+                plugin.id,
+            );
+            sessionStorage.setItem(
+                CUSTOM_MCP_SESSION_STORAGE_KEYS.INTEGRATION_NAME,
+                plugin.appName,
+            );
+            sessionStorage.setItem(
+                CUSTOM_MCP_SESSION_STORAGE_KEYS.PROVIDER,
+                plugin.provider,
+            );
+            
+            return router.push(initializeResponse.authUrl);
+        }
+
+        toast({
+            variant: "alert",
+            title: "Couldn't start authentication",
+            description: "Please try again or contact support if the problem persists."
+        })
+    });
 
     const [installPlugin, { loading: isInstallPluginLoading }] = useAsyncAction(
         async () => {
@@ -242,7 +276,7 @@ export const PluginModal = ({
 
                     <div className="-mx-6 overflow-auto px-6">
                         <div className="flex flex-col gap-3">
-                            {plugin.authScheme === "OAUTH2" && (
+                            {plugin.authScheme.toLowerCase() === "oauth2" && (
                                 <div className="mb-2 flex items-center gap-2">
                                     <Badge className="pointer-events-none">
                                         Oauth login
@@ -275,19 +309,43 @@ export const PluginModal = ({
                                 />
                             )}
 
-                            <SelectTools
-                                tools={tools.length > 0 ? tools : []}
-                                defaultOpen={
-                                    (plugin.requiredParams?.length || 0) === 0
-                                }
-                                selectedTools={effectiveSelectedTools}
-                                setSelectedToolsAction={(tools) => {
-                                    setSelectedTools(tools);
-                                    setConfirmInstallationOfToolsWithWarnings(
-                                        false,
-                                    );
-                                }}
-                            />
+                            {isCustomOauthUnauthorized && !isConnected ? (
+                                <Card
+                                    className="flex w-full flex-col items-center justify-center py-8"
+                                    color="lv1">
+                                    <p className="mb-4 text-center text-sm text-gray-500">
+                                        This plugin requires OAuth
+                                        authentication. Please authenticate to
+                                        continue.
+                                    </p>
+                                    <Button
+                                        size="md"
+                                        variant="primary"
+                                        leftIcon={<PlugIcon />}
+                                        onClick={() => {
+                                            authorizePlugin()
+                                        }}
+                                        loading={isAuthorizePluginLoading}
+                                        disabled={!canEdit || isDefault}>
+                                        Authenticate with {plugin.appName}
+                                    </Button>
+                                </Card>
+                            ) : (
+                                <SelectTools
+                                    tools={tools.length > 0 ? tools : []}
+                                    defaultOpen={
+                                        (plugin.requiredParams?.length || 0) ===
+                                        0
+                                    }
+                                    selectedTools={effectiveSelectedTools}
+                                    setSelectedToolsAction={(tools) => {
+                                        setSelectedTools(tools);
+                                        setConfirmInstallationOfToolsWithWarnings(
+                                            false,
+                                        );
+                                    }}
+                                />
+                            )}
                         </div>
                     </div>
 
