@@ -116,7 +116,7 @@ export function UserAuthForm() {
             email,
             password,
             redirect: true,
-            redirectTo: callbackUrl ?? "/setup",
+            redirectTo: callbackUrl ?? "/",
         });
         setIsSubmitting(false);
     }, [callbackUrl]);
