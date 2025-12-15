@@ -46,7 +46,8 @@ export default function CustomMessages() {
 
     const [globalSettings, setGlobalSettings] = useState({
         hideComments: pullRequestMessages.globalSettings?.hideComments,
-        enabledLLMPrompt: pullRequestMessages.globalSettings?.enabledLLMPrompt,
+        suggestionCopyPrompt:
+            pullRequestMessages.globalSettings?.suggestionCopyPrompt,
     });
 
     useEffect(() => {
@@ -56,8 +57,8 @@ export default function CustomMessages() {
         });
         setGlobalSettings({
             hideComments: pullRequestMessages.globalSettings?.hideComments,
-            enabledLLMPrompt:
-                pullRequestMessages.globalSettings?.enabledLLMPrompt,
+            suggestionCopyPrompt:
+                pullRequestMessages.globalSettings?.suggestionCopyPrompt,
         });
     }, [pullRequestMessages]);
 
@@ -77,8 +78,8 @@ export default function CustomMessages() {
         globalSettings.hideComments?.value !==
             (pullRequestMessages.globalSettings?.hideComments?.value ??
                 false) ||
-        globalSettings.enabledLLMPrompt?.value !==
-            (pullRequestMessages.globalSettings?.enabledLLMPrompt?.value ??
+        globalSettings.suggestionCopyPrompt?.value !==
+            (pullRequestMessages.globalSettings?.suggestionCopyPrompt?.value ??
                 true);
 
     const [action, { loading: isSaving }] = useAsyncAction(async () => {
@@ -252,15 +253,18 @@ export default function CustomMessages() {
                             canEdit={canEdit}
                         />
                         <LLMPromptToggle
-                            enabledLLMPrompt={globalSettings.enabledLLMPrompt}
-                            initialState={
-                                initialState.globalSettings?.enabledLLMPrompt
+                            suggestionCopyPrompt={
+                                globalSettings.suggestionCopyPrompt
                             }
-                            onEnabledLLMPromptChangeAction={(value) => {
+                            initialState={
+                                initialState.globalSettings
+                                    ?.suggestionCopyPrompt
+                            }
+                            onsuggestionCopyPromptChangeAction={(value) => {
                                 setGlobalSettings((prev) => ({
                                     ...prev,
-                                    enabledLLMPrompt: {
-                                        ...prev.enabledLLMPrompt,
+                                    suggestionCopyPrompt: {
+                                        ...prev.suggestionCopyPrompt,
                                         value,
                                     },
                                 }));
@@ -268,10 +272,10 @@ export default function CustomMessages() {
                             handleRevert={() => {
                                 setGlobalSettings((prev) => ({
                                     ...prev,
-                                    enabledLLMPrompt: {
-                                        ...prev.enabledLLMPrompt,
+                                    suggestionCopyPrompt: {
+                                        ...prev.suggestionCopyPrompt,
                                         value: initialState.globalSettings
-                                            ?.enabledLLMPrompt?.value,
+                                            ?.suggestionCopyPrompt?.value,
                                     },
                                 }));
                             }}

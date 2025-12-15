@@ -7,9 +7,9 @@ import { OverrideIndicator } from "../../../_components/override";
 import type { IFormattedConfigProperty } from "../../../_types";
 
 export const LLMPromptToggle = (props: {
-    enabledLLMPrompt: IFormattedConfigProperty<boolean>;
+    suggestionCopyPrompt: IFormattedConfigProperty<boolean>;
     initialState: IFormattedConfigProperty<boolean>;
-    onEnabledLLMPromptChangeAction: (value: boolean) => void;
+    onsuggestionCopyPromptChangeAction: (value: boolean) => void;
     handleRevert: () => void;
     canEdit: boolean;
 }) => {
@@ -21,8 +21,8 @@ export const LLMPromptToggle = (props: {
                 className="w-full"
                 disabled={!props.canEdit}
                 onClick={() =>
-                    props.onEnabledLLMPromptChangeAction(
-                        !props.enabledLLMPrompt?.value,
+                    props.onsuggestionCopyPromptChangeAction(
+                        !props.suggestionCopyPrompt?.value,
                     )
                 }>
                 <CardHeader className="flex flex-row items-center justify-between gap-6 p-4">
@@ -35,7 +35,7 @@ export const LLMPromptToggle = (props: {
                                 </span>
                             </Heading>
                             <OverrideIndicator
-                                currentValue={props.enabledLLMPrompt?.value}
+                                currentValue={props.suggestionCopyPrompt?.value}
                                 initialState={props.initialState}
                                 handleRevert={props.handleRevert}
                             />
@@ -47,7 +47,7 @@ export const LLMPromptToggle = (props: {
                     </div>
                     <Switch
                         decorative
-                        checked={props.enabledLLMPrompt?.value}
+                        checked={props.suggestionCopyPrompt?.value}
                     />
                 </CardHeader>
             </Button>

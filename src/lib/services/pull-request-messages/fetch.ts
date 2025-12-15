@@ -1,6 +1,7 @@
 import type { LiteralUnion } from "src/core/types";
 import { axiosAuthorized } from "src/core/utils/axios";
 import { pathToApiUrl } from "src/core/utils/helpers";
+
 import { PullRequestMessageStatus } from "./types";
 
 export const savePullRequestMessages = ({
@@ -24,7 +25,7 @@ export const savePullRequestMessages = ({
     };
     globalSettings?: {
         hideComments: boolean;
-        enabledLLMPrompt: boolean;
+        suggestionCopyPrompt: boolean;
     };
 }) => {
     return axiosAuthorized.post(pathToApiUrl("/pull-request-messages"), {

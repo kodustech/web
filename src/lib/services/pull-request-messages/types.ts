@@ -26,7 +26,7 @@ export type CustomMessageConfig = {
     };
     globalSettings: {
         hideComments: boolean;
-        enabledLLMPrompt: boolean;
+        suggestionCopyPrompt: boolean;
     };
 };
 
