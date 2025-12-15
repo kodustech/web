@@ -5,4 +5,5 @@ export const ORGANIZATIONS_PATHS = {
     ORGANIZATION_ID: pathToApiUrl("/integration/organization-id"),
 
     ORGANIZATION_NAME: pathToApiUrl("/organization/name"),
+    ORGANIZATION_LANGUAGE: pathToApiUrl("/organization/language"),
 } as const;

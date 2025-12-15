@@ -85,6 +85,7 @@ export const getLibraryKodyRulesWithFeedback = async (params?: {
     severity?: "Low" | "Medium" | "High" | "Critical";
     tags?: string[];
     language?: keyof typeof ProgrammingLanguage;
+    plug_and_play?: boolean;
 }) => {
     // Build params object for authorizedFetch
     const fetchParams: Record<string, string | number | boolean | undefined> = {
@@ -96,6 +97,7 @@ export const getLibraryKodyRulesWithFeedback = async (params?: {
     if (params?.name) fetchParams.title = params.name; // Backend expects 'title' not 'name'
     if (params?.severity) fetchParams.severity = params.severity;
     if (params?.language) fetchParams.language = String(params.language);
+    if (params?.plug_and_play) fetchParams.plug_and_play = true;
 
     // For arrays, we need to handle them as multiple parameters with the same key
     // But since authorizedFetch doesn't handle array params well, we'll build the URL manually

@@ -65,6 +65,7 @@ export type LibraryRule = {
     tags: string[];
     language: keyof typeof ProgrammingLanguage;
     buckets?: string[];
+    plug_and_play?: boolean;
     scope?: string;
     positiveCount?: number;
     negativeCount?: number;
@@ -84,6 +85,7 @@ export type FindLibraryKodyRulesFilters = {
     tags?: string[];
     language?: keyof typeof ProgrammingLanguage;
     buckets?: string[];
+    plug_and_play?: boolean;
     uuid?: string; // Filter by specific rule ID
     page?: number;
     limit?: number;

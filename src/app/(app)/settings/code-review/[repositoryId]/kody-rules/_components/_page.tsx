@@ -243,7 +243,7 @@ export const KodyRulesPage = ({
                 </Page.TitleContainer>
                 <div className="flex flex-col gap-2">
                     <Page.HeaderActions>
-                        <Link href="/library/kody-rules">
+                        <Link href="/library/kody-rules/featured">
                             <Button
                                 size="md"
                                 decorative
