@@ -55,6 +55,19 @@ const RECOMMENDED_RULES_LIMIT = 12;
 
 const SEVERITY_OPTIONS = ["Low", "Medium", "High", "Critical"] as const;
 
+const MCP_OPTIONS = [
+    { value: "slack", title: "Slack" },
+    { value: "jira", title: "Jira" },
+    { value: "datadog", title: "Datadog" },
+    { value: "linear", title: "Linear" },
+    { value: "asana", title: "Asana" },
+    { value: "grafana", title: "Grafana" },
+    { value: "perplexity", title: "Perplexity" },
+    { value: "exa", title: "Exa" },
+    { value: "github", title: "GitHub" },
+    { value: "sentry", title: "Sentry" },
+] as const;
+
 const getRulePositiveCount = (rule: LibraryRule) =>
     rule.positiveCount ?? rule.likesCount ?? 0;
 
@@ -300,6 +313,19 @@ export const KodyRulesLibrary = ({
     const [recommendedRules, setRecommendedRules] = useState<LibraryRule[]>([]);
     const [isRecommendedLoading, setIsRecommendedLoading] = useState(false);
 
+    const filteredResults = useMemo(() => {
+        if (!filters.requiredMcp) return results;
+
+        const normalizedFilter = filters.requiredMcp.trim().toLowerCase();
+        return results.filter((rule) => {
+            if (!rule.required_mcps || rule.required_mcps.length === 0)
+                return false;
+            return rule.required_mcps.some(
+                (mcp) => mcp.trim().toLowerCase() === normalizedFilter,
+            );
+        });
+    }, [results, filters.requiredMcp]);
+
     const hasUserFilters = useMemo(() => {
         if (debouncedNameFilter.trim()) return true;
         if (filters.severity) return true;
@@ -307,6 +333,7 @@ export const KodyRulesLibrary = ({
         if (filters.tags && filters.tags.length > 0) return true;
         if (filters.plug_and_play) return true;
         if (filters.needMCPS) return true;
+        if (filters.requiredMcp) return true;
         if (filters.language && filters.language !== autoLanguage) return true;
         return false;
     }, [
@@ -315,6 +342,7 @@ export const KodyRulesLibrary = ({
         filters.language,
         filters.needMCPS,
         filters.plug_and_play,
+        filters.requiredMcp,
         filters.tags,
         filters.severity,
         selectedBucket,
@@ -502,6 +530,7 @@ export const KodyRulesLibrary = ({
                         language: nextLanguage,
                         needMCPS: undefined,
                         plug_and_play: true,
+                        requiredMcp: undefined,
                         tags: undefined,
                     };
                 }
@@ -521,6 +550,7 @@ export const KodyRulesLibrary = ({
                     language: nextLanguage,
                     needMCPS: undefined,
                     plug_and_play: undefined,
+                    requiredMcp: undefined,
                     tags: undefined,
                 };
             });
@@ -870,9 +900,13 @@ export const KodyRulesLibrary = ({
                                                     : "All rules"}
                                         </Heading>
                                         <div className="text-text-secondary text-sm">
-                                            {pagination.total > 0
-                                                ? `${pagination.total} rules`
-                                                : null}
+                                            {filters.requiredMcp
+                                                ? filteredResults.length > 0
+                                                    ? `${filteredResults.length} rules`
+                                                    : null
+                                                : pagination.total > 0
+                                                  ? `${pagination.total} rules`
+                                                  : null}
                                         </div>
                                     </div>
                                     {selectedBucketMeta?.description && (
@@ -882,9 +916,54 @@ export const KodyRulesLibrary = ({
                                     )}
                                 </div>
 
+                                {selectedTypeValue === "mcp" && (
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <span className="text-text-secondary text-sm">
+                                            Filter by plugin:
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setFilters((prev) => ({
+                                                    ...prev,
+                                                    requiredMcp: undefined,
+                                                }))
+                                            }
+                                            className={cn(
+                                                "rounded-full px-3 py-1 text-sm transition",
+                                                !filters.requiredMcp
+                                                    ? "bg-primary-dark"
+                                                    : "bg-card-lv3 text-text-secondary hover:text-text-primary",
+                                            )}>
+                                            All
+                                        </button>
+                                        {MCP_OPTIONS.map((mcp) => (
+                                            <button
+                                                key={mcp.value}
+                                                type="button"
+                                                onClick={() =>
+                                                    setFilters((prev) => ({
+                                                        ...prev,
+                                                        requiredMcp: mcp.value,
+                                                    }))
+                                                }
+                                                className={cn(
+                                                    "rounded-full px-3 py-1 text-sm transition",
+                                                    filters.requiredMcp ===
+                                                        mcp.value
+                                                        ? "bg-primary-dark text-white"
+                                                        : "bg-card-lv3 text-text-secondary hover:text-text-primary",
+                                                )}>
+                                                {mcp.title}
+                                            </button>
+                                        ))}
+                                    </div>
+                                )}
+
                                 <Separator className="opacity-60" />
 
-                                {results.length === 0 && !isResultsLoading ? (
+                                {filteredResults.length === 0 &&
+                                !isResultsLoading ? (
                                     <div className="text-text-secondary py-12 text-sm">
                                         {hasUserFilters
                                             ? "No rules found with your current filters."
@@ -893,7 +972,7 @@ export const KodyRulesLibrary = ({
                                 ) : (
                                     <>
                                         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                                            {results.map((rule) => (
+                                            {filteredResults.map((rule) => (
                                                 <KodyRuleLibraryItem
                                                     key={rule.uuid}
                                                     rule={rule}

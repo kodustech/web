@@ -87,6 +87,7 @@ export const getLibraryKodyRulesWithFeedback = async (params?: {
     language?: keyof typeof ProgrammingLanguage;
     plug_and_play?: boolean;
     needMCPS?: boolean;
+    requiredMcp?: string;
     debugLabel?: string;
 }) => {
     // Build params object for authorizedFetch
@@ -101,6 +102,7 @@ export const getLibraryKodyRulesWithFeedback = async (params?: {
     if (params?.language) fetchParams.language = String(params.language);
     if (params?.plug_and_play) fetchParams.plug_and_play = true;
     if (params?.needMCPS) fetchParams.needMCPS = true;
+    if (params?.requiredMcp) fetchParams.requiredMcp = params.requiredMcp;
 
     // For arrays, we need to handle them as multiple parameters with the same key
     // But since authorizedFetch doesn't handle array params well, we'll build the URL manually

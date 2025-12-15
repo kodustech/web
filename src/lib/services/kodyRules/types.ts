@@ -93,7 +93,8 @@ export type FindLibraryKodyRulesFilters = {
     buckets?: string[];
     plug_and_play?: boolean;
     needMCPS?: boolean;
-    uuid?: string; // Filter by specific rule ID
+    requiredMcp?: string;
+    uuid?: string;
     page?: number;
     limit?: number;
 };

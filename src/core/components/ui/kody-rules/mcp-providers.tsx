@@ -30,7 +30,7 @@ const getProviderInitials = (value: string) => {
 
 const PROVIDER_ICON_MAP: Record<
     string,
-    (props: SVGProps<SVGSVGElement>) => JSX.Element
+    (props: SVGProps<SVGSVGElement>) => React.JSX.Element
 > = {
     "slack": SvgSlack,
     "jira": SvgJira,
@@ -46,16 +46,30 @@ const PROVIDER_ICON_MAP: Record<
     "sentry.io": SvgSentry,
 };
 
-const McpProviderLogo = ({ provider }: { provider: string }) => {
+const McpProviderLogo = ({
+    provider,
+    size = "md",
+}: {
+    provider: string;
+    size?: "sm" | "md";
+}) => {
     const key = normalizeProviderKey(provider);
     const Icon = PROVIDER_ICON_MAP[key];
 
+    const sizeClasses = size === "sm" ? "size-4" : "size-6";
+    const iconClasses = size === "sm" ? "size-2.5" : "size-4";
+    const textClasses = size === "sm" ? "text-[8px]" : "text-[10px]";
+
     return (
-        <span className="bg-card-lv3 border-card-lv3 flex size-5 items-center justify-center rounded-full border">
+        <span
+            className={cn(
+                "bg-card-lv3 border-card-lv3 flex items-center justify-center rounded-full border",
+                sizeClasses,
+            )}>
             {Icon ? (
-                <Icon className="size-3.5" />
+                <Icon className={iconClasses} />
             ) : (
-                <span className="text-text-secondary text-[9px] font-semibold">
+                <span className={cn("text-text-secondary font-semibold", textClasses)}>
                     {getProviderInitials(provider)}
                 </span>
             )}
@@ -65,10 +79,10 @@ const McpProviderLogo = ({ provider }: { provider: string }) => {
 
 export const McpProvidersBadge = ({
     providers,
-    maxVisible = 5,
+    maxVisible = 3,
     badgeVariant = "secondary",
     className,
-    hoverTitle = "Requires MCP providers",
+    hoverTitle = "Required Plugins",
     hoverDescription,
 }: {
     providers?: string[];
@@ -90,35 +104,50 @@ export const McpProvidersBadge = ({
     return (
         <HoverCard openDelay={150}>
             <HoverCardTrigger asChild>
-                <div
+                <Badge
+                    variant={badgeVariant}
                     className={cn(
-                        "flex cursor-default items-center gap-1",
+                        "h-5 cursor-default gap-1.5 px-2 font-normal",
                         className,
                     )}>
-                    <span className="text-text-secondary mr-2 text-sm">
-                        Required Plugins:
-                    </span>
                     <div className="flex -space-x-1">
                         {visibleProviders.map((provider) => (
                             <McpProviderLogo
                                 key={provider}
                                 provider={provider}
+                                size="sm"
                             />
                         ))}
                         {remaining > 0 && (
-                            <span className="bg-card-lv3 border-card-lv3 text-text-secondary flex size-5 items-center justify-center rounded-full border text-[9px] font-semibold">
+                            <span className="bg-card-lv2 text-text-secondary flex size-4 items-center justify-center rounded-full text-[8px] font-semibold">
                                 +{remaining}
                             </span>
                         )}
                     </div>
-                </div>
+                    <span className="text-xs">Requires Plugin</span>
+                </Badge>
             </HoverCardTrigger>
-            <HoverCardContent className="w-80">
-                <div className="space-y-1">
-                    <Heading variant="h3">{hoverTitle}</Heading>
-                    <p className="text-text-secondary text-sm">
-                        {hoverDescription ?? normalizedProviders.join(", ")}
-                    </p>
+            <HoverCardContent className="w-64">
+                <div className="space-y-3">
+                    <div className="space-y-1">
+                        <Heading variant="h3">{hoverTitle}</Heading>
+                        <p className="text-text-secondary text-sm">
+                            {hoverDescription ??
+                                "This rule requires one of the following plugins:"}
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                        {normalizedProviders.map((provider) => (
+                            <div
+                                key={provider}
+                                className="bg-card-lv3 flex items-center gap-1.5 rounded-full py-1 pr-2.5 pl-1.5">
+                                <McpProviderLogo provider={provider} size="sm" />
+                                <span className="text-text-primary text-xs font-medium">
+                                    {provider}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </HoverCardContent>
         </HoverCard>

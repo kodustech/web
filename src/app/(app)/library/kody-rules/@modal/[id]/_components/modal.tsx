@@ -323,7 +323,7 @@ export const KodyRuleLibraryItemModal = ({
                             <Section.Root>
                                 <Section.Header>
                                     <Section.Title>
-                                        Required MCP providers
+                                        Required Plugins
                                     </Section.Title>
                                 </Section.Header>
 
