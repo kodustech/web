@@ -306,6 +306,7 @@
     --animate-collapsible-up: collapsible-up 0.2s ease-out;
     --animate-accordion-down: accordion-down 0.2s ease-out;
     --animate-accordion-up: accordion-up 0.2s ease-out;
+    --animate-fade-in-up: fade-in-up 0.5s ease-out;
 
     @keyframes accordion-down {
         from {
@@ -344,6 +345,30 @@
 
         to {
             height: 0;
+        }
+    }
+
+    @keyframes fade-in-up {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fade-out-down {
+        from {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        to {
+            opacity: 0;
+            transform: translateY(5px) scale(0.95);
         }
     }
 }

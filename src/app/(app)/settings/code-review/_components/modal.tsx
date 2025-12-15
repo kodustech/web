@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import { Checkbox } from "@components/ui/checkbox";
@@ -44,13 +44,14 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from "@components/ui/tooltip";
-import { createOrUpdateKodyRule } from "@services/kodyRules/fetch";
+import { createOrUpdateKodyRule, getRecommendedKodyRules } from "@services/kodyRules/fetch";
 import {
     KodyRuleInheritanceOrigin,
     KodyRulesOrigin,
     KodyRulesStatus,
     KodyRuleWithInheritanceDetails,
     type KodyRule,
+    type LibraryRule,
 } from "@services/kodyRules/types";
 import {
     AtSign,
@@ -62,9 +63,11 @@ import {
     GitPullRequest,
     HelpCircle,
     Info,
+    Lightbulb,
     PlusIcon,
     SaveIcon,
     Settings2,
+    Sparkles,
     XIcon,
 } from "lucide-react";
 import { Controller, useForm } from "react-hook-form";
@@ -145,6 +148,140 @@ const getKodyRulePathWithoutDirectoryPath = ({
 }) => rule.path.replace(getDirectoryPathForReplace(directory), "");
 
 const DEFAULT_PATH_FOR_DIRECTORIES = "**";
+
+const RULE_SUGGESTIONS = [
+    {
+        title: "Avoid console.log in production",
+        description: "Keep your code clean and secure",
+        rule: "Search for any `console.log()`, `console.warn()`, or `console.error()` statements in the code.\n\nIf found, suggest:\n- Removing them if they're for debugging purposes\n- Replacing them with a proper logging library\n- Using environment-based conditional logging",
+    },
+    {
+        title: "Add error handling to async functions",
+        description: "Prevent unhandled promise rejections",
+        rule: "Check if async functions have appropriate error handling.\n\nIf missing, suggest:\n- Adding try-catch blocks around async operations\n- Returning error responses or throwing custom errors\n- Handling promise rejections properly",
+    },
+    {
+        title: "Remove unused imports",
+        description: "Optimize bundle size and readability",
+        rule: "Identify any imported modules, functions, or components that are not being used in the file.\n\nIf found, suggest removing them to keep the code clean and reduce bundle size.",
+    },
+    {
+        title: "Use meaningful variable names",
+        description: "Improve code maintainability",
+        rule: "Check for single-letter or unclear variable names (except in common cases like loop indices).\n\nSuggest using descriptive names that indicate the variable's purpose.",
+    },
+    {
+        title: "Add JSDoc comments to public functions",
+        description: "Document your API for better DX",
+        rule: "Check if exported/public functions have JSDoc comments explaining their purpose, parameters, and return values.\n\nIf missing, suggest adding documentation.",
+    },
+];
+
+function RuleSuggestions({ 
+    onSelectSuggestion,
+    currentValue,
+    disabled 
+}: { 
+    onSelectSuggestion: (rule: string) => void;
+    currentValue: string;
+    disabled?: boolean;
+}) {
+    const [recommendedRules, setRecommendedRules] = useState<LibraryRule[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchSuggestions = async () => {
+            try {
+                const rules = await getRecommendedKodyRules({ limit: 6 });
+                setRecommendedRules(rules || []);
+            } catch (error) {
+                console.error("Failed to fetch recommended rules:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (!currentValue) {
+            fetchSuggestions();
+        } else {
+            setIsLoading(false);
+        }
+    }, [currentValue]);
+
+    if (currentValue) return null;
+
+    const apiSuggestions = recommendedRules.map(r => ({ 
+        title: r.title, 
+        rule: r.rule 
+    }));
+
+    const fallbackSuggestions = RULE_SUGGESTIONS.map(s => ({
+        title: s.title,
+        rule: s.rule
+    }));
+
+    const suggestions = [...apiSuggestions];
+    
+    if (suggestions.length < 5) {
+        const needed = 5 - suggestions.length;
+        const fallbackToAdd = fallbackSuggestions
+            .filter(fallback => !suggestions.some(s => s.title === fallback.title))
+            .slice(0, needed);
+        suggestions.push(...fallbackToAdd);
+    }
+
+    return (
+        <div className="flex flex-col gap-2.5">
+            <div className="flex items-center gap-2">
+                <Lightbulb className="size-3.5 text-primary-light" />
+                <span className="text-text-secondary text-xs font-medium">
+                    Start with a popular template:
+                </span>
+            </div>
+            
+            {isLoading ? (
+                <div className="flex flex-wrap gap-2">
+                    {[...Array(4)].map((_, i) => (
+                        <div 
+                            key={i}
+                            className="h-8 w-32 bg-card-lv3/50 rounded-full animate-pulse"
+                            style={{ animationDelay: `${i * 100}ms` }}
+                        />
+                    ))}
+                </div>
+            ) : (
+                <div className="flex flex-wrap gap-2">
+                    {suggestions.map((suggestion, index) => (
+                        <button
+                            key={index}
+                            type="button"
+                            disabled={disabled}
+                            onClick={() => onSelectSuggestion(suggestion.rule)}
+                            className={cn(
+                                "group relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full",
+                                "bg-card-lv3 border border-card-lv3",
+                                "hover:border-primary-light hover:bg-primary-dark/40 hover:scale-105",
+                                "active:scale-95",
+                                "transition-all duration-200",
+                                "disabled:opacity-50 disabled:cursor-not-allowed",
+                                "opacity-0 animate-fade-in-up"
+                            )}
+                            style={{ 
+                                animationDelay: `${index * 80}ms`,
+                                animationFillMode: 'forwards'
+                            }}>
+                            <Sparkles className="size-3 text-primary-light opacity-60 group-hover:opacity-100 group-hover:rotate-12 transition-all duration-200" />
+                            <span className="text-xs text-text-secondary group-hover:text-text-primary font-medium transition-colors">
+                                {suggestion.title}
+                            </span>
+                            <div className="absolute inset-0 rounded-full bg-primary-light/0 group-hover:bg-primary-light/5 transition-colors duration-200" />
+                        </button>
+                    ))}
+                </div>
+            )}
+        </div>
+    );
+}
 
 function MCPToolsPopover({
     mcpGroups,
@@ -1033,6 +1170,17 @@ export const KodyRuleAddOrUpdateItemModal = ({
                                         <FormControl.Error>
                                             {fieldState.error?.message}
                                         </FormControl.Error>
+
+                                        {!rule && (
+                                            <RuleSuggestions
+                                                currentValue={field.value || ""}
+                                                onSelectSuggestion={(suggestionRule) => {
+                                                    field.onChange(suggestionRule);
+                                                    editorRef.current?.focus();
+                                                }}
+                                                disabled={field.disabled}
+                                            />
+                                        )}
 
                                         <ExternalReferencesDisplay
                                             externalReferences={{

@@ -19,7 +19,8 @@ import {
     GitPullRequestIcon,
     InfoIcon,
     SlidersHorizontalIcon,
-    Sparkles,
+    FolderIcon,
+    LibraryBig,
 } from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
 import { UserNav } from "src/core/layout/navbar/_components/user-nav";
@@ -109,7 +110,7 @@ export const NavMenu = ({
 
             {
                 label: "Library",
-                icon: <Sparkles className="size-5" />,
+                icon: <LibraryBig className="size-5" />,
                 href: "/library/kody-rules/featured",
                 visible: canReadCodeReviewSettings,
             },

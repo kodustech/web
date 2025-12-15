@@ -178,7 +178,7 @@ export const fastSyncIDERules = async (
         payload,
     );
 
-    return response.data;
+    return response;
 };
 
 export const getKodyRulesByRepositoryId = async (
@@ -270,7 +270,7 @@ export const reviewFastIDERules = async (
         payload,
     );
 
-    return response.data;
+    return response;
 };
 
 export const getKodyRuleSuggestions = async (ruleId: string) => {
