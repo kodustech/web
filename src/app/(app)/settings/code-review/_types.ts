@@ -1,6 +1,6 @@
 import type { TeamAutomation } from "@services/automations/types";
 import type { LanguageValue } from "@services/parameters/types";
-import type { DeepPartial, LiteralUnion } from "react-hook-form";
+import type { LiteralUnion } from "react-hook-form";
 import type { SeverityLevel } from "src/core/types";
 
 export type AutomationCodeReviewConfigPageProps = {

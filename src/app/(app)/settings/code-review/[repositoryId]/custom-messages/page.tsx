@@ -16,7 +16,8 @@ import { pathToApiUrl, unformatConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import { useCodeReviewRouteParams } from "../../../_hooks";
-import { GlobalSettings } from "./_components/global-settings";
+import { HiddenComments } from "./_components/hidden-comments";
+import { LLMPromptToggle } from "./_components/llm-prompt";
 import { TabContent } from "./_components/tab-content";
 
 export default function CustomMessages() {
@@ -41,8 +42,11 @@ export default function CustomMessages() {
         endReviewMessage: pullRequestMessages.endReviewMessage,
     });
 
+    console.log(pullRequestMessages);
+
     const [globalSettings, setGlobalSettings] = useState({
         hideComments: pullRequestMessages.globalSettings?.hideComments,
+        enabledLLMPrompt: pullRequestMessages.globalSettings?.enabledLLMPrompt,
     });
 
     useEffect(() => {
@@ -52,24 +56,30 @@ export default function CustomMessages() {
         });
         setGlobalSettings({
             hideComments: pullRequestMessages.globalSettings?.hideComments,
+            enabledLLMPrompt:
+                pullRequestMessages.globalSettings?.enabledLLMPrompt,
         });
     }, [pullRequestMessages]);
 
     const wasStartReviewMessageChanged =
-        messages.startReviewMessage.status.value !==
-            pullRequestMessages.startReviewMessage.status.value ||
-        messages.startReviewMessage.content.value !==
-            pullRequestMessages.startReviewMessage.content.value;
+        messages.startReviewMessage.status?.value !==
+            pullRequestMessages.startReviewMessage.status?.value ||
+        messages.startReviewMessage.content?.value !==
+            pullRequestMessages.startReviewMessage.content?.value;
 
     const wasEndReviewMessageChanged =
-        messages.endReviewMessage.status.value !==
-            pullRequestMessages.endReviewMessage.status.value ||
-        messages.endReviewMessage.content.value !==
-            pullRequestMessages.endReviewMessage.content.value;
+        messages.endReviewMessage.status?.value !==
+            pullRequestMessages.endReviewMessage.status?.value ||
+        messages.endReviewMessage.content?.value !==
+            pullRequestMessages.endReviewMessage.content?.value;
 
     const wasGlobalSettingsChanged =
-        globalSettings.hideComments.value !==
-        (pullRequestMessages.globalSettings?.hideComments.value ?? false);
+        globalSettings.hideComments?.value !==
+            (pullRequestMessages.globalSettings?.hideComments?.value ??
+                false) ||
+        globalSettings.enabledLLMPrompt?.value !==
+            (pullRequestMessages.globalSettings?.enabledLLMPrompt?.value ??
+                true);
 
     const [action, { loading: isSaving }] = useAsyncAction(async () => {
         try {
@@ -213,12 +223,12 @@ export default function CustomMessages() {
 
                     <TabsContent
                         forceMount
-                        className="flex-1"
+                        className="flex-1 gap-y-4"
                         value="global-settings">
-                        <GlobalSettings
+                        <HiddenComments
                             hideComments={globalSettings.hideComments}
                             initialState={
-                                initialState.globalSettings.hideComments
+                                initialState.globalSettings?.hideComments
                             }
                             onHideCommentsChangeAction={(value) => {
                                 setGlobalSettings((prev) => ({
@@ -235,7 +245,33 @@ export default function CustomMessages() {
                                     hideComments: {
                                         ...prev.hideComments,
                                         value: initialState.globalSettings
-                                            .hideComments.value,
+                                            ?.hideComments?.value,
+                                    },
+                                }));
+                            }}
+                            canEdit={canEdit}
+                        />
+                        <LLMPromptToggle
+                            enabledLLMPrompt={globalSettings.enabledLLMPrompt}
+                            initialState={
+                                initialState.globalSettings?.enabledLLMPrompt
+                            }
+                            onEnabledLLMPromptChangeAction={(value) => {
+                                setGlobalSettings((prev) => ({
+                                    ...prev,
+                                    enabledLLMPrompt: {
+                                        ...prev.enabledLLMPrompt,
+                                        value,
+                                    },
+                                }));
+                            }}
+                            handleRevert={() => {
+                                setGlobalSettings((prev) => ({
+                                    ...prev,
+                                    enabledLLMPrompt: {
+                                        ...prev.enabledLLMPrompt,
+                                        value: initialState.globalSettings
+                                            ?.enabledLLMPrompt?.value,
                                     },
                                 }));
                             }}

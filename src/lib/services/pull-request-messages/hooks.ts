@@ -56,6 +56,11 @@ export const useSuspensePullRequestMessages = () => {
                         level: FormattedConfigLevel.DEFAULT,
                         value: defaults?.globalSettings?.hideComments ?? false,
                     },
+                    enabledLLMPrompt: {
+                        level: FormattedConfigLevel.DEFAULT,
+                        value:
+                            defaults?.globalSettings?.enabledLLMPrompt ?? true,
+                    },
                 },
             },
         },
@@ -110,6 +115,11 @@ export const useSuspensePullRequestMessagesFor = (
                     hideComments: {
                         level: FormattedConfigLevel.DEFAULT,
                         value: defaults?.globalSettings?.hideComments ?? false,
+                    },
+                    enabledLLMPrompt: {
+                        level: FormattedConfigLevel.DEFAULT,
+                        value:
+                            defaults?.globalSettings?.enabledLLMPrompt ?? true,
                     },
                 },
             },
