@@ -55,7 +55,7 @@ const PackCard = ({ bucket, sampleRules }: {
 }) => (
         <div className="bg-[#181825] border border-[#30304b] rounded-lg p-6 hover:border-[#f8b76d] transition-colors">
             <Link 
-                href={`/library/kody-rules?bucket=${bucket.slug}`}
+                href={`/library/kody-rules?view=browse&bucket=${bucket.slug}`}
                 noHoverUnderline
                 className="block"
             >
@@ -110,7 +110,7 @@ const PackCard = ({ bucket, sampleRules }: {
                     <Breadcrumb className="mb-1">
                         <BreadcrumbList>
                             <BreadcrumbItem>
-                                <BreadcrumbLink href="/library/kody-rules">
+                                <BreadcrumbLink href="/library/kody-rules/featured">
                                     Rules Library
                                 </BreadcrumbLink>
                             </BreadcrumbItem>

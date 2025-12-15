@@ -5,21 +5,25 @@ import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level
 import { Badge } from "@components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
+import { McpProvidersBadge } from "@components/ui/kody-rules/mcp-providers";
 import type { LibraryRule } from "@services/kodyRules/types";
-import { sendRuleFeedback, removeRuleFeedback, type FeedbackType } from "@services/ruleFeedback/fetch";
+import {
+    removeRuleFeedback,
+    sendRuleFeedback,
+    type FeedbackType,
+} from "@services/ruleFeedback/fetch";
 import { useMutation } from "@tanstack/react-query";
-import { ThumbsUp, ThumbsDown } from "lucide-react";
+import { PlugIcon, ThumbsDown, ThumbsUp } from "lucide-react";
+import { SuggestionsModal } from "src/app/(app)/library/kody-rules/_components/suggestions-modal";
 import { ProgrammingLanguage } from "src/core/enums/programming-language";
 import { useAuth } from "src/core/providers/auth.provider";
 import { cn } from "src/core/utils/components";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { Button } from "../button";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "../hover-card";
 import { Link } from "../link";
 import { Separator } from "../separator";
 import { Spinner } from "../spinner";
-import { SuggestionsModal } from "src/app/(app)/library/kody-rules/_components/suggestions-modal";
 
 export const KodyRuleLibraryItem = ({
     rule,
@@ -38,7 +42,7 @@ export const KodyRuleLibraryItem = ({
     const [positiveCount, setPositiveCount] = useState(rule.positiveCount ?? 0);
     const [negativeCount, setNegativeCount] = useState(rule.negativeCount ?? 0);
     const [userFeedback, setUserFeedback] = useState<FeedbackType | null>(
-        rule.userFeedback as FeedbackType | null
+        rule.userFeedback as FeedbackType | null,
     );
 
     useEffect(() => {
@@ -47,41 +51,11 @@ export const KodyRuleLibraryItem = ({
         setUserFeedback(rule.userFeedback as FeedbackType | null);
     }, [rule.positiveCount, rule.negativeCount, rule.userFeedback]);
 
-    const sortedTags = [...rule.tags.sort((a, b) => a.length - b.length)];
-
-    const quantityOfCharactersInAllTags = sortedTags.reduce(
-        (acc, item) => acc + item.length,
-        0,
-    );
-
-    const { tagsToShow, tagsToHide } = sortedTags.reduce(
-        (acc, item, _i, arr) => {
-            if (arr.length <= 4 && quantityOfCharactersInAllTags <= 35) {
-                acc.tagsToShow.push(item);
-                return acc;
-            }
-
-            if (acc.charactersCount + item.length <= 30) {
-                acc.charactersCount += item.length;
-                acc.tagsToShow.push(item);
-                return acc;
-            }
-
-            acc.tagsToHide.push(item);
-            return acc;
-        },
-        {
-            tagsToShow: [] as string[],
-            tagsToHide: [] as string[],
-            charactersCount: rule.language?.length ?? 0,
-        },
-    );
-
     const { mutate: sendFeedback, isPending: isFeedbackActionInProgress } =
         useMutation<any, Error, FeedbackType>({
             mutationFn: async (feedback: FeedbackType) => {
                 const isRemovingFeedback = userFeedback === feedback;
-                
+
                 if (isRemovingFeedback) {
                     return removeRuleFeedback(rule.uuid);
                 } else {
@@ -91,27 +65,27 @@ export const KodyRuleLibraryItem = ({
             onSuccess: (data, feedback) => {
                 const isRemovingFeedback = userFeedback === feedback;
                 const newFeedback = isRemovingFeedback ? null : feedback;
-                
+
                 if (feedback === "positive") {
                     if (isRemovingFeedback) {
-                        setPositiveCount(prev => prev - 1);
+                        setPositiveCount((prev) => prev - 1);
                     } else {
-                        setPositiveCount(prev => prev + 1);
+                        setPositiveCount((prev) => prev + 1);
                         if (userFeedback === "negative") {
-                            setNegativeCount(prev => prev - 1);
+                            setNegativeCount((prev) => prev - 1);
                         }
                     }
                 } else {
                     if (isRemovingFeedback) {
-                        setNegativeCount(prev => prev - 1);
+                        setNegativeCount((prev) => prev - 1);
                     } else {
-                        setNegativeCount(prev => prev + 1);
+                        setNegativeCount((prev) => prev + 1);
                         if (userFeedback === "positive") {
-                            setPositiveCount(prev => prev - 1);
+                            setPositiveCount((prev) => prev - 1);
                         }
                     }
                 }
-                
+
                 setUserFeedback(newFeedback);
             },
             onError: (error) => {
@@ -123,6 +97,10 @@ export const KodyRuleLibraryItem = ({
         repositoryId,
         directoryId,
     });
+
+    const requiredMcps = Array.isArray(rule.required_mcps)
+        ? rule.required_mcps.filter(Boolean)
+        : [];
 
     return (
         <Card
@@ -165,46 +143,31 @@ export const KodyRuleLibraryItem = ({
             <CardFooter className="bg-card-lv2 flex w-full cursor-auto items-end justify-between gap-4 rounded-b-xl px-5 py-4">
                 <div className="flex flex-wrap items-center gap-[3px]">
                     {rule.language && (
-                        <Badge className="pointer-events-none h-2 px-2.5 font-normal">
+                        <Badge
+                            className="pointer-events-none h-2 px-2.5 font-normal"
+                            variant="secondary">
                             {ProgrammingLanguage[rule.language]}
                         </Badge>
                     )}
-
-                    {tagsToShow.map((tag) => (
+                    {rule.plug_and_play && (
                         <Badge
-                            key={tag}
-                            className="pointer-events-none h-2 px-2.5 font-normal">
-                            {tag}
+                            className="pointer-events-none h-2 px-2.5 font-normal"
+                            variant="primary-dark">
+                            <PlugIcon className="size-2" />
+                            <span>Plug-and-Play</span>
                         </Badge>
-                    ))}
-
-                    {tagsToHide.length > 0 && (
-                        <HoverCard openDelay={0} closeDelay={100}>
-                            <HoverCardTrigger asChild>
-                                <Button
-                                    size="xs"
-                                    variant="cancel"
-                                    className="-ml-1 h-2 px-2">
-                                    + {tagsToHide.length}
-                                </Button>
-                            </HoverCardTrigger>
-
-                            <HoverCardContent className="flex flex-wrap gap-1">
-                                {tagsToHide.map((tag) => (
-                                    <Badge
-                                        key={tag}
-                                        className="pointer-events-none h-2 px-2.5 font-normal">
-                                        {tag}
-                                    </Badge>
-                                ))}
-                            </HoverCardContent>
-                        </HoverCard>
+                    )}
+                    {requiredMcps.length > 0 && (
+                        <McpProvidersBadge providers={requiredMcps} />
                     )}
                 </div>
 
                 <div className="flex items-center gap-2">
                     {showSuggestionsButton && (
-                        <SuggestionsModal ruleId={rule.uuid} ruleTitle={rule.title} />
+                        <SuggestionsModal
+                            ruleId={rule.uuid}
+                            ruleTitle={rule.title}
+                        />
                     )}
 
                     {showLikeButton && (
@@ -216,7 +179,8 @@ export const KodyRuleLibraryItem = ({
                                 disabled={isFeedbackActionInProgress}
                                 className={cn(
                                     "-my-2 gap-1 px-2 transition-colors",
-                                    userFeedback === "positive" && "bg-green-500/10 text-green-500 border-green-500/20"
+                                    userFeedback === "positive" &&
+                                        "border-green-500/20 bg-green-500/10 text-green-500",
                                 )}
                                 rightIcon={
                                     isFeedbackActionInProgress ? (
@@ -227,7 +191,7 @@ export const KodyRuleLibraryItem = ({
                                 }>
                                 {positiveCount > 0 ? positiveCount : null}
                             </Button>
-                            
+
                             <Button
                                 size="sm"
                                 variant="cancel"
@@ -235,7 +199,8 @@ export const KodyRuleLibraryItem = ({
                                 disabled={isFeedbackActionInProgress}
                                 className={cn(
                                     "-my-2 gap-1 px-2 transition-colors",
-                                    userFeedback === "negative" && "bg-red-500/10 text-red-500 border-red-500/20"
+                                    userFeedback === "negative" &&
+                                        "border-red-500/20 bg-red-500/10 text-red-500",
                                 )}
                                 rightIcon={
                                     isFeedbackActionInProgress ? (

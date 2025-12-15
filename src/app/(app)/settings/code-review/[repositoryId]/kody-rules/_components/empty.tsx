@@ -29,7 +29,7 @@ const NoItems = () => {
 };
 
 const NoItemsViewMore = () => (
-    <Link href="/library/kody-rules" className="w-full">
+    <Link href="/library/kody-rules/featured" className="w-full">
         <Button
             decorative
             size="lg"

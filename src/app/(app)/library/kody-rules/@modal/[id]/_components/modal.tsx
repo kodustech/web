@@ -13,6 +13,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@components/ui/dialog";
+import { McpProvidersBadge } from "@components/ui/kody-rules/mcp-providers";
 import { PopoverTrigger } from "@components/ui/popover";
 import { Section } from "@components/ui/section";
 import { Separator } from "@components/ui/separator";
@@ -180,6 +181,9 @@ export const KodyRuleLibraryItemModal = ({
 
     const badExample = rule.examples?.find(({ isCorrect }) => !isCorrect);
     const goodExample = rule.examples?.find(({ isCorrect }) => isCorrect);
+    const requiredMcps = Array.isArray(rule.required_mcps)
+        ? rule.required_mcps.filter(Boolean)
+        : [];
 
     const { mutate: sendFeedback, isPending: isFeedbackActionInProgress } =
         useMutation<any, Error, FeedbackType>({
@@ -236,7 +240,7 @@ export const KodyRuleLibraryItemModal = ({
             }}>
             <DialogContent className="max-w-3xl">
                 <DialogHeader className="flex-row justify-between gap-3">
-                    <DialogTitle className="flex items-center gap-2">
+                    <DialogTitle className="flex flex-wrap items-center gap-2">
                         {rule.title}
 
                         <IssueSeverityLevelBadge
@@ -315,6 +319,26 @@ export const KodyRuleLibraryItemModal = ({
                             </Section.Content>
                         </Section.Root>
 
+                        {requiredMcps.length > 0 && (
+                            <Section.Root>
+                                <Section.Header>
+                                    <Section.Title>
+                                        Required Plugins
+                                    </Section.Title>
+                                </Section.Header>
+
+                                <Section.Content className="text-text-secondary space-y-2 text-sm">
+                                    <p>
+                                        This rule fetches context from:
+                                        <span className="text-text-primary font-medium">
+                                            {" "}
+                                            {requiredMcps.join(", ")}
+                                        </span>
+                                    </p>
+                                </Section.Content>
+                            </Section.Root>
+                        )}
+
                         <Separator />
 
                         {badExample && (
@@ -334,14 +358,6 @@ export const KodyRuleLibraryItemModal = ({
                 </div>
 
                 <DialogFooter className="justify-between gap-8">
-                    <div className="flex flex-wrap items-center justify-start gap-1">
-                        {rule.tags.map((tag) => (
-                            <Badge key={tag} className="h-2 px-2.5 font-normal">
-                                {tag}
-                            </Badge>
-                        ))}
-                    </div>
-
                     <div className="flex shrink-0 flex-row items-center justify-end gap-px">
                         {repositoryId ? (
                             <>
