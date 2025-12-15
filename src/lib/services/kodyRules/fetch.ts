@@ -278,3 +278,19 @@ export const getKodyRuleSuggestions = async (ruleId: string) => {
     const suggestions = await authorizedFetch<KodyRuleSuggestion[]>(url);
     return suggestions || [];
 };
+
+export const getRecommendedKodyRules = async (params?: {
+    limit?: number;
+}) => {
+    const queryParams = new URLSearchParams();
+    if (params?.limit) {
+        queryParams.append("limit", params.limit.toString());
+    }
+
+    const url = queryParams.toString()
+        ? `${KODY_RULES_PATHS.FIND_RECOMMENDED_KODY_RULES}?${queryParams.toString()}`
+        : KODY_RULES_PATHS.FIND_RECOMMENDED_KODY_RULES;
+    
+    const rules = await authorizedFetch<LibraryRule[]>(url);
+    return rules || [];
+};

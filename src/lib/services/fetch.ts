@@ -97,7 +97,6 @@ export const typedFetch = async <Data>(
         if (!response.ok) {
             let errorBody: unknown = undefined;
             try {
-                // Try to parse JSON error response from backend
                 errorBody = await response.json();
             } catch {
                 // ignore JSON parse errors, keep body undefined

@@ -17,24 +17,22 @@ const FEATURED_TYPE_RULES_LIMIT = 6;
 export default async function Route() {
     const teamId = await getGlobalSelectedTeamId();
 
-    const [buckets, orgLanguage, plugAndPlayRules, mcpRules] = await Promise.all(
-        [
-            getLibraryKodyRulesBuckets(),
-            getOrganizationLanguage(teamId),
-            getLibraryKodyRulesWithFeedback({
-                page: 1,
-                limit: FEATURED_TYPE_RULES_LIMIT,
-                plug_and_play: true,
-                debugLabel: "server:featured:plug_and_play",
-            }).then((r) => r?.data || []),
-            getLibraryKodyRulesWithFeedback({
-                page: 1,
-                limit: FEATURED_TYPE_RULES_LIMIT,
-                needMCPS: true,
-                debugLabel: "server:featured:needMCPS",
-            }).then((r) => r?.data || []),
-        ],
-    );
+    const [buckets, orgLanguage, plugAndPlayRules, mcpRules] = await Promise.all([
+        getLibraryKodyRulesBuckets(),
+        getOrganizationLanguage(teamId),
+        getLibraryKodyRulesWithFeedback({
+            page: 1,
+            limit: FEATURED_TYPE_RULES_LIMIT,
+            plug_and_play: true,
+            debugLabel: "server:featured:plug_and_play",
+        }).then((r) => r?.data || []),
+        getLibraryKodyRulesWithFeedback({
+            page: 1,
+            limit: FEATURED_TYPE_RULES_LIMIT,
+            needMCPS: true,
+            debugLabel: "server:featured:needMCPS",
+        }).then((r) => r?.data || []),
+    ]);
     const previewBuckets = [...buckets]
         .sort((a, b) => b.rulesCount - a.rulesCount)
         .slice(0, BUCKETS_PREVIEW_COUNT);

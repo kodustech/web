@@ -33,4 +33,7 @@ export const KODY_RULES_PATHS = {
     GET_INHERITED_RULES: pathToApiUrl("/kody-rules/inherited-rules"),
     GET_KODY_RULES_TOTAL_QUANTITY: pathToApiUrl("/kody-rules/limits"),
     GET_KODY_RULE_SUGGESTIONS: pathToApiUrl("/kody-rules/suggestions"),
+    FIND_RECOMMENDED_KODY_RULES: pathToApiUrl(
+        "/kody-rules/find-recommended-kody-rules",
+    ),
 } as const;

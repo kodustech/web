@@ -29,7 +29,10 @@ import {
 } from "@components/ui/popover";
 import { Separator } from "@components/ui/separator";
 import { useDebounce } from "@hooks/use-debounce";
-import { getLibraryKodyRulesWithFeedback } from "@services/kodyRules/fetch";
+import {
+    getLibraryKodyRulesWithFeedback,
+    getRecommendedKodyRules,
+} from "@services/kodyRules/fetch";
 import type {
     FindLibraryKodyRulesFilters,
     KodyRuleBucket,
@@ -66,43 +69,6 @@ const MCP_OPTIONS = [
     { value: "sentry", title: "Sentry" },
 ] as const;
 
-const getRulePositiveCount = (rule: LibraryRule) =>
-    rule.positiveCount ?? rule.likesCount ?? 0;
-
-const getRuleNegativeCount = (rule: LibraryRule) => rule.negativeCount ?? 0;
-
-const getRuleScore = (rule: LibraryRule) =>
-    getRulePositiveCount(rule) - getRuleNegativeCount(rule);
-
-const computeRecommendedRules = (rules: LibraryRule[], limit: number) => {
-    const getPersonalizationBoost = (rule: LibraryRule) => {
-        return rule.tags.reduce(
-            (acc, tag) => acc + (tag.toLowerCase() === "mcp" ? 1 : 0),
-            0,
-        );
-    };
-
-    const unratedRules = rules.filter((r) => !r.userFeedback && !r.isLiked);
-    const candidates =
-        unratedRules.length > 0
-            ? unratedRules
-            : rules.filter((r) => r.userFeedback !== "negative");
-
-    return [...candidates]
-        .sort((a, b) => {
-            const aScore = getRuleScore(a) + getPersonalizationBoost(a) * 2;
-            const bScore = getRuleScore(b) + getPersonalizationBoost(b) * 2;
-            const byPersonalizedScore = bScore - aScore;
-            if (byPersonalizedScore !== 0) return byPersonalizedScore;
-
-            const byPositive =
-                getRulePositiveCount(b) - getRulePositiveCount(a);
-            if (byPositive !== 0) return byPositive;
-
-            return a.title.localeCompare(b.title);
-        })
-        .slice(0, limit);
-};
 
 const mapTeamLanguageToFilterLanguage = (
     teamLanguage?: string,
@@ -450,16 +416,8 @@ export const KodyRulesLibrary = ({
     const fetchRecommended = useCallback(async () => {
         setIsRecommendedLoading(true);
         try {
-            const response = await getLibraryKodyRulesWithFeedback({
-                page: 1,
-                limit: 200,
-            });
-            setRecommendedRules(
-                computeRecommendedRules(
-                    response?.data || [],
-                    RECOMMENDED_RULES_LIMIT,
-                ),
-            );
+            const rules = await getRecommendedKodyRules();
+            setRecommendedRules(rules.slice(0, RECOMMENDED_RULES_LIMIT));
         } catch (error) {
             console.error("Error fetching recommended rules:", error);
             setRecommendedRules([]);
@@ -999,55 +957,46 @@ export const KodyRulesLibrary = ({
                             </section>
                         ) : (
                             <>
-                                <section className="border-card-lv3 bg-card-lv1 rounded-xl border p-6">
-                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                                        <div className="flex items-start gap-3">
-                                            <div className="bg-card-lv3 rounded-lg p-3">
-                                                <SparklesIcon className="text-primary-light size-5" />
+                                {(recommendedRules.length > 0 || isRecommendedLoading) && (
+                                    <section className="border-card-lv3 bg-card-lv1 rounded-xl border p-6">
+                                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                            <div className="flex items-start gap-3">
+                                                <div className="bg-card-lv3 rounded-lg p-3">
+                                                    <SparklesIcon className="text-primary-light size-5" />
+                                                </div>
+                                                <div className="flex flex-col gap-1">
+                                                    <Heading variant="h2">
+                                                        Recommended for you
+                                                    </Heading>
+                                                    <p className="text-text-secondary text-sm">
+                                                        Personalized rules based on your preferences.
+                                                    </p>
+                                                </div>
                                             </div>
-                                            <div className="flex flex-col gap-1">
-                                                <Heading variant="h2">
-                                                    Recommended for you
-                                                </Heading>
-                                                <p className="text-text-secondary text-sm">
-                                                    Loaded via API and
-                                                    personalized by your
-                                                    likes/dislikes.
-                                                </p>
-                                            </div>
+
+                                            <Button
+                                                size="sm"
+                                                variant="cancel"
+                                                loading={isRecommendedLoading}
+                                                onClick={fetchRecommended}>
+                                                Refresh
+                                            </Button>
                                         </div>
 
-                                        <Button
-                                            size="sm"
-                                            variant="cancel"
-                                            loading={isRecommendedLoading}
-                                            onClick={fetchRecommended}>
-                                            Refresh
-                                        </Button>
-                                    </div>
-
-                                    <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                                        {recommendedRules.map((rule) => (
-                                            <KodyRuleLibraryItem
-                                                key={rule.uuid}
-                                                rule={rule}
-                                                showLikeButton
-                                                showSuggestionsButton={
-                                                    showSuggestionsButton
-                                                }
-                                            />
-                                        ))}
-
-                                        {!isRecommendedLoading &&
-                                            recommendedRules.length === 0 && (
-                                                <div className="text-text-secondary text-sm">
-                                                    No recommendations yet.
-                                                    Like/dislike a few rules to
-                                                    improve it.
-                                                </div>
-                                            )}
-                                    </div>
-                                </section>
+                                        <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+                                            {recommendedRules.map((rule) => (
+                                                <KodyRuleLibraryItem
+                                                    key={rule.uuid}
+                                                    rule={rule}
+                                                    showLikeButton
+                                                    showSuggestionsButton={
+                                                        showSuggestionsButton
+                                                    }
+                                                />
+                                            ))}
+                                        </div>
+                                    </section>
+                                )}
 
                                 {featuredCollections?.map((collection) => (
                                     <section
