@@ -56,10 +56,11 @@ export const useSuspensePullRequestMessages = () => {
                         level: FormattedConfigLevel.DEFAULT,
                         value: defaults?.globalSettings?.hideComments ?? false,
                     },
-                    enabledLLMPrompt: {
+                    suggestionCopyPrompt: {
                         level: FormattedConfigLevel.DEFAULT,
                         value:
-                            defaults?.globalSettings?.enabledLLMPrompt ?? true,
+                            defaults?.globalSettings?.suggestionCopyPrompt ??
+                            true,
                     },
                 },
             },
@@ -116,10 +117,11 @@ export const useSuspensePullRequestMessagesFor = (
                         level: FormattedConfigLevel.DEFAULT,
                         value: defaults?.globalSettings?.hideComments ?? false,
                     },
-                    enabledLLMPrompt: {
+                    suggestionCopyPrompt: {
                         level: FormattedConfigLevel.DEFAULT,
                         value:
-                            defaults?.globalSettings?.enabledLLMPrompt ?? true,
+                            defaults?.globalSettings?.suggestionCopyPrompt ??
+                            true,
                     },
                 },
             },
