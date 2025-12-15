@@ -16,6 +16,9 @@ import { useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { unformatConfig } from "src/core/utils/helpers";
 
+import React from "react";
+import { usePlatformConfig } from "../../../_components/context";
+import { useCodeReviewRouteParams } from "../../../_hooks";
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import GeneratingConfig from "../../_components/generating-config";
 import {
@@ -23,15 +26,12 @@ import {
     type AutomationCodeReviewConfigPageProps,
     type CodeReviewFormType,
 } from "../../_types";
-import { usePlatformConfig } from "../../../_components/context";
-import { useCodeReviewRouteParams } from "../../../_hooks";
 import { ApplyFiltersToKodyRules } from "./_components/apply-filters-to-kody-rules";
 import { LimitationTypeField } from "./_components/limitation-type";
 import { MaxSuggestions } from "./_components/max-suggestions";
 import { MinimumSeverityLevel } from "./_components/minimum-severity-level";
 import { SuggestionGroupingMode } from "./_components/suggestion-grouping-mode";
 import { SuggestionsPerSeverityLevel } from "./_components/suggestions-per-severity-level";
-import React from "react";
 
 export default function SuggestionControl(
     props: AutomationCodeReviewConfigPageProps,

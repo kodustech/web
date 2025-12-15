@@ -24,6 +24,7 @@ export const savePullRequestMessages = ({
     };
     globalSettings?: {
         hideComments: boolean;
+        enabledLLMPrompt: boolean;
     };
 }) => {
     return axiosAuthorized.post(pathToApiUrl("/pull-request-messages"), {

@@ -1,14 +1,14 @@
 "use client";
 
 import { Button } from "@components/ui/button";
-import { Card, CardHeader } from "@components/ui/card";
+import { CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
 import { Switch } from "@components/ui/switch";
 
 import { OverrideIndicator } from "../../../_components/override";
 import { IFormattedConfigProperty } from "../../../_types";
 
-export const GlobalSettings = (props: {
+export const HiddenComments = (props: {
     hideComments: IFormattedConfigProperty<boolean>;
     initialState: IFormattedConfigProperty<boolean>;
     onHideCommentsChangeAction: (value: boolean) => void;
@@ -23,7 +23,7 @@ export const GlobalSettings = (props: {
                 className="w-full"
                 disabled={!props.canEdit}
                 onClick={() =>
-                    props.onHideCommentsChangeAction(!props.hideComments.value)
+                    props.onHideCommentsChangeAction(!props.hideComments?.value)
                 }>
                 <CardHeader className="flex flex-row items-center justify-between gap-6 p-4">
                     <div>
@@ -35,7 +35,7 @@ export const GlobalSettings = (props: {
                                 </span>
                             </Heading>
                             <OverrideIndicator
-                                currentValue={props.hideComments.value}
+                                currentValue={props.hideComments?.value}
                                 initialState={props.initialState}
                                 handleRevert={props.handleRevert}
                             />
@@ -45,7 +45,7 @@ export const GlobalSettings = (props: {
                             hidden/minimized comments.
                         </p>
                     </div>
-                    <Switch decorative checked={props.hideComments.value} />
+                    <Switch decorative checked={props.hideComments?.value} />
                 </CardHeader>
             </Button>
         </div>
