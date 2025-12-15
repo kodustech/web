@@ -5,6 +5,7 @@ import { IssueSeverityLevelBadge } from "@components/system/issue-severity-level
 import { Badge } from "@components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@components/ui/card";
 import { Heading } from "@components/ui/heading";
+import { McpProvidersBadge } from "@components/ui/kody-rules/mcp-providers";
 import type { LibraryRule } from "@services/kodyRules/types";
 import {
     removeRuleFeedback,
@@ -12,7 +13,7 @@ import {
     type FeedbackType,
 } from "@services/ruleFeedback/fetch";
 import { useMutation } from "@tanstack/react-query";
-import { ThumbsDown, ThumbsUp } from "lucide-react";
+import { PlugIcon, ThumbsDown, ThumbsUp } from "lucide-react";
 import { SuggestionsModal } from "src/app/(app)/library/kody-rules/_components/suggestions-modal";
 import { ProgrammingLanguage } from "src/core/enums/programming-language";
 import { useAuth } from "src/core/providers/auth.provider";
@@ -20,7 +21,6 @@ import { cn } from "src/core/utils/components";
 import { addSearchParamsToUrl } from "src/core/utils/url";
 
 import { Button } from "../button";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "../hover-card";
 import { Link } from "../link";
 import { Separator } from "../separator";
 import { Spinner } from "../spinner";
@@ -98,6 +98,10 @@ export const KodyRuleLibraryItem = ({
         directoryId,
     });
 
+    const requiredMcps = Array.isArray(rule.required_mcps)
+        ? rule.required_mcps.filter(Boolean)
+        : [];
+
     return (
         <Card
             key={rule.uuid}
@@ -139,9 +143,22 @@ export const KodyRuleLibraryItem = ({
             <CardFooter className="bg-card-lv2 flex w-full cursor-auto items-end justify-between gap-4 rounded-b-xl px-5 py-4">
                 <div className="flex flex-wrap items-center gap-[3px]">
                     {rule.language && (
-                        <Badge className="pointer-events-none h-2 px-2.5 font-normal">
+                        <Badge
+                            className="pointer-events-none h-2 px-2.5 font-normal"
+                            variant="secondary">
                             {ProgrammingLanguage[rule.language]}
                         </Badge>
+                    )}
+                    {rule.plug_and_play && (
+                        <Badge
+                            className="pointer-events-none h-2 px-2.5 font-normal"
+                            variant="primary-dark">
+                            <PlugIcon className="size-2" />
+                            <span>Plug-and-Play</span>
+                        </Badge>
+                    )}
+                    {requiredMcps.length > 0 && (
+                        <McpProvidersBadge providers={requiredMcps} />
                     )}
                 </div>
 

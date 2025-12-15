@@ -61,11 +61,17 @@ export type LibraryRule = {
     severity: "Low" | "Medium" | "High" | "Critical";
     bad_example?: string;
     good_example?: string;
+    /**
+     * Optional list of MCP providers (display hint for UI).
+     * Examples: ["Sentry", "Datadog"], ["Linear", "Jira"].
+     */
+    required_mcps?: string[];
     examples: KodyRulesExample[];
     tags: string[];
     language: keyof typeof ProgrammingLanguage;
     buckets?: string[];
     plug_and_play?: boolean;
+    needMCPS?: boolean;
     scope?: string;
     positiveCount?: number;
     negativeCount?: number;
@@ -86,6 +92,7 @@ export type FindLibraryKodyRulesFilters = {
     language?: keyof typeof ProgrammingLanguage;
     buckets?: string[];
     plug_and_play?: boolean;
+    needMCPS?: boolean;
     uuid?: string; // Filter by specific rule ID
     page?: number;
     limit?: number;

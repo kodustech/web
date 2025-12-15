@@ -35,12 +35,7 @@ import type {
     KodyRuleBucket,
     LibraryRule,
 } from "@services/kodyRules/types";
-import {
-    Check,
-    ChevronsUpDown,
-    SearchIcon,
-    SparklesIcon,
-} from "lucide-react";
+import { Check, ChevronsUpDown, SearchIcon, SparklesIcon } from "lucide-react";
 import { ProgrammingLanguage } from "src/core/enums/programming-language";
 import { cn } from "src/core/utils/components";
 
@@ -69,28 +64,9 @@ const getRuleScore = (rule: LibraryRule) =>
     getRulePositiveCount(rule) - getRuleNegativeCount(rule);
 
 const computeRecommendedRules = (rules: LibraryRule[], limit: number) => {
-    const likedRules = rules.filter(
-        (r) => r.userFeedback === "positive" || r.isLiked,
-    );
-
-    const likedTags = new Map<string, number>();
-    likedRules.forEach((r) => {
-        r.tags.forEach((tag) => {
-            likedTags.set(tag, (likedTags.get(tag) ?? 0) + 1);
-        });
-    });
-
-    const topLikedTags = new Set(
-        [...likedTags.entries()]
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 5)
-            .map(([tag]) => tag),
-    );
-
     const getPersonalizationBoost = (rule: LibraryRule) => {
-        if (topLikedTags.size === 0) return 0;
         return rule.tags.reduce(
-            (acc, tag) => acc + (topLikedTags.has(tag) ? 1 : 0),
+            (acc, tag) => acc + (tag.toLowerCase() === "mcp" ? 1 : 0),
             0,
         );
     };
@@ -108,7 +84,8 @@ const computeRecommendedRules = (rules: LibraryRule[], limit: number) => {
             const byPersonalizedScore = bScore - aScore;
             if (byPersonalizedScore !== 0) return byPersonalizedScore;
 
-            const byPositive = getRulePositiveCount(b) - getRulePositiveCount(a);
+            const byPositive =
+                getRulePositiveCount(b) - getRulePositiveCount(a);
             if (byPositive !== 0) return byPositive;
 
             return a.title.localeCompare(b.title);
@@ -134,7 +111,11 @@ const mapTeamLanguageToFilterLanguage = (
 
     if (normalized === "python") return "python";
     if (normalized === "java") return "java";
-    if (normalized === "c#" || normalized === "csharp" || normalized === "c-sharp")
+    if (
+        normalized === "c#" ||
+        normalized === "csharp" ||
+        normalized === "c-sharp"
+    )
         return "csharp";
     if (normalized === "dart") return "dart";
     if (normalized === "ruby") return "ruby";
@@ -146,8 +127,13 @@ const mapTeamLanguageToFilterLanguage = (
     return undefined;
 };
 
-const tagsToTypeValue = (args: { tags?: string[]; plug_and_play?: boolean }) => {
+const tagsToTypeValue = (args: {
+    tags?: string[];
+    plug_and_play?: boolean;
+    needMCPS?: boolean;
+}) => {
     if (args.plug_and_play) return "plug-and-play";
+    if (args.needMCPS) return "mcp";
 
     if (!args.tags || args.tags.length === 0) return undefined;
     const normalized = new Set(args.tags.map((t) => t.trim().toLowerCase()));
@@ -182,7 +168,9 @@ const SelectFilter = ({
                     size="md"
                     variant="helper"
                     className="w-full justify-between font-normal"
-                    rightIcon={<ChevronsUpDown className="size-4 opacity-60" />}>
+                    rightIcon={
+                        <ChevronsUpDown className="size-4 opacity-60" />
+                    }>
                     {selectedTitle ?? placeholder}
                 </Button>
             </PopoverTrigger>
@@ -191,7 +179,9 @@ const SelectFilter = ({
                 <Command>
                     <CommandInput placeholder={searchPlaceholder} />
                     <CommandList>
-                        <CommandEmpty>No {label.toLowerCase()} found</CommandEmpty>
+                        <CommandEmpty>
+                            No {label.toLowerCase()} found
+                        </CommandEmpty>
                         <CommandGroup>
                             <CommandItem
                                 value="__all__"
@@ -241,6 +231,7 @@ export const KodyRulesLibrary = ({
     initialView,
     initialTags,
     initialPlugAndPlay,
+    initialNeedMCPS,
     teamLanguage,
     featuredCollections,
     initialRules,
@@ -253,6 +244,7 @@ export const KodyRulesLibrary = ({
     initialView?: ViewMode;
     initialTags?: string[];
     initialPlugAndPlay?: boolean;
+    initialNeedMCPS?: boolean;
     teamLanguage?: string;
     featuredCollections?: FeaturedCollection[];
     initialRules: LibraryRule[];
@@ -285,12 +277,15 @@ export const KodyRulesLibrary = ({
 
     const [filters, setFilters] = useState<FindLibraryKodyRulesFilters>(() => {
         const base: FindLibraryKodyRulesFilters = { name: "" };
-        const isBrowseInit = Boolean(initialView === "browse" || initialSelectedBucket);
+        const isBrowseInit = Boolean(
+            initialView === "browse" || initialSelectedBucket,
+        );
         const next: FindLibraryKodyRulesFilters = { ...base };
         if (isBrowseInit && autoLanguage) next.language = autoLanguage;
         if (isBrowseInit && initialTags && initialTags.length > 0)
             next.tags = [...initialTags];
         if (isBrowseInit && initialPlugAndPlay) next.plug_and_play = true;
+        if (isBrowseInit && initialNeedMCPS) next.needMCPS = true;
         return next;
     });
     const debouncedNameFilter = useDebounce(filters.name ?? "", 500);
@@ -311,12 +306,14 @@ export const KodyRulesLibrary = ({
         if (selectedBucket) return true;
         if (filters.tags && filters.tags.length > 0) return true;
         if (filters.plug_and_play) return true;
+        if (filters.needMCPS) return true;
         if (filters.language && filters.language !== autoLanguage) return true;
         return false;
     }, [
         autoLanguage,
         debouncedNameFilter,
         filters.language,
+        filters.needMCPS,
         filters.plug_and_play,
         filters.tags,
         filters.severity,
@@ -333,8 +330,9 @@ export const KodyRulesLibrary = ({
             tagsToTypeValue({
                 tags: filters.tags,
                 plug_and_play: filters.plug_and_play,
+                needMCPS: filters.needMCPS,
             }),
-        [filters.plug_and_play, filters.tags],
+        [filters.needMCPS, filters.plug_and_play, filters.tags],
     );
 
     const initialBrowseResultsAlreadyLoadedRef = useRef(
@@ -357,7 +355,13 @@ export const KodyRulesLibrary = ({
                     language: filters.language,
                     tags: filters.tags,
                     plug_and_play: filters.plug_and_play,
+                    needMCPS: filters.needMCPS,
                     buckets: selectedBucket ? [selectedBucket] : undefined,
+                    debugLabel: filters.needMCPS
+                        ? "client:browse:needMCPS"
+                        : filters.plug_and_play
+                          ? "client:browse:plug_and_play"
+                          : undefined,
                 });
 
                 const nextResults = response?.data || [];
@@ -366,7 +370,9 @@ export const KodyRulesLibrary = ({
                 );
                 setPagination({
                     page: response?.pagination?.currentPage || page,
-                    limit: response?.pagination?.itemsPerPage || RESULTS_PAGE_LIMIT,
+                    limit:
+                        response?.pagination?.itemsPerPage ||
+                        RESULTS_PAGE_LIMIT,
                     total: response?.pagination?.totalItems || 0,
                     totalPages: response?.pagination?.totalPages || 1,
                 });
@@ -379,6 +385,7 @@ export const KodyRulesLibrary = ({
         [
             debouncedNameFilter,
             filters.language,
+            filters.needMCPS,
             filters.plug_and_play,
             filters.tags,
             filters.severity,
@@ -394,7 +401,14 @@ export const KodyRulesLibrary = ({
         router.push(
             browseHref({ bucket: selectedBucket, type: selectedTypeValue }),
         );
-    }, [browseHref, hasUserFilters, router, selectedBucket, selectedTypeValue, viewMode]);
+    }, [
+        browseHref,
+        hasUserFilters,
+        router,
+        selectedBucket,
+        selectedTypeValue,
+        viewMode,
+    ]);
 
     useEffect(() => {
         if (viewMode !== "browse") return;
@@ -478,12 +492,15 @@ export const KodyRulesLibrary = ({
             setViewMode("browse");
             setFilters((prev) => {
                 const nextLanguage =
-                    prev.language || !autoLanguage ? prev.language : autoLanguage;
+                    prev.language || !autoLanguage
+                        ? prev.language
+                        : autoLanguage;
 
                 if (typeValue === "plug-and-play") {
                     return {
                         ...prev,
                         language: nextLanguage,
+                        needMCPS: undefined,
                         plug_and_play: true,
                         tags: undefined,
                     };
@@ -494,13 +511,15 @@ export const KodyRulesLibrary = ({
                         ...prev,
                         language: nextLanguage,
                         plug_and_play: undefined,
-                        tags: ["MCP"],
+                        needMCPS: true,
+                        tags: undefined,
                     };
                 }
 
                 return {
                     ...prev,
                     language: nextLanguage,
+                    needMCPS: undefined,
                     plug_and_play: undefined,
                     tags: undefined,
                 };
@@ -516,7 +535,12 @@ export const KodyRulesLibrary = ({
         if (isResultsLoading) return;
         if (pagination.page >= pagination.totalPages) return;
         fetchResultsPage(pagination.page + 1);
-    }, [fetchResultsPage, isResultsLoading, pagination.page, pagination.totalPages]);
+    }, [
+        fetchResultsPage,
+        isResultsLoading,
+        pagination.page,
+        pagination.totalPages,
+    ]);
 
     const severityOptions = useMemo(
         () =>
@@ -536,9 +560,10 @@ export const KodyRulesLibrary = ({
         [],
     );
 
-    const curatedBuckets = bucketPreviews
-        .slice(0, 3)
-        .map((p) => ({ ...p, rules: p.rules.slice(0, BUCKET_RULES_PREVIEW_LIMIT) }));
+    const curatedBuckets = bucketPreviews.slice(0, 3).map((p) => ({
+        ...p,
+        rules: p.rules.slice(0, BUCKET_RULES_PREVIEW_LIMIT),
+    }));
 
     return (
         <Page.Root className="w-full pb-0">
@@ -561,7 +586,7 @@ export const KodyRulesLibrary = ({
                                 Browse curated Kody Rules packs and discover
                                 ready-to-use rules for your code reviews.
                             </p>
-	                        </div>
+                        </div>
 
                         <div className="flex w-full max-w-xl items-center gap-2">
                             <Input
@@ -575,63 +600,66 @@ export const KodyRulesLibrary = ({
                                         name: nextName,
                                     }));
 
-                                    if (viewMode === "featured" && nextName.trim()) {
+                                    if (
+                                        viewMode === "featured" &&
+                                        nextName.trim()
+                                    ) {
                                         setBrowseMode();
                                     }
                                 }}
                                 placeholder="Search rules..."
                             />
                             {hasUserFilters && (
-                                    <Button
-                                        size="md"
-                                        variant="cancel"
-                                        onClick={() => resetFilters("browse")}>
-                                        Clear
-                                    </Button>
-                                )}
-                            </div>
+                                <Button
+                                    size="md"
+                                    variant="cancel"
+                                    onClick={() => resetFilters("browse")}>
+                                    Clear
+                                </Button>
+                            )}
                         </div>
+                    </div>
                 </div>
             </Page.Header>
 
             <Page.Content className="w-full max-w-[90vw] pt-8">
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-[280px_1fr]">
                     <aside className="space-y-4">
-                        <div className="rounded-xl border border-card-lv3 bg-card-lv2 p-4">
+                        <div className="border-card-lv3 bg-card-lv2 rounded-xl border p-4">
                             <Heading variant="h3">Navigation</Heading>
                             <Separator className="my-4 opacity-60" />
 
-	                            <div className="space-y-1">
-	                                <Link
-	                                    href="/library/kody-rules/featured"
-	                                    noHoverUnderline
-	                                    className={cn(
-	                                        "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition",
-	                                        viewMode === "featured"
-	                                            ? "bg-card-lv3 text-text-primary"
-	                                            : "text-text-secondary hover:bg-card-lv3/60 hover:text-text-primary",
-	                                    )}>
-	                                    Featured
-	                                </Link>
+                            <div className="space-y-1">
+                                <Link
+                                    href="/library/kody-rules/featured"
+                                    noHoverUnderline
+                                    className={cn(
+                                        "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition",
+                                        viewMode === "featured"
+                                            ? "bg-card-lv3 text-text-primary"
+                                            : "text-text-secondary hover:bg-card-lv3/60 hover:text-text-primary",
+                                    )}>
+                                    Featured
+                                </Link>
 
-	                                <Link
-	                                    href={browseHref({
-	                                        bucket: selectedBucket,
-	                                        type: selectedTypeValue,
-	                                    })}
-	                                    noHoverUnderline
-	                                    className={cn(
-	                                        "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition",
-	                                        viewMode === "browse"
-	                                            ? "bg-card-lv3 text-text-primary"
-	                                            : "text-text-secondary hover:bg-card-lv3/60 hover:text-text-primary",
-	                                    )}>
-	                                    Browse
+                                <Link
+                                    href={browseHref({
+                                        bucket: selectedBucket,
+                                        type: selectedTypeValue,
+                                    })}
+                                    noHoverUnderline
+                                    className={cn(
+                                        "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition",
+                                        viewMode === "browse"
+                                            ? "bg-card-lv3 text-text-primary"
+                                            : "text-text-secondary hover:bg-card-lv3/60 hover:text-text-primary",
+                                    )}>
+                                    Browse
                                 </Link>
                             </div>
                         </div>
 
-                        <div className="rounded-xl border border-card-lv3 bg-card-lv2 p-4">
+                        <div className="border-card-lv3 bg-card-lv2 rounded-xl border p-4">
                             <Heading variant="h3">Collections</Heading>
                             <Separator className="my-4 opacity-60" />
 
@@ -652,7 +680,9 @@ export const KodyRulesLibrary = ({
 
                                 <button
                                     type="button"
-                                    onClick={() => setBrowseType("plug-and-play")}
+                                    onClick={() =>
+                                        setBrowseType("plug-and-play")
+                                    }
                                     className={cn(
                                         "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition",
                                         selectedTypeValue === "plug-and-play"
@@ -687,7 +717,7 @@ export const KodyRulesLibrary = ({
                         </div>
 
                         {viewMode === "browse" ? (
-                            <div className="rounded-xl border border-card-lv3 bg-card-lv2 p-4">
+                            <div className="border-card-lv3 bg-card-lv2 rounded-xl border p-4">
                                 <div className="flex items-center justify-between">
                                     <Heading variant="h3">Filters</Heading>
                                     {hasUserFilters && (
@@ -753,48 +783,48 @@ export const KodyRulesLibrary = ({
                                         Packs
                                     </p>
                                     <div className="space-y-1">
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            setSelectedBucket(null);
-                                            router.push(
-                                                browseHref({
-                                                    type: selectedTypeValue,
-                                                }),
-                                            );
-                                        }}
-                                        className={cn(
-                                            "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition",
-                                            !selectedBucket
-                                                ? "bg-card-lv3 text-text-primary"
-                                                : "text-text-secondary hover:bg-card-lv3/60 hover:text-text-primary",
-                                        )}>
-                                        <span className="truncate">
-                                            All
-                                        </span>
-                                        <span className="text-text-tertiary text-xs">
-                                            {buckets.length}
-                                        </span>
-                                    </button>
-
-                                        {buckets.map((bucket) => (
-                                            <button
-                                                key={bucket.slug}
+                                        <button
                                             type="button"
                                             onClick={() => {
-                                                setSelectedBucket(
-                                                    bucket.slug,
-                                                );
+                                                setSelectedBucket(null);
                                                 router.push(
                                                     browseHref({
-                                                        bucket: bucket.slug,
                                                         type: selectedTypeValue,
                                                     }),
                                                 );
                                             }}
                                             className={cn(
                                                 "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition",
-                                                selectedBucket ===
+                                                !selectedBucket
+                                                    ? "bg-card-lv3 text-text-primary"
+                                                    : "text-text-secondary hover:bg-card-lv3/60 hover:text-text-primary",
+                                            )}>
+                                            <span className="truncate">
+                                                All
+                                            </span>
+                                            <span className="text-text-tertiary text-xs">
+                                                {buckets.length}
+                                            </span>
+                                        </button>
+
+                                        {buckets.map((bucket) => (
+                                            <button
+                                                key={bucket.slug}
+                                                type="button"
+                                                onClick={() => {
+                                                    setSelectedBucket(
+                                                        bucket.slug,
+                                                    );
+                                                    router.push(
+                                                        browseHref({
+                                                            bucket: bucket.slug,
+                                                            type: selectedTypeValue,
+                                                        }),
+                                                    );
+                                                }}
+                                                className={cn(
+                                                    "flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition",
+                                                    selectedBucket ===
                                                         bucket.slug
                                                         ? "bg-card-lv3 text-text-primary"
                                                         : "text-text-secondary hover:bg-card-lv3/60 hover:text-text-primary",
@@ -811,16 +841,16 @@ export const KodyRulesLibrary = ({
                                 </div>
                             </div>
                         ) : (
-                            <div className="rounded-xl border border-dashed border-card-lv3 bg-card-lv1 p-4 text-sm text-text-secondary">
-                                Switch to Browse to filter and search across
-                                all rules.
+                            <div className="border-card-lv3 bg-card-lv1 text-text-secondary rounded-xl border border-dashed p-4 text-sm">
+                                Switch to Browse to filter and search across all
+                                rules.
                             </div>
                         )}
 
                         <Link
                             href="/library/kody-rules/packs"
                             noHoverUnderline
-                            className="block rounded-xl border border-dashed border-card-lv3 bg-card-lv1 p-4 text-sm text-text-secondary transition hover:border-primary-light hover:text-text-primary">
+                            className="border-card-lv3 bg-card-lv1 text-text-secondary hover:border-primary-light hover:text-text-primary block rounded-xl border border-dashed p-4 text-sm transition">
                             Browse all packs →
                         </Link>
                     </aside>
@@ -875,7 +905,8 @@ export const KodyRulesLibrary = ({
                                             ))}
                                         </div>
 
-                                        {pagination.page < pagination.totalPages && (
+                                        {pagination.page <
+                                            pagination.totalPages && (
                                             <div className="flex justify-center pt-2">
                                                 <Button
                                                     size="md"
@@ -891,10 +922,10 @@ export const KodyRulesLibrary = ({
                             </section>
                         ) : (
                             <>
-                                <section className="rounded-xl border border-card-lv3 bg-card-lv1 p-6">
+                                <section className="border-card-lv3 bg-card-lv1 rounded-xl border p-6">
                                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                         <div className="flex items-start gap-3">
-                                            <div className="rounded-lg bg-card-lv3 p-3">
+                                            <div className="bg-card-lv3 rounded-lg p-3">
                                                 <SparklesIcon className="text-primary-light size-5" />
                                             </div>
                                             <div className="flex flex-col gap-1">
@@ -944,7 +975,7 @@ export const KodyRulesLibrary = ({
                                 {featuredCollections?.map((collection) => (
                                     <section
                                         key={collection.key}
-                                        className="rounded-xl border border-card-lv3 bg-card-lv1 p-6">
+                                        className="border-card-lv3 bg-card-lv1 rounded-xl border p-6">
                                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                             <div className="flex flex-col gap-1">
                                                 <Heading variant="h2">
@@ -991,7 +1022,7 @@ export const KodyRulesLibrary = ({
                                 {curatedBuckets.map(({ bucket, rules }) => (
                                     <section
                                         key={bucket.slug}
-                                        className="rounded-xl border border-card-lv3 bg-card-lv1 p-6">
+                                        className="border-card-lv3 bg-card-lv1 rounded-xl border p-6">
                                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                             <div className="flex flex-col gap-1">
                                                 <div className="flex items-center gap-2">

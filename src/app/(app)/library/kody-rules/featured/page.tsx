@@ -25,11 +25,13 @@ export default async function Route() {
                 page: 1,
                 limit: FEATURED_TYPE_RULES_LIMIT,
                 plug_and_play: true,
+                debugLabel: "server:featured:plug_and_play",
             }).then((r) => r?.data || []),
             getLibraryKodyRulesWithFeedback({
                 page: 1,
                 limit: FEATURED_TYPE_RULES_LIMIT,
-                tags: ["MCP"],
+                needMCPS: true,
+                debugLabel: "server:featured:needMCPS",
             }).then((r) => r?.data || []),
         ],
     );

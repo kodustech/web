@@ -56,7 +56,18 @@ export const authorizedFetch = async <Data>(
         return response.data;
     } catch (error1) {
         if (TypedFetchError.isError(error1)) {
-            if (error1.statusCode === 401) redirect("/sign-out");
+            if (error1.statusCode === 401) {
+                if (process.env.NODE_ENV !== "production") {
+                    console.warn("[authorizedFetch] 401", {
+                        url: error1.url,
+                        statusText: error1.statusText,
+                        body: error1.body,
+                    });
+                }
+
+                if (isServerSide) redirect("/sign-out");
+                return null as Data;
+            }
         }
 
         return null as Data;

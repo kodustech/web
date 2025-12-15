@@ -108,7 +108,7 @@ export const NavMenu = ({
             },
 
             {
-                label: "Featured",
+                label: "Library",
                 icon: <Sparkles className="size-5" />,
                 href: "/library/kody-rules/featured",
                 visible: canReadCodeReviewSettings,

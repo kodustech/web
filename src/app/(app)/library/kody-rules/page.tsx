@@ -20,8 +20,8 @@ export default async function Route({
 }) {
     const params = await searchParams;
 
-    const initialTags = params.type === "mcp" ? ["MCP"] : undefined;
     const initialPlugAndPlay = params.type === "plug-and-play";
+    const initialNeedMCPS = params.type === "mcp";
 
     const teamId = await getGlobalSelectedTeamId();
 
@@ -39,8 +39,13 @@ export default async function Route({
                   page: 1,
                   limit: 48,
                   buckets: [params.bucket],
-                  tags: initialTags,
                   plug_and_play: initialPlugAndPlay || undefined,
+                  needMCPS: initialNeedMCPS || undefined,
+                  debugLabel: initialNeedMCPS
+                      ? "server:browse:bucket:needMCPS"
+                      : initialPlugAndPlay
+                        ? "server:browse:bucket:plug_and_play"
+                        : undefined,
               })
             : Promise.resolve(null),
         Promise.all(
@@ -64,8 +69,8 @@ export default async function Route({
             initialView={
                 params.view === "browse" || params.type ? "browse" : undefined
             }
-            initialTags={initialTags}
             initialPlugAndPlay={initialPlugAndPlay || undefined}
+            initialNeedMCPS={initialNeedMCPS || undefined}
             teamLanguage={orgLanguage?.language}
             initialRules={bucketRulesResponse?.data || []}
             pagination={{

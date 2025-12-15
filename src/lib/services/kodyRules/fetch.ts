@@ -86,6 +86,8 @@ export const getLibraryKodyRulesWithFeedback = async (params?: {
     tags?: string[];
     language?: keyof typeof ProgrammingLanguage;
     plug_and_play?: boolean;
+    needMCPS?: boolean;
+    debugLabel?: string;
 }) => {
     // Build params object for authorizedFetch
     const fetchParams: Record<string, string | number | boolean | undefined> = {
@@ -98,6 +100,7 @@ export const getLibraryKodyRulesWithFeedback = async (params?: {
     if (params?.severity) fetchParams.severity = params.severity;
     if (params?.language) fetchParams.language = String(params.language);
     if (params?.plug_and_play) fetchParams.plug_and_play = true;
+    if (params?.needMCPS) fetchParams.needMCPS = true;
 
     // For arrays, we need to handle them as multiple parameters with the same key
     // But since authorizedFetch doesn't handle array params well, we'll build the URL manually
@@ -124,6 +127,35 @@ export const getLibraryKodyRulesWithFeedback = async (params?: {
     }
 
     const url = `${KODY_RULES_PATHS.FIND_LIBRARY_KODY_RULES_WITH_FEEDBACK}?${queryParams.toString()}`;
+
+    const expectedNeedMCPS = Boolean(params?.needMCPS);
+    const expectedPlugAndPlay = Boolean(params?.plug_and_play);
+    const resolvedNeedMCPS = queryParams.get("needMCPS");
+    const resolvedPlugAndPlay = queryParams.get("plug_and_play");
+    const hasMismatch =
+        (expectedNeedMCPS && resolvedNeedMCPS !== "true") ||
+        (expectedPlugAndPlay && resolvedPlugAndPlay !== "true");
+
+    if (
+        process.env.NODE_ENV !== "production" &&
+        (params?.debugLabel ||
+            expectedNeedMCPS ||
+            expectedPlugAndPlay ||
+            hasMismatch)
+    ) {
+        // Use info to show up in DevTools (console.debug is often hidden under "Verbose")
+        console.info("[kodyRules] find-library-with-feedback params", {
+            label: params?.debugLabel,
+            params,
+            resolvedQuery: queryParams.toString(),
+            expectedNeedMCPS,
+            expectedPlugAndPlay,
+            resolvedNeedMCPS,
+            resolvedPlugAndPlay,
+            hasMismatch,
+            url,
+        });
+    }
 
     const response = await authorizedFetch<PaginatedResponse<LibraryRule>>(url);
     return response;
