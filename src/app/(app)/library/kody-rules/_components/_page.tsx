@@ -56,7 +56,6 @@ const RECOMMENDED_RULES_LIMIT = 12;
 const SEVERITY_OPTIONS = ["Low", "Medium", "High", "Critical"] as const;
 
 const MCP_OPTIONS = [
-    { value: "slack", title: "Slack" },
     { value: "jira", title: "Jira" },
     { value: "datadog", title: "Datadog" },
     { value: "linear", title: "Linear" },
@@ -64,7 +63,6 @@ const MCP_OPTIONS = [
     { value: "grafana", title: "Grafana" },
     { value: "perplexity", title: "Perplexity" },
     { value: "exa", title: "Exa" },
-    { value: "github", title: "GitHub" },
     { value: "sentry", title: "Sentry" },
 ] as const;
 
