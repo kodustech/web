@@ -27,6 +27,7 @@ import { z } from "zod";
 
 import { StepIndicators } from "../_components/step-indicators";
 import { useGoToStep } from "../_hooks/use-goto-step";
+import { useTrackSetupStep } from "../_hooks/use-track-setup-step";
 
 const createFormSchema = (userDomain: string) =>
     z
@@ -100,6 +101,7 @@ const createFormSchema = (userDomain: string) =>
 
 export default function App() {
     useGoToStep();
+    useTrackSetupStep();
 
     const router = useRouter();
     const { organizationName } = useOrganizationContext();

@@ -23,6 +23,7 @@ import { cn } from "src/core/utils/components";
 import { useFetch } from "src/core/utils/reactQuery";
 
 import { StepIndicators } from "../_components/step-indicators";
+import { useTrackSetupStep } from "../_hooks/use-track-setup-step";
 
 type ReviewMode = "default" | "safety" | "speed" | "coach";
 
@@ -141,6 +142,8 @@ const ReviewModeCard = ({
 };
 
 export default function ReviewModePage() {
+    useTrackSetupStep();
+
     const router = useRouter();
     const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);

@@ -14,6 +14,7 @@ import { SupportDropdown } from "src/core/layout/navbar/_components/support";
 import { AllTeamsProvider } from "src/core/providers/all-teams-context";
 import { AuthProvider } from "src/core/providers/auth.provider";
 import { SelectedTeamProvider } from "src/core/providers/selected-team-context";
+import { PosthogProvider } from "src/core/providers/posthog.provider";
 import { TEAM_STATUS } from "src/core/types";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { OrganizationProvider } from "src/features/organization/_providers/organization-context";
@@ -72,31 +73,33 @@ export default async function Layout(props: React.PropsWithChildren) {
 
     return (
         <AuthProvider session={session}>
-            <OrganizationProvider
-                organization={{
-                    id: organizationId,
-                    name: organizationName,
-                }}>
-                <AllTeamsProvider teams={teams}>
-                    <SelectedTeamProvider>
-                        <div className="relative min-h-screen bg-background">
-                            <div className="border-primary-dark bg-card-lv1 fixed inset-x-0 top-0 z-50 flex h-16 items-center gap-4 border-b-2 px-6">
-                                <Link href="/">
-                                    <SvgKodus className="h-8 max-w-max text-text-primary" />
-                                </Link>
+            <PosthogProvider>
+                <OrganizationProvider
+                    organization={{
+                        id: organizationId,
+                        name: organizationName,
+                    }}>
+                    <AllTeamsProvider teams={teams}>
+                        <SelectedTeamProvider>
+                            <div className="relative min-h-screen bg-background">
+                                <div className="border-primary-dark bg-card-lv1 fixed inset-x-0 top-0 z-50 flex h-16 items-center gap-4 border-b-2 px-6">
+                                    <Link href="/">
+                                        <SvgKodus className="h-8 max-w-max text-text-primary" />
+                                    </Link>
 
-                                <div className="ml-auto flex items-center gap-4">
-                                    <SetupGithubStars />
-                                    <SupportDropdown />
-                                    <SetupUserNav />
+                                    <div className="ml-auto flex items-center gap-4">
+                                        <SetupGithubStars />
+                                        <SupportDropdown />
+                                        <SetupUserNav />
+                                    </div>
                                 </div>
+                                <div className="pt-16">{props.children}</div>
                             </div>
-                            <div className="pt-16">{props.children}</div>
-                        </div>
-                        <MagicModalPortal />
-                    </SelectedTeamProvider>
-                </AllTeamsProvider>
-            </OrganizationProvider>
+                            <MagicModalPortal />
+                        </SelectedTeamProvider>
+                    </AllTeamsProvider>
+                </OrganizationProvider>
+            </PosthogProvider>
         </AuthProvider>
     );
 }

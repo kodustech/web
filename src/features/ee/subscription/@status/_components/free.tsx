@@ -9,6 +9,7 @@ import { Action, ResourceType } from "@services/permissions/types";
 import type { TeamMembersResponse } from "@services/setup/types";
 import { ArrowUpCircle } from "lucide-react";
 import { pluralize } from "src/core/utils/string";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 
 import { useSubscriptionStatus } from "../../_hooks/use-subscription-status";
 import { getPlans } from "../../_services/billing/fetch";
@@ -59,7 +60,16 @@ export const FreeByok = ({
                     className="h-fit"
                     loading={isLoadingPlans}
                     leftIcon={<ArrowUpCircle />}
-                    onClick={() => _getPlans()}>
+                    onClick={() => {
+                        capturePosthogEvent({
+                            event: "upgrade_clicked",
+                            properties: {
+                                feature: "subscription_status_free",
+                                status: subscription.status,
+                            },
+                        });
+                        _getPlans();
+                    }}>
                     Upgrade
                 </Button>
             </CardHeader>

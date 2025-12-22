@@ -22,6 +22,14 @@ const PosthogServerSide = async <P>(promise: (instance: PostHog) => P) => {
     }
 };
 
+type ServerPosthogEvent = {
+    event: string;
+    distinctId?: string;
+    properties?: Record<string, unknown>;
+    source?: string;
+    page?: string;
+};
+
 /**
  * **Usage *(SERVER-SIDE ONLY)***:
  * feature flags in client-side would flash, hydration errors would be thrown, page redirects could not be done
@@ -60,5 +68,32 @@ export const getFeatureFlagWithPayload = async ({
         if (value === undefined) return undefined;
 
         return { value, payload };
+    });
+};
+
+export const capturePosthogServerEvent = async ({
+    event,
+    distinctId,
+    properties,
+    source = "back",
+    page,
+}: ServerPosthogEvent) => {
+    const apiKey = process.env.WEB_POSTHOG_KEY;
+    if (!apiKey) return;
+
+    const userId = distinctId ?? (await auth())?.user.userId;
+    if (!userId) return;
+
+    await PosthogServerSide(async (p) => {
+        const pageProperty = page ? { page } : {};
+        p.capture({
+            distinctId: userId,
+            event,
+            properties: {
+                ...properties,
+                source,
+                ...pageProperty,
+            },
+        });
     });
 };

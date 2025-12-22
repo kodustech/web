@@ -25,9 +25,11 @@ import { getOrganizationsByDomain } from "src/lib/auth/fetchers";
 
 import { StepIndicators } from "../_components/step-indicators";
 import { useGoToStep } from "../_hooks/use-goto-step";
+import { useTrackSetupStep } from "../_hooks/use-track-setup-step";
 
 export default function ChooseWorkspacePage() {
     useGoToStep();
+    useTrackSetupStep();
 
     const router = useRouter();
     const { userId, email, refreshAccessTokens } = useAuth();

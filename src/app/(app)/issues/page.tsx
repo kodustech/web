@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { Page } from "@components/ui/page";
 import { useEffectOnce } from "@hooks/use-effect-once";
 import { useIssues } from "@services/issues/hooks";
@@ -8,7 +8,13 @@ import { Action, ResourceType } from "@services/permissions/types";
 import { parseAsJson, useQueryState } from "nuqs";
 import { useAuth } from "src/core/providers/auth.provider";
 import { usePermissions } from "src/core/providers/permissions.provider";
-import { filterArray, type FilterValueGroup } from "src/core/utils/filtering";
+import {
+    filterArray,
+    isFilterValueGroup,
+    type FilterValueGroup,
+    type FilterValueItem,
+} from "src/core/utils/filtering";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 import { hasPermission } from "src/core/utils/permissions";
 
 import { IssuesDataTable } from "./_components/data-table";
@@ -21,6 +27,8 @@ import { FiltersContext } from "./_contexts/filters";
 export default function IssuesPage() {
     const permissions = usePermissions();
     const { organizationId } = useAuth();
+    const lastFiltersRef = useRef<string | null>(null);
+    const skipNextFilterEventRef = useRef(false);
 
     const { data: issues, isLoading, error } = useIssues();
 
@@ -78,6 +86,14 @@ export default function IssuesPage() {
     const savedFiltersOrDefault = getFiltersInLocalStorage() ?? DEFAULT_FILTERS;
     const filters = _filtersQuery ?? savedFiltersOrDefault;
 
+    const flattenFilterItems = useCallback(function flattenFilters(
+        group: FilterValueGroup,
+    ): FilterValueItem[] {
+        return group.items.flatMap((item) =>
+            isFilterValueGroup(item) ? flattenFilters(item) : [item],
+        );
+    }, []);
+
     const filteredData = useMemo(
         () => filterArray(filters, canAccessIssues),
         [filters, canAccessIssues],
@@ -85,8 +101,47 @@ export default function IssuesPage() {
 
     useEffectOnce(() => {
         if (_filtersQuery) return;
+        skipNextFilterEventRef.current = true;
         setFilters(savedFiltersOrDefault, { history: "replace" });
     });
+
+    useEffectOnce(() => {
+        capturePosthogEvent({
+            event: "main_screen_viewed",
+            properties: { screen: "issues" },
+        });
+    });
+
+    useEffect(() => {
+        const serialized = JSON.stringify(filters);
+        if (skipNextFilterEventRef.current) {
+            skipNextFilterEventRef.current = false;
+            lastFiltersRef.current = serialized;
+            return;
+        }
+        if (!lastFiltersRef.current) {
+            lastFiltersRef.current = serialized;
+            return;
+        }
+
+        if (lastFiltersRef.current === serialized) return;
+        lastFiltersRef.current = serialized;
+
+        const filterItems = flattenFilterItems(filters).map((item) => ({
+            field: item.field,
+            operator: item.operator,
+            value: item.value,
+        }));
+
+        capturePosthogEvent({
+            event: "issues_filter_changed",
+            properties: {
+                condition: filters.condition,
+                items: filterItems,
+                items_count: filterItems.length,
+            },
+        });
+    }, [filters, flattenFilterItems]);
 
     useEffect(() => {
         const listItem = globalThis.document.querySelector(`[data-peek]`);

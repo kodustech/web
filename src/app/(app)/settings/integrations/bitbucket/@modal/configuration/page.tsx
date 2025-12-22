@@ -28,16 +28,14 @@ import {
 } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { CodeReviewSummaryOptions } from "src/app/(app)/settings/code-review/_types";
-import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { IntegrationCategory } from "src/core/types";
-import { captureSegmentEvent } from "src/core/utils/segment";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 import { PARAMETERS_PATHS } from "@services/parameters";
 
 export default function Bitbucket() {
     const router = useRouter();
     const { teamId } = useSelectedTeamId();
-    const { userId } = useAuth();
 
     const [open, setOpen] = useState(false);
     const [selectedRepositories, setSelectedRepositories] = useState<
@@ -149,8 +147,7 @@ export default function Bitbucket() {
             title: "Repositories saved",
         });
 
-        await captureSegmentEvent({
-            userId: userId!,
+        capturePosthogEvent({
             event: "select_repositories_changed",
             properties: {
                 platform: "bitbucket",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { redirect, usePathname } from "next/navigation";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
@@ -33,6 +33,7 @@ import { PostHog } from "posthog-node";
 import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { AwaitedReturnType } from "src/core/types";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 
 import { useCodeReviewRouteParams } from "../_hooks";
 import { countConfigOverrides } from "../_utils/count-overrides";
@@ -69,6 +70,7 @@ export const SettingsLayout = ({
     const defaultConfig = useSuspenseGetDefaultCodeReviewParameter();
     const platformConfig = useSuspenseGetParameterPlatformConfigs(teamId);
     const { repositoryId, pageName, directoryId } = useCodeReviewRouteParams();
+    const lastScreenRef = useRef<string | null>(null);
 
     const globalOverrideCount = countConfigOverrides(
         configValue.configs,
@@ -84,6 +86,25 @@ export const SettingsLayout = ({
         Action.Read,
         ResourceType.PluginSettings,
     );
+
+    useEffect(() => {
+        const isCodeReviewSettings = pathname.startsWith("/settings/code-review");
+        if (!isCodeReviewSettings) {
+            if (lastScreenRef.current === "code_review_settings") {
+                lastScreenRef.current = null;
+            }
+            return;
+        }
+
+        if (lastScreenRef.current === "code_review_settings") return;
+
+        capturePosthogEvent({
+            event: "main_screen_viewed",
+            page: pathname,
+            properties: { screen: "code_review_settings" },
+        });
+        lastScreenRef.current = "code_review_settings";
+    }, [pathname]);
 
     const mainRoutes = useMemo(() => {
         const routes: Array<{

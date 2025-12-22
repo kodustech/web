@@ -12,6 +12,7 @@ import { Controller, useForm } from "react-hook-form";
 import { Button } from "src/core/components/ui/button";
 import { Input } from "src/core/components/ui/input";
 import { cn } from "src/core/utils/components";
+import { queuePosthogAuthEvent } from "src/core/utils/posthog-client";
 import { completeUserInvitation } from "src/lib/auth/fetchers";
 import { z } from "zod";
 
@@ -115,6 +116,8 @@ export const AcceptInviteForm = (props: {
                 description: "Registration completed!",
                 variant: "success",
             });
+
+            queuePosthogAuthEvent("signup", "invite");
 
             await signIn("credentials", {
                 email: props.email,

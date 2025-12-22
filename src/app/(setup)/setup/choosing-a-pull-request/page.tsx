@@ -25,7 +25,11 @@ import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { useFinishOnboardingReviewingPR } from "src/features/ee/onboarding/_hooks/use-finish-onboarding-reviewing-pr";
 import { useFinishOnboardingWithoutSelectingPR } from "src/features/ee/onboarding/_hooks/use-finish-onboarding-without-selecting-pr";
 
+import { useTrackSetupStep } from "../_hooks/use-track-setup-step";
+
 export default function App() {
+    useTrackSetupStep();
+
     const { userId } = useAuth();
 
     const { teamId } = useSelectedTeamId();

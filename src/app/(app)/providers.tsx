@@ -9,6 +9,7 @@ import { AllTeamsProvider } from "src/core/providers/all-teams-context";
 import { AuthProvider } from "src/core/providers/auth.provider";
 import { SubsciptionStatusProvider } from "src/core/providers/byok.provider";
 import { PermissionsProvider } from "src/core/providers/permissions.provider";
+import { PosthogProvider } from "src/core/providers/posthog.provider";
 import { SelectedTeamProvider } from "src/core/providers/selected-team-context";
 import { OrganizationProvider } from "src/features/organization/_providers/organization-context";
 
@@ -35,20 +36,22 @@ export function Providers({
 }: ProvidersProps) {
     return (
         <AuthProvider session={session}>
-            <PermissionsProvider permissions={permissions}>
-                <OrganizationProvider organization={organization}>
-                    <AllTeamsProvider teams={teams}>
-                        <SubsciptionStatusProvider
-                            isBYOK={isBYOK}
-                            isTrial={isTrial}>
-                            <SelectedTeamProvider>
-                                {children}
-                                <MagicModalPortal />
-                            </SelectedTeamProvider>
-                        </SubsciptionStatusProvider>
-                    </AllTeamsProvider>
-                </OrganizationProvider>
-            </PermissionsProvider>
+            <PosthogProvider>
+                <PermissionsProvider permissions={permissions}>
+                    <OrganizationProvider organization={organization}>
+                        <AllTeamsProvider teams={teams}>
+                            <SubsciptionStatusProvider
+                                isBYOK={isBYOK}
+                                isTrial={isTrial}>
+                                <SelectedTeamProvider>
+                                    {children}
+                                    <MagicModalPortal />
+                                </SelectedTeamProvider>
+                            </SubsciptionStatusProvider>
+                        </AllTeamsProvider>
+                    </OrganizationProvider>
+                </PermissionsProvider>
+            </PosthogProvider>
         </AuthProvider>
     );
 }

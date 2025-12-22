@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { Page } from "@components/ui/page";
 import { Spinner } from "@components/ui/spinner";
 import { useDebounce } from "@hooks/use-debounce";
+import { useEffectOnce } from "@hooks/use-effect-once";
 import { useInfinitePullRequestExecutions } from "@services/pull-requests";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 
 import { PrDataTable } from "./pr-data-table";
 import { PullRequestsFilters } from "./pull-requests-filters";
@@ -46,6 +48,13 @@ export function PullRequestsPageClient() {
     );
 
     const loadMoreRef = useRef<HTMLDivElement | null>(null);
+
+    useEffectOnce(() => {
+        capturePosthogEvent({
+            event: "main_screen_viewed",
+            properties: { screen: "pull_requests" },
+        });
+    });
 
     useEffect(() => {
         const node = loadMoreRef.current;

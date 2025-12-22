@@ -21,11 +21,10 @@ import { SETUP_PATHS } from "@services/setup";
 import { useGetGithubOrganizationName } from "@services/setup/hooks";
 import { deleteCookie, getCookie } from "cookies-next";
 import { SaveIcon } from "lucide-react";
-import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { PlatformType } from "src/core/types";
 import { ClientSideCookieHelpers } from "src/core/utils/cookie";
-import { captureSegmentEvent } from "src/core/utils/segment";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
 type Integration = (typeof INTEGRATIONS_KEY)[keyof typeof INTEGRATIONS_KEY];
@@ -51,8 +50,6 @@ export default function Redirect() {
     const router = useRouter();
     const { removeQueries, generateQueryKey } =
         useReactQueryInvalidateQueries();
-
-    const { userId } = useAuth();
 
     const isSetup = useMemo(
         () =>
@@ -152,11 +149,11 @@ export default function Redirect() {
                     installationId,
                 });
 
-                captureSegmentEvent({
-                    userId: userId!,
+                capturePosthogEvent({
                     event: "setup_git_integration_success",
                     properties: {
                         platform: params.id,
+                        method: "oauth",
                         teamId: teamId,
                     },
                 });
@@ -169,11 +166,11 @@ export default function Redirect() {
                     organizationAndTeamData,
                 });
 
-                captureSegmentEvent({
-                    userId: userId!,
+                capturePosthogEvent({
                     event: "setup_git_integration_success",
                     properties: {
                         platform: params.id,
+                        method: "oauth",
                         teamId: teamId,
                     },
                 });

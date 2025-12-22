@@ -16,6 +16,7 @@ import { signIn } from "next-auth/react";
 import { Controller, useForm } from "react-hook-form";
 import { Button } from "src/core/components/ui/button";
 import { Input } from "src/core/components/ui/input";
+import { queuePosthogAuthEvent } from "src/core/utils/posthog-client";
 import { ssoCheck, ssoLogin } from "src/lib/auth/fetchers";
 import { z } from "zod";
 
@@ -105,6 +106,7 @@ export function UserAuthForm() {
     const handleSsoLogin = useCallback(async () => {
         if (ssoAvailable?.organizationId) {
             setIsSubmitting(true);
+            queuePosthogAuthEvent("login", "sso");
             await ssoLogin(ssoAvailable.organizationId);
             setIsSubmitting(false);
         }
@@ -112,6 +114,7 @@ export function UserAuthForm() {
 
     const handlePasswordLogin = useCallback(async (email: string, password: string) => {
         setIsSubmitting(true);
+        queuePosthogAuthEvent("login", "password");
         await signIn("credentials", {
             email,
             password,

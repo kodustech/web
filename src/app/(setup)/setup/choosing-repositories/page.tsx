@@ -39,16 +39,19 @@ import {
 } from "src/app/(app)/settings/code-review/_types";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { captureSegmentEvent } from "src/core/utils/segment";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 import { pluralize } from "src/core/utils/string";
 
 import { StepIndicators } from "../_components/step-indicators";
+import { useTrackSetupStep } from "../_hooks/use-track-setup-step";
 
 type ReviewScope = "pilot" | "team";
 
 export default function App() {
+    useTrackSetupStep();
+
     const router = useRouter();
-    const { userId, organizationId } = useAuth();
+    const { organizationId } = useAuth();
     const { teamId } = useSelectedTeamId();
     const nextStepPath = "/setup/review-mode";
 
@@ -150,8 +153,7 @@ export default function App() {
             void Promise.allSettled(fastSyncPromises);
         }
 
-        await captureSegmentEvent({
-            userId: userId!,
+        capturePosthogEvent({
             event: "setup_select_repositories",
             properties: {
                 platform: codeManagementConnections
@@ -159,6 +161,15 @@ export default function App() {
                     ?.platformName.toLowerCase(),
                 quantityOfRepositories: selectedRepositories.length,
                 scope: reviewScope,
+                repositories: selectedRepositories.map((repo) => ({
+                    id: repo.id,
+                    name: repo.name,
+                    full_name: repo.full_name,
+                    last_activity_at: repo.lastActivityAt,
+                    default_branch: repo.default_branch,
+                    language: repo.language,
+                    visibility: repo.visibility,
+                })),
             },
         });
 

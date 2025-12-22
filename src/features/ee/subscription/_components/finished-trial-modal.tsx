@@ -14,6 +14,7 @@ import { magicModal, MagicModalContext } from "@components/ui/magic-modal";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { ClientSideCookieHelpers } from "src/core/utils/cookie";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
 
 import { getPlans } from "../_services/billing/fetch";
@@ -79,7 +80,16 @@ export const FinishedTrialModal = () => {
                             size="md"
                             variant="primary"
                             loading={isLoadingPlans}
-                            onClick={() => openPlansModal()}>
+                            onClick={() => {
+                                capturePosthogEvent({
+                                    event: "upgrade_clicked",
+                                    properties: {
+                                        feature: "subscription_finished_trial",
+                                        status: subscription.status,
+                                    },
+                                });
+                                openPlansModal();
+                            }}>
                             Upgrade subscription
                         </Button>
                     </DialogFooter>

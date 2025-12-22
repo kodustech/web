@@ -4,6 +4,7 @@ import { Button } from "@components/ui/button";
 import { Link } from "@components/ui/link";
 import { AlertTriangle } from "lucide-react";
 import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 
 const SubscriptionTrial = () => {
     const subscriptionStatus = useSubscriptionStatus();
@@ -68,8 +69,31 @@ export const SubscriptionBadge = () => {
     const Component = components[status];
 
     if (!Component) return null;
+    const isUpgradeStatus =
+        status === "free" ||
+        status === "canceled" ||
+        status === "trial-active" ||
+        status === "trial-expiring";
+    const eventName =
+        status === "trial-active" || status === "trial-expiring"
+            ? "trial_badge_clicked"
+            : "upgrade_clicked";
     return (
-        <Link href="/settings/subscription">
+        <Link
+            href="/settings/subscription"
+            onClick={
+                isUpgradeStatus
+                    ? () => {
+                          capturePosthogEvent({
+                              event: eventName,
+                              properties: {
+                                  feature: "subscription_badge",
+                                  status,
+                              },
+                          });
+                      }
+                    : undefined
+            }>
             <Component />
         </Link>
     );

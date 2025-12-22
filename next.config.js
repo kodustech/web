@@ -15,6 +15,7 @@ const nextConfig = {
     eslint: {
         ignoreDuringBuilds: true,
     },
+    skipTrailingSlashRedirect: true,
     experimental: {
         authInterrupts: true,
     },
@@ -77,6 +78,14 @@ const nextConfig = {
     },
     async rewrites() {
         return [
+            {
+                source: "/ingest/static/:path*",
+                destination: "https://us-assets.i.posthog.com/static/:path*",
+            },
+            {
+                source: "/ingest/:path*",
+                destination: "https://us.i.posthog.com/:path*",
+            },
             {
                 source: "/setup/teams/configuration",
                 destination: "/setup/configuration/teams",
@@ -142,6 +151,11 @@ const nextConfig = {
         WEB_TOKEN_DOCS_GITLAB: process.env.WEB_TOKEN_DOCS_GITLAB,
         WEB_TOKEN_DOCS_BITBUCKET: process.env.WEB_TOKEN_DOCS_BITBUCKET,
         WEB_TOKEN_DOCS_AZUREREPOS: process.env.WEB_TOKEN_DOCS_AZUREREPOS,
+        WEB_POSTHOG_KEY: process.env.WEB_POSTHOG_KEY,
+        NEXT_PUBLIC_POSTHOG_KEY:
+            process.env.NEXT_PUBLIC_POSTHOG_KEY ||
+            process.env.WEB_POSTHOG_KEY,
+        NEXT_PUBLIC_POSTHOG_HOST: process.env.NEXT_PUBLIC_POSTHOG_HOST,
 
         WEB_HOSTNAME_MCP_MANAGER: process.env.WEB_HOSTNAME_MCP_MANAGER,
         WEB_PORT_MCP_MANAGER: process.env.WEB_PORT_MCP_MANAGER,

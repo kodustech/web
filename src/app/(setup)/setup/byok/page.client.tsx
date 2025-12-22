@@ -30,8 +30,11 @@ import {
 } from "src/features/ee/byok/_components/_modals/edit-key/_types";
 
 import { StepIndicators } from "../_components/step-indicators";
+import { useTrackSetupStep } from "../_hooks/use-track-setup-step";
 
 export const SetupByokPage = () => {
+    useTrackSetupStep();
+
     const router = useRouter();
     const byokConfig = useSuspenseGetBYOK();
 

@@ -3,14 +3,14 @@ import { finishOnboarding } from "@services/codeManagement/fetch";
 import { useSuspenseGetBYOK } from "@services/organizationParameters/hooks";
 import { waitFor } from "src/core/utils/helpers";
 import { revalidateServerSideTag } from "src/core/utils/revalidate-server-side";
-import { captureSegmentEvent } from "src/core/utils/segment";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 import { isSelfHosted } from "src/core/utils/self-hosted";
 
 import { startTeamTrial } from "../../subscription/_services/billing/fetch";
 
 export const useFinishOnboardingWithoutSelectingPR = ({
     teamId,
-    userId,
+    userId: _userId,
     organizationId,
 }: {
     teamId: string;
@@ -27,8 +27,7 @@ export const useFinishOnboardingWithoutSelectingPR = ({
         await finishOnboarding({ teamId, reviewPR: false });
         await revalidateServerSideTag("team-dependent");
 
-        captureSegmentEvent({
-            userId: userId!,
+        capturePosthogEvent({
             event: "skip_first_review",
             properties: { teamId },
         });

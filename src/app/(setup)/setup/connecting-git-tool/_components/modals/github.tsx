@@ -20,7 +20,7 @@ import {
     DialogTitle,
 } from "src/core/components/ui/dialog";
 import { AuthMode, PlatformType } from "src/core/types";
-import { captureSegmentEvent } from "src/core/utils/segment";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 import { z } from "zod";
 
 const tokenFormSchema = z.object({
@@ -35,7 +35,6 @@ function getUsernameFromEmail(email: string): string {
 
 export const GithubTokenModal = (props: {
     teamId: string;
-    userId: string;
     userEmail: string;
 }) => {
     const form = useForm({
@@ -59,8 +58,7 @@ export const GithubTokenModal = (props: {
                 },
             });
 
-            await captureSegmentEvent({
-                userId: props?.userId!,
+            capturePosthogEvent({
                 event: "setup_git_integration_success",
                 properties: {
                     platform: "github",

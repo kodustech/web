@@ -21,7 +21,7 @@ import {
     DialogTitle,
 } from "src/core/components/ui/dialog";
 import { AuthMode, PlatformType } from "src/core/types";
-import { captureSegmentEvent } from "src/core/utils/segment";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 import { isSelfHosted } from "src/core/utils/self-hosted";
 import { z } from "zod";
 
@@ -43,7 +43,6 @@ function getUsernameFromEmail(email: string): string {
 
 export const BitbucketTokenModal = (props: {
     teamId: string;
-    userId: string;
     userEmail: string;
 }) => {
     const router = useRouter();
@@ -76,8 +75,7 @@ export const BitbucketTokenModal = (props: {
                 email: data.email,
             });
 
-            await captureSegmentEvent({
-                userId: props?.userId!,
+            capturePosthogEvent({
                 event: "setup_git_integration_success",
                 properties: {
                     platform: "bitbucket",

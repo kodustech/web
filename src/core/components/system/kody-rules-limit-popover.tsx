@@ -1,7 +1,10 @@
+"use client";
+
 import { Button } from "@components/ui/button";
 import { Link } from "@components/ui/link";
 import { Popover, PopoverContent } from "@components/ui/popover";
 import { ArrowRightIcon } from "lucide-react";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 
 export const KodyRulesLimitPopover = ({
     children,
@@ -40,7 +43,13 @@ export const KodyRulesLimitPopover = ({
                         decorative
                         size="xs"
                         variant="primary"
-                        rightIcon={<ArrowRightIcon />}>
+                        rightIcon={<ArrowRightIcon />}
+                        onClick={() => {
+                            capturePosthogEvent({
+                                event: "upgrade_clicked",
+                                properties: { feature: "kody_rules_limit" },
+                            });
+                        }}>
                         Upgrade plan
                     </Button>
                 </Link>

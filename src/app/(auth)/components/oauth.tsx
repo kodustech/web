@@ -5,6 +5,7 @@ import { Button } from "@components/ui/button";
 import { SvgGithub } from "@components/ui/icons/SvgGithub";
 import { SvgGitlab } from "@components/ui/icons/SvgGitlab";
 import { signIn } from "next-auth/react";
+import { queuePosthogAuthEvent } from "src/core/utils/posthog-client";
 import { AuthProviders } from "src/lib/auth/types";
 
 export const OAuthButtons = ({ isSignUp = false }: { isSignUp?: boolean }) => {
@@ -13,6 +14,11 @@ export const OAuthButtons = ({ isSignUp = false }: { isSignUp?: boolean }) => {
     if (isSignUp) callbackUrl = "/setup";
 
     const handleProviderLogin = async (provider: AuthProviders) => {
+        queuePosthogAuthEvent(
+            isSignUp ? "signup" : "login",
+            `oauth_${provider}`,
+        );
+
         await signIn(provider, {
             redirect: true,
             redirectTo: callbackUrl ?? (isSignUp ? "/setup" : "/"),

@@ -11,8 +11,11 @@ import { ArrowLeftIcon } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 
 import { StepIndicators } from "../_components/step-indicators";
+import { useTrackSetupStep } from "../_hooks/use-track-setup-step";
 
 export default function App() {
+    useTrackSetupStep();
+
     const router = useRouter();
     const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);

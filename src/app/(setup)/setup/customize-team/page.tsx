@@ -19,6 +19,7 @@ import { cn } from "src/core/utils/components";
 import { useFetch } from "src/core/utils/reactQuery";
 
 import { StepIndicators } from "../_components/step-indicators";
+import { useTrackSetupStep } from "../_hooks/use-track-setup-step";
 
 const KodyRuleCard = ({
     rule,
@@ -71,6 +72,8 @@ const KodyRuleCard = ({
 };
 
 export default function CustomizeTeamPage() {
+    useTrackSetupStep();
+
     const router = useRouter();
     const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);

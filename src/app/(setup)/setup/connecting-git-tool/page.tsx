@@ -19,11 +19,12 @@ import integrationFactory from "src/core/integrations/integrationFactory";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { ClientSideCookieHelpers } from "src/core/utils/cookie";
-import { captureSegmentEvent } from "src/core/utils/segment";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 import { isSelfHosted } from "src/core/utils/self-hosted";
 
 import { StepIndicators } from "../_components/step-indicators";
 import { useGoToStep } from "../_hooks/use-goto-step";
+import { useTrackSetupStep } from "../_hooks/use-track-setup-step";
 import { AzureReposTokenModal } from "./_components/modals/azure-repos";
 import { BitbucketTokenModal } from "./_components/modals/bitbucket";
 import { GithubTokenModal } from "./_components/modals/github";
@@ -31,11 +32,12 @@ import { GitlabTokenModal } from "./_components/modals/gitlab";
 
 export default function App() {
     useGoToStep();
+    useTrackSetupStep();
 
     const router = useRouter();
     const pathname = usePathname();
     const { teamId } = useSelectedTeamId();
-    const { userId, email } = useAuth();
+    const { email } = useAuth();
     const nextStepPath = isSelfHosted
         ? "/setup/byok"
         : "/setup/choosing-repositories";
@@ -48,10 +50,9 @@ export default function App() {
                 "true",
             );
 
-            await captureSegmentEvent({
-                userId: userId!,
+            capturePosthogEvent({
                 event: "try_setup_git_integration",
-                properties: { platform: key, method: "token" },
+                properties: { platform: key, method: "oauth" },
             });
 
             await integrationFactory.getConnector(key)?.connect(false, {
@@ -178,8 +179,7 @@ export default function App() {
                                 variant="helper"
                                 className="w-full"
                                 onClick={async () => {
-                                    captureSegmentEvent({
-                                        userId: userId!,
+                                    capturePosthogEvent({
                                         event: "try_setup_git_integration",
                                         properties: {
                                             platform: "github",
@@ -191,7 +191,6 @@ export default function App() {
                                         await magicModal.show<true>(() => (
                                             <GithubTokenModal
                                                 teamId={teamId}
-                                                userId={userId!}
                                                 userEmail={email}
                                             />
                                         ));
@@ -233,8 +232,7 @@ export default function App() {
                                 variant="helper"
                                 className="w-full"
                                 onClick={async () => {
-                                    captureSegmentEvent({
-                                        userId: userId!,
+                                    capturePosthogEvent({
                                         event: "try_setup_git_integration",
                                         properties: {
                                             platform: "gitlab",
@@ -246,7 +244,6 @@ export default function App() {
                                         await magicModal.show<true>(() => (
                                             <GitlabTokenModal
                                                 teamId={teamId}
-                                                userId={userId!}
                                                 userEmail={email}
                                             />
                                         ));
@@ -267,8 +264,7 @@ export default function App() {
                                 variant="primary"
                                 className="w-full"
                                 onClick={() => {
-                                    captureSegmentEvent({
-                                        userId: userId!,
+                                    capturePosthogEvent({
                                         event: "try_setup_git_integration",
                                         properties: {
                                             platform: "bitbucket",
@@ -279,7 +275,6 @@ export default function App() {
                                     magicModal.show(() => (
                                         <BitbucketTokenModal
                                             teamId={teamId}
-                                            userId={userId!}
                                             userEmail={email}
                                         />
                                     ));
@@ -296,8 +291,7 @@ export default function App() {
                                 variant="primary"
                                 className="w-full"
                                 onClick={() => {
-                                    captureSegmentEvent({
-                                        userId: userId!,
+                                    capturePosthogEvent({
                                         event: "try_setup_git_integration",
                                         properties: {
                                             platform: "azure_repos",
@@ -308,7 +302,6 @@ export default function App() {
                                     magicModal.show(() => (
                                         <AzureReposTokenModal
                                             teamId={teamId}
-                                            userId={userId!}
                                             userEmail={email}
                                         />
                                     ));

@@ -26,6 +26,7 @@ import {
 } from "react-hook-form";
 import type { TODO } from "src/core/types";
 import { cn } from "src/core/utils/components";
+import { queuePosthogAuthEvent } from "src/core/utils/posthog-client";
 import { checkForEmailExistence, registerUser } from "src/lib/auth/fetchers";
 import { z } from "zod";
 
@@ -163,6 +164,7 @@ const WithEmail = () => {
             const { name, password, email } = data;
 
             await registerUser({ name, email, password });
+            queuePosthogAuthEvent("signup", "email");
 
             await signIn("credentials", {
                 email,

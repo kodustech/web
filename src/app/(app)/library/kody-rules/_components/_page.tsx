@@ -38,6 +38,8 @@ import type {
     KodyRuleBucket,
     LibraryRule,
 } from "@services/kodyRules/types";
+import { useEffectOnce } from "@hooks/use-effect-once";
+import { capturePosthogEvent } from "src/core/utils/posthog-client";
 import { Check, ChevronsUpDown, SearchIcon, SparklesIcon } from "lucide-react";
 import { ProgrammingLanguage } from "src/core/enums/programming-language";
 import { cn } from "src/core/utils/components";
@@ -233,6 +235,13 @@ export const KodyRulesLibrary = ({
     };
     showSuggestionsButton?: boolean;
 }) => {
+    useEffectOnce(() => {
+        capturePosthogEvent({
+            event: "main_screen_viewed",
+            properties: { screen: "library_rules" },
+        });
+    });
+
     const router = useRouter();
 
     const [viewMode, setViewMode] = useState<ViewMode>(() => {
@@ -326,6 +335,23 @@ export const KodyRulesLibrary = ({
             }),
         [filters.needMCPS, filters.plug_and_play, filters.tags],
     );
+    const lastFilterSnapshotRef = useRef<
+        | {
+              query?: string;
+              query_length: number;
+              has_query: boolean;
+              severity?: FindLibraryKodyRulesFilters["severity"];
+              language?: FindLibraryKodyRulesFilters["language"];
+              tags?: string[];
+              plug_and_play: boolean;
+              need_mcps: boolean;
+              required_mcp?: string;
+              bucket?: string | null;
+              type_value?: string;
+              view_mode: ViewMode;
+          }
+        | null
+    >(null);
 
     const initialBrowseResultsAlreadyLoadedRef = useRef(
         Boolean(initialSelectedBucket) &&
@@ -334,6 +360,65 @@ export const KodyRulesLibrary = ({
             !filters.severity &&
             !filters.language,
     );
+
+    const buildFilterSnapshot = useCallback(() => {
+        const normalizedQuery = debouncedNameFilter.trim();
+        const tags = filters.tags ? [...filters.tags].sort() : undefined;
+
+        return {
+            query: normalizedQuery || undefined,
+            query_length: normalizedQuery.length,
+            has_query: Boolean(normalizedQuery),
+            severity: filters.severity,
+            language: filters.language,
+            tags,
+            plug_and_play: Boolean(filters.plug_and_play),
+            need_mcps: Boolean(filters.needMCPS),
+            required_mcp: filters.requiredMcp || undefined,
+            bucket: selectedBucket,
+            type_value: selectedTypeValue,
+            view_mode: viewMode,
+        };
+    }, [
+        debouncedNameFilter,
+        filters.language,
+        filters.needMCPS,
+        filters.plug_and_play,
+        filters.requiredMcp,
+        filters.severity,
+        filters.tags,
+        selectedBucket,
+        selectedTypeValue,
+        viewMode,
+    ]);
+
+    useEffect(() => {
+        const nextSnapshot = buildFilterSnapshot();
+        const prevSnapshot = lastFilterSnapshotRef.current;
+
+        if (!prevSnapshot) {
+            lastFilterSnapshotRef.current = nextSnapshot;
+            return;
+        }
+
+        const changedKeys = Object.keys(nextSnapshot).filter((key) => {
+            const prevValue = prevSnapshot[key as keyof typeof prevSnapshot];
+            const nextValue = nextSnapshot[key as keyof typeof nextSnapshot];
+            return JSON.stringify(prevValue) !== JSON.stringify(nextValue);
+        });
+
+        if (changedKeys.length === 0) return;
+
+        capturePosthogEvent({
+            event: "library_rules_filter_changed",
+            properties: {
+                ...nextSnapshot,
+                changed_keys: changedKeys,
+            },
+        });
+
+        lastFilterSnapshotRef.current = nextSnapshot;
+    }, [buildFilterSnapshot]);
 
     const fetchResultsPage = useCallback(
         async (page: number) => {
