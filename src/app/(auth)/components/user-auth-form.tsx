@@ -46,7 +46,7 @@ export function UserAuthForm() {
     } | null>(null);
 
     const isError = searchParams?.has("error") ?? false;
-    
+
     const getReasonMessage = () => {
         switch (reason) {
             case "removed":
@@ -57,7 +57,7 @@ export function UserAuthForm() {
                 return null;
         }
     };
-    
+
     const reasonMessage = getReasonMessage();
 
     useEffect(() => {
@@ -90,17 +90,20 @@ export function UserAuthForm() {
         }
     }, []);
 
-    const handleEmailStep = useCallback(async (email: string) => {
-        setIsCheckingSSO(true);
-        const ssoResponse = await checkSsoAvailability(email);
-        setIsCheckingSSO(false);
+    const handleEmailStep = useCallback(
+        async (email: string) => {
+            setIsCheckingSSO(true);
+            const ssoResponse = await checkSsoAvailability(email);
+            setIsCheckingSSO(false);
 
-        if (ssoResponse?.active && ssoResponse.organizationId) {
-            setStep("sso-choice");
-        } else {
-            setStep("password");
-        }
-    }, [checkSsoAvailability]);
+            if (ssoResponse?.active && ssoResponse.organizationId) {
+                setStep("sso-choice");
+            } else {
+                setStep("password");
+            }
+        },
+        [checkSsoAvailability],
+    );
 
     const handleSsoLogin = useCallback(async () => {
         if (ssoAvailable?.organizationId) {
@@ -110,30 +113,33 @@ export function UserAuthForm() {
         }
     }, [ssoAvailable]);
 
-    const handlePasswordLogin = useCallback(async (email: string, password: string) => {
-        setIsSubmitting(true);
-        await signIn("credentials", {
-            email,
-            password,
-            redirect: true,
-            redirectTo: callbackUrl ?? "/",
-        });
-        setIsSubmitting(false);
-    }, [callbackUrl]);
+    const handlePasswordLogin = useCallback(
+        async (email: string, password: string) => {
+            setIsSubmitting(true);
+            await signIn("credentials", {
+                email,
+                password,
+                redirect: true,
+                redirectTo: callbackUrl ?? "/",
+            });
+            setIsSubmitting(false);
+        },
+        [callbackUrl],
+    );
 
     const handleSubmit = async (e: { preventDefault: () => void }) => {
         e.preventDefault();
-        
+
         if (step === "email") {
             const isValid = await form.trigger("email");
             if (!isValid) return;
-            
+
             const email = form.getValues("email");
             await handleEmailStep(email);
         } else if (step === "password") {
             const isValid = await form.trigger();
             if (!isValid) return;
-            
+
             const { email, password } = form.getValues();
             await handlePasswordLogin(email, password);
         }
@@ -147,9 +153,7 @@ export function UserAuthForm() {
     }, [form]);
 
     return (
-        <form
-            onSubmit={handleSubmit}
-            className="grid w-full gap-6">
+        <form onSubmit={handleSubmit} className="grid w-full gap-6">
             {reasonMessage && (
                 <Card className="bg-danger/10 text-sm">
                     <CardHeader className="flex-row items-center gap-4">
@@ -158,7 +162,7 @@ export function UserAuthForm() {
                     </CardHeader>
                 </Card>
             )}
-            
+
             {isError && !reasonMessage && (
                 <Card className="bg-warning/10 text-sm">
                     <CardHeader className="flex-row items-center gap-4">
@@ -186,7 +190,11 @@ export function UserAuthForm() {
                                 error={fieldState.error}
                                 autoCapitalize="none"
                                 autoCorrect="off"
-                                disabled={isSubmitting || isCheckingSSO || step !== "email"}
+                                disabled={
+                                    isSubmitting ||
+                                    isCheckingSSO ||
+                                    step !== "email"
+                                }
                                 rightIcon={
                                     step !== "email" ? (
                                         <Button
@@ -208,12 +216,13 @@ export function UserAuthForm() {
                 )}
             />
 
-            {/* Step 2: SSO Choice Screen */}
+            {/* Step 2: SSO */}
             {step === "sso-choice" && (
                 <div className="animate-in fade-in slide-in-from-top-2 space-y-4">
                     <div className="bg-muted text-muted-foreground rounded-md p-4 text-sm">
                         Single Sign-On is available for{" "}
-                        <strong>{form.getValues("email").split("@")[1]}</strong>.
+                        <strong>{form.getValues("email").split("@")[1]}</strong>
+                        .
                     </div>
 
                     <Button
@@ -226,27 +235,6 @@ export function UserAuthForm() {
                         rightIcon={<ArrowRight />}
                         loading={isSubmitting}>
                         Continue with SSO
-                    </Button>
-
-                    <div className="relative my-2">
-                        <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-background text-muted-foreground px-2">
-                                Or
-                            </span>
-                        </div>
-                    </div>
-
-                    <Button
-                        type="button"
-                        variant="helper"
-                        size="lg"
-                        className="w-full"
-                        onClick={() => setStep("password")}
-                        disabled={isSubmitting}>
-                        Sign in with password
                     </Button>
                 </div>
             )}
