@@ -15,8 +15,7 @@ import { type LiteralUnion } from "../types";
 import { isSelfHosted } from "../utils/self-hosted";
 import { isServerSide } from "./server-side";
 
-const containerName =
-    process.env.GLOBAL_API_CONTAINER_NAME || "kodus-orchestrator";
+const containerName = process.env.GLOBAL_API_CONTAINER_NAME || "kodus_api";
 
 export function pathToApiUrl(
     path: ApiRoute | string,

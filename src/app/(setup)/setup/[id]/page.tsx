@@ -41,6 +41,7 @@ export default function Redirect() {
 
     const [inputText, setInputText] = useState<string>("");
     const [error, setError] = useState<boolean>(false);
+    const [hasMounted, setHasMounted] = useState(false);
     const searchParams = useSearchParams();
 
     const { data: organizationName } = useGetGithubOrganizationName();
@@ -64,6 +65,10 @@ export default function Redirect() {
         ClientSideCookieHelpers("started-setup-from-new-setup-page").delete();
     });
 
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
+
     const code = searchParams.get("code");
     const installationId = searchParams.get("installation_id");
 
@@ -79,12 +84,12 @@ export default function Redirect() {
     }, [params]);
 
     useEffect(() => {
-        if (typeof window !== "undefined") {
+        if (hasMounted) {
             const selectedTeamCookie = getCookie("selectedTeam") as any;
             const savedTeam =
                 selectedTeamCookie &&
-                selectedTeamCookie !== "undefined" &&
-                selectedTeamCookie !== ""
+                    selectedTeamCookie !== "undefined" &&
+                    selectedTeamCookie !== ""
                     ? (JSON.parse(selectedTeamCookie) as any)
                     : null;
 
@@ -109,7 +114,15 @@ export default function Redirect() {
                 newIntegration();
             }
         }
-    }, [teamId, code, installationId, integration, router, organizationId]);
+    }, [
+        teamId,
+        code,
+        installationId,
+        integration,
+        router,
+        organizationId,
+        hasMounted,
+    ]);
 
     useEffect(() => {
         if (organizationName) {
@@ -183,11 +196,11 @@ export default function Redirect() {
         switch (integration) {
             case INTEGRATIONS_KEY.GITHUB: {
                 switch (
-                    (
-                        integrationResponse as Awaited<
-                            ReturnType<typeof createCodeManagementIntegration>
-                        >
-                    ).data.status
+                (
+                    integrationResponse as Awaited<
+                        ReturnType<typeof createCodeManagementIntegration>
+                    >
+                ).data.status
                 ) {
                     case "SUCCESS": {
                         await redirectToConfiguration(
@@ -244,11 +257,11 @@ export default function Redirect() {
 
             case INTEGRATIONS_KEY.GITLAB: {
                 switch (
-                    (
-                        integrationResponse as Awaited<
-                            ReturnType<typeof createCodeManagementIntegration>
-                        >
-                    ).data.status
+                (
+                    integrationResponse as Awaited<
+                        ReturnType<typeof createCodeManagementIntegration>
+                    >
+                ).data.status
                 ) {
                     case "SUCCESS": {
                         await redirectToConfiguration(
@@ -322,6 +335,14 @@ export default function Redirect() {
         newIntegration();
         setShowConfirmation(false);
     };
+
+    if (!hasMounted) {
+        return (
+            <div className="flex h-screen w-screen items-center justify-center">
+                <Spinner />
+            </div>
+        );
+    }
 
     const cancelIntegration = () => {
         setShowConfirmation(false);
