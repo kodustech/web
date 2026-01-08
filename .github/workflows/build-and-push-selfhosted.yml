@@ -43,7 +43,7 @@ jobs:
                   echo WEB_ANALYTICS_HOSTNAME= >> .env
                   echo WEB_ANALYTICS_SECRET= >> .env
                   echo WEB_SUPPORT_DOCS_URL="https://docs.kodus.io" >> .env
-                  echo WEB_SUPPORT_DISCORD_INVITE_URL="https://discord.gg/CceCdAke" >> .env
+                  echo WEB_SUPPORT_DISCORD_INVITE_URL="https://discord.gg/QFzwwmNmdN" >> .env
                   echo WEB_SUPPORT_TALK_TO_FOUNDER_URL="https://cal.com/gabrielmalinosqui/30min" >> .env
                   echo WEB_TOKEN_DOCS_GITHUB=https://docs.kodus.io/how_to_use/en/code_review/general_config/github_pat >> .env
                   echo WEB_TOKEN_DOCS_GITLAB=https://docs.kodus.io/how_to_use/en/code_review/general_config/gitlab_pat >> .env
