@@ -25,10 +25,10 @@ export default async function Route({
 
     const teamId = await getGlobalSelectedTeamId();
 
-    const [buckets, orgLanguage] = await Promise.all([
+    const [buckets, orgLanguage] = (await Promise.all([
         getLibraryKodyRulesBuckets(),
         getOrganizationLanguage(teamId),
-    ]);
+    ])) || [[], undefined];
     const previewBuckets = [...buckets]
         .sort((a, b) => b.rulesCount - a.rulesCount)
         .slice(0, BUCKETS_PREVIEW_COUNT);
@@ -36,17 +36,17 @@ export default async function Route({
     const [bucketRulesResponse, bucketPreviews] = await Promise.all([
         params.bucket
             ? getLibraryKodyRulesWithFeedback({
-                  page: 1,
-                  limit: 48,
-                  buckets: [params.bucket],
-                  plug_and_play: initialPlugAndPlay || undefined,
-                  needMCPS: initialNeedMCPS || undefined,
-                  debugLabel: initialNeedMCPS
-                      ? "server:browse:bucket:needMCPS"
-                      : initialPlugAndPlay
+                page: 1,
+                limit: 48,
+                buckets: [params.bucket],
+                plug_and_play: initialPlugAndPlay || undefined,
+                needMCPS: initialNeedMCPS || undefined,
+                debugLabel: initialNeedMCPS
+                    ? "server:browse:bucket:needMCPS"
+                    : initialPlugAndPlay
                         ? "server:browse:bucket:plug_and_play"
                         : undefined,
-              })
+            })
             : Promise.resolve(null),
         Promise.all(
             previewBuckets.map(async (bucket) => {
