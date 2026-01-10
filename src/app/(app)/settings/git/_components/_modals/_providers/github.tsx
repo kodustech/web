@@ -75,6 +75,14 @@ export const GithubModal = (props: Props) => {
                     </TabsList>
 
                     <TabsContent value="oauth">
+                        <Alert variant="info" className="mb-4">
+                            <Info />
+                            <AlertTitle>Recommended</AlertTitle>
+                            <AlertDescription>
+                                OAuth provides full integration, including
+                                automatic PR checks and status updates.
+                            </AlertDescription>
+                        </Alert>
                         <DialogFooter>
                             <Button
                                 size="md"
@@ -93,8 +101,16 @@ export const GithubModal = (props: Props) => {
                                 <Info />
                                 <AlertTitle>Heads up!</AlertTitle>
                                 <AlertDescription>
-                                    Unlike OAuth, reviews will be published
-                                    using your profile - not Kody's.
+                                    <div className="flex flex-col gap-1">
+                                        <span>
+                                            Unlike OAuth, reviews will be published using
+                                            your profile - not Kody's.
+                                        </span>
+                                        <span className="font-semibold text-destructive">
+                                            GitHub Checks/PR status won't be
+                                            available with PAT tokens.
+                                        </span>
+                                    </div>
                                 </AlertDescription>
                             </Alert>
 
