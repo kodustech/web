@@ -95,8 +95,8 @@ export const GetStartedSidebarButton = () => {
         if (!isVisible) return;
 
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Cmd/Ctrl + Shift + G
-            if ((e.metaKey || e.ctrlKey) && e.altKey && e.key === "G") {
+            // Cmd/Ctrl + Alt/Option + G
+            if ((e.metaKey || e.ctrlKey) && e.altKey && e.code === "KeyG") {
                 e.preventDefault();
                 document
                     .querySelector<HTMLButtonElement>(
@@ -177,7 +177,7 @@ export const GetStartedSidebarButton = () => {
                         <div className="flex flex-col gap-1">
                             <span className="font-semibold">Get Started</span>
                             <span className="text-text-tertiary text-[11px]">
-                                ⌘⇧G
+                                ⌘⌥G
                             </span>
                             {value < MAX && (
                                 <span className="text-text-tertiary text-[11px]">

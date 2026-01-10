@@ -1,30 +1,25 @@
 "use client";
 
-import { GetStartedSidebarButton } from "@components/system/get-started-sidebar-button";
 import {
     RightSidebar,
     RightSidebarItem,
 } from "@components/system/right-sidebar";
 import { SupportSidebarButton } from "@components/system/support-sidebar-button";
 
-import { PreviewSidebarButton } from "./settings/code-review/_components/preview-sidebar-button";
+import { TestReviewSidebarButton } from "./settings/code-review/_components/preview-sidebar-button";
 
 interface AppRightSidebarProps {
-    showPreview?: boolean;
+    showTestReview?: boolean;
 }
 
-export const AppRightSidebar = ({ showPreview }: AppRightSidebarProps) => {
+export const AppRightSidebar = ({ showTestReview }: AppRightSidebarProps) => {
     return (
         <RightSidebar>
-            {showPreview && (
+            {showTestReview && (
                 <RightSidebarItem>
-                    <PreviewSidebarButton />
+                    <TestReviewSidebarButton />
                 </RightSidebarItem>
             )}
-
-            <RightSidebarItem>
-                <GetStartedSidebarButton />
-            </RightSidebarItem>
 
             <RightSidebarItem>
                 <SupportSidebarButton />

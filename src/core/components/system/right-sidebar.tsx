@@ -11,13 +11,13 @@ export const RightSidebar = ({ children }: RightSidebarProps) => {
         <aside
             className={cn(
                 "fixed right-0 top-0 bottom-0 z-50",
-                "flex h-screen flex-col items-center justify-center",
+                "flex h-screen flex-col items-center justify-start",
                 "bg-background-secondary border-l border-border-primary",
                 "gap-1 py-4",
                 "w-[60px]",
                 "pointer-events-none",
             )}>
-            <div className="flex flex-col items-center justify-center gap-1 pointer-events-auto">
+            <div className="flex flex-col items-center gap-1 pointer-events-auto">
                 {children}
             </div>
         </aside>

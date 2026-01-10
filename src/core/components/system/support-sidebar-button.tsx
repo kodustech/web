@@ -21,10 +21,12 @@ import { cn } from "src/core/utils/components";
 export const SupportSidebarButton = () => {
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Cmd/Ctrl + Shift + H (Help)
-            if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "H") {
+            // Cmd/Ctrl + Alt/Option + H (Help)
+            if ((e.metaKey || e.ctrlKey) && e.altKey && e.code === "KeyH") {
                 e.preventDefault();
-                document.querySelector<HTMLButtonElement>('[data-support-button]')?.click();
+                document
+                    .querySelector<HTMLButtonElement>("[data-support-button]")
+                    ?.click();
             }
         };
 
@@ -60,7 +62,7 @@ export const SupportSidebarButton = () => {
                         <div className="flex flex-col gap-1">
                             <span className="font-semibold">Support</span>
                             <span className="text-text-tertiary text-[11px]">
-                                ⌘⇧H
+                                ⌘⌥H
                             </span>
                         </div>
                     </TooltipContent>

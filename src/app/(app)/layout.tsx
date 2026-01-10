@@ -112,7 +112,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
                 {children}
 
                 <AppRightSidebar
-                    showPreview={
+                    showTestReview={
                         !!codeReviewDryRunFeatureFlag && canManageCodeReview
                     }
                 />
