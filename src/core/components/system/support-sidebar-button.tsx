@@ -1,0 +1,111 @@
+"use client";
+
+import { useEffect } from "react";
+import NextLink from "next/link";
+import { SvgDiscord } from "@components/ui/icons/SvgDiscord";
+import { SvgFounder } from "@components/ui/icons/SvgFounder";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@components/ui/popover";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@components/ui/tooltip";
+import { FileTextIcon, LifeBuoy } from "lucide-react";
+import { cn } from "src/core/utils/components";
+
+export const SupportSidebarButton = () => {
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Cmd/Ctrl + Shift + H (Help)
+            if ((e.metaKey || e.ctrlKey) && e.shiftKey && e.key === "H") {
+                e.preventDefault();
+                document.querySelector<HTMLButtonElement>('[data-support-button]')?.click();
+            }
+        };
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, []);
+
+    return (
+        <Popover>
+            <TooltipProvider>
+                <Tooltip delayDuration={300}>
+                    <TooltipTrigger asChild>
+                        <PopoverTrigger asChild>
+                            <button
+                                data-support-button
+                                className={cn(
+                                    "group relative flex flex-col items-center justify-center",
+                                    "w-full py-4 px-2",
+                                    "text-text-tertiary hover:text-text-primary",
+                                    "hover:bg-background-tertiary transition-all duration-200",
+                                    "cursor-pointer border-0 bg-transparent",
+                                )}>
+                                <LifeBuoy className="size-5 mb-2" />
+                                <span
+                                    className="text-sm font-medium tracking-tight leading-tight"
+                                    style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}>
+                                    Support
+                                </span>
+                            </button>
+                        </PopoverTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent side="left" sideOffset={10}>
+                        <div className="flex flex-col gap-1">
+                            <span className="font-semibold">Support</span>
+                            <span className="text-text-tertiary text-[11px]">
+                                ⌘⇧H
+                            </span>
+                        </div>
+                    </TooltipContent>
+                </Tooltip>
+            </TooltipProvider>
+
+            <PopoverContent align="end" side="left" sideOffset={10} className="w-52 p-0">
+                <div className="flex flex-col">
+                    <NextLink
+                        target="_blank"
+                        href={process.env.NEXT_PUBLIC_WEB_SUPPORT_DOCS_URL ?? process.env.WEB_SUPPORT_DOCS_URL ?? ""}
+                        className={cn(
+                            "flex items-center gap-3 px-4 py-3",
+                            "text-text-secondary hover:text-text-primary hover:bg-background-tertiary",
+                            "transition-colors cursor-pointer border-b border-border-primary",
+                        )}>
+                        <FileTextIcon className="size-4" />
+                        <span className="text-sm">View docs</span>
+                    </NextLink>
+
+                    <NextLink
+                        target="_blank"
+                        href={process.env.NEXT_PUBLIC_WEB_SUPPORT_DISCORD_INVITE_URL ?? process.env.WEB_SUPPORT_DISCORD_INVITE_URL ?? ""}
+                        className={cn(
+                            "flex items-center gap-3 px-4 py-3",
+                            "text-text-secondary hover:text-text-primary hover:bg-background-tertiary",
+                            "transition-colors cursor-pointer border-b border-border-primary",
+                        )}>
+                        <SvgDiscord className="size-4" />
+                        <span className="text-md">Our Discord</span>
+                    </NextLink>
+
+                    <NextLink
+                        target="_blank"
+                        href={process.env.NEXT_PUBLIC_WEB_SUPPORT_TALK_TO_FOUNDER_URL ?? process.env.WEB_SUPPORT_TALK_TO_FOUNDER_URL ?? ""}
+                        className={cn(
+                            "flex items-center gap-3 px-4 py-3",
+                            "text-text-secondary hover:text-text-primary hover:bg-background-tertiary",
+                            "transition-colors cursor-pointer",
+                        )}>
+                        <SvgFounder className="size-4" />
+                        <span className="text-sm">Talk to a Founder</span>
+                    </NextLink>
+                </div>
+            </PopoverContent>
+        </Popover>
+    );
+};
