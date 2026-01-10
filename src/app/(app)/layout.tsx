@@ -7,6 +7,7 @@ import {
 import { getTeamParametersNoCache } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { getPermissions } from "@services/permissions/fetch";
+import { Action, ResourceType } from "@services/permissions/types";
 import { getTeams } from "@services/teams/fetch";
 import { auth } from "src/core/config/auth";
 import { FEATURE_FLAGS } from "src/core/config/feature-flags";
@@ -25,6 +26,7 @@ import {
 } from "src/features/ee/subscription/_services/billing/fetch";
 
 import { Providers } from "./providers";
+import { AppRightSidebar } from "./right-sidebar";
 
 export default async function Layout({ children }: React.PropsWithChildren) {
     const session = await auth();
@@ -68,6 +70,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         usersWithAssignedLicense,
         tokenUsagePageFeatureFlag,
         byokConfig,
+        codeReviewDryRunFeatureFlag,
     ] = await Promise.all([
         getPermissions(),
         getOrganizationName(),
@@ -75,10 +78,14 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         getUsersWithLicense({ teamId }),
         getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.tokenUsagePage }),
         getBYOK(),
+        getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.codeReviewDryRun }),
     ]);
 
     const isBYOK = isBYOKSubscriptionPlan(organizationLicense);
     const isTrial = organizationLicense?.subscriptionStatus === "trial";
+
+    const canManageCodeReview =
+        !!permissions[ResourceType.CodeReviewSettings]?.[Action.Manage];
 
     return (
         <Providers
@@ -103,6 +110,12 @@ export default async function Layout({ children }: React.PropsWithChildren) {
                 {isBYOK && !byokConfig?.main && <BYOKMissingKeyTopbar />}
 
                 {children}
+
+                <AppRightSidebar
+                    showTestReview={
+                        !!codeReviewDryRunFeatureFlag && canManageCodeReview
+                    }
+                />
             </SubscriptionProvider>
         </Providers>
     );

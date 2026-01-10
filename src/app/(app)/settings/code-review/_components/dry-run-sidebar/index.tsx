@@ -17,7 +17,7 @@ import { getPrsByRepository } from "@services/codeManagement/fetch";
 import { executeDryRun } from "@services/dryRun/fetch";
 import { PREVIEW_JOB_ID_KEY, useDryRun } from "@services/dryRun/hooks";
 import { DryRunStatus, IDryRunData } from "@services/dryRun/types";
-import { Eye, Info, Loader2, RefreshCw } from "lucide-react";
+import { FlaskConical, Info, Loader2 } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { AwaitedReturnType } from "src/core/types";
 
@@ -92,7 +92,7 @@ export const DryRunSidebar = () => {
         teamId,
     });
 
-    const handleGeneratePreview = async () => {
+    const handleRunSimulation = async () => {
         setIsStarting(true);
         setCorrelationId(null);
 
@@ -111,8 +111,8 @@ export const DryRunSidebar = () => {
 
             toast({
                 variant: "warning",
-                title: "Failed to start preview",
-                description: "Failed to start preview. Please try again later.",
+                title: "Failed to start test",
+                description: "Failed to start test. Please try again later.",
             });
 
             return;
@@ -123,9 +123,9 @@ export const DryRunSidebar = () => {
 
             toast({
                 variant: "warning",
-                title: "Preview limit reached",
+                title: "Daily test limit reached",
                 description:
-                    "You have reached the maximum number of daily previews. Please try again later.",
+                    "You have reached the maximum number of daily tests. Please try again tomorrow.",
             });
 
             return;
@@ -154,12 +154,13 @@ export const DryRunSidebar = () => {
             <SheetHeader className="bg-card-lv1 p-4 drop-shadow-lg/50">
                 <div className="flex items-center gap-3">
                     <div className="text-primary-light bg-card-lv3 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-                        <Eye className="h-6 w-6" />
+                        <FlaskConical className="h-6 w-6" />
                     </div>
                     <div>
-                        <SheetTitle>Preview</SheetTitle>
+                        <SheetTitle>Test Review Settings</SheetTitle>
                         <SheetDescription>
-                            Preview code review results
+                            Run a real code review on a closed PR to validate
+                            your current configuration
                         </SheetDescription>
                     </div>
                 </div>
@@ -168,7 +169,13 @@ export const DryRunSidebar = () => {
             <div className="flex-1 overflow-y-auto">
                 <div className="space-y-6 p-4">
                     <div className="space-y-2">
-                        <Label htmlFor="pr-select">Select a Pull Request</Label>
+                        <Label htmlFor="pr-select">
+                            Select a closed Pull Request
+                        </Label>
+                        <p className="text-text-tertiary text-xs">
+                            Choose a merged or closed PR to test your review
+                            settings without affecting any open work.
+                        </p>
                         {isPrsLoading ? (
                             loadingPrs
                         ) : (
@@ -190,18 +197,18 @@ export const DryRunSidebar = () => {
                         size="lg"
                         variant="primary"
                         className="w-full font-semibold"
-                        onClick={handleGeneratePreview}
+                        onClick={handleRunSimulation}
                         disabled={isLoading || isPrsLoading}>
                         {isLoading ? (
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         ) : (
-                            <RefreshCw className="mr-2 h-4 w-4" />
+                            <FlaskConical className="mr-2 h-4 w-4" />
                         )}
                         {isLoading
                             ? status
                                 ? statusMap[status]
-                                : "Generating..."
-                            : "Generate Preview"}
+                                : "Running test..."
+                            : "Run Test"}
                     </Button>
 
                     <div className="relative flex items-center justify-center">
@@ -213,7 +220,7 @@ export const DryRunSidebar = () => {
 
                     <div className="space-y-2">
                         <Label htmlFor="history-select">
-                            Load a past preview
+                            Load a previous test
                         </Label>
                         <SelectHistoryItem
                             id="history-select"
@@ -256,8 +263,8 @@ export const DryRunSidebar = () => {
                 <div className="flex w-full items-center gap-2 text-sm">
                     <Info className="h-4 w-4 flex-shrink-0" />
                     <span>
-                        This is a preview. No changes will be made to the actual
-                        PR.
+                        This is a test run. No comments will be posted to the
+                        actual PR.
                     </span>
                 </div>
             </SheetFooter>

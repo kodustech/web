@@ -15,20 +15,14 @@ import { Spinner } from "@components/ui/spinner";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import {
+    FolderIcon,
     GaugeIcon,
     GitPullRequestIcon,
     InfoIcon,
-    SlidersHorizontalIcon,
-    FolderIcon,
     LibraryBig,
+    SlidersHorizontalIcon,
 } from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
-const UserNav = dynamic(
-    () => import("src/core/layout/navbar/_components/user-nav").then((f) => f.UserNav),
-    {
-        ssr: false,
-    },
-);
 import type { AwaitedReturnType } from "src/core/types";
 import { cn } from "src/core/utils/components";
 import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
@@ -36,7 +30,16 @@ import { SubscriptionBadge } from "src/features/ee/subscription/_components/subs
 import { useSubscriptionContext } from "src/features/ee/subscription/_providers/subscription-context";
 
 import { PendingRulesNotification } from "./_components/pending-rules-notification";
-import { SupportDropdown } from "./_components/support";
+
+const UserNav = dynamic(
+    () =>
+        import("src/core/layout/navbar/_components/user-nav").then(
+            (f) => f.UserNav,
+        ),
+    {
+        ssr: false,
+    },
+);
 
 const NoSSRIssuesCount = dynamic(
     () => import("./_components/issues-count").then((f) => f.IssuesCount),
@@ -93,33 +96,33 @@ export const NavMenu = ({
             badge?: React.JSX.Element;
             matcher?: (pathname: string) => boolean;
         }> = [
-                {
-                    label: "Cockpit",
-                    href: "/cockpit",
-                    visible:
-                        subscription.license.valid &&
-                        subscription.license.subscriptionStatus !== "self-hosted",
-                    icon: <GaugeIcon className="size-6" />,
-                },
+            {
+                label: "Cockpit",
+                href: "/cockpit",
+                visible:
+                    subscription.license.valid &&
+                    subscription.license.subscriptionStatus !== "self-hosted",
+                icon: <GaugeIcon className="size-6" />,
+            },
 
-                {
-                    label: "Code Review Settings",
-                    icon: <SlidersHorizontalIcon className="size-5" />,
-                    href: "/settings",
-                    visible:
-                        canReadCodeReviewSettings ||
-                        canReadGitSettings ||
-                        canReadBilling ||
-                        canReadPlugins,
-                },
+            {
+                label: "Code Review Settings",
+                icon: <SlidersHorizontalIcon className="size-5" />,
+                href: "/settings",
+                visible:
+                    canReadCodeReviewSettings ||
+                    canReadGitSettings ||
+                    canReadBilling ||
+                    canReadPlugins,
+            },
 
-                {
-                    label: "Library",
-                    icon: <LibraryBig className="size-5" />,
-                    href: "/library/kody-rules/featured",
-                    visible: canReadCodeReviewSettings,
-                },
-            ];
+            {
+                label: "Library",
+                icon: <LibraryBig className="size-5" />,
+                href: "/library/kody-rules/featured",
+                visible: canReadCodeReviewSettings,
+            },
+        ];
 
         if (canReadIssues) {
             items.push({
@@ -165,7 +168,7 @@ export const NavMenu = ({
     };
 
     return (
-        <div className="border-primary-dark bg-card-lv1 z-50 flex h-16 shrink-0 items-center gap-4 border-b-2 px-6">
+        <div className="border-primary-dark bg-card-lv1 z-50 flex h-16 shrink-0 gap-4 border-b-2 px-6">
             <NextLink href="/">
                 <SvgKodus className="h-8 max-w-max" />
             </NextLink>
@@ -216,7 +219,6 @@ export const NavMenu = ({
 
                 <div className="flex items-center gap-2">
                     <SubscriptionBadge />
-                    <SupportDropdown />
                     <PendingRulesNotification />
                 </div>
 
