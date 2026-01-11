@@ -428,8 +428,3 @@
 body {
     padding-right: 60px !important;
 }
-
-.overflow-auto,
-.overflow-y-auto {
-    padding-right: 60px !important;
-}

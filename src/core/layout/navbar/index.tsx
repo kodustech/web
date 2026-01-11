@@ -169,7 +169,7 @@ export const NavMenu = ({
 
     return (
         <div className="border-primary-dark bg-card-lv1 z-50 flex h-16 shrink-0 gap-4 border-b-2 px-6">
-            <NextLink href="/">
+            <NextLink href="/" className="flex items-center">
                 <SvgKodus className="h-8 max-w-max" />
             </NextLink>
 

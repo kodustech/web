@@ -90,7 +90,7 @@ export default async function Layout({
         <Page.Root>
             {!hasAnalyticsData && <CockpitNoDataBanner />}
 
-            <Page.Header className="max-w-(--breakpoint-xl)">
+            <Page.Header>
                 <Page.Title>{greeting()}</Page.Title>
                 <div className="ml-auto">
                     <RepositoryPicker
@@ -100,7 +100,7 @@ export default async function Layout({
                 </div>
             </Page.Header>
 
-            <Page.Content className="max-w-(--breakpoint-xl)">
+            <Page.Content>
                 <div className="grid grid-cols-3 grid-rows-2 gap-2 *:h-56">
                     {metricsVisibility.summary.deployFrequency && (
                         <div>{deployFrequencyAnalytics}</div>
