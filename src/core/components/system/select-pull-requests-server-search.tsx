@@ -26,7 +26,7 @@ type PullRequest = {
     repositoryId: string;
     title: string;
     url: string;
-    lastActivityAt?: string;
+    lastActivityAt: string | undefined;
 };
 
 export const SelectPullRequestWithServerSearch = (props: {
