@@ -11,6 +11,7 @@ type PullRequest = {
     repositoryId: string;
     title: string;
     url: string;
+    lastActivityAt: string | undefined;
 };
 
 export const PRSummaryPreviewSelectRepositories = ({

@@ -75,8 +75,8 @@ export const SelectPullRequest = (props: {
                     className="flex min-h-16 w-full justify-between">
                     <div className="flex w-full items-center">
                         {!value ? (
-                            <span className="flex-1">
-                                No pull request selected
+                            <span className="text-text-tertiary flex-1">
+                                Choose a pull request...
                             </span>
                         ) : (
                             <div className="flex flex-1 flex-col gap-1">

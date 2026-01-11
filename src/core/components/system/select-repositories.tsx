@@ -25,7 +25,7 @@ export const SelectRepositories = (props: {
     onOpenChange: (open: boolean) => void;
     selectedRepositories: Repository[];
     onChangeSelectedRepositories: (repositories: Repository[]) => void;
-    onFinishLoading?: () => void;
+    onFinishLoading?: (hasRepositories: boolean) => void;
     teamId: string;
 }) => {
     const { data: repositories = [], isLoading } = useGetRepositories(
@@ -33,8 +33,8 @@ export const SelectRepositories = (props: {
     );
 
     useEffect(() => {
-        if (!isLoading) props.onFinishLoading?.();
-    }, [isLoading]);
+        if (!isLoading) props.onFinishLoading?.(repositories.length > 0);
+    }, [isLoading, repositories.length]);
 
     const {
         id = "select-repositories",

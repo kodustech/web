@@ -12,6 +12,7 @@ type SelectedPR = {
     id: string;
     pull_number: number;
     repository: string;
+    repositoryId: string;
     title: string;
     url: string;
 };
@@ -41,7 +42,7 @@ export const useFinishOnboardingReviewingPR = ({
         await finishOnboarding({
             teamId,
             reviewPR: true,
-            repositoryId: selectedPR.id,
+            repositoryId: selectedPR.repositoryId,
             repositoryName: selectedPR.repository,
             pullNumber: selectedPR.pull_number,
         });
