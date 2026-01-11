@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { redirect, useRouter } from "next/navigation";
 import { SelectRepositories } from "@components/system/select-repositories";
@@ -25,13 +25,16 @@ import {
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { useSuspenseGetConnections } from "@services/setup/hooks";
+import { useGetRepositories } from "@services/codeManagement/hooks";
+import { CODE_MANAGEMENT_API_PATHS } from "@services/codeManagement/types";
+import { useQueryClient } from "@tanstack/react-query";
 import {
     AlertTriangle,
+    FolderX,
     HatGlasses,
-    InfoIcon,
+    KeyRound,
     PowerIcon,
     Sparkles,
-    Users,
 } from "lucide-react";
 import {
     CodeReviewSummaryOptions,
@@ -60,6 +63,19 @@ export default function App() {
         Repository[]
     >([]);
     const [reviewScope, setReviewScope] = useState<ReviewScope>("team");
+
+    const queryClient = useQueryClient();
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const { data: repositories = [], isLoading: isLoadingRepositories, isFetching } = useGetRepositories(teamId);
+    
+    useEffect(() => {
+        queryClient.invalidateQueries({ 
+            queryKey: [CODE_MANAGEMENT_API_PATHS.GET_REPOSITORIES_ORG] 
+        }).then(() => setIsInitialLoad(false));
+    }, []);
+
+    const isLoading = isInitialLoad || isLoadingRepositories || isFetching;
+    const hasRepositories = isLoading ? null : repositories.length > 0;
 
     const connections = useSuspenseGetConnections(teamId);
 
@@ -237,33 +253,70 @@ export default function App() {
                 <div className="flex flex-1 flex-col justify-center gap-10 w-150">
                     <StepIndicators.Auto />
 
-                    <div className="flex flex-col gap-2">
-                        <Heading variant="h2">
-                            You're one click away from smarter reviews
-                        </Heading>
+                    {hasRepositories === null ? (
+                        <div className="flex flex-1 flex-col items-center justify-center gap-4">
+                            <div className="size-8 animate-spin rounded-full border-2 border-primary-light border-t-transparent" />
+                            <p className="text-text-secondary text-sm">Loading repositories...</p>
+                        </div>
+                    ) : hasRepositories === false ? (
+                        <>
+                            <div className="flex flex-col gap-4 items-center text-center">
+                                <div className="bg-card-lv2 rounded-full p-4">
+                                    <FolderX className="size-8 text-text-secondary" />
+                                </div>
+                                <Heading variant="h2">
+                                    No repositories found
+                                </Heading>
+                                <p className="text-text-secondary text-sm max-w-md">
+                                    We couldn't find any repositories in your connected account. 
+                                    This might happen if the account has no repos or the token 
+                                    doesn't have the right permissions.
+                                </p>
+                            </div>
 
-                        <p className="text-text-secondary text-sm">
-                            Select a few active repos to see results today. You
-                            can add more later.
-                        </p>
-                    </div>
+                            <div className="flex flex-col gap-3">
+                                <Button
+                                    size="lg"
+                                    variant="primary"
+                                    className="w-full"
+                                    rightIcon={<KeyRound />}
+                                    onClick={() => router.push("/setup/connecting-git-tool")}>
+                                    Update connection
+                                </Button>
+                                <p className="text-text-tertiary text-xs text-center">
+                                    You can reconnect with a different account or update your token permissions.
+                                </p>
+                            </div>
+                        </>
+                    ) : (
+                        <>
+                            <div className="flex flex-col gap-2">
+                                <Heading variant="h2">
+                                    You're one click away from smarter reviews
+                                </Heading>
 
-                    <div className="flex flex-col gap-4">
-                        <FormControl.Root>
-                            <FormControl.Label htmlFor="select-repositories">
-                                Select repositories
-                            </FormControl.Label>
+                                <p className="text-text-secondary text-sm">
+                                    Select a few active repos to see results today. You
+                                    can add more later.
+                                </p>
+                            </div>
 
-                            <FormControl.Input>
-                                <SelectRepositories
-                                    open={open}
-                                    onOpenChange={setOpen}
-                                    selectedRepositories={selectedRepositories}
-                                    onChangeSelectedRepositories={
-                                        setSelectedRepositories
-                                    }
-                                    teamId={teamId}
-                                />
+                            <div className="flex flex-col gap-4">
+                                <FormControl.Root>
+                                    <FormControl.Label htmlFor="select-repositories">
+                                        Select repositories
+                                    </FormControl.Label>
+
+                                    <FormControl.Input>
+                                        <SelectRepositories
+                                            open={open}
+                                            onOpenChange={setOpen}
+                                            selectedRepositories={selectedRepositories}
+                                            onChangeSelectedRepositories={
+                                                setSelectedRepositories
+                                            }
+                                            teamId={teamId}
+                                        />
                                 <small className="text-text-secondary mt-2 text-xs">
                                     Recommended: repos with recent PR activity
                                 </small>
@@ -334,24 +387,26 @@ export default function App() {
                                         All PRs in selected repos
                                     </Button>
                                 </ToggleGroup.ToggleGroupItem>
-                            </ToggleGroup.Root>
+                                </ToggleGroup.Root>
 
-                        <p className="text-text-secondary text-xs">
-                            {scopeCopy}
-                        </p>
-                    </div>
+                                <p className="text-text-secondary text-xs">
+                                    {scopeCopy}
+                                </p>
+                            </div>
 
-                <Button
-                    size="lg"
-                    variant="primary"
-                    className="mt-5 w-full"
-                            rightIcon={<PowerIcon />}
-                            loading={loadingSaveRepositories}
-                            onClick={saveSelectedRepositoriesAction}
-                            disabled={selectedRepositories.length === 0}>
-                            {ctaLabel}
-                        </Button>
-                    </div>
+                            <Button
+                                size="lg"
+                                variant="primary"
+                                className="mt-5 w-full"
+                                rightIcon={<PowerIcon />}
+                                loading={loadingSaveRepositories}
+                                onClick={saveSelectedRepositoriesAction}
+                                disabled={selectedRepositories.length === 0}>
+                                {ctaLabel}
+                            </Button>
+                        </div>
+                        </>
+                    )}
                 </div>
             </div>
         </Page.Root>

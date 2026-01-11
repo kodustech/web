@@ -17,9 +17,9 @@ import { Link } from "@components/ui/link";
 import { MagicModalContext } from "@components/ui/magic-modal";
 import { Page } from "@components/ui/page";
 import { useSuspenseGetOnboardingPullRequests } from "@services/codeManagement/hooks";
-import { getBYOK } from "@services/organizationParameters/fetch";
 import { useSuspenseGetParameterPlatformConfigs } from "@services/parameters/hooks";
 import { useSuspenseGetOrganizationId } from "@services/setup/hooks";
+import { PartyPopperIcon } from "lucide-react";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { useFinishOnboardingReviewingPR } from "src/features/ee/onboarding/_hooks/use-finish-onboarding-reviewing-pr";
@@ -39,7 +39,7 @@ export default function App() {
     const [open, setOpen] = useState(false);
     const [selectedPR, setSelectedPR] = useState<
         (typeof pullRequests)[number] | undefined
-    >();
+    >(pullRequests.length === 1 ? pullRequests[0] : undefined);
 
     const [requestedPullRequestReview, setRequestedPullRequestReview] =
         useState(false);
@@ -73,10 +73,7 @@ export default function App() {
 
         autoFinishRequestedRef.current = true;
         finishOnboardingWithoutSelectingPR();
-    }, [
-        shouldSkipPullRequestSelection,
-        finishOnboardingWithoutSelectingPR,
-    ]);
+    }, [shouldSkipPullRequestSelection, finishOnboardingWithoutSelectingPR]);
 
     if (shouldSkipPullRequestSelection) return null;
 
@@ -86,7 +83,8 @@ export default function App() {
                 <Dialog open>
                     <DialogContent className="gap-0 p-10">
                         <DialogHeader>
-                            <DialogTitle>
+                            <DialogTitle className="flex items-center gap-2">
+                                <PartyPopperIcon className="text-primary-light size-6" />
                                 Congrats! Your automation is live!
                             </DialogTitle>
 
@@ -151,22 +149,21 @@ export default function App() {
                                         </FormControl.Input>
                                     </FormControl.Root>
 
-                                    <div className="mt-1 -mb-3 flex flex-row items-center justify-between">
-                                        <div className="text-center">
-                                            <Link
-                                                href=""
-                                                disabled={
-                                                    isFinishingOnboardingWithoutSelectingPR
-                                                }
-                                                className="text-sm"
-                                                onClick={(ev) => {
-                                                    ev.preventDefault();
-                                                    finishOnboardingWithoutSelectingPR();
-                                                }}>
-                                                No thanks, I'll let automation
-                                                handle it
-                                            </Link>
-                                        </div>
+                                    <div className="mt-1 -mb-3 flex flex-row items-center justify-between gap-3">
+                                        <Button
+                                            size="lg"
+                                            variant="tertiary"
+                                            disabled={
+                                                isFinishingOnboardingWithoutSelectingPR
+                                            }
+                                            loading={
+                                                isFinishingOnboardingWithoutSelectingPR
+                                            }
+                                            onClick={() =>
+                                                finishOnboardingWithoutSelectingPR()
+                                            }>
+                                            Skip for now
+                                        </Button>
 
                                         <Button
                                             size="lg"
@@ -184,7 +181,7 @@ export default function App() {
                                             loading={
                                                 isFinishingOnboardingReviewingPR
                                             }>
-                                            Review Pull Request now
+                                            Review now
                                         </Button>
                                     </div>
                                 </>
