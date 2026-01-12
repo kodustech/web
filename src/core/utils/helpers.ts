@@ -176,7 +176,7 @@ export const codeReviewConfigRemovePropertiesNotInType = (
         "kodyRulesGeneratorEnabled",
         "runOnDraft",
         "codeReviewVersion",
-        "enableCommitableSuggestions",
+        "enableCommittableSuggestions",
         // New v2 prompt overrides for categories/severity customization
         "v2PromptOverrides",
     ];

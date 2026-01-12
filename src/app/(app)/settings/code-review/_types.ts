@@ -112,7 +112,7 @@ export type CodeReviewGlobalConfig = {
             main?: string;
         };
     };
-    enableCommitableSuggestions: boolean;
+    enableCommittableSuggestions: boolean;
 };
 
 export type CodeReviewBaseConfig = {

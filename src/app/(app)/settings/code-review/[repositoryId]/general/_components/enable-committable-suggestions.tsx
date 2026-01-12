@@ -20,21 +20,21 @@ const hasGithubConnection = (
         .some((connection) => connection.platformName === PlatformType.GITHUB);
 };
 
-export const EnableCommitableSuggestions = () => {
+export const EnableCommittableSuggestions = () => {
     const form = useFormContext<CodeReviewFormType>();
     const { teamId } = useSelectedTeamId();
     const connections = useSuspenseGetConnections(teamId);
     const isCodeManagementGithub = hasGithubConnection(connections);
-    const { commitableSuggestions } = useFeatureFlags();
+    const { committableSuggestions } = useFeatureFlags();
 
-    if (!commitableSuggestions) {
+    if (!committableSuggestions) {
         return null;
     }
 
     return (
         <div className="flex flex-col gap-2">
             <Controller
-                name="enableCommitableSuggestions.value"
+                name="enableCommittableSuggestions.value"
                 disabled={!isCodeManagementGithub}
                 control={form.control}
                 render={({ field }) => (
@@ -48,14 +48,14 @@ export const EnableCommitableSuggestions = () => {
                             <div className="flex flex-col gap-1">
                                 <div className="flex flex-row items-center gap-2">
                                     <Heading variant="h3">
-                                        Enable commitable suggestions
+                                        Enable committable suggestions
                                     </Heading>
 
                                     <Badge variant="secondary" size="xs">
                                         Alpha
                                     </Badge>
 
-                                    <OverrideIndicatorForm fieldName="enableCommitableSuggestions" />
+                                    <OverrideIndicatorForm fieldName="enableCommittableSuggestions" />
                                 </div>
 
                                 <p className="text-text-secondary text-sm">

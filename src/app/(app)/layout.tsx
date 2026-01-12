@@ -71,7 +71,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         byokConfig,
         tokenUsagePageFeatureFlag,
         codeReviewDryRunFeatureFlag,
-        commitableSuggestionsFeatureFlag,
+        committableSuggestionsFeatureFlag,
         ssoFeatureFlag,
         cliKeysFeatureFlag,
         kodyRuleSuggestionsFeatureFlag,
@@ -84,7 +84,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.tokenUsagePage }),
         getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.codeReviewDryRun }),
         getFeatureFlagWithPayload({
-            feature: FEATURE_FLAGS.commitableSuggestions,
+            feature: FEATURE_FLAGS.committableSuggestions,
         }),
         getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.sso }),
         getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.cliKeys }),
@@ -100,8 +100,8 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         !!permissions[ResourceType.CodeReviewSettings]?.[Action.Manage];
 
     const featureFlags = {
-        commitableSuggestions:
-            (commitableSuggestionsFeatureFlag?.value as boolean | undefined) ||
+        committableSuggestions:
+            (committableSuggestionsFeatureFlag?.value as boolean | undefined) ||
             false,
         codeReviewDryRun:
             (codeReviewDryRunFeatureFlag?.value as boolean | undefined) ||
