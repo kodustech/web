@@ -18,9 +18,11 @@ import {
     CheckIcon,
     Sparkle,
 } from "lucide-react";
+import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
 import { useFetch } from "src/core/utils/reactQuery";
+import { captureSegmentEvent } from "src/core/utils/segment";
 
 import { StepIndicators } from "../_components/step-indicators";
 
@@ -142,6 +144,7 @@ const ReviewModeCard = ({
 
 export default function ReviewModePage() {
     const router = useRouter();
+    const { userId } = useAuth();
     const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
     const [selectedMode, setSelectedMode] = useState<ReviewMode>("default");
@@ -222,6 +225,20 @@ export default function ReviewModePage() {
         return undefined;
     }, [onboardingSignals]);
 
+    const handleSelectMode = (mode: ReviewMode) => {
+        captureSegmentEvent({
+            userId: userId!,
+            event: "setup_review_mode_selected",
+            properties: {
+                mode,
+                recommendedMode: recommendedMode ?? null,
+                isRecommended: recommendedMode === mode,
+                teamId,
+            },
+        });
+        setSelectedMode(mode);
+    };
+
     const recommendationLoading =
         Boolean(teamId && selectedRepoIds.length) &&
         !recommendedMode &&
@@ -286,6 +303,17 @@ export default function ReviewModePage() {
         const preset = ["speed", "safety", "coach"].includes(selectedMode)
             ? (selectedMode as "speed" | "safety" | "coach")
             : undefined;
+
+        captureSegmentEvent({
+            userId: userId!,
+            event: "setup_review_mode_continue",
+            properties: {
+                mode: selectedMode,
+                recommendedMode: recommendedMode ?? null,
+                isRecommended: recommendedMode === selectedMode,
+                teamId,
+            },
+        });
 
         if (!preset) {
             router.push("/setup/customize-team");
@@ -377,7 +405,7 @@ export default function ReviewModePage() {
                                     mode={mode}
                                     recommended={recommendedMode === mode.id}
                                     selected={selectedMode === mode.id}
-                                    onSelect={() => setSelectedMode(mode.id)}
+                                    onSelect={() => handleSelectMode(mode.id)}
                                 />
                             ))}
                         </div>

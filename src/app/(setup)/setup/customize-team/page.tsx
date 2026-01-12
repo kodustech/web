@@ -14,9 +14,11 @@ import { changeStatusKodyRules } from "@services/kodyRules/fetch";
 import type { KodyRule } from "@services/kodyRules/types";
 import { KodyRulesStatus } from "@services/kodyRules/types";
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
+import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
 import { useFetch } from "src/core/utils/reactQuery";
+import { captureSegmentEvent } from "src/core/utils/segment";
 
 import { StepIndicators } from "../_components/step-indicators";
 
@@ -72,6 +74,7 @@ const KodyRuleCard = ({
 
 export default function CustomizeTeamPage() {
     const router = useRouter();
+    const { userId } = useAuth();
     const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
     const [selectedRules, setSelectedRules] = useState<string[]>([]);
@@ -227,6 +230,16 @@ export default function CustomizeTeamPage() {
                 variant: "success",
                 description: "Rules saved for your team.",
             });
+            captureSegmentEvent({
+                userId: userId!,
+                event: "setup_rules_applied",
+                properties: {
+                    teamId,
+                    selectedRulesCount: toActivate.length,
+                    pendingRulesCount: pendingIds.length,
+                    deletedRulesCount: toDelete.length,
+                },
+            });
             router.push("/setup/choosing-a-pull-request");
         } catch (error) {
             console.error("Error reviewing fast IDE rules", error);
@@ -243,6 +256,17 @@ export default function CustomizeTeamPage() {
     const handleSkip = () => {
         if (isSavingRules) return;
 
+        captureSegmentEvent({
+            userId: userId!,
+            event: "setup_rules_skipped",
+            properties: {
+                teamId,
+                pendingRulesCount: pendingRules.length,
+                selectedRulesCount: selectedRules.length,
+                noRulesAfterSync,
+                isSyncingRules,
+            },
+        });
         router.push("/setup/choosing-a-pull-request");
     };
 
