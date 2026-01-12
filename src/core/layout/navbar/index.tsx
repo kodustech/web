@@ -15,7 +15,6 @@ import { Spinner } from "@components/ui/spinner";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import {
-    FolderIcon,
     GaugeIcon,
     GitPullRequestIcon,
     InfoIcon,
@@ -23,9 +22,7 @@ import {
     SlidersHorizontalIcon,
 } from "lucide-react";
 import { ErrorBoundary } from "react-error-boundary";
-import type { AwaitedReturnType } from "src/core/types";
 import { cn } from "src/core/utils/components";
-import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
 import { SubscriptionBadge } from "src/features/ee/subscription/_components/subscription-badge";
 import { useSubscriptionContext } from "src/features/ee/subscription/_providers/subscription-context";
 
@@ -58,13 +55,7 @@ const NoSSRGithubStars = dynamic(
     { ssr: false },
 );
 
-export const NavMenu = ({
-    tokenUsagePageFeatureFlag,
-}: {
-    tokenUsagePageFeatureFlag: AwaitedReturnType<
-        typeof getFeatureFlagWithPayload
-    >;
-}) => {
+export const NavMenu = () => {
     const pathname = usePathname();
     const subscription = useSubscriptionContext();
 
@@ -223,9 +214,7 @@ export const NavMenu = ({
                 </div>
 
                 <Suspense>
-                    <UserNav
-                        tokenUsagePageFeatureFlag={tokenUsagePageFeatureFlag}
-                    />
+                    <UserNav />
                 </Suspense>
             </div>
         </div>

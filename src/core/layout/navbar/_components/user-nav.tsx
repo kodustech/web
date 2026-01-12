@@ -2,7 +2,6 @@
 
 import { Link } from "@components/ui/link";
 import { toast } from "@components/ui/toaster/use-toast";
-import { UserRole } from "@enums";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import {
@@ -12,6 +11,7 @@ import {
     SettingsIcon,
     UserIcon,
 } from "lucide-react";
+import { useFeatureFlags } from "src/app/(app)/settings/_components/context";
 import { Avatar, AvatarFallback } from "src/core/components/ui/avatar";
 import { Button } from "src/core/components/ui/button";
 import {
@@ -28,16 +28,10 @@ import { useAllTeams } from "src/core/providers/all-teams-context";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSubscriptionStatus } from "src/core/providers/byok.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { TEAM_STATUS, type AwaitedReturnType } from "src/core/types";
-import type { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
+import { TEAM_STATUS } from "src/core/types";
 
-export function UserNav({
-    tokenUsagePageFeatureFlag,
-}: {
-    tokenUsagePageFeatureFlag: AwaitedReturnType<
-        typeof getFeatureFlagWithPayload
-    >;
-}) {
+export function UserNav() {
+    const { tokenUsagePage } = useFeatureFlags();
     const { email } = useAuth();
     const { teams } = useAllTeams();
     const { teamId, setTeamId } = useSelectedTeamId();
@@ -124,15 +118,13 @@ export function UserNav({
                     </Link>
                 )}
 
-                {(isBYOK || isTrial) &&
-                    tokenUsagePageFeatureFlag?.value &&
-                    canReadLogs && (
-                        <Link href="/token-usage">
-                            <DropdownMenuItem leftIcon={<ChartColumn />}>
-                                Token Usage
-                            </DropdownMenuItem>
-                        </Link>
-                    )}
+                {(isBYOK || isTrial) && tokenUsagePage && canReadLogs && (
+                    <Link href="/token-usage">
+                        <DropdownMenuItem leftIcon={<ChartColumn />}>
+                            Token Usage
+                        </DropdownMenuItem>
+                    </Link>
+                )}
 
                 <Link href="/sign-out" replace>
                     <DropdownMenuItem leftIcon={<LogOutIcon />}>

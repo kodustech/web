@@ -4,6 +4,7 @@ export const FEATURE_FLAGS = {
     codeReviewDryRun: "code-review-dry-run",
     sso: "sso",
     cliKeys: "cli-keys",
+    commitableSuggestions: "commitable-suggestions",
 } as const;
 
 export type FeatureFlagKey = (typeof FEATURE_FLAGS)[keyof typeof FEATURE_FLAGS];

@@ -21,16 +21,14 @@ import {
     LockKeyholeOpenIcon,
     ShieldIcon,
 } from "lucide-react";
-import { FEATURE_FLAGS, FeatureFlagKey } from "src/core/config/feature-flags";
 import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { useSubscriptionContext } from "src/features/ee/subscription/_providers/subscription-context";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
 
-export const ConfigsSidebar = ({
-    featureFlags,
-}: {
-    featureFlags: Partial<Record<FeatureFlagKey, boolean>>;
-}) => {
+import { useFeatureFlags } from "../../settings/_components/context";
+
+export const ConfigsSidebar = () => {
+    const { sso, cliKeys } = useFeatureFlags();
     const { organizationName } = useOrganizationContext();
     const pathname = usePathname();
     const { license } = useSubscriptionContext();
@@ -48,7 +46,7 @@ export const ConfigsSidebar = ({
             icon: ShieldIcon,
             label: "SSO",
             href: `/organization/sso`,
-            visible: featureFlags["sso"] ?? false,
+            visible: sso ?? false,
         },
         {
             icon: GaugeIcon,
@@ -66,7 +64,7 @@ export const ConfigsSidebar = ({
             icon: KeyRoundIcon,
             label: "CLI keys",
             href: `/organization/cli-keys`,
-            visible: featureFlags[FEATURE_FLAGS.cliKeys] ?? false,
+            visible: cliKeys ?? false,
         },
     ] satisfies Array<{
         icon: React.ComponentType;

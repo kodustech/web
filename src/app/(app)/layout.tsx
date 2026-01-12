@@ -68,17 +68,29 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         organizationName,
         organizationLicense,
         usersWithAssignedLicense,
-        tokenUsagePageFeatureFlag,
         byokConfig,
+        tokenUsagePageFeatureFlag,
         codeReviewDryRunFeatureFlag,
+        commitableSuggestionsFeatureFlag,
+        ssoFeatureFlag,
+        cliKeysFeatureFlag,
+        kodyRuleSuggestionsFeatureFlag,
     ] = await Promise.all([
         getPermissions(),
         getOrganizationName(),
         validateOrganizationLicense({ teamId }),
         getUsersWithLicense({ teamId }),
-        getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.tokenUsagePage }),
         getBYOK(),
+        getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.tokenUsagePage }),
         getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.codeReviewDryRun }),
+        getFeatureFlagWithPayload({
+            feature: FEATURE_FLAGS.commitableSuggestions,
+        }),
+        getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.sso }),
+        getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.cliKeys }),
+        getFeatureFlagWithPayload({
+            feature: FEATURE_FLAGS.kodyRuleSuggestions,
+        }),
     ]);
 
     const isBYOK = isBYOKSubscriptionPlan(organizationLicense);
@@ -86,6 +98,21 @@ export default async function Layout({ children }: React.PropsWithChildren) {
 
     const canManageCodeReview =
         !!permissions[ResourceType.CodeReviewSettings]?.[Action.Manage];
+
+    const featureFlags = {
+        commitableSuggestions:
+            (commitableSuggestionsFeatureFlag?.value as boolean | undefined) ||
+            true,
+        codeReviewDryRun:
+            (codeReviewDryRunFeatureFlag?.value as boolean | undefined) || true,
+        tokenUsagePage:
+            (tokenUsagePageFeatureFlag?.value as boolean | undefined) || true,
+        sso: (ssoFeatureFlag?.value as boolean | undefined) || true,
+        cliKeys: (cliKeysFeatureFlag?.value as boolean | undefined) || true,
+        kodyRuleSuggestions:
+            (kodyRuleSuggestionsFeatureFlag?.value as boolean | undefined) ||
+            true,
+    };
 
     return (
         <Providers
@@ -97,13 +124,12 @@ export default async function Layout({ children }: React.PropsWithChildren) {
             }}
             permissions={permissions}
             isBYOK={isBYOK}
-            isTrial={isTrial}>
+            isTrial={isTrial}
+            featureFlags={featureFlags}>
             <SubscriptionProvider
                 license={organizationLicense}
                 usersWithAssignedLicense={usersWithAssignedLicense}>
-                <NavMenu
-                    tokenUsagePageFeatureFlag={tokenUsagePageFeatureFlag}
-                />
+                <NavMenu />
                 <FinishedTrialModal />
                 <SubscriptionStatusTopbar />
 

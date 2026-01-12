@@ -42,11 +42,7 @@ import { KodyRulesEmptyState } from "./empty";
 import { KodyRulesList } from "./list";
 import { KodyRulesToolbar, type VisibleScopes } from "./toolbar";
 
-export const KodyRulesPage = ({
-    showSuggestionsButton = false,
-}: {
-    showSuggestionsButton?: boolean;
-}) => {
+export const KodyRulesPage = () => {
     const platformConfig = usePlatformConfig();
     const config = useFullCodeReviewConfig();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
@@ -68,7 +64,6 @@ export const KodyRulesPage = ({
         directoryRules: inheritedDirectoryRules = [],
         globalRules: inheritedGlobalRules = [],
         repoRules: inheritedRepoRules = [],
-        excludedRules = [],
     } = useSuspenseGetInheritedKodyRules({
         teamId,
         repositoryId,
@@ -323,7 +318,6 @@ export const KodyRulesPage = ({
                         <KodyRulesList
                             rules={rulesToDisplay}
                             onAnyChange={refreshRulesList}
-                            showSuggestionsButton={showSuggestionsButton}
                         />
                     )}
                 </div>

@@ -29,10 +29,7 @@ import {
 } from "@services/parameters/hooks";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
-import { PostHog } from "posthog-node";
-import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
-import { AwaitedReturnType } from "src/core/types";
 
 import { useCodeReviewRouteParams } from "../_hooks";
 import { countConfigOverrides } from "../_utils/count-overrides";
@@ -40,7 +37,6 @@ import { FormattedConfigLevel } from "../code-review/_types";
 import {
     AutomationCodeReviewConfigProvider,
     DefaultCodeReviewConfigProvider,
-    FeatureFlagsProvider,
     PlatformConfigProvider,
 } from "./context";
 import { PerRepository } from "./per-repository/repository";
@@ -55,14 +51,7 @@ const routes = [
     { label: "Custom Messages", href: "custom-messages" },
 ] satisfies Array<{ label: string; href: string }>;
 
-export const SettingsLayout = ({
-    children,
-    codeReviewDryRunFeatureFlag,
-}: React.PropsWithChildren & {
-    codeReviewDryRunFeatureFlag:
-        | AwaitedReturnType<PostHog["getFeatureFlag"]>
-        | undefined;
-}) => {
+export const SettingsLayout = ({ children }: React.PropsWithChildren) => {
     const pathname = usePathname();
     const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetFormattedCodeReviewParameter(teamId);
@@ -254,21 +243,14 @@ export const SettingsLayout = ({
             </Sidebar>
 
             <Page.WithSidebar>
-                <FeatureFlagsProvider
-                    featureFlags={{
-                        [FEATURE_FLAGS.codeReviewDryRun]:
-                            !!codeReviewDryRunFeatureFlag,
-                    }}>
-                    <DefaultCodeReviewConfigProvider config={defaultConfig}>
-                        <AutomationCodeReviewConfigProvider
-                            config={configValue}>
-                            <PlatformConfigProvider
-                                config={platformConfig.configValue}>
-                                {children}
-                            </PlatformConfigProvider>
-                        </AutomationCodeReviewConfigProvider>
-                    </DefaultCodeReviewConfigProvider>
-                </FeatureFlagsProvider>
+                <DefaultCodeReviewConfigProvider config={defaultConfig}>
+                    <AutomationCodeReviewConfigProvider config={configValue}>
+                        <PlatformConfigProvider
+                            config={platformConfig.configValue}>
+                            {children}
+                        </PlatformConfigProvider>
+                    </AutomationCodeReviewConfigProvider>
+                </DefaultCodeReviewConfigProvider>
             </Page.WithSidebar>
         </div>
     );
