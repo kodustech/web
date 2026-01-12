@@ -17,10 +17,11 @@ import {
 import {
     CogIcon,
     GaugeIcon,
+    KeyRoundIcon,
     LockKeyholeOpenIcon,
     ShieldIcon,
 } from "lucide-react";
-import { FeatureFlagKey } from "src/core/config/feature-flags";
+import { FEATURE_FLAGS, FeatureFlagKey } from "src/core/config/feature-flags";
 import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { useSubscriptionContext } from "src/features/ee/subscription/_providers/subscription-context";
 import { useOrganizationContext } from "src/features/organization/_providers/organization-context";
@@ -60,6 +61,12 @@ export const ConfigsSidebar = ({
             label: "BYOK",
             href: `/organization/byok`,
             visible: isBYOK || isTrial,
+        },
+        {
+            icon: KeyRoundIcon,
+            label: "CLI keys",
+            href: `/organization/cli-keys`,
+            visible: featureFlags[FEATURE_FLAGS.cliKeys] ?? false,
         },
     ] satisfies Array<{
         icon: React.ComponentType;
