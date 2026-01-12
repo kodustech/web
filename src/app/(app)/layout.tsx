@@ -102,16 +102,17 @@ export default async function Layout({ children }: React.PropsWithChildren) {
     const featureFlags = {
         commitableSuggestions:
             (commitableSuggestionsFeatureFlag?.value as boolean | undefined) ||
-            true,
+            false,
         codeReviewDryRun:
-            (codeReviewDryRunFeatureFlag?.value as boolean | undefined) || true,
+            (codeReviewDryRunFeatureFlag?.value as boolean | undefined) ||
+            false,
         tokenUsagePage:
-            (tokenUsagePageFeatureFlag?.value as boolean | undefined) || true,
-        sso: (ssoFeatureFlag?.value as boolean | undefined) || true,
-        cliKeys: (cliKeysFeatureFlag?.value as boolean | undefined) || true,
+            (tokenUsagePageFeatureFlag?.value as boolean | undefined) || false,
+        sso: (ssoFeatureFlag?.value as boolean | undefined) || false,
+        cliKeys: (cliKeysFeatureFlag?.value as boolean | undefined) || false,
         kodyRuleSuggestions:
             (kodyRuleSuggestionsFeatureFlag?.value as boolean | undefined) ||
-            true,
+            false,
     };
 
     return (
