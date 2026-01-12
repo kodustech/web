@@ -2,11 +2,7 @@ import { decodeJwt, decodeProtectedHeader } from "jose";
 import type { JWT } from "next-auth/jwt";
 import {
     CodeReviewGlobalConfig,
-    CodeReviewRepositoryConfig,
-    FormattedCodeReviewConfig,
     FormattedConfig,
-    FormattedGlobalCodeReviewConfig,
-    IFormattedConfigProperty,
 } from "src/app/(app)/settings/code-review/_types";
 import invariant from "tiny-invariant";
 
@@ -180,6 +176,7 @@ export const codeReviewConfigRemovePropertiesNotInType = (
         "kodyRulesGeneratorEnabled",
         "runOnDraft",
         "codeReviewVersion",
+        "enableCommitableSuggestions",
         // New v2 prompt overrides for categories/severity customization
         "v2PromptOverrides",
     ];

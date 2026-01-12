@@ -112,6 +112,7 @@ export type CodeReviewGlobalConfig = {
             main?: string;
         };
     };
+    enableCommitableSuggestions: boolean;
 };
 
 export type CodeReviewBaseConfig = {
@@ -166,8 +167,10 @@ export type FormattedCodeReviewBaseConfig = Omit<
     configs: FormattedCodeReviewConfig;
 };
 
-export interface FormattedGlobalCodeReviewConfig
-    extends Omit<AutomationCodeReviewConfigType, "configs" | "repositories"> {
+export interface FormattedGlobalCodeReviewConfig extends Omit<
+    AutomationCodeReviewConfigType,
+    "configs" | "repositories"
+> {
     configs: FormattedCodeReviewConfig & {
         showToggleCodeReviewVersion: boolean;
     }; // TODO: remove this flag when we launch v2
