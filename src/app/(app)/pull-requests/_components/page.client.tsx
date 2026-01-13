@@ -14,13 +14,16 @@ export function PullRequestsPageClient() {
     const { teamId } = useSelectedTeamId();
     const [selectedRepository, setSelectedRepository] = useState<string>();
     const [pullRequestTitle, setPullRequestTitle] = useState("");
+    const [pullRequestNumber, setPullRequestNumber] = useState("");
     const [suggestionsFilter, setSuggestionsFilter] = useState<
         "all" | "true" | "false"
     >("all");
 
     const debouncedTitle = useDebounce(pullRequestTitle, 400);
+    const debouncedNumber = useDebounce(pullRequestNumber, 400);
 
     const normalizedTitle = debouncedTitle.trim();
+    const normalizedNumber = debouncedNumber.trim();
     const hasSentSuggestionsParam =
         suggestionsFilter === "true"
             ? true
@@ -40,6 +43,7 @@ export function PullRequestsPageClient() {
             teamId,
             repositoryName: selectedRepository,
             pullRequestTitle: normalizedTitle ? normalizedTitle : undefined,
+            pullRequestNumber: normalizedNumber ? normalizedNumber : undefined,
             hasSentSuggestions: hasSentSuggestionsParam,
         },
         { pageSize: 30 },
@@ -107,6 +111,12 @@ export function PullRequestsPageClient() {
                             pullRequestTitle={pullRequestTitle}
                             onTitleChange={(value) =>
                                 setPullRequestTitle(value)
+                            }
+                            pullRequestNumber={pullRequestNumber}
+                            onPullRequestNumberChange={(value) =>
+                                setPullRequestNumber(
+                                    value.replace(/[^\d]/g, ""),
+                                )
                             }
                             suggestionsFilter={suggestionsFilter}
                             onSuggestionsFilterChange={(value) =>

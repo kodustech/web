@@ -5,6 +5,7 @@ import {
     Table,
     TableBody,
     TableCell,
+    TableContainer,
     TableHead,
     TableHeader,
     TableRow,
@@ -38,7 +39,7 @@ export const PrDataTable = ({ data, loading }: PrDataTableProps) => {
     }
 
     return (
-        <div className="overflow-hidden rounded-lg border">
+        <TableContainer className="rounded-lg border">
             <Table>
                 <TableHeader>
                     <TableRow>
@@ -63,6 +64,6 @@ export const PrDataTable = ({ data, loading }: PrDataTableProps) => {
                     ))}
                 </TableBody>
             </Table>
-        </div>
+        </TableContainer>
     );
 };

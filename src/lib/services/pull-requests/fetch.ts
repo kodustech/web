@@ -7,6 +7,7 @@ export interface PullRequestFilters {
     limit?: number;
     page?: number;
     pullRequestTitle?: string;
+    pullRequestNumber?: string;
     hasSentSuggestions?: boolean;
 }
 
@@ -23,6 +24,8 @@ export const PULL_REQUEST_API = {
         if (filters?.page) params.append("page", filters.page.toString());
         if (filters?.pullRequestTitle)
             params.append("pullRequestTitle", filters.pullRequestTitle);
+        if (filters?.pullRequestNumber)
+            params.append("pullRequestNumber", filters.pullRequestNumber);
         if (typeof filters?.hasSentSuggestions === "boolean")
             params.append(
                 "hasSentSuggestions",
