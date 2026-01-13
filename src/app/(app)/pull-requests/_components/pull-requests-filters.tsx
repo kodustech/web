@@ -79,7 +79,7 @@ export const PullRequestsFilters = ({
                     organizationId,
                     action: Action.Read,
                     resource: ResourceType.PullRequests,
-                    repoId: repo.id,
+                    repoId: String(repo.id),
                 }),
         );
     }, [allRepositories, organizationId, permissions]);

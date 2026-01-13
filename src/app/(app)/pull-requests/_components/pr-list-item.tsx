@@ -52,20 +52,20 @@ const TimeAgoDisplay = ({ dateString }: { dateString: string }) => {
 
 const getStatusBadge = (status: string, merged: boolean) => {
     if (merged) {
-        return <Badge variant="primary">Merged</Badge>;
+        return <Badge variant="primary" className="whitespace-nowrap">Merged</Badge>;
     }
 
     switch (status) {
         case "success":
-            return <Badge variant="success">Success</Badge>;
+            return <Badge variant="success" className="whitespace-nowrap">Success</Badge>;
         case "error":
-            return <Badge variant="error">Error</Badge>;
+            return <Badge variant="error" className="whitespace-nowrap">Error</Badge>;
         case "in_progress":
-            return <Badge variant="in-progress">In Progress</Badge>;
+            return <Badge variant="in-progress" className="whitespace-nowrap">In Progress</Badge>;
         case "pending":
-            return <Badge variant="helper">Pending</Badge>;
+            return <Badge variant="helper" className="whitespace-nowrap">Pending</Badge>;
         default:
-            return <Badge variant="helper">{status}</Badge>;
+            return <Badge variant="helper" className="whitespace-nowrap">{status}</Badge>;
     }
 };
 
