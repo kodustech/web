@@ -85,6 +85,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.codeReviewDryRun }),
         getFeatureFlagWithPayload({
             feature: FEATURE_FLAGS.committableSuggestions,
+            identifier: "organization",
         }),
         getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.sso }),
         getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.cliKeys }),
