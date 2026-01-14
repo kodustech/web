@@ -26,7 +26,7 @@ type ProvidersProps = PropsWithChildren<{
     isBYOK: boolean;
     isTrial: boolean;
     featureFlags: Partial<{
-        [K in keyof typeof FEATURE_FLAGS]: boolean | undefined;
+        [K in keyof typeof FEATURE_FLAGS]: boolean;
     }>;
 }>;
 

@@ -111,25 +111,30 @@ export const isFeatureEnabled = async ({
     feature: string;
     identifier?: "user" | "organization";
 }): Promise<boolean> => {
-    if (!process.env.WEB_POSTHOG_KEY) return false;
+    try {
+        if (!process.env.WEB_POSTHOG_KEY) return false;
 
-    const jwtPayload = await auth();
-    const id =
-        identifier === "user"
-            ? jwtPayload?.user.userId
-            : jwtPayload?.user?.organizationId;
+        const jwtPayload = await auth();
+        const id =
+            identifier === "user"
+                ? jwtPayload?.user.userId
+                : jwtPayload?.user?.organizationId;
 
-    if (!id) return false;
+        if (!id) return false;
 
-    return PosthogServerSide(async (p) => {
-        const value = await p
-            .isFeatureEnabled(feature, id, {
-                groups: {
-                    organization: jwtPayload?.user?.organizationId || "",
-                },
-            })
-            .catch(() => false);
+        return PosthogServerSide(async (p) => {
+            const value = await p
+                .isFeatureEnabled(feature, id, {
+                    groups: {
+                        organization: jwtPayload?.user?.organizationId || "",
+                    },
+                })
+                .catch(() => false);
 
-        return value === true;
-    });
+            return value === true;
+        });
+    } catch (error) {
+        console.error("Error checking feature flag:", error);
+        return false;
+    }
 };

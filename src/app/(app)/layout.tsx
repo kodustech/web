@@ -14,7 +14,7 @@ import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 import { NavMenu } from "src/core/layout/navbar";
 import { TEAM_STATUS } from "src/core/types";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
-import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
+import { isFeatureEnabled } from "src/core/utils/posthog-server-side";
 import { BYOKMissingKeyTopbar } from "src/features/ee/byok/_components/missing-key-topbar";
 import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { FinishedTrialModal } from "src/features/ee/subscription/_components/finished-trial-modal";
@@ -81,15 +81,15 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         validateOrganizationLicense({ teamId }),
         getUsersWithLicense({ teamId }),
         getBYOK(),
-        getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.tokenUsagePage }),
-        getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.codeReviewDryRun }),
-        getFeatureFlagWithPayload({
+        isFeatureEnabled({ feature: FEATURE_FLAGS.tokenUsagePage }),
+        isFeatureEnabled({ feature: FEATURE_FLAGS.codeReviewDryRun }),
+        isFeatureEnabled({
             feature: FEATURE_FLAGS.committableSuggestions,
             identifier: "organization",
         }),
-        getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.sso }),
-        getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.cliKeys }),
-        getFeatureFlagWithPayload({
+        isFeatureEnabled({ feature: FEATURE_FLAGS.sso }),
+        isFeatureEnabled({ feature: FEATURE_FLAGS.cliKeys }),
+        isFeatureEnabled({
             feature: FEATURE_FLAGS.kodyRuleSuggestions,
         }),
     ]);
@@ -101,19 +101,12 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         !!permissions[ResourceType.CodeReviewSettings]?.[Action.Manage];
 
     const featureFlags = {
-        committableSuggestions:
-            (committableSuggestionsFeatureFlag?.value as boolean | undefined) ||
-            false,
-        codeReviewDryRun:
-            (codeReviewDryRunFeatureFlag?.value as boolean | undefined) ||
-            false,
-        tokenUsagePage:
-            (tokenUsagePageFeatureFlag?.value as boolean | undefined) || false,
-        sso: (ssoFeatureFlag?.value as boolean | undefined) || false,
-        cliKeys: (cliKeysFeatureFlag?.value as boolean | undefined) || false,
-        kodyRuleSuggestions:
-            (kodyRuleSuggestionsFeatureFlag?.value as boolean | undefined) ||
-            false,
+        committableSuggestions: committableSuggestionsFeatureFlag,
+        codeReviewDryRun: codeReviewDryRunFeatureFlag,
+        tokenUsagePage: tokenUsagePageFeatureFlag,
+        sso: ssoFeatureFlag,
+        cliKeys: cliKeysFeatureFlag,
+        kodyRuleSuggestions: kodyRuleSuggestionsFeatureFlag,
     };
 
     return (
