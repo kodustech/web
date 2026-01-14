@@ -63,7 +63,7 @@ export const getFeatureFlagWithPayload = async ({
     const jwtPayload = await auth();
     const id =
         identifier === "user"
-            ? jwtPayload?.user.userId
+            ? jwtPayload?.user?.userId
             : jwtPayload?.user?.organizationId;
 
     // if no user is provided, there's no way to get feature flag
@@ -117,7 +117,7 @@ export const isFeatureEnabled = async ({
         const jwtPayload = await auth();
         const id =
             identifier === "user"
-                ? jwtPayload?.user.userId
+                ? jwtPayload?.user?.userId
                 : jwtPayload?.user?.organizationId;
 
         if (!id) return false;
