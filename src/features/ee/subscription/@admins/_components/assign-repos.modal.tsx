@@ -152,7 +152,9 @@ export default function AssignReposModal({ userId }: { userId: string }) {
                         <PopoverContent align="start" className="w-80 p-0">
                             <Command>
                                 <CommandInput placeholder="Search repository..." />
-                                <CommandList className="max-h-56">
+                                <CommandList
+                                    className="max-h-56 overflow-y-auto"
+                                    onWheel={(e) => e.stopPropagation()}>
                                     <CommandEmpty>
                                         No repository found.
                                     </CommandEmpty>
