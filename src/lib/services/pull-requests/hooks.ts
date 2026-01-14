@@ -43,6 +43,11 @@ export const useInfinitePullRequestExecutions = (
             next.pullRequestTitle = title;
         }
 
+        const number = filters?.pullRequestNumber?.trim();
+        if (number) {
+            next.pullRequestNumber = number;
+        }
+
         if (typeof filters?.hasSentSuggestions === "boolean") {
             next.hasSentSuggestions = filters.hasSentSuggestions;
         }
@@ -53,6 +58,7 @@ export const useInfinitePullRequestExecutions = (
         filters?.repositoryId,
         filters?.repositoryName,
         filters?.pullRequestTitle,
+        filters?.pullRequestNumber,
         filters?.hasSentSuggestions,
         pageSize,
     ]);

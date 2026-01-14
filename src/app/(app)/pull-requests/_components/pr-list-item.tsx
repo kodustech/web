@@ -52,20 +52,20 @@ const TimeAgoDisplay = ({ dateString }: { dateString: string }) => {
 
 const getStatusBadge = (status: string, merged: boolean) => {
     if (merged) {
-        return <Badge variant="primary">Merged</Badge>;
+        return <Badge variant="primary" className="whitespace-nowrap">Merged</Badge>;
     }
 
     switch (status) {
         case "success":
-            return <Badge variant="success">Success</Badge>;
+            return <Badge variant="success" className="whitespace-nowrap">Success</Badge>;
         case "error":
-            return <Badge variant="error">Error</Badge>;
+            return <Badge variant="error" className="whitespace-nowrap">Error</Badge>;
         case "in_progress":
-            return <Badge variant="in-progress">In Progress</Badge>;
+            return <Badge variant="in-progress" className="whitespace-nowrap">In Progress</Badge>;
         case "pending":
-            return <Badge variant="helper">Pending</Badge>;
+            return <Badge variant="helper" className="whitespace-nowrap">Pending</Badge>;
         default:
-            return <Badge variant="helper">{status}</Badge>;
+            return <Badge variant="helper" className="whitespace-nowrap">{status}</Badge>;
     }
 };
 
@@ -115,26 +115,40 @@ export const PrListItem = ({ pr }: PrListItemProps) => {
                 <TableCell className="w-20 font-mono text-sm">
                     #{pr.prNumber}
                 </TableCell>
-                <TableCell className="w-90 min-w-0 flex-1">
-                    <Link
-                        href={prUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 truncate font-medium hover:underline"
-                        onClick={(e) => e.stopPropagation()}>
-                        {pr.title}
-                        <ExternalLinkIcon className="h-3 w-3 shrink-0" />
-                    </Link>
+                <TableCell className="max-w-[300px]">
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <Link
+                                href={prUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex max-w-[300px] items-center gap-1 font-medium hover:underline"
+                                onClick={(e) => e.stopPropagation()}>
+                                <span className="truncate">{pr.title}</span>
+                                <ExternalLinkIcon className="h-3 w-3 shrink-0" />
+                            </Link>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-sm">
+                            {pr.title}
+                        </TooltipContent>
+                    </Tooltip>
                 </TableCell>
                 <TableCell className="w-32">
-                    <span className="text-muted-foreground text-sm">
+                    <span className="text-muted-foreground block truncate text-sm">
                         {pr.repositoryName}
                     </span>
                 </TableCell>
                 <TableCell className="w-40">
-                    <div className="text-muted-foreground flex items-center gap-1 text-sm">
-                        <GitBranchIcon className="h-3 w-3" />
-                        <span className="truncate">{pr.headBranchRef}</span>
+                    <div className="text-muted-foreground flex w-full max-w-[10rem] items-center gap-1 text-sm">
+                        <GitBranchIcon className="h-3 w-3 shrink-0" />
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <span className="truncate">{pr.headBranchRef}</span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                                {pr.headBranchRef}
+                            </TooltipContent>
+                        </Tooltip>
                     </div>
                 </TableCell>
                 <TableCell className="w-32">
@@ -143,7 +157,9 @@ export const PrListItem = ({ pr }: PrListItemProps) => {
                     </span>
                 </TableCell>
                 <TableCell className="w-32">
-                    <span className="text-sm">{pr.author.name}</span>
+                    <span className="block truncate text-sm">
+                        {pr.author.name}
+                    </span>
                 </TableCell>
                 <TableCell className="w-20 text-center">
                     <div className="flex justify-center gap-2">

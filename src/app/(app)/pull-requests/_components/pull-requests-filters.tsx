@@ -2,7 +2,14 @@
 
 import { useMemo, useState } from "react";
 import { Button } from "@components/ui/button";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@components/ui/command";
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@components/ui/command";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
 import {
@@ -32,6 +39,8 @@ interface PullRequestsFiltersProps {
     onRepositoryChange: (repoName?: string) => void;
     pullRequestTitle: string;
     onTitleChange: (value: string) => void;
+    pullRequestNumber: string;
+    onPullRequestNumberChange: (value: string) => void;
     suggestionsFilter: SuggestionsFilterValue;
     onSuggestionsFilterChange: (value: SuggestionsFilterValue) => void;
 }
@@ -42,6 +51,8 @@ export const PullRequestsFilters = ({
     onRepositoryChange,
     pullRequestTitle,
     onTitleChange,
+    pullRequestNumber,
+    onPullRequestNumberChange,
     suggestionsFilter,
     onSuggestionsFilterChange,
 }: PullRequestsFiltersProps) => {
@@ -54,24 +65,28 @@ export const PullRequestsFilters = ({
         undefined,
     );
 
+    console.log("allRepositories", allRepositories);
+
     const repositories = useMemo(() => {
         if (!organizationId) {
             return [];
         }
-        return allRepositories.filter((repo: any) =>
-            repo.selected &&
-            hasPermission({
-                permissions,
-                organizationId,
-                action: Action.Read,
-                resource: ResourceType.PullRequests,
-                repoId: repo.id,
-            }),
+        return allRepositories.filter(
+            (repo: any) =>
+                repo.selected &&
+                hasPermission({
+                    permissions,
+                    organizationId,
+                    action: Action.Read,
+                    resource: ResourceType.PullRequests,
+                    repoId: String(repo.id),
+                }),
         );
     }, [allRepositories, organizationId, permissions]);
 
     const appliedFiltersCount =
         (pullRequestTitle.trim().length > 0 ? 1 : 0) +
+        (pullRequestNumber?.trim().length > 0 ? 1 : 0) +
         (suggestionsFilter !== "all" ? 1 : 0) +
         (selectedRepository ? 1 : 0);
 
@@ -108,6 +123,7 @@ export const PullRequestsFilters = ({
                         onClick={() => {
                             onRepositoryChange(undefined);
                             onTitleChange("");
+                            onPullRequestNumberChange("");
                             onSuggestionsFilterChange("all");
                         }}>
                         Clear
@@ -116,19 +132,35 @@ export const PullRequestsFilters = ({
 
                 <div className="flex flex-col gap-3">
                     <div className="flex flex-col gap-1.5">
-                        <Label className="text-xs text-text-secondary">
+                        <Label className="text-text-secondary text-xs">
                             PR title
                         </Label>
                         <Input
                             size="md"
                             placeholder="Title contains..."
                             value={pullRequestTitle}
-                            onChange={(event) => onTitleChange(event.target.value)}
+                            onChange={(event) =>
+                                onTitleChange(event.target.value)
+                            }
                         />
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <Label className="text-xs text-text-secondary">
+                        <Label className="text-text-secondary text-xs">
+                            PR number
+                        </Label>
+                        <Input
+                            size="md"
+                            placeholder="PR number..."
+                            value={pullRequestNumber}
+                            onChange={(event) =>
+                                onPullRequestNumberChange(event.target.value)
+                            }
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-1.5">
+                        <Label className="text-text-secondary text-xs">
                             Kody suggestions
                         </Label>
                         <Select
@@ -156,13 +188,15 @@ export const PullRequestsFilters = ({
                     </div>
 
                     <div className="flex flex-col gap-1.5">
-                        <Label className="text-xs uppercase text-text-secondary">
+                        <Label className="text-text-secondary text-xs uppercase">
                             Repositories
                         </Label>
                         <Command>
                             <CommandInput placeholder="Search repositories..." />
                             <CommandList className="max-h-48 overflow-y-auto">
-                                <CommandEmpty>No repository found.</CommandEmpty>
+                                <CommandEmpty>
+                                    No repository found.
+                                </CommandEmpty>
                                 <CommandGroup>
                                     <CommandItem
                                         value="all"
@@ -188,7 +222,8 @@ export const PullRequestsFilters = ({
                                                 </span>
                                                 {repo.name}
                                             </span>
-                                            {selectedRepository === repo.name && (
+                                            {selectedRepository ===
+                                                repo.name && (
                                                 <CheckIcon className="text-primary-light -mr-2 size-5" />
                                             )}
                                         </CommandItem>
