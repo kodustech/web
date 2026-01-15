@@ -31,6 +31,7 @@ import {
 } from "../../../_hooks";
 import { AutomatedReviewActive } from "./_components/automated-review-active";
 import { BaseBranches } from "./_components/base-branches";
+import { EnableCommittableSuggestions } from "./_components/enable-committable-suggestions";
 import { IgnorePaths } from "./_components/ignore-paths";
 import { IgnoredTitleKeywords } from "./_components/ignored-title-keywords";
 import { IsRequestChangesActive } from "./_components/is-request-changes-active";
@@ -181,8 +182,8 @@ export default function General() {
         currentLevel === FormattedConfigLevel.GLOBAL
             ? "default"
             : currentLevel === FormattedConfigLevel.REPOSITORY
-                ? "repository"
-                : "directory";
+              ? "repository"
+              : "directory";
 
     return (
         <Page.Root>
@@ -220,6 +221,7 @@ export default function General() {
                 <PullRequestApprovalActive />
                 <IsRequestChangesActive />
                 <RunOnDraft />
+                <EnableCommittableSuggestions />
                 <IgnorePaths />
                 <IgnoredTitleKeywords />
                 <BaseBranches />

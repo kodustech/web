@@ -3,6 +3,7 @@
 import { createContext, useContext } from "react";
 import { PlatformConfigValue } from "@services/parameters/types";
 import { CustomMessageConfig } from "@services/pull-request-messages/types";
+import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 
 import { useCodeReviewRouteParams } from "../_hooks";
 import type {
@@ -131,8 +132,14 @@ export const DefaultCodeReviewConfigProvider = (
     </DefaultCodeReviewConfigContext.Provider>
 );
 
-const FeatureFlagsContext = createContext<Record<string, boolean>>(
-    {} as Record<string, boolean>,
+const FeatureFlagsContext = createContext<
+    Partial<{
+        [K in keyof typeof FEATURE_FLAGS]: boolean | undefined;
+    }>
+>(
+    {} as Partial<{
+        [K in keyof typeof FEATURE_FLAGS]: boolean | undefined;
+    }>,
 );
 
 export const useFeatureFlags = () => {
@@ -141,7 +148,9 @@ export const useFeatureFlags = () => {
 
 export const FeatureFlagsProvider = (
     props: React.PropsWithChildren & {
-        featureFlags: Record<string, boolean>;
+        featureFlags: Partial<{
+            [K in keyof typeof FEATURE_FLAGS]: boolean | undefined;
+        }>;
     },
 ) => (
     <FeatureFlagsContext.Provider value={props.featureFlags}>

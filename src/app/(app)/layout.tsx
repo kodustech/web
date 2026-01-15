@@ -14,7 +14,7 @@ import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 import { NavMenu } from "src/core/layout/navbar";
 import { TEAM_STATUS } from "src/core/types";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
-import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
+import { isFeatureEnabled } from "src/core/utils/posthog-server-side";
 import { BYOKMissingKeyTopbar } from "src/features/ee/byok/_components/missing-key-topbar";
 import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { FinishedTrialModal } from "src/features/ee/subscription/_components/finished-trial-modal";
@@ -68,17 +68,30 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         organizationName,
         organizationLicense,
         usersWithAssignedLicense,
-        tokenUsagePageFeatureFlag,
         byokConfig,
+        tokenUsagePageFeatureFlag,
         codeReviewDryRunFeatureFlag,
+        committableSuggestionsFeatureFlag,
+        ssoFeatureFlag,
+        cliKeysFeatureFlag,
+        kodyRuleSuggestionsFeatureFlag,
     ] = await Promise.all([
         getPermissions(),
         getOrganizationName(),
         validateOrganizationLicense({ teamId }),
         getUsersWithLicense({ teamId }),
-        getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.tokenUsagePage }),
         getBYOK(),
-        getFeatureFlagWithPayload({ feature: FEATURE_FLAGS.codeReviewDryRun }),
+        isFeatureEnabled({ feature: FEATURE_FLAGS.tokenUsagePage }),
+        isFeatureEnabled({ feature: FEATURE_FLAGS.codeReviewDryRun }),
+        isFeatureEnabled({
+            feature: FEATURE_FLAGS.committableSuggestions,
+            identifier: "organization",
+        }),
+        isFeatureEnabled({ feature: FEATURE_FLAGS.sso }),
+        isFeatureEnabled({ feature: FEATURE_FLAGS.cliKeys }),
+        isFeatureEnabled({
+            feature: FEATURE_FLAGS.kodyRuleSuggestions,
+        }),
     ]);
 
     const isBYOK = isBYOKSubscriptionPlan(organizationLicense);
@@ -86,6 +99,15 @@ export default async function Layout({ children }: React.PropsWithChildren) {
 
     const canManageCodeReview =
         !!permissions[ResourceType.CodeReviewSettings]?.[Action.Manage];
+
+    const featureFlags = {
+        committableSuggestions: committableSuggestionsFeatureFlag,
+        codeReviewDryRun: codeReviewDryRunFeatureFlag,
+        tokenUsagePage: tokenUsagePageFeatureFlag,
+        sso: ssoFeatureFlag,
+        cliKeys: cliKeysFeatureFlag,
+        kodyRuleSuggestions: kodyRuleSuggestionsFeatureFlag,
+    };
 
     return (
         <Providers
@@ -97,13 +119,12 @@ export default async function Layout({ children }: React.PropsWithChildren) {
             }}
             permissions={permissions}
             isBYOK={isBYOK}
-            isTrial={isTrial}>
+            isTrial={isTrial}
+            featureFlags={featureFlags}>
             <SubscriptionProvider
                 license={organizationLicense}
                 usersWithAssignedLicense={usersWithAssignedLicense}>
-                <NavMenu
-                    tokenUsagePageFeatureFlag={tokenUsagePageFeatureFlag}
-                />
+                <NavMenu />
                 <FinishedTrialModal />
                 <SubscriptionStatusTopbar />
 

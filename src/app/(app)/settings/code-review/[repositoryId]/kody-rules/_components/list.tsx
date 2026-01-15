@@ -1,6 +1,7 @@
 "use client";
 
 import { type KodyRule } from "@services/kodyRules/types";
+import { useFeatureFlags } from "src/app/(app)/settings/_components/context";
 
 import { KodyRuleItem } from "./item";
 
@@ -10,11 +11,9 @@ type KodyRulesListProps = {
     showSuggestionsButton?: boolean;
 };
 
-export const KodyRulesList = ({
-    rules,
-    onAnyChange,
-    showSuggestionsButton = false,
-}: KodyRulesListProps) => {
+export const KodyRulesList = ({ rules, onAnyChange }: KodyRulesListProps) => {
+    const { kodyRuleSuggestions } = useFeatureFlags();
+
     if (rules.length === 0) {
         return (
             <div className="text-text-secondary flex flex-col items-center gap-2 py-20 text-sm">
@@ -30,7 +29,7 @@ export const KodyRulesList = ({
                     key={rule.uuid}
                     rule={rule}
                     onAnyChange={onAnyChange}
-                    showSuggestionsButton={showSuggestionsButton}
+                    showSuggestionsButton={kodyRuleSuggestions}
                 />
             ))}
         </div>

@@ -25,15 +25,31 @@ const PosthogServerSide = async <P>(promise: (instance: PostHog) => P) => {
 /**
  * **Usage *(SERVER-SIDE ONLY)***:
  * feature flags in client-side would flash, hydration errors would be thrown, page redirects could not be done
+ *
+ * default identifier is "user"
  * ```
- *  const feature1 = await getFeatureFlagWithPayload({ feature: "FEATURE-NAME-SET-IN-POSTHOG" });
- *  if(feature1?.value === 'VALUE-SET-IN-POSTHOG') doSomething();
+ *  const feature1ForUser = await getFeatureFlagWithPayload({ feature: "FEATURE-NAME-SET-IN-POSTHOG" });
+ *  if (feature1ForUser?.value === 'VALUE-SET-IN-POSTHOG') doSomething();
+ * ```
+ *
+ * explicitly setting identifier to "user"
+ * ```
+ *  const feature1ForUser = await getFeatureFlagWithPayload({ feature: "FEATURE-NAME-SET-IN-POSTHOG", identifier: "user" });
+ *  if (feature1ForUser?.value === 'VALUE-SET-IN-POSTHOG') doSomething();
+ * ```
+ *
+ * setting identifier to "organization"
+ * ```
+ *  const feature1ForOrg = await getFeatureFlagWithPayload({ feature: "FEATURE-NAME-SET-IN-POSTHOG", identifier: "organization" });
+ *  if (feature1ForOrg?.value === 'VALUE-SET-IN-POSTHOG') doSomething();
  * ```
  * */
 export const getFeatureFlagWithPayload = async ({
     feature,
+    identifier = "user",
 }: {
     feature: string;
+    identifier?: "user" | "organization";
 }): Promise<
     | {
           value: AwaitedReturnType<PostHog["getFeatureFlag"]>;
@@ -45,15 +61,18 @@ export const getFeatureFlagWithPayload = async ({
     if (!process.env.WEB_POSTHOG_KEY) return undefined;
 
     const jwtPayload = await auth();
-    const userId = jwtPayload?.user.userId;
+    const id =
+        identifier === "user"
+            ? jwtPayload?.user?.userId
+            : jwtPayload?.user?.organizationId;
 
     // if no user is provided, there's no way to get feature flag
-    if (!userId) return undefined;
+    if (!id) return undefined;
 
     return PosthogServerSide(async (p) => {
         const [value, payload] = await Promise.all([
-            p.getFeatureFlag(feature, userId).catch(() => undefined),
-            p.getFeatureFlagPayload(feature, userId).catch(() => undefined),
+            p.getFeatureFlag(feature, id).catch(() => undefined),
+            p.getFeatureFlagPayload(feature, id).catch(() => undefined),
         ]);
 
         // if no value was provided, it doesn't exists so it also has no payload
@@ -61,4 +80,61 @@ export const getFeatureFlagWithPayload = async ({
 
         return { value, payload };
     });
+};
+
+/**
+ * **Usage *(SERVER-SIDE ONLY)***:
+ * feature flags in client-side would flash, hydration errors would be thrown, page redirects could not be done
+ *
+ * default identifier is "user"
+ * ```
+ * const isEnabledForUser = await isFeatureEnabled({ feature: "FEATURE-NAME-SET-IN-POSTHOG" });
+ * if (isEnabledForUser) doSomething();
+ * ```
+ *
+ * explicitly setting identifier to "user"
+ * ```
+ * const isEnabledForUser = await isFeatureEnabled({ feature: "FEATURE-NAME-SET-IN-POSTHOG", identifier: "user" });
+ * if (isEnabledForUser) doSomething();
+ * ```
+ *
+ * setting identifier to "organization"
+ * ```
+ * const isEnabledForOrg = await isFeatureEnabled({ feature: "FEATURE-NAME-SET-IN-POSTHOG", identifier: "organization" });
+ * if (isEnabledForOrg) doSomething();
+ * ```
+ * */
+export const isFeatureEnabled = async ({
+    feature,
+    identifier = "user",
+}: {
+    feature: string;
+    identifier?: "user" | "organization";
+}): Promise<boolean> => {
+    try {
+        if (!process.env.WEB_POSTHOG_KEY) return false;
+
+        const jwtPayload = await auth();
+        const id =
+            identifier === "user"
+                ? jwtPayload?.user?.userId
+                : jwtPayload?.user?.organizationId;
+
+        if (!id) return false;
+
+        return PosthogServerSide(async (p) => {
+            const value = await p
+                .isFeatureEnabled(feature, id, {
+                    groups: {
+                        organization: jwtPayload?.user?.organizationId || "",
+                    },
+                })
+                .catch(() => false);
+
+            return value === true;
+        });
+    } catch (error) {
+        console.error("Error checking feature flag:", error);
+        return false;
+    }
 };

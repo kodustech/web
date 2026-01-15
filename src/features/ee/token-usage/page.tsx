@@ -14,7 +14,7 @@ import {
 import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 import { CookieName } from "src/core/utils/cookie";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
-import { getFeatureFlagWithPayload } from "src/core/utils/posthog-server-side";
+import { isFeatureEnabled } from "src/core/utils/posthog-server-side";
 import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { getSelectedDateRange } from "src/features/ee/cockpit/_helpers/get-selected-date-range";
 import { validateOrganizationLicense } from "src/features/ee/subscription/_services/billing/fetch";
@@ -26,11 +26,11 @@ export default async function TokenUsagePage({
 }: {
     searchParams: { [key: string]: string | string[] | undefined };
 }) {
-    const tokenUsagePageFeatureFlag = await getFeatureFlagWithPayload({
+    const tokenUsagePageFeatureFlag = await isFeatureEnabled({
         feature: FEATURE_FLAGS.tokenUsagePage,
     });
 
-    if (!tokenUsagePageFeatureFlag?.value) {
+    if (!tokenUsagePageFeatureFlag) {
         notFound();
     }
 

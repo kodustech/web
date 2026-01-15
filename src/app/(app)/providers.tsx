@@ -5,12 +5,15 @@ import { MagicModalPortal } from "@components/ui/magic-modal";
 import { PermissionsMap } from "@services/permissions/types";
 import type { Team } from "@services/teams/types";
 import type { Session } from "next-auth";
+import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 import { AllTeamsProvider } from "src/core/providers/all-teams-context";
 import { AuthProvider } from "src/core/providers/auth.provider";
 import { SubsciptionStatusProvider } from "src/core/providers/byok.provider";
 import { PermissionsProvider } from "src/core/providers/permissions.provider";
 import { SelectedTeamProvider } from "src/core/providers/selected-team-context";
 import { OrganizationProvider } from "src/features/organization/_providers/organization-context";
+
+import { FeatureFlagsProvider } from "./settings/_components/context";
 
 type ProvidersProps = PropsWithChildren<{
     teams: Team[];
@@ -22,6 +25,9 @@ type ProvidersProps = PropsWithChildren<{
     permissions: PermissionsMap;
     isBYOK: boolean;
     isTrial: boolean;
+    featureFlags: Partial<{
+        [K in keyof typeof FEATURE_FLAGS]: boolean;
+    }>;
 }>;
 
 export function Providers({
@@ -32,6 +38,7 @@ export function Providers({
     permissions,
     isBYOK,
     isTrial,
+    featureFlags,
 }: ProvidersProps) {
     return (
         <AuthProvider session={session}>
@@ -42,8 +49,11 @@ export function Providers({
                             isBYOK={isBYOK}
                             isTrial={isTrial}>
                             <SelectedTeamProvider>
-                                {children}
-                                <MagicModalPortal />
+                                <FeatureFlagsProvider
+                                    featureFlags={featureFlags}>
+                                    {children}
+                                    <MagicModalPortal />
+                                </FeatureFlagsProvider>
                             </SelectedTeamProvider>
                         </SubsciptionStatusProvider>
                     </AllTeamsProvider>
