@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Image from "next/image";
 import { redirect, useRouter } from "next/navigation";
 import { SelectRepositories } from "@components/system/select-repositories";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
@@ -9,12 +8,13 @@ import { Avatar, AvatarImage } from "@components/ui/avatar";
 import { Button } from "@components/ui/button";
 import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
-import { SvgKodus } from "@components/ui/icons/SvgKodus";
 import { Page } from "@components/ui/page";
 import { ToggleGroup } from "@components/ui/toggle-group";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { createOrUpdateRepositories } from "@services/codeManagement/fetch";
+import { useGetRepositories } from "@services/codeManagement/hooks";
 import type { Repository } from "@services/codeManagement/types";
+import { CODE_MANAGEMENT_API_PATHS } from "@services/codeManagement/types";
 import { fastSyncIDERules } from "@services/kodyRules/fetch";
 import { updateAutoLicenseAllowedUsers } from "@services/organizationParameters/fetch";
 import {
@@ -25,8 +25,6 @@ import {
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
 import { ParametersConfigKey } from "@services/parameters/types";
 import { useSuspenseGetConnections } from "@services/setup/hooks";
-import { useGetRepositories } from "@services/codeManagement/hooks";
-import { CODE_MANAGEMENT_API_PATHS } from "@services/codeManagement/types";
 import { useQueryClient } from "@tanstack/react-query";
 import {
     AlertTriangle,
@@ -36,10 +34,6 @@ import {
     PowerIcon,
     Sparkles,
 } from "lucide-react";
-import {
-    CodeReviewSummaryOptions,
-    type CodeReviewGlobalConfig,
-} from "src/app/(app)/settings/code-review/_types";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { captureSegmentEvent } from "src/core/utils/segment";
@@ -66,12 +60,18 @@ export default function App() {
 
     const queryClient = useQueryClient();
     const [isInitialLoad, setIsInitialLoad] = useState(true);
-    const { data: repositories = [], isLoading: isLoadingRepositories, isFetching } = useGetRepositories(teamId);
-    
+    const {
+        data: repositories = [],
+        isLoading: isLoadingRepositories,
+        isFetching,
+    } = useGetRepositories(teamId);
+
     useEffect(() => {
-        queryClient.invalidateQueries({ 
-            queryKey: [CODE_MANAGEMENT_API_PATHS.GET_REPOSITORIES_ORG] 
-        }).then(() => setIsInitialLoad(false));
+        queryClient
+            .invalidateQueries({
+                queryKey: [CODE_MANAGEMENT_API_PATHS.GET_REPOSITORIES_ORG],
+            })
+            .then(() => setIsInitialLoad(false));
     }, []);
 
     const isLoading = isInitialLoad || isLoadingRepositories || isFetching;
@@ -103,41 +103,7 @@ export default function App() {
         );
 
         if (!codeReview.configValue) {
-            const defaultConfigs: Partial<CodeReviewGlobalConfig> = {
-                automatedReviewActive: true,
-                reviewOptions: {
-                    bug: true,
-                    security: true,
-                    code_style: false,
-                    cross_file: true,
-                    kody_rules: true,
-                    performance: true,
-                    refactoring: false,
-                    error_handling: false,
-                    maintainability: false,
-                    breaking_changes: true,
-                    potential_issues: true,
-                    documentation_and_comments: false,
-                    performance_and_optimization: false,
-                },
-                summary: {
-                    generatePRSummary: true,
-                    customInstructions: "",
-                    behaviourForExistingDescription:
-                        CodeReviewSummaryOptions.CONCATENATE,
-                },
-                pullRequestApprovalActive: false,
-                isRequestChangesActive: false,
-                kodyRulesGeneratorEnabled: true,
-                runOnDraft: true,
-                codeReviewVersion: "v2",
-            };
-
-            await createOrUpdateCodeReviewParameter(
-                defaultConfigs,
-                teamId,
-                undefined,
-            );
+            await createOrUpdateCodeReviewParameter({}, teamId, undefined);
         }
 
         await updateCodeReviewParameterRepositories(teamId);
@@ -250,27 +216,30 @@ export default function App() {
             </div>
 
             <div className="flex flex-14 flex-col items-center justify-center gap-10 p-10">
-                <div className="flex flex-1 flex-col justify-center gap-10 w-150">
+                <div className="flex w-150 flex-1 flex-col justify-center gap-10">
                     <StepIndicators.Auto />
 
                     {hasRepositories === null ? (
                         <div className="flex flex-1 flex-col items-center justify-center gap-4">
-                            <div className="size-8 animate-spin rounded-full border-2 border-primary-light border-t-transparent" />
-                            <p className="text-text-secondary text-sm">Loading repositories...</p>
+                            <div className="border-primary-light size-8 animate-spin rounded-full border-2 border-t-transparent" />
+                            <p className="text-text-secondary text-sm">
+                                Loading repositories...
+                            </p>
                         </div>
                     ) : hasRepositories === false ? (
                         <>
-                            <div className="flex flex-col gap-4 items-center text-center">
+                            <div className="flex flex-col items-center gap-4 text-center">
                                 <div className="bg-card-lv2 rounded-full p-4">
-                                    <FolderX className="size-8 text-text-secondary" />
+                                    <FolderX className="text-text-secondary size-8" />
                                 </div>
                                 <Heading variant="h2">
                                     No repositories found
                                 </Heading>
-                                <p className="text-text-secondary text-sm max-w-md">
-                                    We couldn't find any repositories in your connected account. 
-                                    This might happen if the account has no repos or the token 
-                                    doesn't have the right permissions.
+                                <p className="text-text-secondary max-w-md text-sm">
+                                    We couldn't find any repositories in your
+                                    connected account. This might happen if the
+                                    account has no repos or the token doesn't
+                                    have the right permissions.
                                 </p>
                             </div>
 
@@ -280,11 +249,16 @@ export default function App() {
                                     variant="primary"
                                     className="w-full"
                                     rightIcon={<KeyRound />}
-                                    onClick={() => router.push("/setup/connecting-git-tool")}>
+                                    onClick={() =>
+                                        router.push(
+                                            "/setup/connecting-git-tool",
+                                        )
+                                    }>
                                     Update connection
                                 </Button>
-                                <p className="text-text-tertiary text-xs text-center">
-                                    You can reconnect with a different account or update your token permissions.
+                                <p className="text-text-tertiary text-center text-xs">
+                                    You can reconnect with a different account
+                                    or update your token permissions.
                                 </p>
                             </div>
                         </>
@@ -296,8 +270,8 @@ export default function App() {
                                 </Heading>
 
                                 <p className="text-text-secondary text-sm">
-                                    Select a few active repos to see results today. You
-                                    can add more later.
+                                    Select a few active repos to see results
+                                    today. You can add more later.
                                 </p>
                             </div>
 
@@ -311,100 +285,111 @@ export default function App() {
                                         <SelectRepositories
                                             open={open}
                                             onOpenChange={setOpen}
-                                            selectedRepositories={selectedRepositories}
+                                            selectedRepositories={
+                                                selectedRepositories
+                                            }
                                             onChangeSelectedRepositories={
                                                 setSelectedRepositories
                                             }
                                             teamId={teamId}
                                         />
-                                <small className="text-text-secondary mt-2 text-xs">
-                                    Recommended: repos with recent PR activity
-                                </small>
+                                        <small className="text-text-secondary mt-2 text-xs">
+                                            Recommended: repos with recent PR
+                                            activity
+                                        </small>
 
-                                {selectedRepositories.length > 0 &&
-                                    staleRepositories.length ===
-                                        selectedRepositories.length && (
-                                        <Alert
-                                            variant="alert"
-                                            className="border-alert/30 bg-alert/10 mt-3">
-                                            <AlertTriangle className="text-alert size-3" />
-                                            <AlertTitle className="text-alert text-sm">
-                                                Low recent activity{" "}
-                                            </AlertTitle>
-                                            <AlertDescription className="text-text-secondary text-xs">
-                                                {`Selected repos had no PRs in the last 14 days: ${staleRepositories
-                                                    .map(
-                                                        (r) =>
-                                                            `${r.organizationName}/${r.name}`,
-                                                    )
-                                                    .join(", ")}`}
-                                            </AlertDescription>
-                                        </Alert>
-                                    )}
-                            </FormControl.Input>
-                        </FormControl.Root>
+                                        {selectedRepositories.length > 0 &&
+                                            staleRepositories.length ===
+                                                selectedRepositories.length && (
+                                                <Alert
+                                                    variant="alert"
+                                                    className="border-alert/30 bg-alert/10 mt-3">
+                                                    <AlertTriangle className="text-alert size-3" />
+                                                    <AlertTitle className="text-alert text-sm">
+                                                        Low recent activity{" "}
+                                                    </AlertTitle>
+                                                    <AlertDescription className="text-text-secondary text-xs">
+                                                        {`Selected repos had no PRs in the last 14 days: ${staleRepositories
+                                                            .map(
+                                                                (r) =>
+                                                                    `${r.organizationName}/${r.name}`,
+                                                            )
+                                                            .join(", ")}`}
+                                                    </AlertDescription>
+                                                </Alert>
+                                            )}
+                                    </FormControl.Input>
+                                </FormControl.Root>
 
-                        <div className="flex flex-col gap-2">
-                            <FormControl.Label>
-                                Who should Kody review?
-                            </FormControl.Label>
-                            <ToggleGroup.Root
-                                type="single"
-                                value={reviewScope}
-                                onValueChange={(value) => {
-                                    if (value)
-                                        setReviewScope(value as ReviewScope);
-                                }}
-                                className="border-border-subtle bg-card-lv2/70 grid grid-cols-2 gap-2 rounded-xl border p-1">
-                                <ToggleGroup.ToggleGroupItem
-                                    asChild
-                                    value="pilot">
-                                    <Button
-                                        variant={
-                                            reviewScope === "pilot"
-                                                ? "primary-dark"
-                                                : "helper"
-                                        }
-                                        size="md"
-                                        className={`w-full justify-center gap-2 rounded-lg border transition-all`}>
-                                        <HatGlasses className={`size-4`} />
-                                        <span>PRs opened by me</span>
-                                    </Button>
-                                </ToggleGroup.ToggleGroupItem>
+                                <div className="flex flex-col gap-2">
+                                    <FormControl.Label>
+                                        Who should Kody review?
+                                    </FormControl.Label>
+                                    <ToggleGroup.Root
+                                        type="single"
+                                        value={reviewScope}
+                                        onValueChange={(value) => {
+                                            if (value)
+                                                setReviewScope(
+                                                    value as ReviewScope,
+                                                );
+                                        }}
+                                        className="border-border-subtle bg-card-lv2/70 grid grid-cols-2 gap-2 rounded-xl border p-1">
+                                        <ToggleGroup.ToggleGroupItem
+                                            asChild
+                                            value="pilot">
+                                            <Button
+                                                variant={
+                                                    reviewScope === "pilot"
+                                                        ? "primary-dark"
+                                                        : "helper"
+                                                }
+                                                size="md"
+                                                className={`w-full justify-center gap-2 rounded-lg border transition-all`}>
+                                                <HatGlasses
+                                                    className={`size-4`}
+                                                />
+                                                <span>PRs opened by me</span>
+                                            </Button>
+                                        </ToggleGroup.ToggleGroupItem>
 
-                                <ToggleGroup.ToggleGroupItem
-                                    asChild
-                                    value="team">
-                                    <Button
-                                        variant={
-                                            reviewScope === "team"
-                                                ? "primary-dark"
-                                                : "helper"
-                                        }
-                                        size="md"
-                                        className={`w-full justify-center gap-3 rounded-lg border transition-all`}>
-                                        <Sparkles className={`size-4`} />
-                                        All PRs in selected repos
-                                    </Button>
-                                </ToggleGroup.ToggleGroupItem>
-                                </ToggleGroup.Root>
+                                        <ToggleGroup.ToggleGroupItem
+                                            asChild
+                                            value="team">
+                                            <Button
+                                                variant={
+                                                    reviewScope === "team"
+                                                        ? "primary-dark"
+                                                        : "helper"
+                                                }
+                                                size="md"
+                                                className={`w-full justify-center gap-3 rounded-lg border transition-all`}>
+                                                <Sparkles
+                                                    className={`size-4`}
+                                                />
+                                                All PRs in selected repos
+                                            </Button>
+                                        </ToggleGroup.ToggleGroupItem>
+                                    </ToggleGroup.Root>
 
-                                <p className="text-text-secondary text-xs">
-                                    {scopeCopy}
-                                </p>
+                                    <p className="text-text-secondary text-xs">
+                                        {scopeCopy}
+                                    </p>
+                                </div>
+
+                                <Button
+                                    size="lg"
+                                    variant="primary"
+                                    className="mt-5 w-full"
+                                    rightIcon={<PowerIcon />}
+                                    loading={loadingSaveRepositories}
+                                    onClick={saveSelectedRepositoriesAction}
+                                    disabled={
+                                        selectedRepositories.length === 0
+                                    }>
+                                    {ctaLabel}
+                                </Button>
                             </div>
-
-                            <Button
-                                size="lg"
-                                variant="primary"
-                                className="mt-5 w-full"
-                                rightIcon={<PowerIcon />}
-                                loading={loadingSaveRepositories}
-                                onClick={saveSelectedRepositoriesAction}
-                                disabled={selectedRepositories.length === 0}>
-                                {ctaLabel}
-                            </Button>
-                        </div>
                         </>
                     )}
                 </div>
