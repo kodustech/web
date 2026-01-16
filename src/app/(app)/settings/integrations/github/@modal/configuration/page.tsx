@@ -21,18 +21,17 @@ import { createOrUpdateRepositories } from "@services/codeManagement/fetch";
 import type { Repository } from "@services/codeManagement/types";
 import { INTEGRATION_CONFIG } from "@services/integrations/integrationConfig";
 import { getIntegrationConfigsByCategory } from "@services/integrations/integrationConfig/hooks";
+import { PARAMETERS_PATHS } from "@services/parameters";
 import {
     createOrUpdateCodeReviewParameter,
     getParameterByKey,
     updateCodeReviewParameterRepositories,
 } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
-import { CodeReviewSummaryOptions } from "src/app/(app)/settings/code-review/_types";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { IntegrationCategory } from "src/core/types";
 import { captureSegmentEvent } from "src/core/utils/segment";
-import { PARAMETERS_PATHS } from "@services/parameters";
 
 export default function Github() {
     const router = useRouter();
@@ -88,37 +87,7 @@ export default function Github() {
         );
 
         if (!codeReview.configValue) {
-            const defaultConfigs = {
-                reviewOptions: {
-                    code_style: true,
-                    documentation_and_comments: true,
-                    error_handling: true,
-                    maintainability: true,
-                    performance_and_optimization: true,
-                    potential_issues: true,
-                    refactoring: true,
-                    security: true,
-                    kody_rules: true,
-                    breaking_changes: true,
-                },
-                summary: {
-                    generatePRSummary: true,
-                    customInstructions: "",
-                    behaviourForExistingDescription:
-                        CodeReviewSummaryOptions.CONCATENATE,
-                },
-                pullRequestApprovalActive: false,
-                automatedReviewActive: false,
-                kodusConfigFileOverridesWebPreferences: true,
-                isRequestChangesActive: false,
-                kodyRulesGeneratorEnabled: true,
-                runOnDraft: true,
-            };
-            await createOrUpdateCodeReviewParameter(
-                defaultConfigs,
-                teamId,
-                undefined,
-            );
+            await createOrUpdateCodeReviewParameter({}, teamId, undefined);
         }
 
         await updateCodeReviewParameterRepositories(teamId);

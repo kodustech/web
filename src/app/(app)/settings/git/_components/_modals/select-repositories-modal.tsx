@@ -28,7 +28,6 @@ import {
     updateCodeReviewParameterRepositories,
 } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
-import { CodeReviewSummaryOptions } from "src/app/(app)/settings/code-review/_types";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { IntegrationCategory } from "src/core/types";
@@ -46,7 +45,10 @@ export const SelectRepositoriesModal = (props: {
         useReactQueryInvalidateQueries();
 
     const [isLoadingRepositories, setIsLoadingRepositories] = useState(true);
-    const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
+    const [uploadProgress, setUploadProgress] = useState({
+        current: 0,
+        total: 0,
+    });
 
     const [open, setOpen] = useState(false);
     const [selectedRepositories, setSelectedRepositories] = useState<
@@ -60,7 +62,7 @@ export const SelectRepositoriesModal = (props: {
         const result = await createOrUpdateRepositoriesInChunks(
             selectedRepositories,
             teamId,
-            (current, total) => setUploadProgress({ current, total })
+            (current, total) => setUploadProgress({ current, total }),
         );
 
         const codeReview: {
@@ -72,37 +74,7 @@ export const SelectRepositoriesModal = (props: {
         );
 
         if (!codeReview.configValue) {
-            const defaultConfigs = {
-                reviewOptions: {
-                    code_style: true,
-                    documentation_and_comments: true,
-                    error_handling: true,
-                    maintainability: true,
-                    performance_and_optimization: true,
-                    potential_issues: true,
-                    refactoring: true,
-                    security: true,
-                    kody_rules: true,
-                    breaking_changes: true,
-                },
-                summary: {
-                    generatePRSummary: true,
-                    customInstructions: "",
-                    behaviourForExistingDescription:
-                        CodeReviewSummaryOptions.CONCATENATE,
-                },
-                pullRequestApprovalActive: false,
-                automatedReviewActive: false,
-                kodusConfigFileOverridesWebPreferences: true,
-                isRequestChangesActive: false,
-                kodyRulesGeneratorEnabled: true,
-                runOnDraft: true,
-            };
-            await createOrUpdateCodeReviewParameter(
-                defaultConfigs,
-                teamId,
-                undefined,
-            );
+            await createOrUpdateCodeReviewParameter({}, teamId, undefined);
         }
 
         await updateCodeReviewParameterRepositories(teamId);
@@ -111,7 +83,7 @@ export const SelectRepositoriesModal = (props: {
             toast({
                 variant: "warning",
                 title: `${result.success} repositories saved, ${result.failed} failed`,
-                description: "Some repositories could not be saved. Try again."
+                description: "Some repositories could not be saved. Try again.",
             });
         } else {
             toast({
@@ -223,10 +195,9 @@ export const SelectRepositoriesModal = (props: {
                                 selectedRepositories.length === 0 ||
                                 isLoadingRepositories
                             }>
-                            {uploadProgress.total > 0 
+                            {uploadProgress.total > 0
                                 ? `Saving... ${uploadProgress.current}/${uploadProgress.total}`
-                                : "Edit repositories"
-                            }
+                                : "Edit repositories"}
                         </Button>
                     </DialogFooter>
                 </DialogContent>
