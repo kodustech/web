@@ -1,58 +1,9 @@
-import { getSSOConfig } from "@services/ssoConfig/fetch";
-import { auth } from "src/core/config/auth";
-import { FEATURE_FLAGS } from "src/core/config/feature-flags";
-import { isFeatureEnabled } from "src/core/utils/posthog-server-side";
-import { SSOConfig, SSOProtocol } from "src/lib/auth/types";
+import type { Metadata } from "next";
+import Page from "src/features/ee/sso/page";
 
-import { ClientSsoOrganizationSettingsPage } from "./_page-component";
+export const metadata: Metadata = {
+    title: "SSO",
+    openGraph: { title: "SSO" },
+};
 
-export default async function SsoOrganizationSettingsPage() {
-    const featureFlag = await isFeatureEnabled({
-        feature: FEATURE_FLAGS.sso,
-    });
-
-    if (!featureFlag) {
-        return null;
-    }
-
-    const jwtPayload = await auth();
-    const email = jwtPayload?.user.email ?? "";
-
-    let ssoConfig: SSOConfig<SSOProtocol.SAML> = {
-        protocol: SSOProtocol.SAML,
-        active: false,
-        providerConfig: {
-            idpIssuer: "",
-            issuer: "",
-            entryPoint: "",
-            cert: "",
-        },
-        domains: [],
-    };
-
-    try {
-        const result = await getSSOConfig({
-            protocol: SSOProtocol.SAML,
-        });
-
-        if (result) {
-            ssoConfig = {
-                protocol: result.protocol,
-                active: result.active,
-                providerConfig: result.providerConfig,
-                uuid: result.uuid,
-                domains: result.domains,
-            };
-        }
-    } catch (error: unknown) {
-        console.error(error);
-    }
-
-    return (
-        <ClientSsoOrganizationSettingsPage
-            email={email}
-            ssoConfig={ssoConfig}
-            uuid={ssoConfig.uuid}
-        />
-    );
-}
+export default Page;
