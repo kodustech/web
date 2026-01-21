@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { generateQueryKey } from "src/core/utils/reactQuery";
 import { captureSegmentEvent } from "src/core/utils/segment";
 import { pluralize } from "src/core/utils/string";
 
@@ -95,6 +96,20 @@ export default function App() {
             }));
 
             await createOrUpdateRepositories(reposToSave, teamId);
+
+            // Manual cache update to avoid a redundant fetch in the next screen
+            const updatedRepositories = repositories.map((repo) => ({
+                ...repo,
+                selected: selectedRepositories.some((s) => s.id === repo.id),
+            }));
+
+            queryClient.setQueryData(
+                generateQueryKey(
+                    CODE_MANAGEMENT_API_PATHS.GET_REPOSITORIES_ORG,
+                    { params: { teamId, organizationSelected: undefined } },
+                ),
+                updatedRepositories,
+            );
 
             const codeReview: {
                 configKey: string;

@@ -9,8 +9,8 @@ import { Heading } from "@components/ui/heading";
 import { Page } from "@components/ui/page";
 import { Spinner } from "@components/ui/spinner";
 import { toast } from "@components/ui/toaster/use-toast";
+import { useGetRepositories } from "@services/codeManagement/hooks";
 import { applyCodeReviewPreset } from "@services/parameters/fetch";
-import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
 import { PULL_REQUEST_API } from "@services/pull-requests/fetch";
 import {
     AlertCircleIcon,
@@ -146,16 +146,14 @@ export default function ReviewModePage() {
     const router = useRouter();
     const { userId } = useAuth();
     const { teamId } = useSelectedTeamId();
-    const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
+    const { data: repositories = [], isLoading: isLoadingRepositories } =
+        useGetRepositories(teamId);
     const [selectedMode, setSelectedMode] = useState<ReviewMode>("default");
     const [isApplyingPreset, setIsApplyingPreset] = useState(false);
 
     const selectedRepoIds = useMemo(() => {
-        const repos = configValue?.repositories || [];
-        const selected = repos.filter((r) => r?.isSelected);
-        if (selected.length) return selected.map((r) => r.id);
-        return repos.map((r) => r.id);
-    }, [configValue?.repositories]);
+        return repositories.filter((r) => r.selected).map((r) => r.id);
+    }, [repositories]);
 
     const onboardingEnabled =
         Boolean(teamId) && Boolean(selectedRepoIds.length);
@@ -175,10 +173,10 @@ export default function ReviewModePage() {
     >(
         onboardingEnabled
             ? PULL_REQUEST_API.GET_ONBOARDING_SIGNALS({
-                  teamId,
-                  repositoryIds: selectedRepoIds,
-                  limit: 5,
-              })
+                teamId,
+                repositoryIds: selectedRepoIds,
+                limit: 5,
+            })
             : null,
         undefined,
         onboardingEnabled,
@@ -190,19 +188,19 @@ export default function ReviewModePage() {
             retryDelay: (attempt) => Math.min(2000 * (attempt + 1), 8000),
             refetchInterval: onboardingEnabled
                 ? (data) => {
-                      const signals = Array.isArray(data) ? data : [];
-                      const hasRecommendation = signals.some((signal) => {
-                          const mode =
-                              signal?.recommendation?.mode?.toLowerCase();
-                          return (
-                              mode === "safety" ||
-                              mode === "speed" ||
-                              mode === "coach" ||
-                              mode === "default"
-                          );
-                      });
-                      return hasRecommendation ? false : 5000;
-                  }
+                    const signals = Array.isArray(data) ? data : [];
+                    const hasRecommendation = signals.some((signal) => {
+                        const mode =
+                            signal?.recommendation?.mode?.toLowerCase();
+                        return (
+                            mode === "safety" ||
+                            mode === "speed" ||
+                            mode === "coach" ||
+                            mode === "default"
+                        );
+                    });
+                    return hasRecommendation ? false : 5000;
+                }
                 : false,
             refetchIntervalInBackground: true,
         },
@@ -417,9 +415,11 @@ export default function ReviewModePage() {
                             variant="primary"
                             className="w-full"
                             onClick={handleContinue}
-                            loading={isApplyingPreset}
-                            disabled={isApplyingPreset}>
-                            {`Continue with ${selectedModeLabel}`}
+                            loading={isApplyingPreset || isLoadingRepositories}
+                            disabled={isApplyingPreset || isLoadingRepositories}>
+                            {isLoadingRepositories
+                                ? "Loading configuration..."
+                                : `Continue with ${selectedModeLabel}`}
                         </Button>
                     </div>
                 </div>
