@@ -147,10 +147,14 @@ export const applyCodeReviewPreset = async (params: {
     teamId: string;
     preset: "speed" | "safety" | "coach";
 }) => {
-    const response = await axiosAuthorized.post(
-        PARAMETERS_PATHS.APPLY_CODE_REVIEW_PRESET,
-        params,
-    );
+    try {
+        const response = await axiosAuthorized.post<any>(
+            PARAMETERS_PATHS.APPLY_CODE_REVIEW_PRESET,
+            params,
+        );
 
-    return response.data;
+        return response.data;
+    } catch (error: any) {
+        return { error: error.response?.status || "Erro desconhecido" };
+    }
 };
