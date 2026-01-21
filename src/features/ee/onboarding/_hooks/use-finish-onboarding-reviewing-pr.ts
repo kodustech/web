@@ -39,31 +39,39 @@ export const useFinishOnboardingReviewingPR = ({
             return;
         }
 
-        await finishOnboarding({
-            teamId,
-            reviewPR: true,
-            repositoryId: selectedPR.repositoryId,
-            repositoryName: selectedPR.repository,
-            pullNumber: selectedPR.pull_number,
-        });
-        await revalidateServerSideTag("team-dependent");
+        try {
+            const result = await finishOnboarding({
+                teamId,
+                reviewPR: true,
+                repositoryId: selectedPR.repositoryId,
+                repositoryName: selectedPR.repository,
+                pullNumber: selectedPR.pull_number,
+            });
+            await revalidateServerSideTag("team-dependent");
 
-        captureSegmentEvent({
-            userId: userId!,
-            event: "first_review",
-            properties: { teamId },
-        });
+            captureSegmentEvent({
+                userId: userId!,
+                event: "first_review",
+                properties: { teamId },
+            });
 
-        if (!isSelfHosted) {
-            await startTeamTrial({ teamId, organizationId, byok: choseBYOK });
+            if (!isSelfHosted) {
+                await startTeamTrial({
+                    teamId,
+                    organizationId,
+                    byok: choseBYOK,
+                });
+            }
+
+            onSuccess();
+
+            await waitFor(5000);
+
+            // using this because next.js router is causing an error, probably related to https://github.com/vercel/next.js/issues/63121
+            window.location.href = "/settings/code-review";
+        } catch (error) {
+            console.error("Error in finishOnboardingReviewingPR:", error);
         }
-
-        onSuccess();
-
-        await waitFor(5000);
-
-        // using this because next.js router is causing an error, probably related to https://github.com/vercel/next.js/issues/63121
-        window.location.href = "/settings/code-review";
     });
 
     return {

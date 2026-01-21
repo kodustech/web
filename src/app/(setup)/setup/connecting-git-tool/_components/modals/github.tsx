@@ -59,7 +59,7 @@ export const GithubTokenModal = (props: {
                 },
             });
 
-            await captureSegmentEvent({
+            captureSegmentEvent({
                 userId: props?.userId!,
                 event: "setup_git_integration_success",
                 properties: {

@@ -56,10 +56,10 @@ export default function AzureRepos() {
 
             const repos =
                 repoConfig &&
-                Array.isArray(repoConfig?.configValue) &&
-                repoConfig.configValue.every(
-                    (repo) => typeof repo === "object" && repo !== null,
-                )
+                    Array.isArray(repoConfig?.configValue) &&
+                    repoConfig.configValue.every(
+                        (repo) => typeof repo === "object" && repo !== null,
+                    )
                     ? (repoConfig.configValue as Repository[])
                     : [];
 
@@ -118,7 +118,7 @@ export default function AzureRepos() {
             title: "Repositories saved",
         });
 
-        await captureSegmentEvent({
+        captureSegmentEvent({
             userId: userId!,
             event: "select_repositories_changed",
             properties: {

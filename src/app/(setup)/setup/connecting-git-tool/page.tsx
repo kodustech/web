@@ -48,7 +48,7 @@ export default function App() {
                 "true",
             );
 
-            await captureSegmentEvent({
+            captureSegmentEvent({
                 userId: userId!,
                 event: "try_setup_git_integration",
                 properties: { platform: key, method: "token" },

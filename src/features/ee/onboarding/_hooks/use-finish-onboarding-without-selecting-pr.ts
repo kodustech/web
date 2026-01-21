@@ -24,22 +24,33 @@ export const useFinishOnboardingWithoutSelectingPR = ({
         finishOnboardingWithoutSelectingPR,
         { loading: isFinishingOnboardingWithoutSelectingPR },
     ] = useAsyncAction(async () => {
-        await finishOnboarding({ teamId, reviewPR: false });
-        await revalidateServerSideTag("team-dependent");
+        try {
+            const result = await finishOnboarding({ teamId, reviewPR: false });
+            await revalidateServerSideTag("team-dependent");
 
-        captureSegmentEvent({
-            userId: userId!,
-            event: "skip_first_review",
-            properties: { teamId },
-        });
+            captureSegmentEvent({
+                userId: userId!,
+                event: "skip_first_review",
+                properties: { teamId },
+            });
 
-        if (!isSelfHosted) {
-            await startTeamTrial({ teamId, organizationId, byok: choseBYOK });
+            if (!isSelfHosted) {
+                await startTeamTrial({
+                    teamId,
+                    organizationId,
+                    byok: choseBYOK,
+                });
+            }
+
+            await waitFor(5000);
+
+            window.location.href = "/settings/code-review";
+        } catch (error) {
+            console.error(
+                "Error in finishOnboardingWithoutSelectingPR:",
+                error,
+            );
         }
-
-        await waitFor(5000);
-
-        window.location.href = "/settings/code-review";
     });
 
     return {

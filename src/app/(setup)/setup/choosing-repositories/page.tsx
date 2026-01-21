@@ -10,6 +10,7 @@ import { FormControl } from "@components/ui/form-control";
 import { Heading } from "@components/ui/heading";
 import { Page } from "@components/ui/page";
 import { ToggleGroup } from "@components/ui/toggle-group";
+import { toast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { createOrUpdateRepositories } from "@services/codeManagement/fetch";
 import { useGetRepositories } from "@services/codeManagement/hooks";
@@ -87,64 +88,74 @@ export default function App() {
         saveSelectedRepositoriesAction,
         { loading: loadingSaveRepositories },
     ] = useAsyncAction(async () => {
-        const reposToSave = selectedRepositories.map((repo) => ({
-            ...repo,
-            selected: true,
-        }));
+        try {
+            const reposToSave = selectedRepositories.map((repo) => ({
+                ...repo,
+                selected: true,
+            }));
 
-        await createOrUpdateRepositories(reposToSave, teamId);
+            await createOrUpdateRepositories(reposToSave, teamId);
 
-        const codeReview: {
-            configKey: string;
-            configValue: any;
-        } = await getParameterByKey(
-            ParametersConfigKey.CODE_REVIEW_CONFIG,
-            teamId,
-        );
-
-        if (!codeReview.configValue) {
-            await createOrUpdateCodeReviewParameter({}, teamId, undefined);
-        }
-
-        await updateCodeReviewParameterRepositories(teamId);
-
-        if (reviewScope === "pilot" && teamId) {
-            await updateAutoLicenseAllowedUsers({
-                organizationId,
+            const codeReview: {
+                configKey: string;
+                configValue: any;
+            } = await getParameterByKey(
+                ParametersConfigKey.CODE_REVIEW_CONFIG,
                 teamId,
-                includeCurrentUser: true,
-            });
-        }
-
-        if (teamId) {
-            const fastSyncPromises = selectedRepositories.map((repo) =>
-                fastSyncIDERules({ teamId, repositoryId: repo.id }).catch(
-                    (error) => {
-                        console.error(
-                            "Error fast syncing IDE rules for repo",
-                            repo.id,
-                            error,
-                        );
-                    },
-                ),
             );
 
-            void Promise.allSettled(fastSyncPromises);
+            if (!codeReview.configValue) {
+                await createOrUpdateCodeReviewParameter({}, teamId, undefined);
+            }
+
+            await updateCodeReviewParameterRepositories(teamId);
+
+            if (reviewScope === "pilot" && teamId) {
+                await updateAutoLicenseAllowedUsers({
+                    organizationId,
+                    teamId,
+                    includeCurrentUser: true,
+                });
+            }
+
+            if (teamId) {
+                const fastSyncPromises = selectedRepositories.map((repo) =>
+                    fastSyncIDERules({ teamId, repositoryId: repo.id }).catch(
+                        (error) => {
+                            console.error(
+                                "Error fast syncing IDE rules for repo",
+                                repo.id,
+                                error,
+                            );
+                        },
+                    ),
+                );
+
+                void Promise.allSettled(fastSyncPromises);
+            }
+
+            captureSegmentEvent({
+                userId: userId!,
+                event: "setup_select_repositories",
+                properties: {
+                    platform: codeManagementConnections
+                        .at(0)
+                        ?.platformName.toLowerCase(),
+                    quantityOfRepositories: selectedRepositories.length,
+                    scope: reviewScope,
+                },
+            });
+
+            router.replace(nextStepPath);
+        } catch (error) {
+            console.error(error);
+            toast({
+                variant: "danger",
+                title: "Error saving repositories",
+                description:
+                    "There was a problem saving your selection. Please try again.",
+            });
         }
-
-        await captureSegmentEvent({
-            userId: userId!,
-            event: "setup_select_repositories",
-            properties: {
-                platform: codeManagementConnections
-                    .at(0)
-                    ?.platformName.toLowerCase(),
-                quantityOfRepositories: selectedRepositories.length,
-                scope: reviewScope,
-            },
-        });
-
-        router.replace(nextStepPath);
     });
 
     const selectedCount = selectedRepositories.length;
@@ -300,7 +311,7 @@ export default function App() {
 
                                         {selectedRepositories.length > 0 &&
                                             staleRepositories.length ===
-                                                selectedRepositories.length && (
+                                            selectedRepositories.length && (
                                                 <Alert
                                                     variant="alert"
                                                     className="border-alert/30 bg-alert/10 mt-3">

@@ -33,8 +33,8 @@ const tokenFormSchema = z.object({
         error: "Enter a Username"
     }),
     email: z.email({
-            error: "Enter a valid email"
-        }),
+        error: "Enter a valid email"
+    }),
 });
 
 function getUsernameFromEmail(email: string): string {
@@ -76,7 +76,7 @@ export const BitbucketTokenModal = (props: {
                 email: data.email,
             });
 
-            await captureSegmentEvent({
+            captureSegmentEvent({
                 userId: props?.userId!,
                 event: "setup_git_integration_success",
                 properties: {
