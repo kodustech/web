@@ -27,8 +27,8 @@ import {
 } from "@components/ui/popover";
 import { useAsyncAction } from "@hooks/use-async-action";
 import { useEffectOnce } from "@hooks/use-effect-once";
-import { useGetRepositories } from "@services/codeManagement/hooks";
-import { Repository } from "@services/codeManagement/types";
+import { useGetSelectedRepositories } from "@services/codeManagement/hooks";
+import { RepositoryMinimal } from "@services/codeManagement/types";
 import { assignRepos, getAssignedRepos } from "@services/permissions/fetch";
 import { Check } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
@@ -38,12 +38,12 @@ export default function AssignReposModal({ userId }: { userId: string }) {
 
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
     const [selectedRepositories, setSelectedRepositories] = useState<
-        Repository[]
+        RepositoryMinimal[]
     >([]);
     const [isLoadingInitial, setIsLoadingInitial] = useState(true);
 
     const { data: allRepositories = [], isLoading: isLoadingAllRepos } =
-        useGetRepositories(teamId, undefined, { isSelected: true });
+        useGetSelectedRepositories(teamId);
 
     useEffect(() => {
         if (!allRepositories || allRepositories.length === 0) {
@@ -87,7 +87,7 @@ export default function AssignReposModal({ userId }: { userId: string }) {
         [selectedRepositories],
     );
 
-    const handleToggleRepository = (repository: Repository) => {
+    const handleToggleRepository = (repository: RepositoryMinimal) => {
         setSelectedRepositories((currentSelection) => {
             const isSelected = selectedRepoIds.has(repository.id);
             if (isSelected) {
