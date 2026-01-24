@@ -24,6 +24,13 @@ export type Repository = {
     lastActivityAt?: string;
 };
 
+export type RepositoryMinimal = {
+    id: string;
+    name: string;
+    full_name: string;
+    organizationName: string;
+};
+
 export type GitFileOrFolder = {
     name: string;
     path: string;
@@ -35,6 +42,9 @@ export const CODE_MANAGEMENT_API_PATHS = {
     GET_ONBOARDING_PULL_REQUESTS: pathToApiUrl("/code-management/get-prs"),
 
     GET_REPOSITORIES_ORG: pathToApiUrl("/code-management/repositories/org"),
+    GET_SELECTED_REPOSITORIES: pathToApiUrl(
+        "/code-management/repositories/selected",
+    ),
     CREATE_OR_UPDATE_REPOSITORIES_CONFIG: pathToApiUrl(
         "/code-management/repositories",
     ),

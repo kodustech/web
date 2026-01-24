@@ -1,6 +1,10 @@
 import { useFetch, useSuspenseFetch } from "src/core/utils/reactQuery";
 
-import { CODE_MANAGEMENT_API_PATHS, type Repository } from "./types";
+import {
+    CODE_MANAGEMENT_API_PATHS,
+    type Repository,
+    type RepositoryMinimal,
+} from "./types";
 
 export function useGetRepositories(
     teamId: string,
@@ -12,6 +16,13 @@ export function useGetRepositories(
         {
             params: { teamId, organizationSelected, ...(filters || {}) },
         },
+    );
+}
+
+export function useGetSelectedRepositories(teamId: string) {
+    return useFetch<RepositoryMinimal[]>(
+        CODE_MANAGEMENT_API_PATHS.GET_SELECTED_REPOSITORIES,
+        { params: { teamId } },
     );
 }
 

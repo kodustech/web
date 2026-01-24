@@ -16,7 +16,7 @@ import {
     PopoverTrigger,
 } from "@components/ui/popover";
 import { Spinner } from "@components/ui/spinner";
-import { useGetRepositories } from "@services/codeManagement/hooks";
+import { useGetSelectedRepositories } from "@services/codeManagement/hooks";
 import { Check, GitBranch } from "lucide-react";
 
 import { setCockpitRepositoryCookie } from "../_actions/set-cockpit-repository";
@@ -29,13 +29,8 @@ type Props = {
 const ITEMS_PER_BATCH = 50;
 
 export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
-    const { data: repositories = [], isLoading } = useGetRepositories(
-        teamId,
-        undefined,
-        {
-            isSelected: true,
-        },
-    );
+    const { data: repositories = [], isLoading } =
+        useGetSelectedRepositories(teamId);
 
     const [loading, startTransition] = useTransition();
     const [open, setOpen] = useState(false);

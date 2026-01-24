@@ -24,7 +24,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@components/ui/select";
-import { useGetRepositories } from "@services/codeManagement/hooks";
+import { useGetSelectedRepositories } from "@services/codeManagement/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { CheckIcon, ListFilterIcon } from "lucide-react";
 import { useAuth } from "src/core/providers/auth.provider";
@@ -60,27 +60,21 @@ export const PullRequestsFilters = ({
     const { organizationId } = useAuth();
     const permissions = usePermissions();
 
-    const { data: allRepositories = [], isLoading } = useGetRepositories(
-        teamId,
-        undefined,
-    );
-
-    console.log("allRepositories", allRepositories);
+    const { data: allRepositories = [], isLoading } =
+        useGetSelectedRepositories(teamId);
 
     const repositories = useMemo(() => {
         if (!organizationId) {
             return [];
         }
-        return allRepositories.filter(
-            (repo: any) =>
-                repo.selected &&
-                hasPermission({
-                    permissions,
-                    organizationId,
-                    action: Action.Read,
-                    resource: ResourceType.PullRequests,
-                    repoId: String(repo.id),
-                }),
+        return allRepositories.filter((repo) =>
+            hasPermission({
+                permissions,
+                organizationId,
+                action: Action.Read,
+                resource: ResourceType.PullRequests,
+                repoId: String(repo.id),
+            }),
         );
     }, [allRepositories, organizationId, permissions]);
 
