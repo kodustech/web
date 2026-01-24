@@ -230,7 +230,7 @@ export const SuggestionsModal = ({ ruleId, ruleTitle, variant = "default" }: Sug
                                                 <h3 className="font-semibold text-sm">
                                                     {group.prTitle}
                                                 </h3>
-                                                <Badge variant="outline" className="h-2">
+                                                <Badge variant="secondary" className="h-2">
                                                     #{group.prNumber}
                                                 </Badge>
                                             </div>
@@ -269,7 +269,7 @@ export const SuggestionsModal = ({ ruleId, ruleTitle, variant = "default" }: Sug
                                                 <div key={suggestion.id} className="space-y-3">
                                                     <div className="flex items-start justify-between gap-4">
                                                         <div className="flex-1">
-                                                            <Badge variant="outline" className="h-2 font-mono text-xs mb-2">
+                                                            <Badge variant="secondary" className="h-2 font-mono text-xs mb-2">
                                                                 {suggestion.relevantFile} L{suggestion.relevantLinesStart}-
                                                                 {suggestion.relevantLinesEnd}
                                                             </Badge>
