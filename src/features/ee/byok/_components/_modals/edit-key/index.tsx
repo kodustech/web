@@ -116,7 +116,16 @@ export const BYOKEditKeyModal = ({
                                     </Suspense>
                                 </ErrorBoundary>
 
-                                {provider && <ByokBaseURLInput />}
+                                {provider && (
+                                    <ErrorBoundary
+                                        onReset={reset}
+                                        resetKeys={[provider]}
+                                        fallbackRender={() => null}>
+                                        <Suspense fallback={null}>
+                                            <ByokBaseURLInput />
+                                        </Suspense>
+                                    </ErrorBoundary>
+                                )}
 
                                 {provider && (
                                     <ErrorBoundary
@@ -167,7 +176,16 @@ export const BYOKEditKeyModal = ({
                                     </ErrorBoundary>
                                 )}
 
-                                {model?.trim().length > 0 && <ByokKeyInput />}
+                                {model?.trim().length > 0 && (
+                                    <ErrorBoundary
+                                        onReset={reset}
+                                        resetKeys={[provider, model]}
+                                        fallbackRender={() => null}>
+                                        <Suspense fallback={null}>
+                                            <ByokKeyInput />
+                                        </Suspense>
+                                    </ErrorBoundary>
+                                )}
                             </div>
 
                             <DialogFooter className="justify-between">

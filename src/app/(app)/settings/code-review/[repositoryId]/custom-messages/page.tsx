@@ -12,6 +12,7 @@ import { savePullRequestMessages } from "@services/pull-request-messages/fetch";
 import { useSuspensePullRequestMessages } from "@services/pull-request-messages/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import { SaveIcon } from "lucide-react";
+import { PageBoundary } from "src/core/components/page-boundary";
 import { pathToApiUrl, unformatConfig } from "src/core/utils/helpers";
 
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
@@ -20,7 +21,7 @@ import { HiddenComments } from "./_components/hidden-comments";
 import { LLMPromptToggle } from "./_components/llm-prompt";
 import { TabContent } from "./_components/tab-content";
 
-export default function CustomMessages() {
+function CustomMessagesContent() {
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
     const pullRequestMessages = useSuspensePullRequestMessages();
     const queryClient = useQueryClient();
@@ -285,5 +286,15 @@ export default function CustomMessages() {
                 </Tabs>
             </Page.Content>
         </Page.Root>
+    );
+}
+
+export default function CustomMessages() {
+    return (
+        <PageBoundary
+            errorVariant="card"
+            errorMessage="Failed to load custom messages. Please try again.">
+            <CustomMessagesContent />
+        </PageBoundary>
     );
 }

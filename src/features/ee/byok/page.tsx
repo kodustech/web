@@ -7,7 +7,7 @@ import { ByokPageClient } from "./_components/page.client";
 import { isBYOKSubscriptionPlan } from "./_utils";
 
 export default async function ByokPage() {
-    const byokConfig = await getBYOK();
+    const byokConfig = await getBYOK().catch(() => null);
 
     return <ByokPageClient config={byokConfig} />;
 }
