@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
 import { getIntegrationConfig } from "@services/integrations/integrationConfig/fetch";
 import { getConnections } from "@services/setup/fetch";
+import { ErrorCard } from "src/core/components/ui/error-card";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
+import { safeArray } from "src/core/utils/safe-array";
 
 import { SelectRepositoriesModal } from "../../_components/_modals/select-repositories-modal";
 
@@ -29,12 +31,26 @@ const providers = {
 
 export default async function GitRepositories() {
     const teamId = await getGlobalSelectedTeamId();
-    const [connections, selectedRepositories] = await Promise.all([
-        getConnections(teamId),
+
+    let connectionsError = false;
+    const [connectionsResult, selectedRepositories] = await Promise.all([
+        getConnections(teamId).catch(() => {
+            connectionsError = true;
+            return [];
+        }),
         getIntegrationConfig({ teamId }),
     ]);
 
-    const gitConnection = connections.find(
+    if (connectionsError) {
+        return (
+            <ErrorCard
+                variant="card"
+                message="Failed to load connections. Please try again."
+            />
+        );
+    }
+
+    const gitConnection = safeArray(connectionsResult).find(
         (c) => c.category === "CODE_MANAGEMENT",
     );
     if (!gitConnection) redirect("/settings/git");

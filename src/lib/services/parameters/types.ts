@@ -1,3 +1,9 @@
+export type CodeReviewLabel = {
+    type: string;
+    name: string;
+    description: string;
+};
+
 export enum ParametersConfigKey {
     BOARD_PRIORITY_TYPE = "board_priority_type",
     PLATFORM_CONFIGS = "platform_configs",

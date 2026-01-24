@@ -12,6 +12,7 @@ import integrationFactory from "src/core/integrations/integrationFactory";
 import { useAllTeams } from "src/core/providers/all-teams-context";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import type { AwaitedReturnType } from "src/core/types";
+import { safeArray } from "src/core/utils/safe-array";
 
 import { CODE_MANAGEMENT_PLATFORMS } from "../../_constants";
 import { openProviderModal } from "./helpers";
@@ -37,7 +38,7 @@ export const ProviderOptionButton = (props: {
 
         if (!integrationConnector) return;
 
-        const findConnection = connections.find(
+        const findConnection = safeArray(connections).find(
             (c) => c.platformName.toLowerCase() === provider.toLowerCase(),
         );
 

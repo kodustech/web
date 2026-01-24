@@ -22,6 +22,7 @@ import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
 import { useFetch } from "src/core/utils/reactQuery";
+import { safeArray } from "src/core/utils/safe-array";
 import { captureSegmentEvent } from "src/core/utils/segment";
 
 import { StepIndicators } from "../_components/step-indicators";
@@ -152,7 +153,7 @@ export default function ReviewModePage() {
     const [isApplyingPreset, setIsApplyingPreset] = useState(false);
 
     const selectedRepoIds = useMemo(() => {
-        return repositories.filter((r) => r.selected).map((r) => r.id);
+        return safeArray<{ id: string; selected?: boolean }>(repositories).filter((r) => r.selected).map((r) => r.id);
     }, [repositories]);
 
     const onboardingEnabled =

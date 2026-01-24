@@ -10,7 +10,9 @@ import {
     useGetAllCodeReviewLabels,
     useGetCodeReviewLabels,
 } from "@services/parameters/hooks";
+import type { CodeReviewLabel } from "@services/parameters/types";
 import { Controller, useFormContext } from "react-hook-form";
+import { safeArray } from "src/core/utils/safe-array";
 import {
     useCodeReviewRouteParams,
     useCurrentConfigLevel,
@@ -64,8 +66,8 @@ export const AnalysisTypes = () => {
         }
     }, [allLabels.length, allLabelsLoading]); // Only run once when labels are loaded
 
-    const reviewOptionsOptions: CheckboxCardOption[] = labels.map(
-        (label: any) => ({
+    const reviewOptionsOptions: CheckboxCardOption[] = safeArray<CodeReviewLabel>(labels).map(
+        (label) => ({
             value: label.type,
             name: label.name,
             description: label.description,
@@ -98,7 +100,7 @@ export const AnalysisTypes = () => {
                             onValueChange={(values) => {
                                 const currentOptions =
                                     form.getValues("reviewOptions") || {};
-                                const currentVersionOptions = labels.map(
+                                const currentVersionOptions = safeArray<CodeReviewLabel>(labels).map(
                                     (label) => label.type,
                                 );
 

@@ -11,6 +11,8 @@ import { getIntegrationConfig } from "@services/integrations/integrationConfig/f
 import { getConnections } from "@services/setup/fetch";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
 import { getCurrentPathnameOnServerComponents } from "src/core/utils/headers";
+import { safeArray } from "src/core/utils/safe-array";
+import { ErrorCard } from "src/core/components/ui/error-card";
 import { getAutoLicenseAssignmentConfig } from "src/lib/services/organizationParameters/fetch";
 
 import { getOrganizationMembers } from "src/features/ee/subscription/_services/billing/fetch";
@@ -23,17 +25,25 @@ import { IgnoredUsersCard } from "./_components/ignored-users-card";
 export default async function GitSettings() {
     const teamId = await getGlobalSelectedTeamId();
 
-    const [
-        connections,
-        connectedRepositories,
-        autoLicenseAssignmentConfig,
-        organizationMembersRaw,
-    ] = await Promise.all([
-        getConnections(teamId),
-        getIntegrationConfig({ teamId }),
-        getAutoLicenseAssignmentConfig(),
-        getOrganizationMembers({ teamId }).catch(() => []),
-    ]);
+    let connectionsResult: Awaited<ReturnType<typeof getConnections>> = [];
+    let connectedRepositories: Awaited<ReturnType<typeof getIntegrationConfig>> = [];
+    let autoLicenseAssignmentConfig: Awaited<ReturnType<typeof getAutoLicenseAssignmentConfig>> | null = null;
+    let organizationMembersRaw: Awaited<ReturnType<typeof getOrganizationMembers>> = [];
+    let connectionsError = false;
+
+    try {
+        [connectionsResult, connectedRepositories, autoLicenseAssignmentConfig, organizationMembersRaw] = await Promise.all([
+            getConnections(teamId),
+            getIntegrationConfig({ teamId }),
+            getAutoLicenseAssignmentConfig().catch(() => null),
+            getOrganizationMembers({ teamId }).catch(() => []),
+        ]);
+    } catch (err) {
+        console.error("[GitSettings] error fetching data:", err);
+        connectionsError = true;
+    }
+
+    const connections = safeArray(connectionsResult);
 
     const organizationMembers = Array.isArray(organizationMembersRaw)
         ? organizationMembersRaw.map((member) => {
@@ -98,7 +108,12 @@ export default async function GitSettings() {
                     </TabsList>
 
                     <TabsContent value="repositories">
-                        {gitConnection ? (
+                        {connectionsError ? (
+                            <ErrorCard
+                                variant="card"
+                                message="Failed to load connections. Please try again."
+                            />
+                        ) : gitConnection ? (
                             <GitRepositoriesTable
                                 platformName={gitConnection.platformName}
                                 repositories={connectedRepositories}

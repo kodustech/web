@@ -4,6 +4,23 @@ import { createUrl } from "src/core/utils/helpers";
 import { isServerSide } from "src/core/utils/server-side";
 import { getJWTToken } from "src/core/utils/session";
 
+/**
+ * Custom error for MCP Manager service unavailable
+ */
+export class MCPServiceUnavailableError extends Error {
+    constructor(message = "MCP Manager service is not available") {
+        super(message);
+        this.name = "MCPServiceUnavailableError";
+    }
+}
+
+/**
+ * MCP Manager fetch utility
+ *
+ * Note: MCP Manager is an optional service. If it's not running,
+ * this throws MCPServiceUnavailableError which callers can catch
+ * to handle gracefully (e.g., show empty state instead of error).
+ */
 export const mcpManagerFetch = async <Data>(
     _url: Parameters<typeof typedFetch>[0],
     config?: Parameters<typeof typedFetch>[1],
@@ -40,8 +57,16 @@ export const mcpManagerFetch = async <Data>(
             },
         });
     } catch (error) {
-        if (error instanceof Error && error.message.includes("ENOTFOUND")) {
-            throw new Error("Could not load plugin information");
+        // Service unavailable - MCP Manager might not be running
+        if (
+            error instanceof Error &&
+            (error.message.includes("ENOTFOUND") ||
+                error.message.includes("ECONNREFUSED") ||
+                error.message.includes("Failed to fetch") ||
+                error.message.includes("fetch failed"))
+        ) {
+            console.warn("[MCP Manager] Service unavailable:", error.message);
+            throw new MCPServiceUnavailableError();
         }
         throw error;
     }

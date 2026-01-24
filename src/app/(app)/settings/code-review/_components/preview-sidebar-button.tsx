@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { Sheet, SheetTrigger } from "@components/ui/sheet";
 import {
@@ -23,6 +23,11 @@ export const TestReviewSidebarButton = ({
 }: TestReviewSidebarButtonProps) => {
     const pathname = usePathname();
     const isInCodeReviewSettings = pathname?.includes("/settings/code-review/");
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     useEffect(() => {
         if (!isInCodeReviewSettings) return;
@@ -45,6 +50,29 @@ export const TestReviewSidebarButton = ({
 
     if (!isInCodeReviewSettings) {
         return null;
+    }
+
+    // Render placeholder during SSR to avoid hydration mismatch with Radix IDs
+    if (!mounted) {
+        return (
+            <div
+                className={cn(
+                    "group relative flex flex-col items-center justify-center",
+                    "w-full px-2 py-4",
+                    "text-text-tertiary",
+                    className,
+                )}>
+                <FlaskConical className="mb-2 size-5" />
+                <span
+                    className="text-md leading-tight font-medium tracking-tight"
+                    style={{
+                        writingMode: "vertical-rl",
+                        textOrientation: "mixed",
+                    }}>
+                    Test
+                </span>
+            </div>
+        );
     }
 
     return (

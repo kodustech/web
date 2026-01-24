@@ -42,9 +42,16 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         redirect("/confirm-email");
     }
 
-    const teams = await getTeams();
+    let teams;
+    try {
+        teams = await getTeams();
+    } catch (err) {
+        console.error("[Layout] Failed to fetch teams:", err);
+        // Re-throw to trigger global-error.tsx
+        throw new Error("Failed to load teams. Please try again later.");
+    }
 
-    if (!teams.some((team) => team.status === TEAM_STATUS.ACTIVE)) {
+    if (!teams?.some((team) => team.status === TEAM_STATUS.ACTIVE)) {
         redirect("/setup");
     }
 
@@ -55,9 +62,14 @@ export default async function Layout({ children }: React.PropsWithChildren) {
     }>({
         key: ParametersConfigKey.PLATFORM_CONFIGS,
         teamId,
+    }).catch((err) => {
+        console.error("[Layout] Failed to fetch platform configs:", err);
+        return null;
     });
 
-    if (!platformConfigs?.configValue?.finishOnboard) {
+    // Only redirect to setup if we're sure onboarding isn't finished
+    // If the API failed, assume user is onboarded to avoid blocking access
+    if (platformConfigs && !platformConfigs?.configValue?.finishOnboard) {
         redirect("/setup");
     }
 
@@ -78,20 +90,20 @@ export default async function Layout({ children }: React.PropsWithChildren) {
     ] = await Promise.all([
         getPermissions(),
         getOrganizationName(),
-        validateOrganizationLicense({ teamId }),
-        getUsersWithLicense({ teamId }),
-        getBYOK(),
-        isFeatureEnabled({ feature: FEATURE_FLAGS.tokenUsagePage }),
-        isFeatureEnabled({ feature: FEATURE_FLAGS.codeReviewDryRun }),
+        validateOrganizationLicense({ teamId }).catch(() => null),
+        getUsersWithLicense({ teamId }).catch(() => []),
+        getBYOK().catch(() => null),
+        isFeatureEnabled({ feature: FEATURE_FLAGS.tokenUsagePage }).catch(() => false),
+        isFeatureEnabled({ feature: FEATURE_FLAGS.codeReviewDryRun }).catch(() => false),
         isFeatureEnabled({
             feature: FEATURE_FLAGS.committableSuggestions,
             identifier: "organization",
-        }),
-        isFeatureEnabled({ feature: FEATURE_FLAGS.sso }),
-        isFeatureEnabled({ feature: FEATURE_FLAGS.cliKeys }),
+        }).catch(() => false),
+        isFeatureEnabled({ feature: FEATURE_FLAGS.sso }).catch(() => false),
+        isFeatureEnabled({ feature: FEATURE_FLAGS.cliKeys }).catch(() => false),
         isFeatureEnabled({
             feature: FEATURE_FLAGS.kodyRuleSuggestions,
-        }),
+        }).catch(() => false),
     ]);
 
     const isBYOK = isBYOKSubscriptionPlan(organizationLicense);

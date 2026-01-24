@@ -70,7 +70,8 @@ export const authorizedFetch = async <Data>(
             }
         }
 
-        return null as Data;
+        // Propagar o erro para que o chamador possa tratar
+        throw error1;
     }
 };
 

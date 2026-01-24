@@ -14,12 +14,35 @@ import { useAuth } from "../providers/auth.provider";
 import { axiosAuthorized } from "./axios";
 import { addSearchParamsToUrl } from "./url";
 
+/**
+ * Suspense-enabled data fetching hook
+ *
+ * Error handling strategy:
+ * - Network/parse errors: use fallbackData if available, otherwise throw
+ * - 404 (Not Found): use fallbackData if available (resource doesn't exist yet)
+ * - Other API errors (400, 500, etc): always throw - show error to user
+ *
+ * Errors should be caught by an ErrorBoundary (use PageBoundary).
+ *
+ * @example
+ * <PageBoundary>
+ *   <MyComponent />
+ * </PageBoundary>
+ *
+ * function MyComponent() {
+ *   const data = useSuspenseFetch<User>('/api/user', {}, {
+ *     fallbackData: { name: 'Guest' } // Used for network errors or 404
+ *   });
+ *   return <div>{data.name}</div>;
+ * }
+ */
 export const useSuspenseFetch = <T>(
     url: string | null,
     params?: {
         params: Record<string, string | number | boolean | undefined | null>;
     },
     config?: Omit<UseSuspenseQueryOptions<T, Error>, "queryKey"> & {
+        /** Used for network errors, parse errors, and 404 (resource not found) */
         fallbackData?: T;
     },
 ) => {
@@ -32,30 +55,45 @@ export const useSuspenseFetch = <T>(
         queryFn: async ({ signal }) => {
             const urlWithParams = addSearchParamsToUrl(url!, params?.params);
 
-            const response = await fetch(urlWithParams, {
-                signal,
-                headers: { Authorization: `Bearer ${accessToken}` },
-            });
+            let response: Response;
+            try {
+                response = await fetch(urlWithParams, {
+                    signal,
+                    headers: { Authorization: `Bearer ${accessToken}` },
+                });
+            } catch (networkError) {
+                // Network error (offline, DNS, etc) - use fallback if available
+                if (config?.fallbackData !== undefined) {
+                    return config.fallbackData;
+                }
+                throw new Error(`Network error fetching ${url}`);
+            }
 
             const text = await response.text();
 
             let json: { statusCode: number; data: T | undefined };
-
             try {
                 json = JSON.parse(text);
             } catch {
-                if (config && "fallbackData" in config) {
-                    return config.fallbackData as T;
+                // JSON parse error - use fallback if available
+                if (config?.fallbackData !== undefined) {
+                    return config.fallbackData;
                 }
-                json = { statusCode: 500, data: undefined };
+                throw new Error(`Invalid JSON response from ${url}`);
             }
 
-            if (json.statusCode !== 200 && json.statusCode !== 201) {
-                if (config && "fallbackData" in config)
-                    return config.fallbackData as T;
+            // 404 Not Found - resource doesn't exist, use fallback if available
+            if (json.statusCode === 404) {
+                if (config?.fallbackData !== undefined) {
+                    return config.fallbackData;
+                }
+                throw new Error(`Resource not found: ${url}`);
+            }
 
+            // Other API errors (400, 500, etc) - always throw, show to user
+            if (json.statusCode !== 200 && json.statusCode !== 201) {
                 throw new Error(
-                    `Request with url "${url}" and params "${JSON.stringify(params?.params)}" failed with status ${json.statusCode}`,
+                    `Request failed: ${url} returned status ${json.statusCode}`,
                 );
             }
 
@@ -66,6 +104,12 @@ export const useSuspenseFetch = <T>(
     return context.data;
 };
 
+/**
+ * Standard data fetching hook (non-suspense)
+ *
+ * Returns loading/error states that should be handled by the component.
+ * Uses global retry configuration from QueryProvider.
+ */
 export const useFetch = <T>(
     url: string | null,
     params?: AxiosRequestConfig<any>,
@@ -73,11 +117,6 @@ export const useFetch = <T>(
     config?: Omit<UseQueryOptions<T, Error>, "queryKey" | "queryFn">,
 ): ReturnType<typeof useQuery<T, Error>> => {
     const queryKey = generateQueryKey(url!, params);
-
-    const mergedConfig = {
-        retry: false,
-        ...config,
-    };
 
     const context = useQuery<T, Error>({
         queryKey,
@@ -92,7 +131,7 @@ export const useFetch = <T>(
                 .then((res: { data: any }) => res.data);
         },
         enabled: !!url && enabledCondition,
-        ...mergedConfig,
+        ...config,
     });
 
     return context;

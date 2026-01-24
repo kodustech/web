@@ -6,6 +6,7 @@ import { useDirectoryLoader } from "@services/codeManagement/hooks/use-directory
 import { useLazyRepositoryTree } from "@services/codeManagement/hooks/use-lazy-repository-tree";
 import { useSuspenseGetCodeReviewParameter } from "@services/parameters/hooks";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { safeArray } from "src/core/utils/safe-array";
 
 interface DirectoryItem {
     name: string;
@@ -35,7 +36,7 @@ const LazyTreeFolder = ({
         isOpen && directory.hasChildren,
     );
 
-    const isDisabled = repository?.directories?.some(
+    const isDisabled = safeArray(repository?.directories).some(
         (d: any) => path.startsWith(`${d.path}/`) || path === d.path,
     );
 
@@ -82,7 +83,7 @@ export const GitDirectorySelector = ({
     const { teamId } = useSelectedTeamId();
     const { configValue } = useSuspenseGetCodeReviewParameter(teamId);
 
-    const repository = configValue?.repositories.find(
+    const repository = safeArray(configValue?.repositories).find(
         (r) => r.id === repositoryId,
     );
 
@@ -102,7 +103,7 @@ export const GitDirectorySelector = ({
                 value="/"
                 name={repositoryName}
                 disabled={repository?.isSelected}>
-                {rootDirectories.map((dir) => {
+                {safeArray(rootDirectories).map((dir) => {
                     return (
                         <LazyTreeFolder
                             key={dir.path}

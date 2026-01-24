@@ -27,6 +27,7 @@ import { Action, ResourceType } from "@services/permissions/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { BellRing, PlusIcon } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { safeArray } from "src/core/utils/safe-array";
 
 import { CodeReviewPagesBreadcrumb } from "../../../_components/breadcrumb";
 import { GenerateRulesOptions } from "../../../_components/generate-rules-options";
@@ -70,7 +71,7 @@ export const KodyRulesPage = () => {
         directoryId,
     });
 
-    const { activeRules: kodyRules, pendingRules } = scopeKodyRules.reduce<{
+    const { activeRules: kodyRules, pendingRules } = safeArray(scopeKodyRules).reduce<{
         activeRules: KodyRule[];
         pendingRules: KodyRule[];
     }>(

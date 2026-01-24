@@ -39,6 +39,7 @@ import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { generateQueryKey } from "src/core/utils/reactQuery";
 import { captureSegmentEvent } from "src/core/utils/segment";
+import { safeArray } from "src/core/utils/safe-array";
 import { pluralize } from "src/core/utils/string";
 
 import { StepIndicators } from "../_components/step-indicators";
@@ -77,11 +78,12 @@ export default function App() {
     }, []);
 
     const isLoading = isInitialLoad || isLoadingRepositories || isFetching;
-    const hasRepositories = isLoading ? null : repositories.length > 0;
+    const safeRepositories = safeArray<Repository>(repositories);
+    const hasRepositories = isLoading ? null : safeRepositories.length > 0;
 
     const connections = useSuspenseGetConnections(teamId);
 
-    const codeManagementConnections = connections.filter(
+    const codeManagementConnections = safeArray(connections).filter(
         (c) => c.category === "CODE_MANAGEMENT" && c.hasConnection,
     );
 
@@ -98,7 +100,7 @@ export default function App() {
             await createOrUpdateRepositories(reposToSave, teamId);
 
             // Manual cache update to avoid a redundant fetch in the next screen
-            const updatedRepositories = repositories.map((repo) => ({
+            const updatedRepositories = safeRepositories.map((repo) => ({
                 ...repo,
                 selected: selectedRepositories.some((s) => s.id === repo.id),
             }));

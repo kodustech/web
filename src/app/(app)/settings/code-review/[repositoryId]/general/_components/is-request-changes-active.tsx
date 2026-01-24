@@ -9,13 +9,14 @@ import { Controller, useFormContext } from "react-hook-form";
 import { OverrideIndicatorForm } from "src/app/(app)/settings/code-review/_components/override";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { PlatformType } from "src/core/types";
+import { safeArray } from "src/core/utils/safe-array";
 
 import type { CodeReviewFormType } from "../../../_types";
 
 const hasGitLabConnection = (
     connections: ReturnType<typeof useSuspenseGetConnections>,
 ): boolean => {
-    return connections
+    return safeArray(connections)
         .filter((c) => c.category === "CODE_MANAGEMENT" && c.hasConnection)
         .some((connection) => connection.platformName === PlatformType.GITLAB);
 };
