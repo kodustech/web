@@ -15,9 +15,12 @@ export default async function SubscriptionTabs() {
     const [organizationMembersRaw, usersWithLicense, license, autoLicenseAssignmentConfig] =
         await Promise.all([
             getOrganizationMembers({ teamId }).catch(() => []),
-            getUsersWithLicense({ teamId }),
-            validateOrganizationLicense({ teamId }),
-            getAutoLicenseAssignmentConfig(),
+            getUsersWithLicense({ teamId }).catch(() => []),
+            validateOrganizationLicense({ teamId }).catch(() => ({
+                valid: false,
+                subscriptionStatus: "inactive" as const,
+            })),
+            getAutoLicenseAssignmentConfig().catch(() => null),
         ]);
 
     const organizationMembers = Array.isArray(organizationMembersRaw)

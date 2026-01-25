@@ -30,9 +30,6 @@ export function getConnectionsOnClient(teamId: string) {
 export function getConnections(teamId: string) {
     return authorizedFetch(SETUP_PATHS.CONNECTIONS, {
         params: { teamId },
-    }).catch((error) => {
-        console.error("Failed to fetch connections:", error);
-        return [];
     }) as Promise<
         Array<{
             platformName: keyof typeof INTEGRATIONS_KEY;

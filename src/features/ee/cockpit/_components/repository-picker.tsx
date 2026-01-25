@@ -18,6 +18,7 @@ import {
 import { Spinner } from "@components/ui/spinner";
 import { useGetSelectedRepositories } from "@services/codeManagement/hooks";
 import { Check, GitBranch } from "lucide-react";
+import { safeArray } from "src/core/utils/safe-array";
 
 import { setCockpitRepositoryCookie } from "../_actions/set-cockpit-repository";
 
@@ -48,7 +49,7 @@ export const RepositoryPicker = ({ cookieValue, teamId }: Props) => {
         }
     });
 
-    const filteredRepositories = repositories.filter((r) => {
+    const filteredRepositories = safeArray(repositories).filter((r) => {
         if (!searchQuery.trim()) return true;
         const query = searchQuery.toLowerCase();
         const fullName = r.full_name || r.name || "";

@@ -59,15 +59,18 @@ export default async function LeadTimeForChangeAnalytics() {
     const data = extractApiData(response);
 
     if (
-        data.currentPeriod.leadTimeP75Hours === 0 &&
-        data.currentPeriod.leadTimeP75Minutes === 0
+        !data?.currentPeriod ||
+        !data?.previousPeriod ||
+        (data.currentPeriod.leadTimeP75Hours === 0 &&
+            data.currentPeriod.leadTimeP75Minutes === 0)
     ) {
         return <NoData />;
     }
 
     const [badge] = Object.entries(comparisonParameters).find(
-        ([, { compareFn }]) => compareFn(data.currentPeriod.leadTimeP75Hours),
-    )!;
+        ([, { compareFn }]) =>
+            compareFn(data?.currentPeriod?.leadTimeP75Hours ?? 0),
+    ) ?? ["need-focus"];
 
     const currentPeriod = separateHoursAndMinutes(
         data?.currentPeriod?.leadTimeP75Hours,

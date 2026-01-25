@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import NextLink from "next/link";
 import { SvgDiscord } from "@components/ui/icons/SvgDiscord";
 import { SvgFounder } from "@components/ui/icons/SvgFounder";
@@ -19,6 +19,12 @@ import { FileTextIcon, LifeBuoy } from "lucide-react";
 import { cn } from "src/core/utils/components";
 
 export const SupportSidebarButton = () => {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             // Cmd/Ctrl + Alt/Option + H (Help)
@@ -33,6 +39,25 @@ export const SupportSidebarButton = () => {
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, []);
+
+    // Render a placeholder during SSR to avoid hydration mismatch with Radix IDs
+    if (!mounted) {
+        return (
+            <div
+                className={cn(
+                    "group relative flex flex-col items-center justify-center",
+                    "w-full py-4 px-2",
+                    "text-text-tertiary",
+                )}>
+                <LifeBuoy className="size-5 mb-2" />
+                <span
+                    className="text-sm font-medium tracking-tight leading-tight"
+                    style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}>
+                    Support
+                </span>
+            </div>
+        );
+    }
 
     return (
         <Popover>

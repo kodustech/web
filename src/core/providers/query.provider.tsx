@@ -20,12 +20,25 @@ function getQueryClient() {
     }
 }
 
+/**
+ * Error Handling Strategy:
+ *
+ * 1. React Query is configured to retry failed requests (2 attempts with exponential backoff)
+ * 2. After retries are exhausted, errors propagate to the nearest ErrorBoundary
+ * 3. Use <PageBoundary> or <QueryBoundary> to wrap components that fetch data
+ * 4. For Server Components, use try/catch and error.tsx files
+ *
+ * @see src/core/components/page-boundary.tsx
+ */
 function makeQueryClient() {
     return new QueryClient({
         defaultOptions: {
             queries: {
                 refetchOnWindowFocus: false,
-                retry: false,
+                // Retry failed requests twice with exponential backoff
+                retry: 2,
+                retryDelay: (attemptIndex) =>
+                    Math.min(1000 * 2 ** attemptIndex, 10000),
                 // With SSR, we usually want to set some default staleTime
                 // above 0 to avoid refetching immediately on the client
                 staleTime: 60 * 1000,

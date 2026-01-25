@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { redirect, usePathname } from "next/navigation";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
@@ -30,6 +30,7 @@ import {
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { safeArray } from "src/core/utils/safe-array";
 
 import { useCodeReviewRouteParams } from "../_hooks";
 import { countConfigOverrides } from "../_utils/count-overrides";
@@ -74,6 +75,17 @@ export const SettingsLayout = ({ children }: React.PropsWithChildren) => {
         ResourceType.PluginSettings,
     );
 
+    // Only show Plugins menu if explicitly enabled via env var
+    // Set NEXT_PUBLIC_ENABLE_MCP_PLUGINS=true to show the Plugins menu
+    const isMCPPluginsEnabled =
+        process.env.NEXT_PUBLIC_ENABLE_MCP_PLUGINS === "true";
+
+    // Avoid hydration mismatch with Radix Collapsible IDs
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
     const mainRoutes = useMemo(() => {
         const routes: Array<{
             label: string;
@@ -95,7 +107,7 @@ export const SettingsLayout = ({ children }: React.PropsWithChildren) => {
             });
         }
 
-        if (canReadPlugins) {
+        if (canReadPlugins && isMCPPluginsEnabled) {
             routes.push({
                 label: "Plugins",
                 href: "/settings/plugins",
@@ -110,10 +122,10 @@ export const SettingsLayout = ({ children }: React.PropsWithChildren) => {
         }
 
         return routes;
-    }, [canReadGitSettings, canReadBilling, canReadPlugins]);
+    }, [canReadGitSettings, canReadBilling, canReadPlugins, isMCPPluginsEnabled]);
 
     if (repositoryId && repositoryId !== "global") {
-        const repository = configValue?.repositories.find(
+        const repository = safeArray(configValue?.repositories).find(
             (r) => r.id === repositoryId,
         );
 
@@ -122,7 +134,7 @@ export const SettingsLayout = ({ children }: React.PropsWithChildren) => {
         }
 
         if (!repository?.isSelected) {
-            const directory = repository?.directories?.find(
+            const directory = safeArray(repository?.directories).find(
                 (d) => d.id === directoryId,
             );
 
@@ -169,67 +181,77 @@ export const SettingsLayout = ({ children }: React.PropsWithChildren) => {
                     <SidebarGroup>
                         <SidebarGroupContent>
                             <SidebarMenu className="gap-6">
-                                <Collapsible
-                                    defaultOpen={
-                                        repositoryId === "global" ||
-                                        !repositoryId
-                                    }>
-                                    <CollapsibleTrigger asChild>
-                                        <Button
-                                            size="md"
-                                            variant="helper"
-                                            className="h-fit w-full justify-start py-2"
-                                            leftIcon={
-                                                <CollapsibleIndicator className="-ml-1 group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
-                                            }
-                                            rightIcon={
-                                                globalOverrideCount > 0 && (
-                                                    <Badge
-                                                        variant="primary-dark"
-                                                        className="h-5 min-w-5 rounded-full px-1.5 text-[10px] font-medium">
-                                                        {globalOverrideCount}
-                                                    </Badge>
-                                                )
-                                            }>
-                                            Global
-                                        </Button>
-                                    </CollapsibleTrigger>
+                                {/* Render Collapsible only after mount to avoid hydration mismatch */}
+                                {mounted ? (
+                                    <Collapsible
+                                        defaultOpen={
+                                            repositoryId === "global" ||
+                                            !repositoryId
+                                        }>
+                                        <CollapsibleTrigger asChild>
+                                            <Button
+                                                size="md"
+                                                variant="helper"
+                                                className="h-fit w-full justify-start py-2"
+                                                leftIcon={
+                                                    <CollapsibleIndicator className="-ml-1 group-data-[state=closed]/collapsible:rotate-[-90deg] group-data-[state=open]/collapsible:rotate-0" />
+                                                }
+                                                rightIcon={
+                                                    globalOverrideCount > 0 && (
+                                                        <Badge
+                                                            variant="primary-dark"
+                                                            className="h-5 min-w-5 rounded-full px-1.5 text-[10px] font-medium">
+                                                            {globalOverrideCount}
+                                                        </Badge>
+                                                    )
+                                                }>
+                                                Global
+                                            </Button>
+                                        </CollapsibleTrigger>
 
-                                    <CollapsibleContent>
-                                        <SidebarMenuItem>
-                                            <SidebarMenuSub>
-                                                {routes.map(
-                                                    ({ label, href }) => {
-                                                        const active =
-                                                            repositoryId ===
-                                                                "global" &&
-                                                            pageName === href;
+                                        <CollapsibleContent>
+                                            <SidebarMenuItem>
+                                                <SidebarMenuSub>
+                                                    {routes.map(
+                                                        ({ label, href }) => {
+                                                            const active =
+                                                                repositoryId ===
+                                                                    "global" &&
+                                                                pageName === href;
 
-                                                        return (
-                                                            <SidebarMenuSubItem
-                                                                key={label}>
-                                                                <Link
-                                                                    className="w-full"
-                                                                    href={`/settings/code-review/global/${href}`}>
-                                                                    <Button
-                                                                        decorative
-                                                                        size="sm"
-                                                                        variant="cancel"
-                                                                        active={
-                                                                            active
-                                                                        }
-                                                                        className="min-h-auto w-full justify-start px-0 py-2">
-                                                                        {label}
-                                                                    </Button>
-                                                                </Link>
-                                                            </SidebarMenuSubItem>
-                                                        );
-                                                    },
-                                                )}
-                                            </SidebarMenuSub>
-                                        </SidebarMenuItem>
-                                    </CollapsibleContent>
-                                </Collapsible>
+                                                            return (
+                                                                <SidebarMenuSubItem
+                                                                    key={label}>
+                                                                    <Link
+                                                                        className="w-full"
+                                                                        href={`/settings/code-review/global/${href}`}>
+                                                                        <Button
+                                                                            decorative
+                                                                            size="sm"
+                                                                            variant="cancel"
+                                                                            active={
+                                                                                active
+                                                                            }
+                                                                            className="min-h-auto w-full justify-start px-0 py-2">
+                                                                            {label}
+                                                                        </Button>
+                                                                    </Link>
+                                                                </SidebarMenuSubItem>
+                                                            );
+                                                        },
+                                                    )}
+                                                </SidebarMenuSub>
+                                            </SidebarMenuItem>
+                                        </CollapsibleContent>
+                                    </Collapsible>
+                                ) : (
+                                    <Button
+                                        size="md"
+                                        variant="helper"
+                                        className="h-fit w-full justify-start py-2">
+                                        Global
+                                    </Button>
+                                )}
 
                                 <PerRepository
                                     routes={routes}

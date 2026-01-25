@@ -8,6 +8,7 @@ import { Controller, useFormContext } from "react-hook-form";
 import { useFeatureFlags } from "src/app/(app)/settings/_components/context";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { PlatformType } from "src/core/types";
+import { safeArray } from "src/core/utils/safe-array";
 
 import { OverrideIndicatorForm } from "../../../_components/override";
 import type { CodeReviewFormType } from "../../../_types";
@@ -15,7 +16,7 @@ import type { CodeReviewFormType } from "../../../_types";
 const hasGithubConnection = (
     connections: ReturnType<typeof useSuspenseGetConnections>,
 ): boolean => {
-    return connections
+    return safeArray(connections)
         .filter((c) => c.category === "CODE_MANAGEMENT" && c.hasConnection)
         .some((connection) => connection.platformName === PlatformType.GITHUB);
 };

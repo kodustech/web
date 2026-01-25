@@ -59,8 +59,10 @@ export default async function Layout({
 
     const organizationLicense = await validateOrganizationLicense({
         teamId: selectedTeamId,
-    });
+    }).catch(() => null);
+
     if (
+        !organizationLicense ||
         !organizationLicense.valid ||
         organizationLicense.subscriptionStatus === "self-hosted" ||
         (organizationLicense.subscriptionStatus === "active" &&

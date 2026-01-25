@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import {
@@ -25,6 +26,7 @@ import { KodyLearningStatus } from "@services/parameters/types";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { Plus } from "lucide-react";
+import { safeArray } from "src/core/utils/safe-array";
 
 import { useCodeReviewRouteParams } from "../../_hooks";
 import { countConfigOverrides } from "../../_utils/count-overrides";
@@ -48,6 +50,12 @@ export const PerRepository = ({
         Action.Create,
         ResourceType.CodeReviewSettings,
     );
+
+    // Avoid hydration mismatch with Radix Collapsible/Tooltip IDs
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     return (
         <SidebarMenuItem>
@@ -82,8 +90,9 @@ export const PerRepository = ({
             </div>
 
             <div className="flex flex-col gap-1">
-                {configValue?.repositories
-                    ?.filter((r) => r.isSelected || r.directories?.length > 0)
+                {/* Render Collapsible only after mount to avoid hydration mismatch */}
+                {mounted && safeArray(configValue?.repositories)
+                    .filter((r) => r.isSelected || safeArray(r.directories).length > 0)
                     .map((r) => {
                         const hasRepositoryConfig = r.isSelected;
                         const overrideCount = hasRepositoryConfig

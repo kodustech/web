@@ -52,8 +52,10 @@ export default async function DeployFrequencyAnalytics() {
 
     const data = extractApiData(response);
     if (
-        data.currentPeriod.averagePerWeek === 0 &&
-        data.previousPeriod.averagePerWeek === 0
+        !data?.currentPeriod ||
+        !data?.previousPeriod ||
+        (data.currentPeriod.averagePerWeek === 0 &&
+            data.previousPeriod.averagePerWeek === 0)
     ) {
         return (
             <>
@@ -67,8 +69,9 @@ export default async function DeployFrequencyAnalytics() {
     }
 
     const [badge] = Object.entries(comparisonParameters).find(
-        ([, { compareFn }]) => compareFn(data.currentPeriod.averagePerWeek),
-    )!;
+        ([, { compareFn }]) =>
+            compareFn(data?.currentPeriod?.averagePerWeek ?? 0),
+    ) ?? ["need-focus"];
 
     return (
         <>

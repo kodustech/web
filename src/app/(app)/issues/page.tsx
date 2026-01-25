@@ -10,6 +10,7 @@ import { useAuth } from "src/core/providers/auth.provider";
 import { usePermissions } from "src/core/providers/permissions.provider";
 import { filterArray, type FilterValueGroup } from "src/core/utils/filtering";
 import { hasPermission } from "src/core/utils/permissions";
+import { safeArray } from "src/core/utils/safe-array";
 
 import { IssuesDataTable } from "./_components/data-table";
 import { IssueCreationToggle } from "./_components/issue-creation-toggle";
@@ -25,7 +26,7 @@ export default function IssuesPage() {
     const { data: issues, isLoading, error } = useIssues();
 
     const canAccessIssues = useMemo(() => {
-        return issues.filter((issue) =>
+        return safeArray(issues).filter((issue) =>
             hasPermission({
                 permissions,
                 organizationId: organizationId!,

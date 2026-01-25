@@ -36,7 +36,14 @@ export default async function TokenUsagePage({
 
     const params = await searchParams;
     const teamId = await getGlobalSelectedTeamId();
-    const subscription = await validateOrganizationLicense({ teamId });
+    const subscription = await validateOrganizationLicense({ teamId }).catch(
+        () => null,
+    );
+
+    if (!subscription) {
+        redirect("/settings");
+    }
+
     const isBYOK = isBYOKSubscriptionPlan(subscription);
     const isTrial = subscription.subscriptionStatus === "trial";
 

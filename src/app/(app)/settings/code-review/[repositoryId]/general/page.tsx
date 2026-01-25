@@ -21,6 +21,8 @@ import { FormProvider, useFormContext } from "react-hook-form";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { unformatConfig } from "src/core/utils/helpers";
 
+import { AsyncBoundary } from "src/core/components/async-boundary";
+
 import { CodeReviewPagesBreadcrumb } from "../../_components/breadcrumb";
 import GeneratingConfig from "../../_components/generating-config";
 import { FormattedConfigLevel, type CodeReviewFormType } from "../../_types";
@@ -219,9 +221,13 @@ export default function General() {
                 <AutomatedReviewActive />
                 <KodusConfigFileOverridesWebPreferences />
                 <PullRequestApprovalActive />
-                <IsRequestChangesActive />
+                <AsyncBoundary errorVariant="minimal">
+                    <IsRequestChangesActive />
+                </AsyncBoundary>
                 <RunOnDraft />
-                <EnableCommittableSuggestions />
+                <AsyncBoundary errorVariant="minimal">
+                    <EnableCommittableSuggestions />
+                </AsyncBoundary>
                 <IgnorePaths />
                 <IgnoredTitleKeywords />
                 <BaseBranches />

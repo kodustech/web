@@ -2,6 +2,7 @@
 // global-error must include html and body tags
 "use client";
 
+import { useEffect } from "react";
 import { DM_Sans } from "next/font/google";
 import { Button } from "@components/ui/button";
 import {
@@ -10,7 +11,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@components/ui/card";
-import { ArrowLeft, XOctagonIcon } from "lucide-react";
+import { ArrowLeft, RefreshCw, XOctagonIcon } from "lucide-react";
 import { cn } from "src/core/utils/components";
 
 import "./globals.css";
@@ -22,9 +23,14 @@ const dm_sans = DM_Sans({
 
 export default function GlobalError({
     error,
+    reset,
 }: {
     error: Error & { digest?: string };
+    reset: () => void;
 }) {
+    useEffect(() => {
+        console.error("[Global Error]", error);
+    }, [error]);
     return (
         <html lang="en">
             <head>
@@ -58,6 +64,14 @@ export default function GlobalError({
                             leftIcon={<ArrowLeft />}
                             onClick={() => window.history.back()}>
                             Go back
+                        </Button>
+
+                        <Button
+                            size="sm"
+                            variant="secondary"
+                            leftIcon={<RefreshCw />}
+                            onClick={reset}>
+                            Try again
                         </Button>
 
                         <Button

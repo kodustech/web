@@ -18,6 +18,7 @@ import { useAuth } from "src/core/providers/auth.provider";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 import { cn } from "src/core/utils/components";
 import { useFetch } from "src/core/utils/reactQuery";
+import { safeArray } from "src/core/utils/safe-array";
 import { captureSegmentEvent } from "src/core/utils/segment";
 
 import { StepIndicators } from "../_components/step-indicators";
@@ -108,7 +109,7 @@ export default function CustomizeTeamPage() {
 
     const pendingRuleIds = useMemo(
         () =>
-            (pendingRules || [])
+            safeArray<KodyRule>(pendingRules)
                 .map((rule) => rule.uuid)
                 .filter((id): id is string => Boolean(id)),
         [pendingRules],

@@ -52,15 +52,16 @@ export default async function PRSizeAnalytics() {
 
     const data = extractApiData(response);
     if (
-        data.currentPeriod.totalPRs === 0 &&
-        data.previousPeriod.totalPRs === 0
+        !data?.currentPeriod ||
+        !data?.previousPeriod ||
+        (data.currentPeriod.totalPRs === 0 && data.previousPeriod.totalPRs === 0)
     ) {
         return <NoData />;
     }
 
-    const [badge] = Object.entries(comparisonParameters)?.find(
-        ([, { compareFn }]) => compareFn(data?.currentPeriod?.averagePRSize),
-    )!;
+    const [badge] = Object.entries(comparisonParameters).find(
+        ([, { compareFn }]) => compareFn(data?.currentPeriod?.averagePRSize ?? 0),
+    ) ?? ["need-focus"];
 
     return (
         <>

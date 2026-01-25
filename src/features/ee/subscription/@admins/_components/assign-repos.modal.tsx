@@ -32,6 +32,7 @@ import { RepositoryMinimal } from "@services/codeManagement/types";
 import { assignRepos, getAssignedRepos } from "@services/permissions/fetch";
 import { Check } from "lucide-react";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { safeArray } from "src/core/utils/safe-array";
 
 export default function AssignReposModal({ userId }: { userId: string }) {
     const { teamId } = useSelectedTeamId();
@@ -59,7 +60,7 @@ export default function AssignReposModal({ userId }: { userId: string }) {
                 const assignedRepoIds = await getAssignedRepos(userId);
                 const assignedIdsSet = new Set(assignedRepoIds);
 
-                const initiallySelected = allRepositories.filter((repo) =>
+                const initiallySelected = safeArray(allRepositories).filter((repo) =>
                     assignedIdsSet.has(repo.id),
                 );
 
@@ -159,7 +160,7 @@ export default function AssignReposModal({ userId }: { userId: string }) {
                                         No repository found.
                                     </CommandEmpty>
                                     <CommandGroup>
-                                        {allRepositories.map((repository) => (
+                                        {safeArray(allRepositories).map((repository) => (
                                             <CommandItem
                                                 key={repository.id}
                                                 value={`${repository.organizationName}/${repository.name}`}

@@ -4,7 +4,9 @@ import { Page } from "@components/ui/page";
 import { getConnections } from "@services/setup/fetch";
 import { getTeams } from "@services/teams/fetch";
 import { HelpCircleIcon } from "lucide-react";
+import { ErrorCard } from "src/core/components/ui/error-card";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
+import { safeArray } from "src/core/utils/safe-array";
 
 export default async function IntegrationsPage() {
     const [teamId, teams] = await Promise.all([
@@ -12,7 +14,12 @@ export default async function IntegrationsPage() {
         getTeams(),
     ]);
 
-    const connections = await getConnections(teamId);
+    let connectionsError = false;
+    const connectionsResult = await getConnections(teamId).catch(() => {
+        connectionsError = true;
+        return [];
+    });
+    const connections = safeArray(connectionsResult);
     const team = teams.find((team) => team.uuid === teamId)!;
 
     return (
@@ -22,7 +29,14 @@ export default async function IntegrationsPage() {
             </Page.Header>
 
             <Page.Content>
-                <CardsGroup connections={connections} team={team} />
+                {connectionsError ? (
+                    <ErrorCard
+                        variant="card"
+                        message="Failed to load integrations. Please try again."
+                    />
+                ) : (
+                    <CardsGroup connections={connections} team={team} />
+                )}
 
                 <Alert>
                     <HelpCircleIcon />

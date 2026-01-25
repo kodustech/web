@@ -64,7 +64,7 @@ export const PullRequestsFilters = ({
         useGetSelectedRepositories(teamId);
 
     const repositories = useMemo(() => {
-        if (!organizationId) {
+        if (!organizationId || !Array.isArray(allRepositories)) {
             return [];
         }
         return allRepositories.filter((repo) =>
@@ -203,7 +203,7 @@ export const PullRequestsFilters = ({
                                         )}
                                     </CommandItem>
 
-                                    {repositories.map((repo: any) => (
+                                    {repositories.map((repo) => (
                                         <CommandItem
                                             key={repo.id}
                                             value={repo.name}

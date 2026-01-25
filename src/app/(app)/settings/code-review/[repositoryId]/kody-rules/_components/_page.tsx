@@ -26,7 +26,9 @@ import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { useQueryClient } from "@tanstack/react-query";
 import { BellRing, PlusIcon } from "lucide-react";
+import { PageBoundary } from "src/core/components/page-boundary";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { safeArray } from "src/core/utils/safe-array";
 
 import { CodeReviewPagesBreadcrumb } from "../../../_components/breadcrumb";
 import { GenerateRulesOptions } from "../../../_components/generate-rules-options";
@@ -42,7 +44,7 @@ import { KodyRulesEmptyState } from "./empty";
 import { KodyRulesList } from "./list";
 import { KodyRulesToolbar, type VisibleScopes } from "./toolbar";
 
-export const KodyRulesPage = () => {
+const KodyRulesPageContent = () => {
     const platformConfig = usePlatformConfig();
     const config = useFullCodeReviewConfig();
     const { repositoryId, directoryId } = useCodeReviewRouteParams();
@@ -70,7 +72,7 @@ export const KodyRulesPage = () => {
         directoryId,
     });
 
-    const { activeRules: kodyRules, pendingRules } = scopeKodyRules.reduce<{
+    const { activeRules: kodyRules, pendingRules } = safeArray(scopeKodyRules).reduce<{
         activeRules: KodyRule[];
         pendingRules: KodyRule[];
     }>(
@@ -323,5 +325,15 @@ export const KodyRulesPage = () => {
                 </div>
             </Page.Content>
         </Page.Root>
+    );
+};
+
+export const KodyRulesPage = () => {
+    return (
+        <PageBoundary
+            errorVariant="card"
+            errorMessage="Failed to load Kody Rules. Please try again.">
+            <KodyRulesPageContent />
+        </PageBoundary>
     );
 };
