@@ -88,8 +88,8 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         cliKeysFeatureFlag,
         kodyRuleSuggestionsFeatureFlag,
     ] = await Promise.all([
-        getPermissions(),
-        getOrganizationName(),
+        getPermissions().catch(() => ({})),
+        getOrganizationName().catch(() => ""),
         validateOrganizationLicense({ teamId }).catch(() => null),
         getUsersWithLicense({ teamId }).catch(() => []),
         getBYOK().catch(() => null),

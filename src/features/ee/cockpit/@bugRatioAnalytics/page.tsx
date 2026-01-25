@@ -51,13 +51,14 @@ export default async function BugRatioAnalytics() {
     });
     const data = extractApiData(response);
 
-    if (data.currentPeriod.ratio === 0 && data.previousPeriod.ratio === 0) {
+    if (!data?.currentPeriod || !data?.previousPeriod ||
+        (data.currentPeriod.ratio === 0 && data.previousPeriod.ratio === 0)) {
         return <NoData />;
     }
 
     const [badge] = Object.entries(comparisonParameters).find(
-        ([, { compareFn }]) => compareFn(data.currentPeriod.ratio),
-    )!;
+        ([, { compareFn }]) => compareFn(data?.currentPeriod?.ratio ?? 0),
+    ) ?? ["need-focus"];
 
     return (
         <>
