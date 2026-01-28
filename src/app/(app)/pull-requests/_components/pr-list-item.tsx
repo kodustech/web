@@ -1,6 +1,7 @@
 "use client";
 
-import { Fragment, useState, useEffect } from "react";
+import { Fragment, useEffect, useState } from "react";
+import NextLink from "next/link";
 import { Badge } from "@components/ui/badge";
 import { buttonVariants } from "@components/ui/button";
 import { Link } from "@components/ui/link";
@@ -12,12 +13,7 @@ import {
 } from "@components/ui/tooltip";
 import type { CodeReviewTimelineItem } from "@services/pull-requests";
 import { buildPullRequestUrl } from "@services/pull-requests";
-import NextLink from "next/link";
-import {
-    ChevronDownIcon,
-    ExternalLinkIcon,
-    GitBranchIcon,
-} from "lucide-react";
+import { ChevronDownIcon, ExternalLinkIcon, GitBranchIcon } from "lucide-react";
 import { cn } from "src/core/utils/components";
 
 import type { PullRequestExecutionGroup } from "./types";
@@ -92,22 +88,50 @@ const formatDuration = (start: string, end?: string | null) => {
 
 const getStatusBadge = (status: string, merged: boolean) => {
     if (merged) {
-        return <Badge variant="primary" className="whitespace-nowrap">Merged</Badge>;
+        return (
+            <Badge variant="primary" className="whitespace-nowrap">
+                Merged
+            </Badge>
+        );
     }
 
     switch (status) {
         case "success":
-            return <Badge variant="success" className="whitespace-nowrap">Success</Badge>;
+            return (
+                <Badge variant="success" className="whitespace-nowrap">
+                    Success
+                </Badge>
+            );
         case "error":
-            return <Badge variant="error" className="whitespace-nowrap">Error</Badge>;
+            return (
+                <Badge variant="error" className="whitespace-nowrap">
+                    Error
+                </Badge>
+            );
         case "in_progress":
-            return <Badge variant="in-progress" className="whitespace-nowrap">In Progress</Badge>;
+            return (
+                <Badge variant="in-progress" className="whitespace-nowrap">
+                    In Progress
+                </Badge>
+            );
         case "skipped":
-            return <Badge variant="helper" className="whitespace-nowrap">Skipped</Badge>;
+            return (
+                <Badge variant="helper" className="whitespace-nowrap">
+                    Skipped
+                </Badge>
+            );
         case "pending":
-            return <Badge variant="helper" className="whitespace-nowrap">Pending</Badge>;
+            return (
+                <Badge variant="helper" className="whitespace-nowrap">
+                    Pending
+                </Badge>
+            );
         default:
-            return <Badge variant="helper" className="whitespace-nowrap">{status}</Badge>;
+            return (
+                <Badge variant="helper" className="whitespace-nowrap">
+                    {status}
+                </Badge>
+            );
     }
 };
 
@@ -323,7 +347,7 @@ const getStageDisplay = (item: CodeReviewTimelineItem) => {
             item.createdAt,
             item.status === "in_progress"
                 ? undefined
-                : item.finishedAt ?? item.updatedAt ?? item.createdAt,
+                : (item.finishedAt ?? item.updatedAt ?? item.createdAt),
         ),
     };
 };
@@ -346,41 +370,57 @@ const getCurrentStageItem = (items: CodeReviewTimelineItem[]) => {
     }, items[0]);
 };
 
+const getOriginLabel = (origin: string) => {
+    const o = origin?.toLowerCase?.() || "";
+    if (o === "system") return "Automatic";
+    if (o === "command") return "User Command";
+    return origin;
+};
+
+const isAutomationStartMessage = (message: string) => {
+    const m = message?.toLowerCase?.() || "";
+    return m.includes("automation") && m.includes("start");
+};
+
 export const PrListItem = ({ group }: PrListItemProps) => {
     const { latest, executions, reviewCount } = group;
     const [isOpen, setIsOpen] = useState(false);
+    const [collapsedReviews, setCollapsedReviews] = useState<Set<number>>(
+        () => new Set(executions.slice(1).map((_, i) => i + 1)),
+    );
     const prUrl = buildPullRequestUrl(latest);
-    const currentStage = getCurrentStageItem(latest.codeReviewTimeline);
-    const currentStageInfo = currentStage
-        ? getStageDisplay(currentStage)
-        : null;
 
-    const getOriginLabel = (origin: string) => {
-        const o = origin?.toLowerCase?.() || "";
-        if (o === "system") return "Automatic";
-        if (o === "command") return "User Command";
-        return origin;
-    };
-
-    const isAutomationStartMessage = (message: string) => {
-        const m = message?.toLowerCase?.() || "";
-        return m.includes("automation") && m.includes("start");
+    const toggleReview = (index: number) => {
+        setCollapsedReviews((prev) => {
+            const next = new Set(prev);
+            if (next.has(index)) {
+                next.delete(index);
+            } else {
+                next.add(index);
+            }
+            return next;
+        });
     };
 
     return (
         <Fragment>
             <TableRow
-                className="hover:bg-accent/50 p cursor-pointer"
+                className={cn(
+                    "cursor-pointer",
+                    isOpen
+                        ? "bg-card-lv2/40 hover:bg-card-lv2/50"
+                        : "hover:bg-card-lv1/70",
+                )}
                 onClick={() => setIsOpen(!isOpen)}>
                 <TableCell className="w-8 px-4">
                     <ChevronDownIcon
                         className={cn(
-                            "h-4 w-4 shrink-0 transition-transform duration-200",
-                            isOpen && "rotate-180",
+                            "text-text-tertiary size-4 shrink-0 transition-transform duration-200",
+                            isOpen && "text-text-secondary rotate-180",
                         )}
                     />
                 </TableCell>
-                <TableCell className="w-20 font-mono text-sm">
+                <TableCell className="text-text-secondary w-20 font-mono text-sm tabular-nums">
                     #{latest.prNumber}
                 </TableCell>
                 <TableCell className="max-w-[360px]">
@@ -390,10 +430,10 @@ export const PrListItem = ({ group }: PrListItemProps) => {
                                 href={prUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="flex max-w-[360px] items-center gap-1 font-medium hover:underline"
+                                className="text-text-primary hover:text-primary-light flex max-w-[360px] items-center gap-1.5 font-medium hover:underline"
                                 onClick={(e) => e.stopPropagation()}>
                                 <span className="truncate">{latest.title}</span>
-                                <ExternalLinkIcon className="h-3 w-3 shrink-0" />
+                                <ExternalLinkIcon className="text-text-tertiary size-3 shrink-0" />
                             </Link>
                         </TooltipTrigger>
                         <TooltipContent className="max-w-sm">
@@ -402,16 +442,16 @@ export const PrListItem = ({ group }: PrListItemProps) => {
                     </Tooltip>
                 </TableCell>
                 <TableCell className="w-32">
-                    <span className="text-muted-foreground block truncate text-sm">
+                    <span className="text-text-secondary block truncate text-sm">
                         {latest.repositoryName}
                     </span>
                 </TableCell>
                 <TableCell className="w-40">
-                    <div className="text-muted-foreground flex w-full max-w-[10rem] items-center gap-1 text-sm">
-                        <GitBranchIcon className="h-3 w-3 shrink-0" />
+                    <div className="text-text-tertiary flex w-full max-w-[10rem] items-center gap-1.5 text-sm">
+                        <GitBranchIcon className="size-3 shrink-0" />
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <span className="truncate">
+                                <span className="truncate font-mono text-xs">
                                     {latest.headBranchRef}
                                 </span>
                             </TooltipTrigger>
@@ -422,50 +462,25 @@ export const PrListItem = ({ group }: PrListItemProps) => {
                     </div>
                 </TableCell>
                 <TableCell className="w-40">
-                    <span className="block truncate text-sm">
+                    <span className="text-text-secondary block truncate text-sm">
                         {latest.author.name}
                     </span>
                 </TableCell>
-                <TableCell className="min-w-[16rem]">
-                    {currentStage ? (
-                        <div className="min-w-0">
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <span className="text-muted-foreground block truncate text-sm">
-                                        {currentStageInfo?.label ??
-                                            currentStage.message}
-                                    </span>
-                                </TooltipTrigger>
-                                <TooltipContent className="max-w-sm">
-                                    {currentStageInfo?.reason
-                                        ? `${currentStageInfo.label} · ${currentStageInfo.reason}${
-                                              currentStageInfo.tech
-                                                  ? ` (Tech: ${currentStageInfo.tech})`
-                                                  : ""
-                                          }`
-                                        : currentStage.message}
-                                </TooltipContent>
-                            </Tooltip>
-                        </div>
-                    ) : (
-                        <span className="text-muted-foreground text-sm">-</span>
-                    )}
-                </TableCell>
                 <TableCell className="w-20 text-center">
-                    <span className="text-text-secondary text-sm">
+                    <span className="text-text-primary text-sm font-medium tabular-nums">
                         {reviewCount}
                     </span>
                 </TableCell>
                 <TableCell className="w-32">
-                    <span className="text-muted-foreground text-sm">
+                    <span className="text-text-tertiary text-sm tabular-nums">
                         <TimeAgoDisplay dateString={latest.createdAt} />
                     </span>
                 </TableCell>
                 <TableCell className="w-20 text-center">
-                    <div className="flex justify-center gap-2">
+                    <div className="flex justify-center gap-1.5">
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <span className="rounded-md bg-[#42BE6520] px-3 py-1">
+                                <span className="bg-success/10 text-success inline-flex min-w-7 items-center justify-center rounded-md px-2 py-0.5 text-xs font-medium tabular-nums">
                                     {latest.suggestionsCount.sent}
                                 </span>
                             </TooltipTrigger>
@@ -475,7 +490,7 @@ export const PrListItem = ({ group }: PrListItemProps) => {
                         </Tooltip>
                         <Tooltip>
                             <TooltipTrigger asChild>
-                                <span className="rounded-md bg-[#592830] px-3 py-1">
+                                <span className="bg-danger/10 text-danger inline-flex min-w-7 items-center justify-center rounded-md px-2 py-0.5 text-xs font-medium tabular-nums">
                                     {latest.suggestionsCount.filtered}
                                 </span>
                             </TooltipTrigger>
@@ -494,12 +509,12 @@ export const PrListItem = ({ group }: PrListItemProps) => {
             </TableRow>
 
             {isOpen && (
-                <TableRow className="bg-card-lv1/30">
+                <TableRow className="hover:bg-transparent">
                     <TableCell
-                        colSpan={11}
-                        className="px-4 pb-6 pt-2">
+                        colSpan={10}
+                        className="border-b-card-lv3/60 bg-card-lv2/20 px-4 pt-2 pb-6">
                         <div className="ml-10 pt-2">
-                            <div className="space-y-4">
+                            <div className="space-y-3">
                                 {executions.map((execution, index) => {
                                     const executionKey =
                                         execution.executionId ||
@@ -518,41 +533,50 @@ export const PrListItem = ({ group }: PrListItemProps) => {
                                         executionStartedAt,
                                         executionFinishedAt,
                                     );
+                                    const executionStatus =
+                                        execution.automationExecution?.status ||
+                                        "pending";
+                                    const isReviewCollapsed =
+                                        collapsedReviews.has(index);
 
                                     return (
                                         <div
                                             key={executionKey}
-                                            className="rounded-lg border border-border/60 bg-card-lv1/40 px-4 py-3">
-                                            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                                                <div className="flex flex-wrap items-center gap-2">
-                                                    <span className="text-text-secondary text-xs font-medium uppercase tracking-wide">
+                                            className="border-card-lv3/50 bg-card-lv1/60 rounded-xl border">
+                                            <button
+                                                type="button"
+                                                className="flex w-full cursor-pointer items-center justify-between gap-2 p-4"
+                                                onClick={() =>
+                                                    toggleReview(index)
+                                                }>
+                                                <div className="flex flex-wrap items-center gap-2.5">
+                                                    <ChevronDownIcon
+                                                        className={cn(
+                                                            "text-text-tertiary size-4 shrink-0 transition-transform duration-200",
+                                                            !isReviewCollapsed &&
+                                                                "rotate-180 text-text-secondary",
+                                                        )}
+                                                    />
+                                                    <span className="text-text-primary text-sm font-semibold tabular-nums">
                                                         Review{" "}
-                                                        {reviewCount -
-                                                            index}
+                                                        {reviewCount - index}
                                                     </span>
                                                     {getStatusBadge(
-                                                        execution
-                                                            .automationExecution
-                                                            ?.status ||
-                                                            "pending",
+                                                        executionStatus,
                                                         false,
                                                     )}
                                                     {executionDuration && (
-                                                        <span className="text-text-secondary text-xs">
-                                                            {execution
-                                                                .automationExecution
-                                                                ?.status ===
+                                                        <span className="text-text-tertiary text-xs tabular-nums">
+                                                            {executionStatus ===
                                                             "in_progress"
                                                                 ? "Elapsed: "
                                                                 : "Duration: "}
-                                                            {
-                                                                executionDuration
-                                                            }
+                                                            {executionDuration}
                                                         </span>
                                                     )}
                                                 </div>
                                                 {executionStartedAt && (
-                                                    <span className="text-text-secondary text-xs">
+                                                    <span className="text-text-tertiary text-xs tabular-nums">
                                                         <TimeAgoDisplay
                                                             dateString={
                                                                 executionStartedAt
@@ -560,197 +584,206 @@ export const PrListItem = ({ group }: PrListItemProps) => {
                                                         />
                                                     </span>
                                                 )}
-                                            </div>
-                                            {(execution.reviewedCommitSha ||
-                                                execution.reviewedCommitUrl ||
-                                                prUrl) && (
-                                                <div className="mb-4 flex flex-wrap items-center gap-3 text-xs text-text-secondary">
-                                                    {execution.reviewedCommitUrl ? (
-                                                        <Link
-                                                            href={
-                                                                execution.reviewedCommitUrl
-                                                            }
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="font-mono text-text-primary">
-                                                            {formatSha(
-                                                                execution.reviewedCommitSha,
-                                                            ) || "View commit"}
-                                                        </Link>
-                                                    ) : (
-                                                        execution.reviewedCommitSha && (
-                                                            <span className="font-mono text-text-primary">
-                                                                {formatSha(
-                                                                    execution.reviewedCommitSha,
-                                                                )}
-                                                            </span>
-                                                        )
+                                            </button>
+                                            {!isReviewCollapsed && (
+                                                <div className="border-card-lv3/30 border-t px-4 pt-3 pb-4">
+                                                    {(execution.reviewedCommitSha ||
+                                                        execution.reviewedCommitUrl) && (
+                                                        <div className="mb-4 flex flex-wrap items-center gap-3 text-xs">
+                                                            {execution.reviewedCommitUrl ? (
+                                                                <Link
+                                                                    href={
+                                                                        execution.reviewedCommitUrl
+                                                                    }
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="text-text-secondary hover:text-primary-light font-mono">
+                                                                    {formatSha(
+                                                                        execution.reviewedCommitSha,
+                                                                    ) ||
+                                                                        "View commit"}
+                                                                </Link>
+                                                            ) : (
+                                                                execution.reviewedCommitSha && (
+                                                                    <span className="text-text-secondary font-mono">
+                                                                        {formatSha(
+                                                                            execution.reviewedCommitSha,
+                                                                        )}
+                                                                    </span>
+                                                                )
+                                                            )}
+                                                        </div>
                                                     )}
-                                                    <Link
-                                                        href={prUrl}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className={buttonVariants(
-                                                            {
-                                                                variant:
-                                                                    "helper",
-                                                                size: "xs",
-                                                            },
-                                                        )}>
-                                                        Open PR
-                                                    </Link>
+                                                    <div className="relative pl-6">
+                                                        <div className="bg-card-lv3/70 absolute top-2 left-[0.5625rem] h-[calc(100%-0.75rem)] w-px" />
+                                                        <div className="space-y-3">
+                                                            {execution.codeReviewTimeline.map(
+                                                                (item) => {
+                                                                    const isActiveStage =
+                                                                        item.status ===
+                                                                            "in_progress" &&
+                                                                        !isAutomationStartMessage(
+                                                                            item.message,
+                                                                        );
+                                                                    const stageInfo =
+                                                                        getStageDisplay(
+                                                                            item,
+                                                                        );
+                                                                    const isAutomationStart =
+                                                                        isAutomationStartMessage(
+                                                                            item.message,
+                                                                        );
+
+                                                                    return (
+                                                                        <div
+                                                                            key={
+                                                                                item.uuid
+                                                                            }
+                                                                            className={cn(
+                                                                                "group flex gap-3",
+                                                                                isActiveStage &&
+                                                                                    "border-in-progress bg-card-lv2/60 rounded-lg border-l-2 px-3 py-2",
+                                                                            )}>
+                                                                            <div className="relative flex w-4 justify-center">
+                                                                                <span
+                                                                                    className={cn(
+                                                                                        "mt-1.5 size-2.5 rounded-full border-2",
+                                                                                        isActiveStage &&
+                                                                                            "size-3",
+                                                                                        getTimelineStatusColor(
+                                                                                            isAutomationStart
+                                                                                                ? "skipped"
+                                                                                                : item.status,
+                                                                                        ),
+                                                                                    )}
+                                                                                />
+                                                                            </div>
+                                                                            <div className="min-w-0 flex-1 py-0.5">
+                                                                                <div className="mb-0.5 flex flex-wrap items-center gap-2">
+                                                                                    <span
+                                                                                        className={cn(
+                                                                                            "text-sm",
+                                                                                            isAutomationStart
+                                                                                                ? "text-text-tertiary"
+                                                                                                : "text-text-primary font-medium",
+                                                                                        )}>
+                                                                                        {
+                                                                                            stageInfo.label
+                                                                                        }
+                                                                                    </span>
+                                                                                    {!isAutomationStart &&
+                                                                                        getStatusBadge(
+                                                                                            item.status,
+                                                                                            false,
+                                                                                        )}
+                                                                                    {executionOrigin &&
+                                                                                        isAutomationStart && (
+                                                                                            <Tooltip>
+                                                                                                <TooltipTrigger
+                                                                                                    asChild>
+                                                                                                    <span className="text-text-tertiary text-xs whitespace-nowrap">
+                                                                                                        ·{" "}
+                                                                                                        {getOriginLabel(
+                                                                                                            executionOrigin,
+                                                                                                        )}
+                                                                                                    </span>
+                                                                                                </TooltipTrigger>
+                                                                                                <TooltipContent className="text-xs">
+                                                                                                    {executionOrigin?.toLowerCase?.() ===
+                                                                                                    "system"
+                                                                                                        ? "Triggered automatically by system"
+                                                                                                        : "Triggered by user command"}
+                                                                                                </TooltipContent>
+                                                                                            </Tooltip>
+                                                                                        )}
+                                                                                </div>
+                                                                                {stageInfo.duration &&
+                                                                                    !isAutomationStart && (
+                                                                                        <p className="text-text-tertiary text-xs tabular-nums">
+                                                                                            {item.status ===
+                                                                                            "in_progress"
+                                                                                                ? "Elapsed: "
+                                                                                                : "Duration: "}
+                                                                                            {
+                                                                                                stageInfo.duration
+                                                                                            }
+                                                                                        </p>
+                                                                                    )}
+                                                                                {isAutomationStart &&
+                                                                                    stageInfo.duration && (
+                                                                                        <p className="text-text-tertiary text-xs tabular-nums">
+                                                                                            {item.status ===
+                                                                                            "in_progress"
+                                                                                                ? "Elapsed: "
+                                                                                                : "Duration: "}
+                                                                                            {
+                                                                                                stageInfo.duration
+                                                                                            }
+                                                                                        </p>
+                                                                                    )}
+                                                                                {stageInfo.reason && (
+                                                                                    <p className="text-text-tertiary text-xs">
+                                                                                        Reason:{" "}
+                                                                                        {
+                                                                                            stageInfo.reason
+                                                                                        }
+                                                                                    </p>
+                                                                                )}
+                                                                                {stageInfo.tech && (
+                                                                                    <p className="text-text-tertiary text-xs">
+                                                                                        Tech:{" "}
+                                                                                        {
+                                                                                            stageInfo.tech
+                                                                                        }
+                                                                                    </p>
+                                                                                )}
+                                                                                {stageInfo.cta && (
+                                                                                    <NextLink
+                                                                                        href={
+                                                                                            stageInfo
+                                                                                                .cta
+                                                                                                .href
+                                                                                        }
+                                                                                        target={
+                                                                                            stageInfo
+                                                                                                .cta
+                                                                                                .external
+                                                                                                ? "_blank"
+                                                                                                : undefined
+                                                                                        }
+                                                                                        rel={
+                                                                                            stageInfo
+                                                                                                .cta
+                                                                                                .external
+                                                                                                ? "noopener noreferrer"
+                                                                                                : undefined
+                                                                                        }
+                                                                                        className={cn(
+                                                                                            buttonVariants(
+                                                                                                {
+                                                                                                    variant:
+                                                                                                        "helper",
+                                                                                                    size: "xs",
+                                                                                                },
+                                                                                            ),
+                                                                                            "mt-1.5",
+                                                                                        )}>
+                                                                                        {
+                                                                                            stageInfo
+                                                                                                .cta
+                                                                                                .label
+                                                                                        }
+                                                                                    </NextLink>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    );
+                                                                },
+                                                            )}
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             )}
-                                            <div className="relative pl-6">
-                                                <div className="bg-border/70 absolute left-[0.5625rem] top-2 h-[calc(100%-0.75rem)] w-px" />
-                                                <div className="space-y-4">
-                                                    {execution.codeReviewTimeline.map(
-                                                        (item) => {
-                                                            const isActive =
-                                                                item.status ===
-                                                                "in_progress";
-                                                            const stageInfo =
-                                                                getStageDisplay(
-                                                                    item,
-                                                                );
-
-                                                            return (
-                                                                <div
-                                                                    key={
-                                                                        item.uuid
-                                                                    }
-                                                                    className={cn(
-                                                                        "group flex gap-4",
-                                                                        isActive &&
-                                                                            "rounded-lg border-l-2 border-in-progress bg-card-lv2/60 px-3 py-2",
-                                                                    )}>
-                                                                    <div className="relative flex w-4 justify-center">
-                                                                        <span
-                                                                            className={cn(
-                                                                                "mt-1 h-2.5 w-2.5 rounded-full border-2",
-                                                                                isActive &&
-                                                                                    "h-3 w-3",
-                                                                                getTimelineStatusColor(
-                                                                                    item.status,
-                                                                                ),
-                                                                            )}
-                                                                        />
-                                                                    </div>
-                                                                    <div className="min-w-0 flex-1">
-                                                                        <div className="mb-1 flex flex-wrap items-center gap-2">
-                                                                            {stageInfo.badge && (
-                                                                                <Badge
-                                                                                    variant={
-                                                                                        stageInfo
-                                                                                            .badge
-                                                                                            .variant
-                                                                                    }
-                                                                                    className="text-[10px] uppercase tracking-wide">
-                                                                                    {
-                                                                                        stageInfo
-                                                                                            .badge
-                                                                                            .label
-                                                                                    }
-                                                                                </Badge>
-                                                                            )}
-                                                                            <span className="text-sm font-medium">
-                                                                                {
-                                                                                    stageInfo.label
-                                                                                }
-                                                                            </span>
-                                                                            {getStatusBadge(
-                                                                                item.status,
-                                                                                false,
-                                                                            )}
-                                                                            {executionOrigin &&
-                                                                                isAutomationStartMessage(
-                                                                                    item.message,
-                                                                                ) && (
-                                                                                    <Tooltip>
-                                                                                        <TooltipTrigger asChild>
-                                                                                            <span className="text-text-secondary whitespace-nowrap text-xs">
-                                                                                                ·{" "}
-                                                                                                {getOriginLabel(
-                                                                                                    executionOrigin,
-                                                                                                )}
-                                                                                            </span>
-                                                                                        </TooltipTrigger>
-                                                                                        <TooltipContent className="text-xs">
-                                                                                            {executionOrigin?.toLowerCase?.() ===
-                                                                                            "system"
-                                                                                                ? "Triggered automatically by system"
-                                                                                                : "Triggered by user command"}
-                                                                                        </TooltipContent>
-                                                                                    </Tooltip>
-                                                                                )}
-                                                                        </div>
-                                                                        {stageInfo.duration && (
-                                                                            <span className="text-muted-foreground text-xs">
-                                                                                {item.status ===
-                                                                                "in_progress"
-                                                                                    ? "Elapsed: "
-                                                                                    : "Duration: "}
-                                                                                {
-                                                                                    stageInfo.duration
-                                                                                }
-                                                                            </span>
-                                                                        )}
-                                                                        {stageInfo.reason && (
-                                                                            <p className="text-muted-foreground text-xs">
-                                                                                Reason:{" "}
-                                                                                {
-                                                                                    stageInfo.reason
-                                                                                }
-                                                                            </p>
-                                                                        )}
-                                                                        {stageInfo.tech && (
-                                                                            <p className="text-muted-foreground text-xs">
-                                                                                Tech:{" "}
-                                                                                {stageInfo.tech}
-                                                                            </p>
-                                                                        )}
-                                                                        {stageInfo.cta && (
-                                                                            <NextLink
-                                                                                href={
-                                                                                    stageInfo
-                                                                                        .cta
-                                                                                        .href
-                                                                                }
-                                                                                target={
-                                                                                    stageInfo
-                                                                                        .cta
-                                                                                        .external
-                                                                                        ? "_blank"
-                                                                                        : undefined
-                                                                                }
-                                                                                rel={
-                                                                                    stageInfo
-                                                                                        .cta
-                                                                                        .external
-                                                                                        ? "noopener noreferrer"
-                                                                                        : undefined
-                                                                                }
-                                                                                className={buttonVariants(
-                                                                                    {
-                                                                                        variant:
-                                                                                            "helper",
-                                                                                        size: "xs",
-                                                                                    },
-                                                                                )}>
-                                                                                {
-                                                                                    stageInfo
-                                                                                        .cta
-                                                                                        .label
-                                                                                }
-                                                                            </NextLink>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            );
-                                                        },
-                                                    )}
-                                                </div>
-                                            </div>
                                         </div>
                                     );
                                 })}

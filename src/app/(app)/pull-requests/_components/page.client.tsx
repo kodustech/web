@@ -120,24 +120,20 @@ export function PullRequestsPageClient() {
         <Page.Root className="pb-0">
             <Page.Header className="max-w-full">
                 <div className="flex w-full items-center justify-between">
-                    <div className="flex items-center gap-5">
-                        <Page.Title>Pull Requests</Page.Title>
+                    <div className="flex items-center gap-4">
+                        <Page.Title className="text-balance">Pull Requests</Page.Title>
 
                         {groupedPullRequests.length > 0 && (
-                            <span className="flex gap-0.5 text-sm">
-                                <span>Showing </span>
-                                <span className="text-text-secondary">
-                                    {groupedPullRequests.length} pull request
-                                    {groupedPullRequests.length > 1 ? "s" : ""}
-                                </span>
+                            <span className="text-text-tertiary text-sm tabular-nums">
+                                {groupedPullRequests.length} pull request
+                                {groupedPullRequests.length > 1 ? "s" : ""}
                                 {selectedRepository && (
-                                    <span className="text-text-secondary">
-                                        {" "}
-                                        from{" "}
-                                        <span className="text-text-primary font-medium">
+                                    <>
+                                        {" "}in{" "}
+                                        <span className="text-text-secondary font-medium">
                                             {selectedRepository}
                                         </span>
-                                    </span>
+                                    </>
                                 )}
                             </span>
                         )}

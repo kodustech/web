@@ -38,27 +38,24 @@ export const PrDataTable = ({ data, loading }: PrDataTableProps) => {
     }
 
     return (
-        <TableContainer className="rounded-xl border bg-card-lv1/30">
+        <TableContainer className="rounded-xl border border-card-lv3/40 bg-card-lv1/50">
             <Table className="w-full">
                 <TableHeader>
-                    <TableRow>
+                    <TableRow className="hover:bg-transparent">
                         <TableHead className="w-8"></TableHead>
-                        <TableHead className="w-20">PR</TableHead>
-                        <TableHead className="min-w-[18rem]">Title</TableHead>
-                        <TableHead className="w-32">Repository</TableHead>
-                        <TableHead className="w-40">Branch</TableHead>
-                        <TableHead className="w-40">Author</TableHead>
-                        <TableHead className="min-w-[16rem]">
-                            Current stage
-                        </TableHead>
-                        <TableHead className="w-20 text-center">
+                        <TableHead className="w-20 text-text-tertiary text-xs uppercase tracking-wide font-medium">PR</TableHead>
+                        <TableHead className="min-w-[18rem] text-text-tertiary text-xs uppercase tracking-wide font-medium">Title</TableHead>
+                        <TableHead className="w-32 text-text-tertiary text-xs uppercase tracking-wide font-medium">Repository</TableHead>
+                        <TableHead className="w-40 text-text-tertiary text-xs uppercase tracking-wide font-medium">Branch</TableHead>
+                        <TableHead className="w-40 text-text-tertiary text-xs uppercase tracking-wide font-medium">Author</TableHead>
+<TableHead className="w-20 text-center text-text-tertiary text-xs uppercase tracking-wide font-medium">
                             Reviews
                         </TableHead>
-                        <TableHead className="w-32">Created</TableHead>
-                        <TableHead className="w-20 text-center">
+                        <TableHead className="w-32 text-text-tertiary text-xs uppercase tracking-wide font-medium">Created</TableHead>
+                        <TableHead className="w-20 text-center text-text-tertiary text-xs uppercase tracking-wide font-medium">
                             Suggestions
                         </TableHead>
-                        <TableHead className="w-32 text-center">
+                        <TableHead className="w-32 text-center text-text-tertiary text-xs uppercase tracking-wide font-medium">
                             Status
                         </TableHead>
                     </TableRow>
