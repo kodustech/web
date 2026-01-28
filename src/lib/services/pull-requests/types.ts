@@ -17,8 +17,27 @@ export interface CodeReviewTimelineItem {
     uuid: string;
     createdAt: string;
     updatedAt: string;
-    status: "in_progress" | "success" | "error";
+    status: "in_progress" | "success" | "error" | "skipped";
     message: string;
+    stageName?: string | null;
+    metadata?:
+        | {
+              reason?: string | null;
+              tech?: string | null;
+              message?: string | null;
+              detail?: string | null;
+              details?: string | null;
+              description?: string | null;
+              error?: string | null;
+              cta?: {
+                  label: string;
+                  href: string;
+                  external?: boolean;
+              } | null;
+          }
+        | Record<string, any>
+        | null;
+    finishedAt?: string | null;
 }
 
 export interface PullRequestExecution {
@@ -43,6 +62,10 @@ export interface PullRequestExecution {
     codeReviewTimeline: CodeReviewTimelineItem[];
     enrichedData: Record<string, any>;
     suggestionsCount: { sent: number; filtered: number };
+    reviewedCommitSha?: string | null;
+    reviewedCommitUrl?: string | null;
+    compareUrl?: string | null;
+    executionId?: string | null;
 }
 
 export type PullRequestExecutionsPayload =

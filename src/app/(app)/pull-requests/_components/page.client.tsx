@@ -1,10 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Page } from "@components/ui/page";
 import { Spinner } from "@components/ui/spinner";
 import { useDebounce } from "@hooks/use-debounce";
-import { useInfinitePullRequestExecutions } from "@services/pull-requests";
+import {
+    type PullRequestExecution,
+    useInfinitePullRequestExecutions,
+} from "@services/pull-requests";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
 
 import { PrDataTable } from "./pr-data-table";
@@ -49,6 +52,43 @@ export function PullRequestsPageClient() {
         { pageSize: 30 },
     );
 
+    const groupedPullRequests = useMemo(() => {
+        const byPr = new Map<string, PullRequestExecution[]>();
+
+        const getExecutionTime = (pr: PullRequestExecution) => {
+            const value =
+                pr.automationExecution?.createdAt ||
+                pr.automationExecution?.updatedAt ||
+                pr.updatedAt ||
+                pr.createdAt;
+            return value ? Date.parse(value) : 0;
+        };
+
+        pullRequests.forEach((pr) => {
+            const existing = byPr.get(pr.prId) ?? [];
+            existing.push(pr);
+            byPr.set(pr.prId, existing);
+        });
+
+        const groups = Array.from(byPr.values()).map((executions) => {
+            const sorted = [...executions].sort(
+                (a, b) => getExecutionTime(b) - getExecutionTime(a),
+            );
+            const latest = sorted[0];
+
+            return {
+                prId: latest.prId,
+                latest,
+                executions: sorted,
+                reviewCount: sorted.length,
+            };
+        });
+
+        return groups.sort(
+            (a, b) => getExecutionTime(b.latest) - getExecutionTime(a.latest),
+        );
+    }, [pullRequests]);
+
     const loadMoreRef = useRef<HTMLDivElement | null>(null);
 
     useEffect(() => {
@@ -83,12 +123,12 @@ export function PullRequestsPageClient() {
                     <div className="flex items-center gap-5">
                         <Page.Title>Pull Requests</Page.Title>
 
-                        {pullRequests.length > 0 && (
+                        {groupedPullRequests.length > 0 && (
                             <span className="flex gap-0.5 text-sm">
                                 <span>Showing </span>
                                 <span className="text-text-secondary">
-                                    {pullRequests.length} pull request
-                                    {pullRequests.length > 1 ? "s" : ""}
+                                    {groupedPullRequests.length} pull request
+                                    {groupedPullRequests.length > 1 ? "s" : ""}
                                 </span>
                                 {selectedRepository && (
                                     <span className="text-text-secondary">
@@ -137,15 +177,16 @@ export function PullRequestsPageClient() {
                 ) : (
                     <>
                         <PrDataTable
-                            data={pullRequests}
-                            loading={isLoading && !pullRequests.length}
+                            data={groupedPullRequests}
+                            loading={isLoading && !groupedPullRequests.length}
                         />
                         <div
                             ref={loadMoreRef}
                             className="h-6 w-full"
                             aria-hidden
                         />
-                        {isFetchingNextPage && pullRequests.length > 0 && (
+                        {isFetchingNextPage &&
+                            groupedPullRequests.length > 0 && (
                             <div className="flex justify-center py-4">
                                 <Spinner className="size-5" />
                             </div>

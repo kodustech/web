@@ -96,8 +96,13 @@ export const useInfinitePullRequestExecutions = (
 
         pages.forEach((page) => {
             normalizeExecutions(page?.data).forEach((pr) => {
+                const executionKey =
+                    pr.executionId ||
+                    pr.automationExecution?.uuid ||
+                    `${pr.prId}-${pr.automationExecution?.createdAt ?? pr.updatedAt ?? pr.createdAt}`;
+
                 if (pr?.prId) {
-                    map.set(pr.prId, pr);
+                    map.set(executionKey, pr);
                 }
             });
         });
