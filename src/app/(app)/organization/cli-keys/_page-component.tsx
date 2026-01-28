@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Badge } from "@components/ui/badge";
 import { Button } from "@components/ui/button";
 import {
     Card,
@@ -44,6 +45,7 @@ import {
     CopyIcon,
     KeyRoundIcon,
     RefreshCcwIcon,
+    TerminalIcon,
     Trash2Icon,
 } from "lucide-react";
 import { useAllTeams } from "src/core/providers/all-teams-context";
@@ -180,6 +182,26 @@ export const CliKeysPage = ({
         }
     };
 
+    const getInstallCommand = (key: string) =>
+        `curl -fsSL https://kodus.io/install | bash --team-key ${key}`;
+
+    const handleCopyInstallCommand = async () => {
+        if (!createdKey) return;
+
+        try {
+            await ClipboardHelpers.copyTextToClipboard(
+                getInstallCommand(createdKey),
+            );
+            toast({ variant: "success", title: "Install command copied" });
+        } catch (error) {
+            toast({
+                variant: "danger",
+                title: "Failed to copy command",
+            });
+            console.error(error);
+        }
+    };
+
     const formatLastUsed = (value?: string | null) => {
         if (!value) return "Never used";
         return formatDistanceToNow(new Date(value), { addSuffix: true });
@@ -189,8 +211,10 @@ export const CliKeysPage = ({
         <Page.Root>
             <Page.Header>
                 <Page.TitleContainer>
-                    <Page.Title>CLI keys</Page.Title>
-                    <Page.Description>
+                    <Page.Title className="text-balance">
+                        CLI keys
+                    </Page.Title>
+                    <Page.Description className="text-pretty">
                         Manage CLI access tokens for the selected workspace
                         {teamName ? ` (${teamName})` : ""}. Keys are shown only
                         once on creation.
@@ -211,8 +235,10 @@ export const CliKeysPage = ({
             <Page.Content className="flex flex-col gap-6">
                 <Card color="lv1" className="max-w-3xl">
                     <CardHeader>
-                        <CardTitle>Generate a new CLI key</CardTitle>
-                        <CardDescription>
+                        <CardTitle className="text-balance">
+                            Generate a new CLI key
+                        </CardTitle>
+                        <CardDescription className="text-pretty">
                             Only organization owners can generate CLI keys.
                             Store the key value securely after creation.
                         </CardDescription>
@@ -266,15 +292,17 @@ export const CliKeysPage = ({
 
                 <Card color="lv1">
                     <CardHeader className="flex flex-col gap-1">
-                        <CardTitle>Existing CLI keys</CardTitle>
-                        <CardDescription>
+                        <CardTitle className="text-balance">
+                            Existing CLI keys
+                        </CardTitle>
+                        <CardDescription className="text-pretty">
                             Keys stay active until revoked. Only metadata is
                             shown here—the key value is never displayed again.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {keys.length === 0 ? (
-                            <div className="text-text-secondary text-sm">
+                            <div className="text-text-secondary text-pretty text-sm">
                                 No CLI keys yet. Generate a key to start using
                                 the CLI.
                             </div>
@@ -300,25 +328,23 @@ export const CliKeysPage = ({
                                                     {cliKey.name}
                                                 </TableCell>
                                                 <TableCell>
-                                                    <Button
-                                                        size="xs"
+                                                    <Badge
                                                         variant={
                                                             cliKey.active
                                                                 ? "success"
                                                                 : "error"
-                                                        }
-                                                        decorative>
+                                                        }>
                                                         {cliKey.active
                                                             ? "Active"
                                                             : "Revoked"}
-                                                    </Button>
+                                                    </Badge>
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className="tabular-nums">
                                                     {formatLastUsed(
                                                         cliKey.lastUsedAt,
                                                     )}
                                                 </TableCell>
-                                                <TableCell>
+                                                <TableCell className="tabular-nums">
                                                     {format(
                                                         new Date(
                                                             cliKey.createdAt,
@@ -339,29 +365,61 @@ export const CliKeysPage = ({
                                                     </div>
                                                 </TableCell>
                                                 <TableCell align="right">
-                                                    <Button
-                                                        size="sm"
-                                                        variant="error"
-                                                        leftIcon={
-                                                            <Trash2Icon />
-                                                        }
-                                                        onClick={() =>
-                                                            setKeyToRevoke(
-                                                                cliKey,
-                                                            )
-                                                        }
-                                                        disabled={
-                                                            !canManage ||
-                                                            !cliKey.active ||
-                                                            revokingKeyId ===
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        {cliKey.active && (
+                                                            <Button
+                                                                size="sm"
+                                                                variant="helper"
+                                                                leftIcon={
+                                                                    <CopyIcon />
+                                                                }
+                                                                onClick={async () => {
+                                                                    try {
+                                                                        await ClipboardHelpers.copyTextToClipboard(
+                                                                            getInstallCommand(
+                                                                                cliKey.uuid,
+                                                                            ),
+                                                                        );
+                                                                        toast({
+                                                                            variant:
+                                                                                "success",
+                                                                            title: "Install command copied",
+                                                                        });
+                                                                    } catch {
+                                                                        toast({
+                                                                            variant:
+                                                                                "danger",
+                                                                            title: "Failed to copy command",
+                                                                        });
+                                                                    }
+                                                                }}>
+                                                                Copy install
+                                                            </Button>
+                                                        )}
+                                                        <Button
+                                                            size="sm"
+                                                            variant="error"
+                                                            leftIcon={
+                                                                <Trash2Icon />
+                                                            }
+                                                            onClick={() =>
+                                                                setKeyToRevoke(
+                                                                    cliKey,
+                                                                )
+                                                            }
+                                                            disabled={
+                                                                !canManage ||
+                                                                !cliKey.active ||
+                                                                revokingKeyId ===
+                                                                    cliKey.uuid
+                                                            }
+                                                            loading={
+                                                                revokingKeyId ===
                                                                 cliKey.uuid
-                                                        }
-                                                        loading={
-                                                            revokingKeyId ===
-                                                            cliKey.uuid
-                                                        }>
-                                                        Revoke
-                                                    </Button>
+                                                            }>
+                                                            Revoke
+                                                        </Button>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -384,24 +442,49 @@ export const CliKeysPage = ({
                 }}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>CLI key created</DialogTitle>
-                        <DialogDescription>
+                        <DialogTitle className="text-balance">
+                            CLI key created
+                        </DialogTitle>
+                        <DialogDescription className="text-pretty">
                             {createdMessage ||
                                 "Save this key securely. It will not be shown again."}
                         </DialogDescription>
                     </DialogHeader>
 
                     {createdKey && (
-                        <div className="bg-card-lv2 border-card-lv1 flex items-center gap-3 rounded-xl border p-4">
-                            <span className="font-mono text-sm break-all">
-                                {createdKey}
-                            </span>
-                            <Button
-                                size="icon-sm"
-                                variant="helper"
-                                onClick={handleCopyKey}>
-                                <CopyIcon />
-                            </Button>
+                        <div className="flex flex-col gap-4">
+                            <div className="bg-card-lv2 border-card-lv1 flex items-center gap-3 rounded-xl border p-4">
+                                <span className="font-mono text-sm break-all">
+                                    {createdKey}
+                                </span>
+                                <Button
+                                    size="icon-sm"
+                                    variant="helper"
+                                    aria-label="Copy CLI key"
+                                    onClick={handleCopyKey}>
+                                    <CopyIcon />
+                                </Button>
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <span className="text-text-secondary text-sm font-medium">
+                                    Share with your team
+                                </span>
+                                <div className="bg-card-lv2 border-card-lv1 flex items-center gap-3 rounded-xl border p-4">
+                                    <TerminalIcon className="text-text-secondary size-4 shrink-0" />
+                                    <code className="text-sm break-all">
+                                        {getInstallCommand(createdKey)}
+                                    </code>
+                                    <Button
+                                        size="icon-sm"
+                                        variant="helper"
+                                        aria-label="Copy install command"
+                                        className="shrink-0"
+                                        onClick={handleCopyInstallCommand}>
+                                        <CopyIcon />
+                                    </Button>
+                                </div>
+                            </div>
                         </div>
                     )}
 
