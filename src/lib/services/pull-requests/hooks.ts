@@ -94,10 +94,22 @@ export const useInfinitePullRequestExecutions = (
         const pages = infiniteData?.pages ?? [];
         const map = new Map<string, PullRequestExecution>();
 
+        let fallbackKeyIndex = 0;
         pages.forEach((page) => {
             normalizeExecutions(page?.data).forEach((pr) => {
+                const timestamp =
+                    pr.automationExecution?.createdAt ??
+                    pr.updatedAt ??
+                    pr.createdAt;
+                const executionKey =
+                    pr.executionId ||
+                    pr.automationExecution?.uuid ||
+                    (timestamp
+                        ? `${pr.prId}-${timestamp}`
+                        : `${pr.prId}-fallback-${fallbackKeyIndex++}`);
+
                 if (pr?.prId) {
-                    map.set(pr.prId, pr);
+                    map.set(executionKey, pr);
                 }
             });
         });

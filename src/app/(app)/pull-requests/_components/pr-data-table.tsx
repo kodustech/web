@@ -10,12 +10,11 @@ import {
     TableHeader,
     TableRow,
 } from "@components/ui/table";
-import type { PullRequestExecution } from "@services/pull-requests";
-
 import { PrListItem } from "./pr-list-item";
+import type { PullRequestExecutionGroup } from "./types";
 
 interface PrDataTableProps {
-    data: PullRequestExecution[];
+    data: PullRequestExecutionGroup[];
     loading?: boolean;
 }
 
@@ -39,28 +38,31 @@ export const PrDataTable = ({ data, loading }: PrDataTableProps) => {
     }
 
     return (
-        <TableContainer className="rounded-lg border">
-            <Table>
+        <TableContainer className="rounded-xl border border-card-lv3/40 bg-card-lv1/50">
+            <Table className="w-full">
                 <TableHeader>
-                    <TableRow>
+                    <TableRow className="hover:bg-transparent">
                         <TableHead className="w-8"></TableHead>
-                        <TableHead className="w-20">PR</TableHead>
-                        <TableHead className="min-w-0 flex-1">Title</TableHead>
-                        <TableHead className="w-32">Repository</TableHead>
-                        <TableHead className="w-40">Branch</TableHead>
-                        <TableHead className="w-32">Created</TableHead>
-                        <TableHead className="w-32">Author</TableHead>
-                        <TableHead className="w-20 text-center">
+                        <TableHead className="w-20 text-text-tertiary text-xs uppercase tracking-wide font-medium">PR</TableHead>
+                        <TableHead className="min-w-[18rem] text-text-tertiary text-xs uppercase tracking-wide font-medium">Title</TableHead>
+                        <TableHead className="w-32 text-text-tertiary text-xs uppercase tracking-wide font-medium">Repository</TableHead>
+                        <TableHead className="w-40 text-text-tertiary text-xs uppercase tracking-wide font-medium">Branch</TableHead>
+                        <TableHead className="w-40 text-text-tertiary text-xs uppercase tracking-wide font-medium">Author</TableHead>
+<TableHead className="w-20 text-center text-text-tertiary text-xs uppercase tracking-wide font-medium">
+                            Reviews
+                        </TableHead>
+                        <TableHead className="w-32 text-text-tertiary text-xs uppercase tracking-wide font-medium">Created</TableHead>
+                        <TableHead className="w-20 text-center text-text-tertiary text-xs uppercase tracking-wide font-medium">
                             Suggestions
                         </TableHead>
-                        <TableHead className="w-32 text-center">
+                        <TableHead className="w-32 text-center text-text-tertiary text-xs uppercase tracking-wide font-medium">
                             Status
                         </TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {data.map((pr) => (
-                        <PrListItem key={pr.prId} pr={pr} />
+                    {data.map((group) => (
+                        <PrListItem key={group.prId} group={group} />
                     ))}
                 </TableBody>
             </Table>
