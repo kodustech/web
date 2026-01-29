@@ -5,6 +5,7 @@ import NextLink from "next/link";
 import { Badge } from "@components/ui/badge";
 import { buttonVariants } from "@components/ui/button";
 import { Link } from "@components/ui/link";
+import { Spinner } from "@components/ui/spinner";
 import { TableCell, TableRow } from "@components/ui/table";
 import {
     Tooltip,
@@ -63,6 +64,11 @@ const formatDuration = (start: string, end?: string | null) => {
     }
 
     const diffMs = Math.max(0, endMs - startMs);
+    if (diffMs < 1000) {
+        if (diffMs === 0) return "<1s";
+        return `${Math.max(1, Math.round(diffMs))}ms`;
+    }
+
     const totalSeconds = Math.floor(diffMs / 1000);
     const seconds = totalSeconds % 60;
     const totalMinutes = Math.floor(totalSeconds / 60);
@@ -120,6 +126,14 @@ const getStatusBadge = (status: string, merged: boolean) => {
                     Skipped
                 </Badge>
             );
+        case "partial_error":
+            return (
+                <Badge
+                    variant="helper"
+                    className="bg-warning/10 text-warning ring-warning/40 whitespace-nowrap ring-1">
+                    Partial Error
+                </Badge>
+            );
         case "pending":
             return (
                 <Badge variant="helper" className="whitespace-nowrap">
@@ -145,6 +159,8 @@ const getTimelineStatusColor = (status: string) => {
             return "bg-in-progress border-in-progress";
         case "skipped":
             return "bg-card-lv2 border-border";
+        case "partial_error":
+            return "bg-warning border-warning";
         default:
             return "bg-card-lv2 border-border";
     }
@@ -157,146 +173,20 @@ const formatStageName = (raw: string) => {
         .trim();
 };
 
+const normalizeStageLabel = (label: string) => {
+    const trimmed = label.trim();
+    if (!trimmed) return trimmed;
+
+    if (/[a-z][A-Z]/.test(trimmed) || /Stage$/i.test(trimmed)) {
+        return formatStageName(trimmed);
+    }
+
+    return trimmed;
+};
+
 const formatSha = (sha?: string | null) => {
     if (!sha) return null;
     return sha.length > 8 ? sha.slice(0, 7) : sha;
-};
-
-const parseStageMessage = (message: string) => {
-    const trimmed = message.trim();
-    let base = trimmed;
-    let detail: string | null = null;
-
-    const parenMatch = trimmed.match(/^(.*)\s*\(([^)]+)\)\s*$/);
-    if (parenMatch) {
-        base = parenMatch[1].trim();
-        detail = parenMatch[2].trim();
-    }
-
-    if (!detail) {
-        const separator = base.includes(" - ")
-            ? " - "
-            : base.includes(": ")
-              ? ": "
-              : null;
-        if (separator) {
-            const [left, right] = base.split(separator);
-            if (left && right) {
-                base = left.trim();
-                detail = right.trim();
-            }
-        }
-    }
-
-    const stageMatch = base.match(
-        /^(starting|completed|failed|skipped)\s+stage\s+(.+?)(?:\s+(?:because|due to)\s+(.+))?$/i,
-    );
-
-    if (stageMatch) {
-        const verb = stageMatch[1]?.toLowerCase?.() || "";
-        const stageName = stageMatch[2] || base;
-        const reason = stageMatch[3]?.trim();
-        const label = formatStageName(stageName);
-        const combinedDetail = reason
-            ? detail
-                ? `${reason} (${detail})`
-                : reason
-            : detail;
-
-        if (verb === "starting") {
-            return {
-                label,
-                badge: { label: "Starting", variant: "in-progress" },
-                detail: combinedDetail,
-            };
-        }
-
-        if (verb === "completed") {
-            return {
-                label,
-                badge: { label: "Completed", variant: "success" },
-                detail: combinedDetail,
-            };
-        }
-
-        if (verb === "skipped") {
-            return {
-                label,
-                badge: { label: "Skipped", variant: "helper" },
-                detail: combinedDetail,
-            };
-        }
-
-        return {
-            label,
-            badge: { label: "Failed", variant: "error" },
-            detail: combinedDetail,
-        };
-    }
-
-    const normalizedBase = base.toLowerCase();
-    if (
-        normalizedBase.includes(" is ") &&
-        /(disabled|inactive|not active|not enabled|off|false)/.test(
-            normalizedBase,
-        )
-    ) {
-        const isIndex = normalizedBase.indexOf(" is ");
-        if (isIndex > 0) {
-            const label = formatStageName(base.slice(0, isIndex).trim());
-            const reason = detail ? `${base} (${detail})` : base;
-
-            return {
-                label,
-                badge: { label: "Skipped", variant: "helper" },
-                detail: reason,
-            };
-        }
-    }
-
-    return {
-        label: base,
-        badge: null as null | {
-            label: string;
-            variant: "in-progress" | "success" | "error" | "helper";
-        },
-        detail,
-    };
-};
-
-const getMetadataReason = (
-    metadata?: CodeReviewTimelineItem["metadata"] | null,
-): string | null => {
-    if (!metadata) return null;
-
-    const candidates = [
-        "reason",
-        "message",
-        "detail",
-        "details",
-        "description",
-        "error",
-    ].map((key) =>
-        typeof metadata === "object" && metadata
-            ? (metadata as Record<string, any>)[key]
-            : null,
-    );
-
-    for (const value of candidates) {
-        if (typeof value === "string" && value.trim()) {
-            return value.trim();
-        }
-    }
-
-    return null;
-};
-
-const getMetadataTech = (
-    metadata?: CodeReviewTimelineItem["metadata"] | null,
-): string | null => {
-    if (!metadata || typeof metadata !== "object") return null;
-    const value = (metadata as Record<string, any>).tech;
-    return typeof value === "string" && value.trim() ? value.trim() : null;
 };
 
 const getMetadataCta = (
@@ -316,33 +206,64 @@ const getMetadataCta = (
     };
 };
 
-const stageMessagePattern = /^(starting|completed|failed|skipped)\s+stage\s+/i;
+const getPartialErrors = (
+    metadata?: CodeReviewTimelineItem["metadata"] | null,
+): string[] => {
+    if (!metadata || typeof metadata !== "object") return [];
+    const raw = (metadata as Record<string, any>).partialErrors;
+    if (!Array.isArray(raw)) return [];
+
+    return raw
+        .map((entry) => {
+            if (typeof entry === "string") return entry;
+            if (entry && typeof entry === "object") {
+                const file =
+                    entry.path ||
+                    entry.file ||
+                    entry.filename ||
+                    entry.name ||
+                    "";
+                const message = entry.message || entry.error || "";
+
+                if (file && message) {
+                    return `${file} — ${message}`;
+                }
+
+                return file || message || JSON.stringify(entry);
+            }
+            return null;
+        })
+        .filter((value): value is string => Boolean(value && value.trim()))
+        .map((value) => value.trim());
+};
 
 const getStageDisplay = (item: CodeReviewTimelineItem) => {
-    const parsed = parseStageMessage(item.message);
-    const shouldUseStageName =
-        !!item.stageName &&
-        (stageMessagePattern.test(item.message) || item.status === "skipped");
-    const label = shouldUseStageName
-        ? formatStageName(item.stageName as string)
-        : parsed.label;
-    const reasonFromMetadata = getMetadataReason(item.metadata);
-    const techFromMetadata = getMetadataTech(item.metadata);
+    const labelFromMetadata =
+        item.metadata &&
+        typeof item.metadata === "object" &&
+        typeof (item.metadata as Record<string, any>).label === "string" &&
+        (item.metadata as Record<string, any>).label.trim()
+            ? (item.metadata as Record<string, any>).label.trim()
+            : null;
+    const labelFromStage = item.stageLabel
+        ? normalizeStageLabel(item.stageLabel)
+        : null;
+    const label =
+        labelFromMetadata ||
+        labelFromStage ||
+        (item.stageName ? formatStageName(item.stageName) : item.message);
     const cta = getMetadataCta(item.metadata);
-    const reasonFromMessage =
-        parsed.detail ||
-        ((item.status === "skipped" || item.status === "error") &&
-        item.stageName &&
-        !stageMessagePattern.test(item.message)
-            ? item.message
-            : null);
+    const partialErrors = getPartialErrors(item.metadata);
 
     return {
         label,
-        badge: parsed.badge,
-        reason: reasonFromMetadata ?? reasonFromMessage ?? null,
-        tech: techFromMetadata,
+        message: item.message,
         cta,
+        partialErrors,
+        visibility:
+            item.metadata && typeof item.metadata === "object"
+                ? (item.metadata as Record<string, any>).visibility
+                : undefined,
         duration: formatDuration(
             item.createdAt,
             item.status === "in_progress"
@@ -350,24 +271,6 @@ const getStageDisplay = (item: CodeReviewTimelineItem) => {
                 : (item.finishedAt ?? item.updatedAt ?? item.createdAt),
         ),
     };
-};
-
-const getCurrentStageItem = (items: CodeReviewTimelineItem[]) => {
-    if (!items.length) return null;
-
-    return items.reduce((latest, item) => {
-        const latestTime = Date.parse(latest.createdAt);
-        const itemTime = Date.parse(item.createdAt);
-
-        if (Number.isNaN(latestTime) && !Number.isNaN(itemTime)) {
-            return item;
-        }
-        if (Number.isNaN(itemTime)) {
-            return latest;
-        }
-
-        return itemTime > latestTime ? item : latest;
-    }, items[0]);
 };
 
 const getOriginLabel = (origin: string) => {
@@ -388,6 +291,9 @@ export const PrListItem = ({ group }: PrListItemProps) => {
     const [collapsedReviews, setCollapsedReviews] = useState<Set<number>>(
         () => new Set(executions.slice(1).map((_, i) => i + 1)),
     );
+    const [debugVisibleByExecution, setDebugVisibleByExecution] = useState<
+        Record<string, boolean>
+    >({});
     const prUrl = buildPullRequestUrl(latest);
 
     const toggleReview = (index: number) => {
@@ -400,6 +306,13 @@ export const PrListItem = ({ group }: PrListItemProps) => {
             }
             return next;
         });
+    };
+
+    const toggleDebugVisibility = (key: string) => {
+        setDebugVisibleByExecution((prev) => ({
+            ...prev,
+            [key]: !prev[key],
+        }));
     };
 
     return (
@@ -538,6 +451,53 @@ export const PrListItem = ({ group }: PrListItemProps) => {
                                         "pending";
                                     const isReviewCollapsed =
                                         collapsedReviews.has(index);
+                                    const hasSecondarySteps =
+                                        execution.codeReviewTimeline.some(
+                                            (item) =>
+                                                item.metadata &&
+                                                typeof item.metadata ===
+                                                    "object" &&
+                                                (item.metadata as Record<
+                                                    string,
+                                                    any
+                                                >).visibility === "secondary",
+                                        );
+                                    const isDebugVisible =
+                                        debugVisibleByExecution[executionKey] ??
+                                        false;
+                                    const timelineItems = isDebugVisible
+                                        ? execution.codeReviewTimeline
+                                        : execution.codeReviewTimeline.filter(
+                                              (item) =>
+                                                  !(
+                                                      item.metadata &&
+                                                      typeof item.metadata ===
+                                                          "object" &&
+                                                      (item.metadata as Record<
+                                                          string,
+                                                          any
+                                                      >).visibility ===
+                                                          "secondary"
+                                                  ),
+                                          );
+                                    const timelineItemsSorted = [
+                                        ...timelineItems,
+                                    ].sort((a, b) => {
+                                        const aTime = Date.parse(
+                                            a.createdAt ?? "",
+                                        );
+                                        const bTime = Date.parse(
+                                            b.createdAt ?? "",
+                                        );
+                                        const safeATime = Number.isNaN(aTime)
+                                            ? 0
+                                            : aTime;
+                                        const safeBTime = Number.isNaN(bTime)
+                                            ? 0
+                                            : bTime;
+
+                                        return safeATime - safeBTime;
+                                    });
 
                                     return (
                                         <div
@@ -614,10 +574,33 @@ export const PrListItem = ({ group }: PrListItemProps) => {
                                                             )}
                                                         </div>
                                                     )}
+                                                    {hasSecondarySteps && (
+                                                        <div className="mb-3 flex justify-end">
+                                                            <button
+                                                                type="button"
+                                                                className={buttonVariants(
+                                                                    {
+                                                                        variant:
+                                                                            "helper",
+                                                                        size: "xs",
+                                                                    },
+                                                                )}
+                                                                onClick={(event) => {
+                                                                    event.stopPropagation();
+                                                                    toggleDebugVisibility(
+                                                                        executionKey,
+                                                                    );
+                                                                }}>
+                                                                {isDebugVisible
+                                                                    ? "Hide Debug/Technical Steps"
+                                                                    : "Show Debug/Technical Steps"}
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                     <div className="relative pl-6">
                                                         <div className="bg-card-lv3/70 absolute top-2 left-[0.5625rem] h-[calc(100%-0.75rem)] w-px" />
                                                         <div className="space-y-3">
-                                                            {execution.codeReviewTimeline.map(
+                                                            {timelineItemsSorted.map(
                                                                 (item) => {
                                                                     const isActiveStage =
                                                                         item.status ===
@@ -672,6 +655,11 @@ export const PrListItem = ({ group }: PrListItemProps) => {
                                                                                         }
                                                                                     </span>
                                                                                     {!isAutomationStart &&
+                                                                                        item.status ===
+                                                                                            "in_progress" && (
+                                                                                            <Spinner className="text-in-progress size-3" />
+                                                                                        )}
+                                                                                    {!isAutomationStart &&
                                                                                         getStatusBadge(
                                                                                             item.status,
                                                                                             false,
@@ -697,46 +685,57 @@ export const PrListItem = ({ group }: PrListItemProps) => {
                                                                                             </Tooltip>
                                                                                         )}
                                                                                 </div>
+                                                                                <p className="text-text-tertiary text-xs">
+                                                                                    {
+                                                                                        stageInfo.message
+                                                                                    }
+                                                                                </p>
                                                                                 {stageInfo.duration &&
                                                                                     !isAutomationStart && (
-                                                                                        <p className="text-text-tertiary text-xs tabular-nums">
-                                                                                            {item.status ===
-                                                                                            "in_progress"
-                                                                                                ? "Elapsed: "
-                                                                                                : "Duration: "}
-                                                                                            {
-                                                                                                stageInfo.duration
-                                                                                            }
-                                                                                        </p>
-                                                                                    )}
-                                                                                {isAutomationStart &&
-                                                                                    stageInfo.duration && (
-                                                                                        <p className="text-text-tertiary text-xs tabular-nums">
-                                                                                            {item.status ===
-                                                                                            "in_progress"
-                                                                                                ? "Elapsed: "
-                                                                                                : "Duration: "}
-                                                                                            {
-                                                                                                stageInfo.duration
-                                                                                            }
-                                                                                        </p>
-                                                                                    )}
-                                                                                {stageInfo.reason && (
-                                                                                    <p className="text-text-tertiary text-xs">
-                                                                                        Reason:{" "}
+                                                                                    <p className="text-text-tertiary text-xs tabular-nums">
+                                                                                        {item.status ===
+                                                                                        "in_progress"
+                                                                                            ? "Elapsed: "
+                                                                                            : "Duration: "}
                                                                                         {
-                                                                                            stageInfo.reason
+                                                                                            stageInfo.duration
                                                                                         }
                                                                                     </p>
                                                                                 )}
-                                                                                {stageInfo.tech && (
-                                                                                    <p className="text-text-tertiary text-xs">
-                                                                                        Tech:{" "}
-                                                                                        {
-                                                                                            stageInfo.tech
-                                                                                        }
-                                                                                    </p>
-                                                                                )}
+                                                                                {item.status ===
+                                                                                    "partial_error" &&
+                                                                                    stageInfo.partialErrors
+                                                                                        .length >
+                                                                                        0 && (
+                                                                                        <details className="text-warning/90 mt-2 text-xs">
+                                                                                            <summary className="cursor-pointer">
+                                                                                                View failed files (
+                                                                                                {
+                                                                                                    stageInfo
+                                                                                                        .partialErrors
+                                                                                                        .length
+                                                                                                }
+                                                                                                )
+                                                                                            </summary>
+                                                                                            <ul className="mt-2 space-y-1 pl-4">
+                                                                                                {stageInfo.partialErrors.map(
+                                                                                                    (
+                                                                                                        entry,
+                                                                                                    ) => (
+                                                                                                        <li
+                                                                                                            key={
+                                                                                                                entry
+                                                                                                            }
+                                                                                                            className="text-text-tertiary font-mono text-xs">
+                                                                                                            {
+                                                                                                                entry
+                                                                                                            }
+                                                                                                        </li>
+                                                                                                    ),
+                                                                                                )}
+                                                                                            </ul>
+                                                                                        </details>
+                                                                                    )}
                                                                                 {stageInfo.cta && (
                                                                                     <NextLink
                                                                                         href={

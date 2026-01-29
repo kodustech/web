@@ -1,5 +1,6 @@
 import { FormControl } from "@components/ui/form-control";
 import { Textarea } from "@components/ui/textarea";
+import { useEffect, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { OverrideIndicatorForm } from "src/app/(app)/settings/code-review/_components/override";
 
@@ -12,7 +13,20 @@ export const IgnorePaths = () => {
         <Controller
             name="ignorePaths.value"
             control={form.control}
-            render={({ field }) => (
+            render={({ field }) => {
+                const [draftValue, setDraftValue] = useState(
+                    Array.isArray(field.value) ? field.value.join("\n") : "",
+                );
+
+                useEffect(() => {
+                    if (Array.isArray(field.value)) {
+                        setDraftValue(field.value.join("\n"));
+                    } else {
+                        setDraftValue("");
+                    }
+                }, [field.value]);
+
+                return (
                 <FormControl.Root>
                     <div className="mb-2 flex flex-row items-center gap-2">
                         <FormControl.Label htmlFor={field.name}>
@@ -26,14 +40,12 @@ export const IgnorePaths = () => {
                         <Textarea
                             id={field.name}
                             disabled={field.disabled}
-                            value={
-                                Array.isArray(field.value)
-                                    ? field.value.join("\n")
-                                    : ""
-                            }
+                            value={draftValue}
                             onChange={(ev) => {
-                                const text = ev.target.value;
-                                const ignorePaths = text
+                                setDraftValue(ev.target.value);
+                            }}
+                            onBlur={() => {
+                                const ignorePaths = draftValue
                                     .split("\n")
                                     .map((item) => item.trim())
                                     .filter((item) => item !== "");
@@ -51,7 +63,8 @@ export const IgnorePaths = () => {
                         **/*.js
                     </FormControl.Helper>
                 </FormControl.Root>
-            )}
+                );
+            }}
         />
     );
 };

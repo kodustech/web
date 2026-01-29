@@ -6,7 +6,13 @@ export interface Author {
 
 export interface AutomationExecution {
     uuid: string;
-    status: "success" | "error" | "in_progress" | "pending";
+    status:
+        | "success"
+        | "error"
+        | "in_progress"
+        | "pending"
+        | "skipped"
+        | "partial_error";
     errorMessage: string | null;
     createdAt: string;
     updatedAt: string;
@@ -17,18 +23,24 @@ export interface CodeReviewTimelineItem {
     uuid: string;
     createdAt: string;
     updatedAt: string;
-    status: "in_progress" | "success" | "error" | "skipped";
+    status: "in_progress" | "success" | "error" | "skipped" | "partial_error";
     message: string;
     stageName?: string | null;
+    stageLabel?: string | null;
     metadata?:
         | {
-              reason?: string | null;
-              tech?: string | null;
-              message?: string | null;
-              detail?: string | null;
-              details?: string | null;
-              description?: string | null;
-              error?: string | null;
+              label?: string | null;
+              visibility?: string | null;
+              partialErrors?:
+                  | Array<
+                        | string
+                        | {
+                              path?: string;
+                              file?: string;
+                              message?: string;
+                          }
+                    >
+                  | null;
               cta?: {
                   label: string;
                   href: string;
