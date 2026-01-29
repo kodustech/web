@@ -27,6 +27,8 @@ import {
     useSuspenseGetFormattedCodeReviewParameter,
     useSuspenseGetParameterPlatformConfigs,
 } from "@services/parameters/hooks";
+import { getMCPPlugins } from "@services/mcp-manager/fetch";
+import { MCPServiceUnavailableError } from "@services/mcp-manager/utils";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import { useSelectedTeamId } from "src/core/providers/selected-team-context";
@@ -75,10 +77,33 @@ export const SettingsLayout = ({ children }: React.PropsWithChildren) => {
         ResourceType.PluginSettings,
     );
 
-    // Only show Plugins menu if explicitly enabled via env var
-    // Set NEXT_PUBLIC_ENABLE_MCP_PLUGINS=true to show the Plugins menu
-    const isMCPPluginsEnabled =
-        process.env.NEXT_PUBLIC_ENABLE_MCP_PLUGINS === "true";
+    const [isMCPAvailable, setIsMCPAvailable] = useState(true);
+
+    useEffect(() => {
+        if (!canReadPlugins) return;
+
+        let mounted = true;
+
+        (async () => {
+            try {
+                await getMCPPlugins();
+                if (mounted) setIsMCPAvailable(true);
+            } catch (error) {
+                if (!mounted) return;
+
+                if (error instanceof MCPServiceUnavailableError) {
+                    setIsMCPAvailable(false);
+                    return;
+                }
+
+                console.error("Failed to check MCP availability:", error);
+            }
+        })();
+
+        return () => {
+            mounted = false;
+        };
+    }, [canReadPlugins]);
 
     // Avoid hydration mismatch with Radix Collapsible IDs
     const [mounted, setMounted] = useState(false);
@@ -107,7 +132,7 @@ export const SettingsLayout = ({ children }: React.PropsWithChildren) => {
             });
         }
 
-        if (canReadPlugins && isMCPPluginsEnabled) {
+        if (canReadPlugins && isMCPAvailable) {
             routes.push({
                 label: "Plugins",
                 href: "/settings/plugins",
@@ -122,7 +147,7 @@ export const SettingsLayout = ({ children }: React.PropsWithChildren) => {
         }
 
         return routes;
-    }, [canReadGitSettings, canReadBilling, canReadPlugins, isMCPPluginsEnabled]);
+    }, [canReadGitSettings, canReadBilling, canReadPlugins, isMCPAvailable]);
 
     if (repositoryId && repositoryId !== "global") {
         const repository = safeArray(configValue?.repositories).find(
