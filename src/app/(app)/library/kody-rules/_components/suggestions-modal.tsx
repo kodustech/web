@@ -91,11 +91,11 @@ const buildExternalPullRequestUrl = ({
                 return prUrl;
             }
 
-            const orgMatch = prUrl.match(/dev\.azure\.com\/([^/]+)/);
+            const azureMatch = prUrl.match(/dev\.azure\.com\/([^/]+)\/([^/]+)\/_apis/);
             const repositoryName = repositoryFullName?.split("/").pop();
-            if (orgMatch && repositoryName) {
-                const [, organization] = orgMatch;
-                return `https://dev.azure.com/${organization}/_git/${repositoryName}/pullrequest/${prNumber}`;
+            if (azureMatch && repositoryName) {
+                const [, organization, project] = azureMatch;
+                return `https://dev.azure.com/${organization}/${project}/_git/${repositoryName}/pullrequest/${prNumber}`;
             }
         }
 

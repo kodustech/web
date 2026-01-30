@@ -83,11 +83,12 @@ export const buildPullRequestUrl = (pr: PullRequestExecution): string => {
             }
             // Tenta construir URL básica se tiver informações suficientes
             if (url && url.includes("/_apis/")) {
-                const orgMatch = url.match(/dev\.azure\.com\/([^\/]+)/);
-                if (orgMatch && pr.repositoryName) {
-                    const [, organization] = orgMatch;
-                    // Estrutura básica do Azure DevOps
-                    return `https://dev.azure.com/${organization}/_git/${pr.repositoryName}/pullrequest/${prNumber}`;
+                const azureMatch = url.match(
+                    /dev\.azure\.com\/([^\/]+)\/([^\/]+)\/_apis/,
+                );
+                if (azureMatch && pr.repositoryName) {
+                    const [, organization, project] = azureMatch;
+                    return `https://dev.azure.com/${organization}/${project}/_git/${pr.repositoryName}/pullrequest/${prNumber}`;
                 }
             }
             break;
