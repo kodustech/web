@@ -183,7 +183,7 @@ export const CliKeysPage = ({
     };
 
     const getInstallCommand = (key: string) =>
-        `curl -fsSL https://review-skill.com/install | bash --team-key ${key}`;
+        `curl -fsSL https://review-skill.com/install | bash -s -- --team-key ${key}`;
 
     const handleCopyInstallCommand = async () => {
         if (!createdKey) return;
