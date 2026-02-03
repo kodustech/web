@@ -9,20 +9,22 @@ import {
     VictoryBar,
     VictoryChart,
     VictoryContainer,
-    VictoryLegend,
     VictoryScatter,
     VictoryStack,
-    VictoryTheme,
     VictoryTooltip,
 } from "victory";
 
+// Chart colors - using distinct, accessible colors
+const CHART_COLORS = {
+    input: "#3b82f6", // blue
+    output: "#22c55e", // green
+    reasoning: "#f97316", // orange
+};
+
 const legendData = [
-    { name: "Input", symbol: { fill: "#33c9dc" } },
-    { name: "Output", symbol: { fill: "#f0b429" } },
-    {
-        name: "Output (Reasoning)",
-        symbol: { fill: "#c43a31" },
-    },
+    { name: "Input", color: CHART_COLORS.input },
+    { name: "Output", color: CHART_COLORS.output },
+    { name: "Reasoning", color: CHART_COLORS.reasoning },
 ];
 
 export const Chart = ({
@@ -88,10 +90,10 @@ export const Chart = ({
     }, [data, filterType, xAccessor]);
 
     const { maxDomain, chartData } = useMemo(() => {
-        const totals = transformedData.map((d) => 
-            d.input + d.output + d.outputReasoning
+        const totals = transformedData.map(
+            (d) => d.input + d.output + d.outputReasoning,
         );
-        
+
         if (totals.length === 0) {
             return { maxDomain: undefined, chartData: transformedData };
         }
@@ -103,11 +105,11 @@ export const Chart = ({
 
         if (maxValue > percentile95 * 3) {
             const capLimit = percentile95 * 1.2;
-            
+
             const cappedData = transformedData.map((d) => {
                 const total = d.input + d.output + d.outputReasoning;
                 const isCapped = total > capLimit;
-                
+
                 if (isCapped) {
                     const ratio = capLimit / total;
                     return {
@@ -121,7 +123,7 @@ export const Chart = ({
                         outputReasoning: d.outputReasoning * ratio,
                     };
                 }
-                
+
                 return {
                     ...d,
                     isCapped: false,
@@ -141,7 +143,7 @@ export const Chart = ({
     }, [transformedData]);
 
     const isTiltedDate = chartData?.length > 6 && !isExpanded;
-    
+
     const minBarWidth = 40;
     const minWidth = chartData.length * minBarWidth;
     const chartWidth = Math.max(boundingRect.width, minWidth);
@@ -149,7 +151,10 @@ export const Chart = ({
 
     const getTickFormat = (x: any) => {
         if (filterType === "daily") {
-            return new Date(x).toLocaleDateString();
+            return new Date(x).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+            });
         }
         return x;
     };
@@ -157,8 +162,8 @@ export const Chart = ({
     const formatTicks = (t: number) => {
         if (t === 0) return "0";
         if (t < 1000) return t.toString();
-        if (t < 1000000) return `${(t / 1000).toPrecision(3)}k`;
-        return `${(t / 1000000).toPrecision(3)}M`;
+        if (t < 1000000) return `${(t / 1000).toFixed(1)}K`;
+        return `${(t / 1000000).toFixed(1)}M`;
     };
 
     if (!isMounted) {
@@ -166,139 +171,240 @@ export const Chart = ({
     }
 
     return (
-        <div ref={graphRef} className="h-full w-full flex flex-col">
-            <div className={shouldScroll ? "overflow-x-auto pb-4" : ""} style={{ maxHeight: boundingRect.height }}>
+        <div ref={graphRef} className="flex h-full w-full flex-col">
+            {/* Custom Legend */}
+            <div className="mb-2 flex items-center justify-center gap-6">
+                {legendData.map((item) => (
+                    <div key={item.name} className="flex items-center gap-2">
+                        <div
+                            className="size-3 rounded-sm"
+                            style={{ backgroundColor: item.color }}
+                        />
+                        <span className="text-text-secondary text-xs">
+                            {item.name}
+                        </span>
+                    </div>
+                ))}
+            </div>
+
+            <div
+                className={shouldScroll ? "overflow-x-auto" : ""}
+                style={{ maxHeight: boundingRect.height - 40 }}>
                 <VictoryChart
                     width={chartWidth}
-                    height={shouldScroll ? boundingRect.height - 20 : boundingRect.height}
-                    theme={VictoryTheme.material}
-                    domainPadding={{ x: 20 }}
+                    height={
+                        shouldScroll
+                            ? boundingRect.height - 60
+                            : boundingRect.height - 40
+                    }
+                    domainPadding={{ x: 25 }}
                     domain={maxDomain ? { y: [0, maxDomain] } : undefined}
                     padding={{
-                        left: 45,
-                        right: 45,
-                        top: isTiltedDate ? 25 : 20,
-                        bottom: isTiltedDate ? 40 : 20,
+                        left: 55,
+                        right: 20,
+                        top: 10,
+                        bottom: isTiltedDate ? 50 : 30,
                     }}
                     containerComponent={<VictoryContainer responsive={false} />}>
-                <VictoryAxis
-                    tickFormat={getTickFormat}
-                    style={{
-                        tickLabels: {
-                            fontSize: 10,
-                            fill: "var(--color-text-primary)",
-                            fontFamily: "var(--font-sans)",
-                            padding: 2,
-                            angle: isTiltedDate && !isExpanded ? -25 : 0,
-                            textAnchor:
-                                isTiltedDate && !isExpanded ? "end" : "middle",
-                        },
-                    }}
-                />
-                <VictoryAxis dependentAxis tickFormat={formatTicks} />
-                <VictoryLegend
-                    x={boundingRect.width / 2 - 150}
-                    y={-5}
-                    orientation="horizontal"
-                    gutter={20}
-                    style={{
-                        labels: {
-                            fontSize: 12,
-                            fill: "var(--color-text-primary)",
-                        },
-                    }}
-                    data={legendData}
-                />
-                <VictoryStack
-                    style={{
-                        data: {
-                            width: 20,
-                        },
-                    }}>
-                    <VictoryBar
-                        data={chartData.map((d) => ({
-                            x: d[xAccessor],
-                            y: d.input,
-                            isCapped: d.isCapped,
-                            originalValue: d.originalInput,
-                        }))}
+                    <VictoryAxis
+                        tickFormat={getTickFormat}
                         style={{
-                            data: {
-                                fill: legendData[0].symbol.fill,
+                            axis: {
+                                stroke: "#374151",
+                                strokeWidth: 1,
+                            },
+                            tickLabels: {
+                                fontSize: 11,
+                                fill: "#9ca3af",
+                                fontFamily: "system-ui, sans-serif",
+                                padding: 8,
+                                angle: isTiltedDate && !isExpanded ? -35 : 0,
+                                textAnchor:
+                                    isTiltedDate && !isExpanded
+                                        ? "end"
+                                        : "middle",
+                            },
+                            grid: {
+                                stroke: "none",
                             },
                         }}
-                        labels={({ datum }) => 
-                            datum?.isCapped 
-                                ? `Input: ${formatTicks(datum?.originalValue)} (capped)`
-                                : `Input: ${formatTicks(datum?.y)}`
-                        }
-                        labelComponent={<VictoryTooltip />}
                     />
-                    <VictoryBar
-                        data={chartData.map((d) => ({
-                            x: d[xAccessor],
-                            y: d.output,
-                            isCapped: d.isCapped,
-                            originalValue: d.originalOutput,
-                        }))}
+                    <VictoryAxis
+                        dependentAxis
+                        tickFormat={formatTicks}
                         style={{
-                            data: {
-                                fill: legendData[1].symbol.fill,
+                            axis: {
+                                stroke: "#374151",
+                                strokeWidth: 1,
                             },
-                        }}
-                        labels={({ datum }) => 
-                            datum?.isCapped 
-                                ? `Output: ${formatTicks(datum?.originalValue)} (capped)`
-                                : `Output: ${formatTicks(datum?.y)}`
-                        }
-                        labelComponent={<VictoryTooltip />}
-                    />
-                    <VictoryBar
-                        data={chartData.map((d) => ({
-                            x: d[xAccessor],
-                            y: d.outputReasoning,
-                            isCapped: d.isCapped,
-                            originalValue: d.originalOutputReasoning,
-                        }))}
-                        style={{
-                            data: {
-                                fill: legendData[2].symbol.fill,
+                            tickLabels: {
+                                fontSize: 11,
+                                fill: "#9ca3af",
+                                fontFamily: "system-ui, sans-serif",
+                                padding: 8,
                             },
-                        }}
-                        labels={({ datum }) =>
-                            datum?.isCapped 
-                                ? `Output (Reasoning): ${formatTicks(datum?.originalValue)} (capped)`
-                                : `Output (Reasoning): ${formatTicks(datum?.y)}`
-                        }
-                        labelComponent={<VictoryTooltip />}
-                    />
-                </VictoryStack>
-                {maxDomain && (
-                    <VictoryScatter
-                        data={chartData
-                            .filter((d) => d.isCapped)
-                            .map((d) => ({
-                                x: d[xAccessor],
-                                y: maxDomain * 0.98,
-                            }))}
-                        size={4}
-                        style={{
-                            data: {
-                                fill: "#ff9800",
-                                stroke: "#fff",
+                            grid: {
+                                stroke: "#1f2937",
                                 strokeWidth: 1,
                             },
                         }}
-                        labels={() => "Value exceeds scale"}
-                        labelComponent={<VictoryTooltip />}
                     />
-                )}
-            </VictoryChart>
+                    <VictoryStack
+                        style={{
+                            data: {
+                                width: Math.min(24, chartWidth / chartData.length / 2),
+                            },
+                        }}>
+                        <VictoryBar
+                            data={chartData.map((d) => ({
+                                x: d[xAccessor],
+                                y: d.input,
+                                isCapped: d.isCapped,
+                                originalValue: d.originalInput,
+                            }))}
+                            style={{
+                                data: {
+                                    fill: CHART_COLORS.input,
+                                    rx: 2,
+                                },
+                            }}
+                            labels={({ datum }) =>
+                                datum?.isCapped
+                                    ? `Input: ${formatTicks(datum?.originalValue)} (capped)`
+                                    : `Input: ${formatTicks(datum?.y)}`
+                            }
+                            labelComponent={
+                                <VictoryTooltip
+                                    flyoutStyle={{
+                                        fill: "#1f2937",
+                                        stroke: "#374151",
+                                        strokeWidth: 1,
+                                    }}
+                                    style={{
+                                        fill: "#f3f4f6",
+                                        fontSize: 11,
+                                        fontFamily: "system-ui, sans-serif",
+                                    }}
+                                    cornerRadius={6}
+                                    flyoutPadding={{ top: 6, bottom: 6, left: 10, right: 10 }}
+                                />
+                            }
+                        />
+                        <VictoryBar
+                            data={chartData.map((d) => ({
+                                x: d[xAccessor],
+                                y: d.output,
+                                isCapped: d.isCapped,
+                                originalValue: d.originalOutput,
+                            }))}
+                            style={{
+                                data: {
+                                    fill: CHART_COLORS.output,
+                                },
+                            }}
+                            labels={({ datum }) =>
+                                datum?.isCapped
+                                    ? `Output: ${formatTicks(datum?.originalValue)} (capped)`
+                                    : `Output: ${formatTicks(datum?.y)}`
+                            }
+                            labelComponent={
+                                <VictoryTooltip
+                                    flyoutStyle={{
+                                        fill: "#1f2937",
+                                        stroke: "#374151",
+                                        strokeWidth: 1,
+                                    }}
+                                    style={{
+                                        fill: "#f3f4f6",
+                                        fontSize: 11,
+                                        fontFamily: "system-ui, sans-serif",
+                                    }}
+                                    cornerRadius={6}
+                                    flyoutPadding={{ top: 6, bottom: 6, left: 10, right: 10 }}
+                                />
+                            }
+                        />
+                        <VictoryBar
+                            data={chartData.map((d) => ({
+                                x: d[xAccessor],
+                                y: d.outputReasoning,
+                                isCapped: d.isCapped,
+                                originalValue: d.originalOutputReasoning,
+                            }))}
+                            style={{
+                                data: {
+                                    fill: CHART_COLORS.reasoning,
+                                    rx: 2,
+                                },
+                            }}
+                            labels={({ datum }) =>
+                                datum?.isCapped
+                                    ? `Reasoning: ${formatTicks(datum?.originalValue)} (capped)`
+                                    : `Reasoning: ${formatTicks(datum?.y)}`
+                            }
+                            labelComponent={
+                                <VictoryTooltip
+                                    flyoutStyle={{
+                                        fill: "#1f2937",
+                                        stroke: "#374151",
+                                        strokeWidth: 1,
+                                    }}
+                                    style={{
+                                        fill: "#f3f4f6",
+                                        fontSize: 11,
+                                        fontFamily: "system-ui, sans-serif",
+                                    }}
+                                    cornerRadius={6}
+                                    flyoutPadding={{ top: 6, bottom: 6, left: 10, right: 10 }}
+                                />
+                            }
+                        />
+                    </VictoryStack>
+                    {maxDomain && (
+                        <VictoryScatter
+                            data={chartData
+                                .filter((d) => d.isCapped)
+                                .map((d) => ({
+                                    x: d[xAccessor],
+                                    y: maxDomain * 0.98,
+                                }))}
+                            size={5}
+                            style={{
+                                data: {
+                                    fill: "#eab308",
+                                    stroke: "#1f2937",
+                                    strokeWidth: 2,
+                                },
+                            }}
+                            labels={() => "Value exceeds scale"}
+                            labelComponent={
+                                <VictoryTooltip
+                                    flyoutStyle={{
+                                        fill: "#1f2937",
+                                        stroke: "#374151",
+                                        strokeWidth: 1,
+                                    }}
+                                    style={{
+                                        fill: "#f3f4f6",
+                                        fontSize: 11,
+                                        fontFamily: "system-ui, sans-serif",
+                                    }}
+                                    cornerRadius={6}
+                                    flyoutPadding={{ top: 6, bottom: 6, left: 10, right: 10 }}
+                                />
+                            }
+                        />
+                    )}
+                </VictoryChart>
             </div>
+
             {maxDomain && (
-                <div className="text-xs text-amber-600 dark:text-amber-400 mt-2 px-2">
-                    ⚠ Some values exceed the scale and are capped for better
-                    visualization. Hover over bars to see actual values.
+                <div className="text-warning mt-2 flex items-center gap-2 px-2 text-xs">
+                    <div className="bg-warning size-2 rounded-full" />
+                    <span>
+                        Some values exceed the scale. Hover over bars to see
+                        actual values.
+                    </span>
                 </div>
             )}
         </div>

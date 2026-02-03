@@ -9,6 +9,7 @@ import {
 } from "@services/usage/fetch";
 import {
     BaseUsageContract,
+    ModelPricingInfo,
     UsageByPrResultContract,
 } from "@services/usage/types";
 import { FEATURE_FLAGS } from "src/core/config/feature-flags";
@@ -17,9 +18,48 @@ import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team
 import { isFeatureEnabled } from "src/core/utils/posthog-server-side";
 import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { getSelectedDateRange } from "src/features/ee/cockpit/_helpers/get-selected-date-range";
+import { fetchModelPricingFromModelsDev } from "src/features/ee/subscription/choose-plan/_services/models";
 import { validateOrganizationLicense } from "src/features/ee/subscription/_services/billing/fetch";
 
 import { TokenUsagePageClient } from "./_components/page.client";
+
+async function getModelPricing(model: string): Promise<ModelPricingInfo> {
+    // First try internal API
+    try {
+        const internalPricing = await getTokenPricing(model);
+        if (
+            internalPricing?.pricing?.prompt > 0 ||
+            internalPricing?.pricing?.completion > 0
+        ) {
+            return internalPricing;
+        }
+    } catch {
+        // Fall through to models.dev
+    }
+
+    // Try models.dev as fallback
+    const modelsDevPricing = await fetchModelPricingFromModelsDev(model);
+    if (modelsDevPricing) {
+        return {
+            id: model,
+            pricing: {
+                prompt: modelsDevPricing.prompt,
+                completion: modelsDevPricing.completion,
+                internal_reasoning: modelsDevPricing.completion, // Same as completion
+            },
+        };
+    }
+
+    // Return zero pricing as last resort
+    return {
+        id: model,
+        pricing: {
+            prompt: 0,
+            completion: 0,
+            internal_reasoning: 0,
+        },
+    };
+}
 
 export default async function TokenUsagePage({
     searchParams,
@@ -40,16 +80,8 @@ export default async function TokenUsagePage({
         () => null,
     );
 
-    if (!subscription) {
-        redirect("/settings");
-    }
-
-    const isBYOK = isBYOKSubscriptionPlan(subscription);
-    const isTrial = subscription.subscriptionStatus === "trial";
-
-    if (!isBYOK && !isTrial) {
-        redirect("/settings");
-    }
+    const isBYOK = subscription ? isBYOKSubscriptionPlan(subscription) : false;
+    const isTrial = subscription?.subscriptionStatus === "trial";
 
     const cookieStore = await cookies();
 
@@ -146,7 +178,7 @@ export default async function TokenUsagePage({
     } else {
         try {
             const pricingPromises = uniqueModels.map(async (model) => {
-                const pricingInfo = await getTokenPricing(model);
+                const pricingInfo = await getModelPricing(model);
                 return { [model]: pricingInfo };
             });
 

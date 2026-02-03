@@ -1,9 +1,8 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Button } from "@components/ui/button";
 import { Card, CardHeader, CardTitle } from "@components/ui/card";
-import { magicModal } from "@components/ui/magic-modal";
-import { useAsyncAction } from "@hooks/use-async-action";
 import { usePermission } from "@services/permissions/hooks";
 import { Action, ResourceType } from "@services/permissions/types";
 import type { TeamMembersResponse } from "@services/setup/types";
@@ -11,8 +10,6 @@ import { ArrowUpCircle } from "lucide-react";
 import { pluralize } from "src/core/utils/string";
 
 import { useSubscriptionStatus } from "../../_hooks/use-subscription-status";
-import { getPlans } from "../../_services/billing/fetch";
-import { NewPlanSelectionModal } from "./_modals/select-new-plan";
 
 export const FreeByok = ({
     members,
@@ -20,18 +17,12 @@ export const FreeByok = ({
     members: TeamMembersResponse["members"];
 }) => {
     const subscription = useSubscriptionStatus();
+    const router = useRouter();
     if (subscription.status !== "free") return null;
 
     const organizationAdminsCount = members.length;
 
     const canEdit = usePermission(Action.Update, ResourceType.Billing);
-
-    const [_getPlans, { loading: isLoadingPlans }] = useAsyncAction(
-        async () => {
-            const plans = await getPlans();
-            magicModal.show(() => <NewPlanSelectionModal plans={plans} />);
-        },
-    );
 
     return (
         <Card className="w-full">
@@ -57,9 +48,9 @@ export const FreeByok = ({
                     size="lg"
                     variant="primary"
                     className="h-fit"
-                    loading={isLoadingPlans}
+                    disabled={!canEdit}
                     leftIcon={<ArrowUpCircle />}
-                    onClick={() => _getPlans()}>
+                    onClick={() => router.push("/choose-plan")}>
                     Upgrade
                 </Button>
             </CardHeader>

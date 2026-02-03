@@ -10,7 +10,6 @@ import { Chart } from "./chart";
 import { CostCards } from "./cost-cards";
 import { Filters } from "./filters";
 import { NoData } from "./no-data";
-import { PricingDetails } from "./pricing-details";
 import { SummaryCards } from "./summary-cards";
 
 const calculateCost = (
@@ -53,7 +52,6 @@ export const TokenUsagePageClient = ({
     models: string[];
     pricing: Record<string, ModelPricingInfo>;
 }) => {
-    const [customPricing, setCustomPricing] = useState(pricing);
     const [isMounted, setIsMounted] = useState(false);
 
     const filters = useTokenUsageFilters(models);
@@ -121,7 +119,7 @@ export const TokenUsagePageClient = ({
 
         for (const model of selectedModels) {
             const modelUsage = usageByModel[model];
-            const modelPricing = customPricing[model];
+            const modelPricing = pricing[model];
             if (modelUsage && modelPricing) {
                 const cost = calculateCost(
                     modelPricing,
@@ -145,7 +143,7 @@ export const TokenUsagePageClient = ({
             outputReasoning: totalOutputReasoning,
             totalCost: totalCostAllModels,
         };
-    }, [filteredData, selectedModels, customPricing]);
+    }, [filteredData, selectedModels, pricing]);
 
     const getXAccessor = () => {
         switch (currentFilter) {
@@ -175,32 +173,42 @@ export const TokenUsagePageClient = ({
         return totalUsage.totalCost / numberOfUniqueItems;
     }, [filteredData, totalUsage.totalCost, xAccessor]);
 
+    // Filter pricing to only include selected models
+    const filteredPricing = useMemo(() => {
+        const result: Record<string, ModelPricingInfo> = {};
+        for (const model of selectedModels) {
+            if (pricing[model]) {
+                result[model] = pricing[model];
+            }
+        }
+        return result;
+    }, [pricing, selectedModels]);
+
     if (!isMounted) {
         return null;
     }
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex justify-between">
+        <div className="flex flex-col gap-5">
+            {/* Filters Row */}
+            <div className="flex items-center justify-between gap-4">
                 <Filters models={models} filters={filters} />
                 <DateRangePicker cookieValue={cookieValue} />
             </div>
 
+            {/* Token Summary */}
             <SummaryCards totalUsage={totalUsage} />
 
-            <div className="grid grid-cols-2 gap-4">
-                <CostCards
-                    totalCost={totalUsage.totalCost}
-                    averageCost={averageCost}
-                    xAccessor={xAccessor}
-                />
-                <PricingDetails
-                    customPricing={customPricing}
-                    setCustomPricing={setCustomPricing}
-                />
-            </div>
+            {/* Cost & Pricing Row */}
+            <CostCards
+                totalCost={totalUsage.totalCost}
+                averageCost={averageCost}
+                xAccessor={xAccessor}
+                pricing={filteredPricing}
+            />
 
-            <Card className="h-[500px] p-4">
+            {/* Chart */}
+            <Card className="h-[420px] p-5">
                 {filteredData && filteredData.length > 0 ? (
                     <Chart data={filteredData} filterType={currentFilter} />
                 ) : (
