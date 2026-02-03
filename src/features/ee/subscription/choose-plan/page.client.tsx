@@ -26,6 +26,12 @@ import { Switch } from "@components/ui/switch";
 import { toast } from "@components/ui/toaster/use-toast";
 import { useAsyncAction } from "@hooks/use-async-action";
 import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@components/ui/tooltip";
+import {
     BadgeDollarSignIcon,
     BookOpenIcon,
     BrainIcon,
@@ -37,6 +43,7 @@ import {
     GaugeIcon,
     GitPullRequestIcon,
     HeadphonesIcon,
+    InfoIcon,
     KeyIcon,
     type LucideIcon,
     MessageCircleIcon,
@@ -67,8 +74,15 @@ type TokenProjection = {
     currency: string;
     uniquePRs: number;
     uniqueDevelopers: number;
+    monthlyPRs: number;
+    actualDaysUsed: number;
     monthlyInputTokens: number;
     monthlyOutputTokens: number;
+} | null;
+
+type UsageProgress = {
+    current: number;
+    required: number;
 } | null;
 
 type PlansObject = Record<
@@ -80,10 +94,12 @@ export function ChoosePlanPageClient({
     plans,
     tokenProjection,
     simulatorModels,
+    usageProgress,
 }: {
     plans: PlansObject;
     tokenProjection: TokenProjection;
     simulatorModels: SimulatorModel[];
+    usageProgress: UsageProgress;
 }) {
     return (
         <div className="flex flex-col gap-6">
@@ -93,7 +109,7 @@ export function ChoosePlanPageClient({
                     simulatorModels={simulatorModels}
                 />
             ) : (
-                <TokenProjectionEmptyState />
+                <TokenProjectionEmptyState progress={usageProgress} />
             )}
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -259,8 +275,8 @@ function TokenProjectionBanner({
             perDev: hasPerDev
                 ? format(monthlyCost / projection.uniqueDevelopers)
                 : null,
-            perPR: hasPerPR
-                ? format(monthlyCost / projection.uniquePRs)
+            perPR: hasPerPR && projection.monthlyPRs > 0
+                ? format(monthlyCost / projection.monthlyPRs)
                 : null,
         };
     }, [selectedModelId, simulatorModels, projection, hasPerDev, hasPerPR]);
@@ -281,18 +297,30 @@ function TokenProjectionBanner({
                     <div className="flex-1 min-w-0">
                         <p className="text-text-secondary text-xs">
                             Estimated AI token cost
-                            {costs.isTrialModel && (
-                                <span className="text-text-tertiary">
-                                    {" "}
-                                    (based on trial)
-                                </span>
-                            )}
+                            <span className="text-text-tertiary">
+                                {" "}
+                                · based on {projection.uniquePRs} PRs over {projection.actualDaysUsed} day{projection.actualDaysUsed !== 1 ? "s" : ""}
+                            </span>
                         </p>
-                        <p className="text-text-primary text-sm font-medium">
+                        <p className="text-text-primary flex items-center gap-1 text-sm font-medium">
                             <span className="text-primary-light tabular-nums font-semibold">
                                 {costs.monthly}
                             </span>
                             <span className="text-text-tertiary">/month</span>
+                            <TooltipProvider delayDuration={100}>
+                                <Tooltip>
+                                    <TooltipTrigger
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="inline-flex size-5 items-center justify-center rounded-full hover:bg-[var(--color-card-lv1)]">
+                                        <InfoIcon className="text-text-tertiary size-3.5" />
+                                    </TooltipTrigger>
+                                    <TooltipContent side="top" className="max-w-72 p-3">
+                                        <p className="text-text-secondary text-pretty text-sm leading-relaxed">
+                                            Calculated from your average daily token usage (<span className="text-text-primary font-medium">{projection.actualDaysUsed} day{projection.actualDaysUsed !== 1 ? "s" : ""}</span> with activity) projected to 30 days, using <span className="text-text-primary font-medium">{costs.modelName}</span> pricing.
+                                        </p>
+                                    </TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
                             <span className="text-text-tertiary"> · </span>
                             <span className="text-text-secondary">
                                 {costs.modelName}
@@ -350,41 +378,57 @@ function TokenProjectionBanner({
                             )}
 
                             {/* Metrics cards */}
-                            {(costs.perDev || costs.perPR) && (
-                                <div className="grid grid-cols-2 gap-3">
-                                    {costs.perDev && (
-                                        <div className="bg-card-lv1 flex items-center gap-3 rounded-lg p-3">
-                                            <div className="bg-secondary-dark flex size-8 shrink-0 items-center justify-center rounded-lg">
-                                                <UsersIcon className="text-secondary-light size-4" />
-                                            </div>
-                                            <div className="min-w-0">
-                                                <p className="text-text-tertiary truncate text-xs">
-                                                    Per developer
-                                                </p>
-                                                <p className="text-text-primary tabular-nums text-sm font-semibold">
+                            {(() => {
+                                const showPerDev = costs.perDev && projection.uniqueDevelopers > 1;
+                                const showPerPR = costs.perPR;
+
+                                if (!showPerDev && !showPerPR) return null;
+
+                                return (
+                                    <div className={cn(
+                                        "grid gap-3",
+                                        showPerDev && showPerPR ? "grid-cols-2" : "grid-cols-1"
+                                    )}>
+                                        {showPerDev && (
+                                            <div className="bg-card-lv1 flex flex-col gap-1 rounded-lg p-3">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="bg-secondary-dark flex size-6 shrink-0 items-center justify-center rounded">
+                                                        <UsersIcon className="text-secondary-light size-3.5" />
+                                                    </div>
+                                                    <p className="text-text-tertiary text-xs">
+                                                        Per developer
+                                                    </p>
+                                                </div>
+                                                <p className="text-text-primary tabular-nums text-lg font-semibold">
                                                     {costs.perDev}
                                                 </p>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {costs.perPR && (
-                                        <div className="bg-card-lv1 flex items-center gap-3 rounded-lg p-3">
-                                            <div className="bg-tertiary-dark flex size-8 shrink-0 items-center justify-center rounded-lg">
-                                                <GitPullRequestIcon className="text-tertiary-light size-4" />
-                                            </div>
-                                            <div className="min-w-0">
-                                                <p className="text-text-tertiary truncate text-xs">
-                                                    Per pull request
+                                                <p className="text-text-tertiary text-xs">
+                                                    {projection.uniqueDevelopers} devs · ~{Math.round(projection.uniquePRs / projection.uniqueDevelopers)} PRs/dev
                                                 </p>
-                                                <p className="text-text-primary tabular-nums text-sm font-semibold">
+                                            </div>
+                                        )}
+
+                                        {showPerPR && (
+                                            <div className="bg-card-lv1 flex flex-col gap-1 rounded-lg p-3">
+                                                <div className="flex items-center gap-2">
+                                                    <div className="bg-tertiary-dark flex size-6 shrink-0 items-center justify-center rounded">
+                                                        <GitPullRequestIcon className="text-tertiary-light size-3.5" />
+                                                    </div>
+                                                    <p className="text-text-tertiary text-xs">
+                                                        Per pull request
+                                                    </p>
+                                                </div>
+                                                <p className="text-text-primary tabular-nums text-lg font-semibold">
                                                     {costs.perPR}
                                                 </p>
+                                                <p className="text-text-tertiary text-xs">
+                                                    ~{projection.monthlyPRs} PRs/mo estimated
+                                                </p>
                                             </div>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                                        )}
+                                    </div>
+                                );
+                            })()}
                         </div>
 
                         {/* Footer note */}
@@ -408,50 +452,51 @@ function TokenProjectionBanner({
     );
 }
 
-function TokenProjectionEmptyState() {
+function TokenProjectionEmptyState({
+    progress,
+}: {
+    progress: UsageProgress;
+}) {
+    const current = progress?.current ?? 0;
+    const required = progress?.required ?? 3;
+    const percentage = Math.min((current / required) * 100, 100);
+    const hasStarted = current > 0;
+
     return (
         <Card className="overflow-hidden">
             <CardContent className="p-0">
-                {/* Header */}
-                <div className="flex items-center gap-3 border-b border-[var(--color-card-lv1)] px-6 py-4">
-                    <div className="bg-primary-dark flex size-10 shrink-0 items-center justify-center rounded-full">
-                        <TrendingUpIcon className="text-primary-light size-5" />
+                <div className="flex items-center gap-4 px-5 py-4">
+                    <div className="bg-primary-dark flex size-9 shrink-0 items-center justify-center rounded-full">
+                        <TrendingUpIcon className="text-primary-light size-4" />
                     </div>
-                    <div>
-                        <p className="text-text-primary text-balance font-semibold">
-                            AI token costs
+                    <div className="flex-1 min-w-0">
+                        <p className="text-text-secondary text-xs">
+                            Estimated AI token cost
                         </p>
-                        <p className="text-text-tertiary text-sm">
-                            Usage-based pricing
+                        <p className="text-text-primary text-sm font-medium">
+                            {hasStarted ? (
+                                <>
+                                    <span className="text-primary-light">
+                                        {current} of {required} PRs
+                                    </span>
+                                    <span className="text-text-tertiary">
+                                        {" "}· Keep using Kody to get your estimate
+                                    </span>
+                                </>
+                            ) : (
+                                <span className="text-text-tertiary">
+                                    Review some PRs to get your estimate
+                                </span>
+                            )}
                         </p>
-                    </div>
-                </div>
-
-                {/* Empty state content */}
-                <div className="space-y-4 px-6 py-5">
-                    <div className="bg-card-lv1 flex items-center gap-4 rounded-lg p-4">
-                        <div className="bg-card-lv2 flex size-12 shrink-0 items-center justify-center rounded-full">
-                            <SparklesIcon className="text-text-tertiary size-5" />
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-text-primary text-pretty text-sm font-medium">
-                                No usage detected yet
-                            </p>
-                            <p className="text-text-secondary text-pretty text-sm">
-                                Your monthly AI token cost will depend on the
-                                volume of code reviews and the models you use.
-                            </p>
+                        {/* Progress bar */}
+                        <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[var(--color-card-lv1)]">
+                            <div
+                                className="bg-primary-light h-full rounded-full transition-all"
+                                style={{ width: `${percentage}%` }}
+                            />
                         </div>
                     </div>
-                </div>
-
-                {/* Footer note */}
-                <div className="bg-card-lv1 flex items-center gap-2 px-6 py-3">
-                    <SparklesIcon className="text-text-tertiary size-4 shrink-0" />
-                    <p className="text-text-tertiary text-pretty text-xs">
-                        AI token costs are paid directly to the model providers
-                        (e.g. OpenAI, Anthropic) through your own API keys.
-                    </p>
                 </div>
             </CardContent>
         </Card>

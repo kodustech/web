@@ -28,6 +28,7 @@ import { ChoosePlanPageClient } from "./page.client";
 
 const TRIAL_DURATION_DAYS = 14;
 const USAGE_LOOKBACK_DAYS = 30;
+const MIN_PRS_FOR_PROJECTION = 3;
 
 type PlansObject = Record<
     "free" | "teams_byok" | "enterprise",
@@ -91,7 +92,7 @@ async function computeTokenProjection(
         ]);
 
         if (!dailyUsage || dailyUsage.length === 0) {
-            return { projection: null, daysUsed };
+            return { projection: null, daysUsed, progress: { current: 0, required: MIN_PRS_FOR_PROJECTION } };
         }
 
         // Aggregate totals across all days
@@ -100,17 +101,22 @@ async function computeTokenProjection(
         let totalReasoning = 0;
 
         const uniqueModels = new Set<string>();
+        const uniqueDays = new Set<string>();
 
         for (const day of dailyUsage) {
             totalInput += day.input ?? 0;
             totalOutput += day.output ?? 0;
             totalReasoning += day.outputReasoning ?? 0;
             if (day.model) uniqueModels.add(day.model);
+            if (day.date) uniqueDays.add(day.date);
         }
 
         if (totalInput + totalOutput + totalReasoning === 0) {
-            return { projection: null, daysUsed };
+            return { projection: null, daysUsed, progress: { current: 0, required: MIN_PRS_FOR_PROJECTION } };
         }
+
+        // Use actual days with usage instead of calendar days
+        const actualDaysUsed = Math.max(1, uniqueDays.size);
 
         // Count unique PRs and developers
         const uniquePRs = usageByPR
@@ -142,13 +148,13 @@ async function computeTokenProjection(
         const pricingEntries = Object.values(pricingMap);
 
         if (pricingEntries.length === 0) {
-            return { projection: null, daysUsed };
+            return { projection: null, daysUsed, progress: { current: uniquePRs, required: MIN_PRS_FOR_PROJECTION } };
         }
 
-        // Project monthly usage
-        const monthlyInput = (totalInput / daysUsed) * 30;
-        const monthlyOutput = (totalOutput / daysUsed) * 30;
-        const monthlyReasoning = (totalReasoning / daysUsed) * 30;
+        // Project monthly usage based on actual days with usage
+        const monthlyInput = (totalInput / actualDaysUsed) * 30;
+        const monthlyOutput = (totalOutput / actualDaysUsed) * 30;
+        const monthlyReasoning = (totalReasoning / actualDaysUsed) * 30;
 
         function computeCost(p: ModelPricingInfo) {
             const prompt = p.pricing.prompt ?? 0;
@@ -182,8 +188,20 @@ async function computeTokenProjection(
         const mostExpensive = modelCosts[modelCosts.length - 1];
 
         if (mostExpensive.cost === 0) {
-            return { projection: null, daysUsed };
+            return { projection: null, daysUsed, progress: { current: uniquePRs, required: MIN_PRS_FOR_PROJECTION } };
         }
+
+        // Check if we have enough PRs for a meaningful projection
+        if (uniquePRs < MIN_PRS_FOR_PROJECTION) {
+            return {
+                projection: null,
+                daysUsed,
+                progress: { current: uniquePRs, required: MIN_PRS_FOR_PROJECTION }
+            };
+        }
+
+        // Project PRs to monthly (same logic as tokens)
+        const monthlyPRs = Math.round((uniquePRs / actualDaysUsed) * 30);
 
         return {
             projection: {
@@ -194,15 +212,18 @@ async function computeTokenProjection(
                 currency: "USD",
                 uniquePRs,
                 uniqueDevelopers,
+                monthlyPRs,
+                actualDaysUsed,
                 // Pass monthly token volumes for simulator
                 monthlyInputTokens: monthlyInput,
                 monthlyOutputTokens: monthlyOutput,
             },
             daysUsed,
+            progress: null,
         };
     } catch (error) {
         console.error("Failed to compute token projection:", error);
-        return { projection: null, daysUsed };
+        return { projection: null, daysUsed, progress: { current: 0, required: MIN_PRS_FOR_PROJECTION } };
     }
 }
 
@@ -216,7 +237,7 @@ export default async function ChoosePlanPage() {
     ]);
 
     const plansObject = organizePlans(plansData.plans);
-    const { projection } = await computeTokenProjection(license);
+    const { projection, progress } = await computeTokenProjection(license);
 
     return (
         <Page.Root>
@@ -245,6 +266,7 @@ export default async function ChoosePlanPage() {
                     plans={plansObject}
                     tokenProjection={projection}
                     simulatorModels={simulatorModels}
+                    usageProgress={progress}
                 />
             </Page.Content>
         </Page.Root>

@@ -40,16 +40,8 @@ export default async function TokenUsagePage({
         () => null,
     );
 
-    if (!subscription) {
-        redirect("/settings");
-    }
-
-    const isBYOK = isBYOKSubscriptionPlan(subscription);
-    const isTrial = subscription.subscriptionStatus === "trial";
-
-    if (!isBYOK && !isTrial) {
-        redirect("/settings");
-    }
+    const isBYOK = subscription ? isBYOKSubscriptionPlan(subscription) : false;
+    const isTrial = subscription?.subscriptionStatus === "trial";
 
     const cookieStore = await cookies();
 
