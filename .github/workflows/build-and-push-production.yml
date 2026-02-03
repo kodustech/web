@@ -9,7 +9,7 @@ jobs:
         name: Build and Push Docker Image for Production (Cloud)
         runs-on: ubuntu-latest
         permissions:
-            contents: write
+            contents: read
 
         steps:
             - name: Checkout Repository

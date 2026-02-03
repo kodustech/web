@@ -17,7 +17,9 @@ import { M } from "../_lib/constants";
 
 function formatCurrency(amount: number): string {
     if (amount >= 1000) {
-        return `$${(amount / 1000).toFixed(2)}K`;
+        // Truncate instead of round to avoid overstating values
+        const truncated = Math.floor((amount / 1000) * 100) / 100;
+        return `$${truncated.toFixed(2)}K`;
     }
     return `$${amount.toFixed(2)}`;
 }

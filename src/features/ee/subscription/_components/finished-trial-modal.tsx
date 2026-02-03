@@ -65,7 +65,10 @@ export const FinishedTrialModal = () => {
                         <Button
                             size="md"
                             variant="primary"
-                            onClick={() => router.push("/choose-plan")}>
+                            onClick={() => {
+                                cookie.set("true");
+                                router.push("/choose-plan");
+                            }}>
                             Upgrade subscription
                         </Button>
                     </DialogFooter>

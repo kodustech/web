@@ -23,6 +23,25 @@ function formatNumber(num: number): string {
     return num.toLocaleString();
 }
 
+// Tailwind JIT requires full class names - cannot use string interpolation
+const colorStyles = {
+    primary: {
+        bg: "bg-primary-light",
+        bgDark: "bg-primary-dark",
+        text: "text-primary-light",
+    },
+    secondary: {
+        bg: "bg-secondary-light",
+        bgDark: "bg-secondary-dark",
+        text: "text-secondary-light",
+    },
+    tertiary: {
+        bg: "bg-tertiary-light",
+        bgDark: "bg-tertiary-dark",
+        text: "text-tertiary-light",
+    },
+} as const;
+
 export const SummaryCards = ({
     totalUsage,
 }: {
@@ -65,22 +84,23 @@ export const SummaryCards = ({
         <div className="grid grid-cols-4 gap-3">
             {cards.map((card) => {
                 const Icon = card.icon;
+                const styles = colorStyles[card.color];
                 return (
                     <Card
                         key={card.label}
                         className="group relative overflow-hidden p-4">
                         {/* Background decoration */}
                         <div
-                            className={`absolute -right-4 -top-4 size-20 rounded-full opacity-5 bg-${card.color}-light`}
+                            className={`absolute -right-4 -top-4 size-20 rounded-full opacity-5 ${styles.bg}`}
                         />
 
                         <div className="relative space-y-2">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <div
-                                        className={`flex size-7 items-center justify-center rounded-md bg-${card.color}-dark`}>
+                                        className={`flex size-7 items-center justify-center rounded-md ${styles.bgDark}`}>
                                         <Icon
-                                            className={`size-4 text-${card.color}-light`}
+                                            className={`size-4 ${styles.text}`}
                                         />
                                     </div>
                                     <span className="text-text-secondary text-sm">
