@@ -15,6 +15,7 @@ const resourceRoutes = {
         "/library/*",
         "/setup/*",
         "/auth/*",
+        "/choose-plan",
     ],
     [ResourceType.Billing]: ["/settings/subscription/*"],
     [ResourceType.Cockpit]: ["/cockpit/*"],

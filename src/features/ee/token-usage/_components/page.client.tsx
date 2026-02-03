@@ -180,27 +180,33 @@ export const TokenUsagePageClient = ({
     }
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex justify-between">
+        <div className="flex flex-col gap-5">
+            {/* Filters Row */}
+            <div className="flex items-center justify-between gap-4">
                 <Filters models={models} filters={filters} />
                 <DateRangePicker cookieValue={cookieValue} />
             </div>
 
+            {/* Token Summary */}
             <SummaryCards totalUsage={totalUsage} />
 
-            <div className="grid grid-cols-2 gap-4">
-                <CostCards
-                    totalCost={totalUsage.totalCost}
-                    averageCost={averageCost}
-                    xAccessor={xAccessor}
-                />
+            {/* Cost & Pricing Row */}
+            <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2">
+                    <CostCards
+                        totalCost={totalUsage.totalCost}
+                        averageCost={averageCost}
+                        xAccessor={xAccessor}
+                    />
+                </div>
                 <PricingDetails
                     customPricing={customPricing}
                     setCustomPricing={setCustomPricing}
                 />
             </div>
 
-            <Card className="h-[500px] p-4">
+            {/* Chart */}
+            <Card className="h-[420px] p-5">
                 {filteredData && filteredData.length > 0 ? (
                     <Chart data={filteredData} filterType={currentFilter} />
                 ) : (

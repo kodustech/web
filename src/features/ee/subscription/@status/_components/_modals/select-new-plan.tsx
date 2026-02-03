@@ -59,19 +59,14 @@ export const NewPlanSelectionModal = ({
                 return acc;
             }
 
-            if (current.id === "teams_managed") {
-                acc.teams_managed = current;
-                return acc;
-            }
-
             return acc;
         },
-        {} as Record<"free" | "teams_byok" | "teams_managed" | "enterprise", Plan | undefined>,
+        {} as Record<"free" | "teams_byok" | "enterprise", Plan | undefined>,
     );
 
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
-            <DialogContent className="max-w-7xl pb-0">
+            <DialogContent className="max-w-5xl pb-0">
                 <DialogHeader>
                     <DialogTitle>Selecting subscription plan</DialogTitle>
                 </DialogHeader>
@@ -84,10 +79,6 @@ export const NewPlanSelectionModal = ({
 
                         {plansObject.teams_byok && (
                             <TeamsPlan plan={plansObject.teams_byok} />
-                        )}
-
-                        {plansObject.teams_managed && (
-                            <TeamsPlan plan={plansObject.teams_managed} />
                         )}
 
                         {plansObject.enterprise && (
@@ -159,17 +150,20 @@ const FreePlan = ({ plan }: { plan: Plan }) => {
     return (
         <Card className="flex-1">
             <CardHeader>
-                <CardTitle>{plan.label}</CardTitle>
-                <CardDescription className="min-h-15">
+                <CardTitle className="text-balance">{plan.label}</CardTitle>
+                <CardDescription className="min-h-20 text-pretty">
                     {plan.description}
                 </CardDescription>
             </CardHeader>
 
-            <CardContent className="flex-none pb-0">
-                <div className="h-12">
+            <CardContent className="flex-none pb-4 pt-0">
+                <div>
                     <Heading variant="h2" className="text-primary-light">
                         Free
                     </Heading>
+                    <span className="text-text-secondary text-sm">
+                        &nbsp;
+                    </span>
                 </div>
             </CardContent>
 
@@ -220,22 +214,27 @@ const TeamsPlan = ({ plan }: { plan: Plan }) => {
     return (
         <Card className="flex-1">
             <CardHeader>
-                <CardTitle>{plan.label}</CardTitle>
-                <CardDescription className="min-h-15">
+                <CardTitle className="text-balance">{plan.label}</CardTitle>
+                <CardDescription className="min-h-20 text-pretty">
                     {plan.description}
                 </CardDescription>
             </CardHeader>
 
-            <CardContent className="flex-none py-0">
-                <div className="h-12">
-                    <Heading variant="h2" className="text-primary-light">
+            <CardContent className="flex-none pb-4 pt-0">
+                <div>
+                    <Heading variant="h2" className="text-primary-light tabular-nums">
                         {CurrencyHelpers.format({
                             currency: planPricing.currency,
                             amount: planPricing.amount,
                             maximumFractionDigits: 0,
                         })}
-                        <span className="text-text-secondary">/dev/month</span>
+                        <span className="text-text-secondary">
+                            {" "}+ AI tokens
+                        </span>
                     </Heading>
+                    <span className="text-text-secondary text-sm">
+                        /dev/month
+                    </span>
                 </div>
             </CardContent>
 
@@ -272,7 +271,7 @@ const TeamsPlan = ({ plan }: { plan: Plan }) => {
 
             <Separator />
 
-            <CardContent className="flex flex-col gap-4 py-4">
+            <CardContent className="flex flex-none flex-col gap-4 py-4">
                 <FormControl.Root>
                     <FormControl.Label htmlFor="teams-quantity">
                         Quantity of licenses
@@ -311,13 +310,24 @@ const EnterprisePlan = ({ plan }: { plan: Plan }) => {
     return (
         <Card className="flex-1">
             <CardHeader>
-                <CardTitle>{plan.label}</CardTitle>
-                <CardDescription className="min-h-15">
+                <CardTitle className="text-balance">{plan.label}</CardTitle>
+                <CardDescription className="min-h-20 text-pretty">
                     {plan.description}
                 </CardDescription>
             </CardHeader>
 
-            <CardContent className="space-y-3 pt-6">
+            <CardContent className="flex-none pb-4 pt-0">
+                <div>
+                    <Heading variant="h2" className="text-primary-light">
+                        Custom
+                    </Heading>
+                    <span className="text-text-secondary text-sm">
+                        &nbsp;
+                    </span>
+                </div>
+            </CardContent>
+
+            <CardContent className="space-y-3">
                 <PlanFeatures features={plan.features} />
             </CardContent>
 

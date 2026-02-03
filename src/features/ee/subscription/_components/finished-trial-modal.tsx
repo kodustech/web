@@ -10,17 +10,11 @@ import {
     DialogTitle,
 } from "@components/ui/dialog";
 import { Link } from "@components/ui/link";
-import { magicModal, MagicModalContext } from "@components/ui/magic-modal";
-import { useAsyncAction } from "@hooks/use-async-action";
-import { useSelectedTeamId } from "src/core/providers/selected-team-context";
+import { MagicModalContext } from "@components/ui/magic-modal";
 import { ClientSideCookieHelpers } from "src/core/utils/cookie";
 import { useSubscriptionStatus } from "src/features/ee/subscription/_hooks/use-subscription-status";
 
-import { getPlans } from "../_services/billing/fetch";
-import { NewPlanSelectionModal } from "../@status/_components/_modals/select-new-plan";
-
 export const FinishedTrialModal = () => {
-    const { teamId } = useSelectedTeamId();
     const router = useRouter();
     const subscription = useSubscriptionStatus();
 
@@ -28,13 +22,6 @@ export const FinishedTrialModal = () => {
 
     const cookie = ClientSideCookieHelpers("trial-finished-modal-closed");
     if (cookie.has()) return null;
-
-    const [openPlansModal, { loading: isLoadingPlans }] = useAsyncAction(
-        async () => {
-            const plans = await getPlans();
-            magicModal.show(() => <NewPlanSelectionModal plans={plans} />);
-        },
-    );
 
     return (
         <MagicModalContext.Provider value={{ closeable: false }}>
@@ -47,7 +34,7 @@ export const FinishedTrialModal = () => {
                     <div className="text-text-secondary flex flex-col gap-2 text-sm">
                         <p>
                             Your subscription will be downgraded to Basic and
-                            Kody won’t work at its maximum.
+                            Kody won't work at its maximum.
                         </p>
 
                         <p>
@@ -78,8 +65,7 @@ export const FinishedTrialModal = () => {
                         <Button
                             size="md"
                             variant="primary"
-                            loading={isLoadingPlans}
-                            onClick={() => openPlansModal()}>
+                            onClick={() => router.push("/choose-plan")}>
                             Upgrade subscription
                         </Button>
                     </DialogFooter>
