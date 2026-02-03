@@ -10,7 +10,6 @@ import { Chart } from "./chart";
 import { CostCards } from "./cost-cards";
 import { Filters } from "./filters";
 import { NoData } from "./no-data";
-import { PricingDetails } from "./pricing-details";
 import { SummaryCards } from "./summary-cards";
 
 const calculateCost = (
@@ -53,7 +52,6 @@ export const TokenUsagePageClient = ({
     models: string[];
     pricing: Record<string, ModelPricingInfo>;
 }) => {
-    const [customPricing, setCustomPricing] = useState(pricing);
     const [isMounted, setIsMounted] = useState(false);
 
     const filters = useTokenUsageFilters(models);
@@ -121,7 +119,7 @@ export const TokenUsagePageClient = ({
 
         for (const model of selectedModels) {
             const modelUsage = usageByModel[model];
-            const modelPricing = customPricing[model];
+            const modelPricing = pricing[model];
             if (modelUsage && modelPricing) {
                 const cost = calculateCost(
                     modelPricing,
@@ -145,7 +143,7 @@ export const TokenUsagePageClient = ({
             outputReasoning: totalOutputReasoning,
             totalCost: totalCostAllModels,
         };
-    }, [filteredData, selectedModels, customPricing]);
+    }, [filteredData, selectedModels, pricing]);
 
     const getXAccessor = () => {
         switch (currentFilter) {
@@ -175,6 +173,17 @@ export const TokenUsagePageClient = ({
         return totalUsage.totalCost / numberOfUniqueItems;
     }, [filteredData, totalUsage.totalCost, xAccessor]);
 
+    // Filter pricing to only include selected models
+    const filteredPricing = useMemo(() => {
+        const result: Record<string, ModelPricingInfo> = {};
+        for (const model of selectedModels) {
+            if (pricing[model]) {
+                result[model] = pricing[model];
+            }
+        }
+        return result;
+    }, [pricing, selectedModels]);
+
     if (!isMounted) {
         return null;
     }
@@ -191,19 +200,12 @@ export const TokenUsagePageClient = ({
             <SummaryCards totalUsage={totalUsage} />
 
             {/* Cost & Pricing Row */}
-            <div className="grid grid-cols-3 gap-4">
-                <div className="col-span-2">
-                    <CostCards
-                        totalCost={totalUsage.totalCost}
-                        averageCost={averageCost}
-                        xAccessor={xAccessor}
-                    />
-                </div>
-                <PricingDetails
-                    customPricing={customPricing}
-                    setCustomPricing={setCustomPricing}
-                />
-            </div>
+            <CostCards
+                totalCost={totalUsage.totalCost}
+                averageCost={averageCost}
+                xAccessor={xAccessor}
+                pricing={filteredPricing}
+            />
 
             {/* Chart */}
             <Card className="h-[420px] p-5">
