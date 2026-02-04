@@ -150,15 +150,10 @@ export async function fetchModelPricingFromModelsDev(
 
 export async function fetchPopularModels(): Promise<SimulatorModel[]> {
     try {
-        const response = await fetch("https://models.dev/api.json", {
-            next: { revalidate: 3600 }, // Cache for 1 hour
-        });
+        // Use cached data instead of fetching again
+        const data = await getModelsDevData();
+        if (!data) return [];
 
-        if (!response.ok) {
-            throw new Error("Failed to fetch models");
-        }
-
-        const data: ModelsDevResponse = await response.json();
         const models: SimulatorModel[] = [];
 
         for (const [providerId, provider] of Object.entries(data)) {

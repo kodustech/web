@@ -9,7 +9,6 @@ import {
 import { Page } from "@components/ui/page";
 import {
     getDailyTokenUsage,
-    getTokenPricing,
     getTokenUsageByDeveloper,
     getTokenUsageByPR,
 } from "@services/usage/fetch";
@@ -23,7 +22,10 @@ import {
     validateOrganizationLicense,
 } from "../_services/billing/fetch";
 import type { Plan } from "../_services/billing/types";
-import { fetchPopularModels } from "./_services/models";
+import {
+    fetchModelPricingFromModelsDev,
+    fetchPopularModels,
+} from "./_services/models";
 import { ChoosePlanPageClient } from "./page.client";
 
 const TRIAL_DURATION_DAYS = 14;
@@ -126,22 +128,21 @@ async function computeTokenProjection(
             ? new Set(usageByDev.map((r) => r.developer)).size
             : 0;
 
-        // Fetch pricing for all models that appeared in actual usage
+        // Fetch pricing for all models using cached models.dev data (single fetch, not N calls)
         const pricingMap: Record<string, ModelPricingInfo> = {};
 
-        const pricingResults = await Promise.allSettled(
-            Array.from(uniqueModels).map(async (model) => {
-                const pricing = await getTokenPricing(model);
-                return { model, pricing };
-            }),
-        );
-
-        for (const result of pricingResults) {
-            if (
-                result.status === "fulfilled" &&
-                result.value.pricing?.pricing
-            ) {
-                pricingMap[result.value.model] = result.value.pricing;
+        // This uses cached data from models.dev - only 1 network request total
+        for (const model of uniqueModels) {
+            const pricing = await fetchModelPricingFromModelsDev(model);
+            if (pricing) {
+                pricingMap[model] = {
+                    id: model,
+                    pricing: {
+                        prompt: pricing.prompt,
+                        completion: pricing.completion,
+                        internal_reasoning: pricing.completion, // Same as completion
+                    },
+                };
             }
         }
 
