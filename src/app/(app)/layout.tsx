@@ -31,14 +31,8 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         redirect("/confirm-email");
     }
 
-    // Fetch teams (cached for 5 minutes)
-    let teams;
-    try {
-        teams = await getTeamsCached();
-    } catch (err) {
-        console.error("[Layout] Failed to fetch teams:", err);
-        throw new Error("Failed to load teams. Please try again later.");
-    }
+    // Fetch teams (cached, returns [] on error)
+    const teams = await getTeamsCached();
 
     if (!teams?.some((team) => team.status === TEAM_STATUS.ACTIVE)) {
         redirect("/setup");
@@ -114,7 +108,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
 
                 <AppRightSidebar
                     showTestReview={
-                        !!featureFlags.codeReviewDryRun && canManageCodeReview
+                        !!featureFlags?.codeReviewDryRun && canManageCodeReview
                     }
                 />
             </SubscriptionProvider>

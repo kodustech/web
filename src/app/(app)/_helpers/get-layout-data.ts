@@ -77,5 +77,5 @@ export const getLayoutData = cache(
  * Uses React's cache() to deduplicate calls within the same request.
  */
 export const getTeamsCached = cache(async () => {
-    return getTeams();
+    return getTeams().catch(() => []);
 });
