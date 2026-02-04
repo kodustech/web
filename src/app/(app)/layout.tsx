@@ -1,30 +1,19 @@
 import { redirect } from "next/navigation";
-import { getBYOK } from "@services/organizationParameters/fetch";
-import {
-    getOrganizationId,
-    getOrganizationName,
-} from "@services/organizations/fetch";
+import { getOrganizationId } from "@services/organizations/fetch";
 import { getTeamParametersNoCache } from "@services/parameters/fetch";
 import { ParametersConfigKey } from "@services/parameters/types";
-import { getPermissions } from "@services/permissions/fetch";
 import { Action, ResourceType } from "@services/permissions/types";
-import { getTeams } from "@services/teams/fetch";
 import { auth } from "src/core/config/auth";
-import { FEATURE_FLAGS } from "src/core/config/feature-flags";
 import { NavMenu } from "src/core/layout/navbar";
 import { TEAM_STATUS } from "src/core/types";
 import { getGlobalSelectedTeamId } from "src/core/utils/get-global-selected-team-id";
-import { isFeatureEnabled } from "src/core/utils/posthog-server-side";
 import { BYOKMissingKeyTopbar } from "src/features/ee/byok/_components/missing-key-topbar";
 import { isBYOKSubscriptionPlan } from "src/features/ee/byok/_utils";
 import { FinishedTrialModal } from "src/features/ee/subscription/_components/finished-trial-modal";
 import { SubscriptionStatusTopbar } from "src/features/ee/subscription/_components/subscription-status-topbar";
 import { SubscriptionProvider } from "src/features/ee/subscription/_providers/subscription-context";
-import {
-    getUsersWithLicense,
-    validateOrganizationLicense,
-} from "src/features/ee/subscription/_services/billing/fetch";
 
+import { getLayoutData, getTeamsCached } from "./_helpers/get-layout-data";
 import { Providers } from "./providers";
 import { AppRightSidebar } from "./right-sidebar";
 
@@ -42,12 +31,12 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         redirect("/confirm-email");
     }
 
+    // Fetch teams (cached for 5 minutes)
     let teams;
     try {
-        teams = await getTeams();
+        teams = await getTeamsCached();
     } catch (err) {
         console.error("[Layout] Failed to fetch teams:", err);
-        // Re-throw to trigger global-error.tsx
         throw new Error("Failed to load teams. Please try again later.");
     }
 
@@ -57,6 +46,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
 
     const teamId = await getGlobalSelectedTeamId();
 
+    // Platform configs check - this one we keep uncached as it controls redirects
     const platformConfigs = await getTeamParametersNoCache<{
         configValue: { finishOnboard?: boolean };
     }>({
@@ -67,59 +57,31 @@ export default async function Layout({ children }: React.PropsWithChildren) {
         return null;
     });
 
-    // Only redirect to setup if we're sure onboarding isn't finished
-    // If the API failed, assume user is onboarded to avoid blocking access
     if (platformConfigs && !platformConfigs?.configValue?.finishOnboard) {
         redirect("/setup");
     }
 
     const organizationId = await getOrganizationId();
 
-    const [
+    // Fetch all layout data (cached for 60 seconds)
+    const {
         permissions,
         organizationName,
         organizationLicense,
         usersWithAssignedLicense,
         byokConfig,
-        tokenUsagePageFeatureFlag,
-        codeReviewDryRunFeatureFlag,
-        committableSuggestionsFeatureFlag,
-        ssoFeatureFlag,
-        cliKeysFeatureFlag,
-        kodyRuleSuggestionsFeatureFlag,
-    ] = await Promise.all([
-        getPermissions().catch(() => ({})),
-        getOrganizationName().catch(() => ""),
-        validateOrganizationLicense({ teamId }).catch(() => null),
-        getUsersWithLicense({ teamId }).catch(() => []),
-        getBYOK().catch(() => null),
-        isFeatureEnabled({ feature: FEATURE_FLAGS.tokenUsagePage }).catch(() => false),
-        isFeatureEnabled({ feature: FEATURE_FLAGS.codeReviewDryRun }).catch(() => false),
-        isFeatureEnabled({
-            feature: FEATURE_FLAGS.committableSuggestions,
-            identifier: "organization",
-        }).catch(() => false),
-        isFeatureEnabled({ feature: FEATURE_FLAGS.sso }).catch(() => false),
-        isFeatureEnabled({ feature: FEATURE_FLAGS.cliKeys }).catch(() => false),
-        isFeatureEnabled({
-            feature: FEATURE_FLAGS.kodyRuleSuggestions,
-        }).catch(() => false),
-    ]);
+        featureFlags,
+    } = await getLayoutData(teamId, organizationId);
 
-    const isBYOK = isBYOKSubscriptionPlan(organizationLicense);
+    const isBYOK = organizationLicense
+        ? isBYOKSubscriptionPlan(organizationLicense)
+        : false;
     const isTrial = organizationLicense?.subscriptionStatus === "trial";
 
     const canManageCodeReview =
-        !!permissions[ResourceType.CodeReviewSettings]?.[Action.Manage];
-
-    const featureFlags = {
-        committableSuggestions: committableSuggestionsFeatureFlag,
-        codeReviewDryRun: codeReviewDryRunFeatureFlag,
-        tokenUsagePage: tokenUsagePageFeatureFlag,
-        sso: ssoFeatureFlag,
-        cliKeys: cliKeysFeatureFlag,
-        kodyRuleSuggestions: kodyRuleSuggestionsFeatureFlag,
-    };
+        !!(permissions as Record<string, Record<string, boolean>>)?.[
+            ResourceType.CodeReviewSettings
+        ]?.[Action.Manage];
 
     return (
         <Providers
@@ -134,7 +96,13 @@ export default async function Layout({ children }: React.PropsWithChildren) {
             isTrial={isTrial}
             featureFlags={featureFlags}>
             <SubscriptionProvider
-                license={organizationLicense}
+                license={
+                    organizationLicense ?? {
+                        valid: false,
+                        subscriptionStatus: "inactive",
+                        numberOfLicenses: 0,
+                    }
+                }
                 usersWithAssignedLicense={usersWithAssignedLicense}>
                 <NavMenu />
                 <FinishedTrialModal />
@@ -146,7 +114,7 @@ export default async function Layout({ children }: React.PropsWithChildren) {
 
                 <AppRightSidebar
                     showTestReview={
-                        !!codeReviewDryRunFeatureFlag && canManageCodeReview
+                        !!featureFlags.codeReviewDryRun && canManageCodeReview
                     }
                 />
             </SubscriptionProvider>
