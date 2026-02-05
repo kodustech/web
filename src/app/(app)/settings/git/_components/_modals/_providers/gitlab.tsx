@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { GitTokenDocs } from "@components/system/git-token-docs";
 import { Alert, AlertDescription, AlertTitle } from "@components/ui/alert";
 import { Button } from "@components/ui/button";
@@ -42,9 +42,7 @@ export const GitlabModal = (props: Props) => {
     }, [token]);
 
     const canSubmit =
-        !!token &&
-        !error.message &&
-        (!selfhosted || !!selfHostedUrl);
+        !!token && !error.message && (!selfhosted || !!selfHostedUrl);
 
     const [saveToken, { loading: loadingSaveToken }] = useAsyncAction(
         async () => {
@@ -65,13 +63,6 @@ export const GitlabModal = (props: Props) => {
             }
         },
     );
-
-    const handleTokenSubmit = (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        if (!canSubmit) return;
-
-        void saveToken();
-    };
 
     return (
         <Dialog open onOpenChange={() => magicModal.hide()}>
@@ -100,97 +91,88 @@ export const GitlabModal = (props: Props) => {
                     </TabsContent>
 
                     <TabsContent value="token">
-                        <form
-                            className="flex flex-col gap-4"
-                            onSubmit={handleTokenSubmit}>
-                            <Alert variant="info" className="mb-4">
-                                <Info />
-                                <AlertTitle>Heads up!</AlertTitle>
-                                <AlertDescription>
-                                    Unlike OAuth, reviews will be published
-                                    using your profile - not Kody's.
-                                </AlertDescription>
-                            </Alert>
+                        <Alert variant="info" className="mb-4">
+                            <Info />
+                            <AlertTitle>Heads up!</AlertTitle>
+                            <AlertDescription>
+                                Unlike OAuth, reviews will be published using
+                                your profile - not Kody's.
+                            </AlertDescription>
+                        </Alert>
 
-                            <FormControl.Root>
-                                <FormControl.Input>
-                                    <Input
-                                        type="password"
-                                        value={token}
-                                        error={error.message}
-                                        onChange={(e) =>
-                                            setToken(e.target.value)
-                                        }
-                                        placeholder="Personal Access Token"
-                                    />
+                        <FormControl.Root>
+                            <FormControl.Input>
+                                <Input
+                                    type="password"
+                                    value={token}
+                                    error={error.message}
+                                    onChange={(e) => setToken(e.target.value)}
+                                    placeholder="Personal Access Token"
+                                />
 
-                                    <FormControl.Error>
-                                        {error.message}
-                                    </FormControl.Error>
-                                </FormControl.Input>
-                            </FormControl.Root>
+                                <FormControl.Error>
+                                    {error.message}
+                                </FormControl.Error>
+                            </FormControl.Input>
+                        </FormControl.Root>
 
-                            <Collapsible
-                                open={selfhosted}
-                                onOpenChange={(s) => setSelfhosted(s)}
-                                className="mt-4 flex flex-col gap-1">
-                                <CollapsibleTrigger asChild>
-                                    <Button
-                                        type="button"
-                                        variant="helper"
-                                        size="lg"
-                                        className="w-full items-center justify-between py-4">
-                                        <FormControl.Label className="mb-0">
-                                            Self-hosted
-                                        </FormControl.Label>
-
-                                        <Switch
-                                            decorative
-                                            checked={selfhosted}
-                                        />
-                                    </Button>
-                                </CollapsibleTrigger>
-
-                                <CollapsibleContent>
-                                    <Card color="lv1">
-                                        <CardHeader>
-                                            <FormControl.Root>
-                                                <FormControl.Label htmlFor="selfhosted-url">
-                                                    Gitlab URL
-                                                </FormControl.Label>
-
-                                                <FormControl.Input>
-                                                    <Input
-                                                        id="selfhosted-url"
-                                                        value={selfHostedUrl}
-                                                        onChange={(e) =>
-                                                            setSelfHostedUrl(
-                                                                e.target.value,
-                                                            )
-                                                        }
-                                                        placeholder="Enter the URL of your authentication server"
-                                                    />
-                                                </FormControl.Input>
-                                            </FormControl.Root>
-                                        </CardHeader>
-                                    </Card>
-                                </CollapsibleContent>
-                            </Collapsible>
-
-                            <GitTokenDocs provider="gitlab" />
-
-                            <DialogFooter>
+                        <Collapsible
+                            open={selfhosted}
+                            onOpenChange={(s) => setSelfhosted(s)}
+                            className="mt-4 flex flex-col gap-1">
+                            <CollapsibleTrigger asChild>
                                 <Button
-                                    size="md"
-                                    type="submit"
-                                    variant="primary"
-                                    loading={loadingSaveToken}
-                                    leftIcon={<Save />}
-                                    disabled={!canSubmit}>
-                                    Validate and save
+                                    type="button"
+                                    variant="helper"
+                                    size="lg"
+                                    className="w-full items-center justify-between py-4">
+                                    <FormControl.Label className="mb-0">
+                                        Self-hosted
+                                    </FormControl.Label>
+
+                                    <Switch decorative checked={selfhosted} />
                                 </Button>
-                            </DialogFooter>
-                        </form>
+                            </CollapsibleTrigger>
+
+                            <CollapsibleContent>
+                                <Card color="lv1">
+                                    <CardHeader>
+                                        <FormControl.Root>
+                                            <FormControl.Label htmlFor="selfhosted-url">
+                                                Gitlab URL
+                                            </FormControl.Label>
+
+                                            <FormControl.Input>
+                                                <Input
+                                                    id="selfhosted-url"
+                                                    value={selfHostedUrl}
+                                                    onChange={(e) =>
+                                                        setSelfHostedUrl(
+                                                            e.target.value,
+                                                        )
+                                                    }
+                                                    placeholder="Enter the URL of your authentication server"
+                                                />
+                                            </FormControl.Input>
+                                        </FormControl.Root>
+                                    </CardHeader>
+                                </Card>
+                            </CollapsibleContent>
+                        </Collapsible>
+
+                        <GitTokenDocs provider="gitlab" />
+
+                        <DialogFooter>
+                            <Button
+                                size="md"
+                                onClick={saveToken}
+                                variant="primary"
+                                loading={loadingSaveToken}
+                                leftIcon={<Save />}
+                                disabled={!canSubmit}>
+                                Validate and save
+                            </Button>
+                        </DialogFooter>
                     </TabsContent>
                 </Tabs>
             </DialogContent>
