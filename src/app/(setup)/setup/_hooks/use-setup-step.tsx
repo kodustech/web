@@ -3,10 +3,10 @@
 import { usePathname } from "next/navigation";
 
 import {
+    getStepById,
     getStepByPath,
     getStepIndex,
     SETUP_STEPS,
-    type SetupStepId,
 } from "../_config/setup-steps";
 
 export const useSetupStep = () => {
@@ -20,11 +20,13 @@ export const useSetupStep = () => {
     let currentStepIndex = currentStep ? getStepIndex(currentStep.id) : -1;
 
     if (isErrorPage) {
-        currentStep = SETUP_STEPS.find(
-            (step) => step.id === "choosing-repositories",
-        );
+        currentStep = getStepById("choosing-repositories");
         currentStepIndex = currentStep ? getStepIndex(currentStep.id) : -1;
     }
+
+    const previousStep =
+        currentStepIndex > 0 ? SETUP_STEPS[currentStepIndex - 1] : undefined;
+    const previousStepIndex = currentStepIndex > 0 ? currentStepIndex - 1 : -1;
 
     const getStepStatus = (
         stepIndex: number,
@@ -37,7 +39,9 @@ export const useSetupStep = () => {
 
     return {
         currentStep,
+        previousStep,
         currentStepIndex,
+        previousStepIndex,
         getStepStatus,
         totalSteps: SETUP_STEPS.length,
         isErrorPage,

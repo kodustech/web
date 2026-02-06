@@ -1,5 +1,17 @@
-import { redirect } from "next/navigation";
+"use client";
 
-export default async function Setup() {
-    redirect("/setup/choose-workspace");
+import { redirect } from "next/navigation";
+import { getCookie } from "cookies-next/client";
+
+import { SETUP_LAST_STEP } from "./_components/setup-step-tracker";
+import { SETUP_STEPS } from "./_config/setup-steps";
+
+export default function Setup() {
+    const lastStep = getCookie(SETUP_LAST_STEP) as string | undefined;
+
+    if (lastStep) {
+        redirect(lastStep);
+    }
+
+    redirect(SETUP_STEPS[0].path);
 }
