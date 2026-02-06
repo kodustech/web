@@ -8,7 +8,8 @@ jobs:
     build-and-push:
         name: Build and Push Docker Image for Production (Cloud)
         runs-on: ubuntu-latest
-        environment: production
+        environment: PRODUCTION
+        if: github.event.release.prerelease == false
         permissions:
             contents: read
 
