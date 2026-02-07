@@ -120,6 +120,22 @@ const GetStarted = () => {
                     Continue
                 </Button>
             </form>
+
+            <p className="text-text-secondary text-center text-xs">
+                By creating an account, you agree to our{" "}
+                <Link
+                    target="_blank"
+                    href="https://kodus.io/en/terms-of-use/">
+                    Terms of Service
+                </Link>{" "}
+                and{" "}
+                <Link
+                    target="_blank"
+                    href="https://kodus.io/en/privacy-policy/">
+                    Privacy Policy
+                </Link>
+                .
+            </p>
         </div>
     );
 };
@@ -371,14 +387,21 @@ const WithEmail = () => {
                     Sign up
                 </Button>
 
-                <div className="text-text-secondary mt-4 text-center text-xs">
-                    By signing up, you agree to the{" "}
+                <p className="text-text-secondary mt-4 text-center text-xs">
+                    By creating an account, you agree to our{" "}
                     <Link
-                        target="blank"
-                        href={process.env.WEB_TERMS_AND_CONDITIONS ?? ""}>
-                        Terms & Conditions.
+                        target="_blank"
+                        href="https://kodus.io/en/terms-of-use/">
+                        Terms of Service
+                    </Link>{" "}
+                    and{" "}
+                    <Link
+                        target="_blank"
+                        href="https://kodus.io/en/privacy-policy/">
+                        Privacy Policy
                     </Link>
-                </div>
+                    .
+                </p>
             </form>
         </div>
     );
